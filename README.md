@@ -15,7 +15,7 @@ Adapted from [MILK: Machine Learning Toolkit](https://github.com/luispedro/milk)
 ```julia
 using DataFrames
 using RDatasets
-using DTree
+using DecisionTree
 
 iris = data("datasets", "iris")
 features = convert(Array{Float64,2}, matrix(iris[:, 2:5]));
