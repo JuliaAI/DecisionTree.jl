@@ -59,9 +59,9 @@ function majority_vote{T<:RealStr}(labels::Vector{T})
     return top_vote
 end
 
-function sample{T<:RealStr}(features::Matrix{Float64}, labels::Vector{T}, nsamples::Integer)
+function sample{T<:RealStr}(labels::Vector{T}, features::Matrix{Float64}, nsamples::Integer)
     inds = iceil(length(labels) * rand(nsamples)) ## with replacement
-    return (features[inds,:], labels[inds])
+    return (labels[inds], features[inds,:])
 end
 
 function confusion_matrix{T<:RealStr}(actual::Vector{T}, predicted::Vector{T})
@@ -82,14 +82,14 @@ function confusion_matrix{T<:RealStr}(actual::Vector{T}, predicted::Vector{T})
     accuracy = trace(CM) / sum(CM)
     prob_chance = (sum(CM,1) * sum(CM,2))[1] / sum(CM)^2
     prob_chance = prob_chance[1]
-    kappa = (accuracy - prob_chance) / (1 - prob_chance)
+    kappa = (accuracy - prob_chance) / (1.0 - prob_chance)
     println(classes)
     println(CM)
     println("Accuracy ", accuracy)
     println("Kappa    ", kappa)
 end
 
-function nfoldCV_forest{T<:RealStr}(features::Matrix{Float64}, labels::Vector{T}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
+function nfoldCV_forest{T<:RealStr}(labels::Vector{T}, features::Matrix{Float64}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
     if nfolds < 2 || ntrees < 1
         return
     end
@@ -105,10 +105,10 @@ function nfoldCV_forest{T<:RealStr}(features::Matrix{Float64}, labels::Vector{T}
         train_features = features[inds[train_inds],:]
         train_labels = labels[inds[train_inds]]
         if ntrees == 1
-            model = build_tree(train_features, train_labels, nsubfeatures)
+            model = build_tree(train_labels, train_features, nsubfeatures)
             predictions = apply_tree(model, test_features)
         else
-            model = build_forest(train_features, train_labels, nsubfeatures, ntrees)
+            model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
             predictions = apply_forest(model, test_features)
         end
         println()
@@ -117,7 +117,7 @@ function nfoldCV_forest{T<:RealStr}(features::Matrix{Float64}, labels::Vector{T}
     end
 end
 
-function nfoldCV_stumps{T<:RealStr}(features::Matrix{Float64}, labels::Vector{T}, niterations::Integer, nfolds::Integer)
+function nfoldCV_stumps{T<:RealStr}(labels::Vector{T}, features::Matrix{Float64}, niterations::Integer, nfolds::Integer)
     if nfolds < 2 || niterations < 1
         return
     end
@@ -132,7 +132,7 @@ function nfoldCV_stumps{T<:RealStr}(features::Matrix{Float64}, labels::Vector{T}
         test_labels = labels[inds[test_inds]]
         train_features = features[inds[train_inds],:]
         train_labels = labels[inds[train_inds]]
-        model, coeffs = build_adaboost_stumps(train_features, train_labels, niterations)
+        model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
         predictions = apply_adaboost_stumps(model, coeffs, test_features)
         println()
         println("Fold ", i)
