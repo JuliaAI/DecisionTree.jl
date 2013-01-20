@@ -27,13 +27,13 @@ function _info_gain{T<:RealStr}(labels0::Vector{T}, labels1::Vector{T})
     return H
 end
 
-function _neg_z1_loss{T<:RealStr}(labels::Vector{T}, weights::Vector{Float64})
+function _neg_z1_loss{T<:RealStr, U<:Real}(labels::Vector{T}, weights::Vector{U})
     missmatches = labels .!= majority_vote(labels)
     loss = sum(weights[missmatches])
     return -loss
 end
 
-function _weighted_error{T<:RealStr}(actual::Vector{T}, predicted::Vector{T}, weights::Vector{Float64})
+function _weighted_error{T<:RealStr, U<:Real}(actual::Vector{T}, predicted::Vector{T}, weights::Vector{U})
     mismatches = actual .!= predicted
     err = sum(weights[mismatches]) / sum(weights)
     return err
@@ -59,12 +59,12 @@ function majority_vote{T<:RealStr}(labels::Vector{T})
     return top_vote
 end
 
-function sample{T<:RealStr}(labels::Vector{T}, features::Matrix{Float64}, nsamples::Integer)
+function sample{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsamples::Integer)
     inds = iceil(length(labels) * rand(nsamples)) ## with replacement
     return (labels[inds], features[inds,:])
 end
 
-function confusion_matrix{T<:RealStr}(actual::Vector{T}, predicted::Vector{T})
+function confusion_matrix{T<:RealStr, U<:RealStr}(actual::Vector{T}, predicted::Vector{U})
     @assert length(actual) == length(predicted)
     N = length(actual)
     _actual = zeros(Int,N)
@@ -89,7 +89,7 @@ function confusion_matrix{T<:RealStr}(actual::Vector{T}, predicted::Vector{T})
     println("Kappa    ", kappa)
 end
 
-function nfoldCV_forest{T<:RealStr}(labels::Vector{T}, features::Matrix{Float64}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
+function nfoldCV_forest{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
     if nfolds < 2 || ntrees < 1
         return
     end
@@ -117,7 +117,7 @@ function nfoldCV_forest{T<:RealStr}(labels::Vector{T}, features::Matrix{Float64}
     end
 end
 
-function nfoldCV_stumps{T<:RealStr}(labels::Vector{T}, features::Matrix{Float64}, niterations::Integer, nfolds::Integer)
+function nfoldCV_stumps{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}, niterations::Integer, nfolds::Integer)
     if nfolds < 2 || niterations < 1
         return
     end

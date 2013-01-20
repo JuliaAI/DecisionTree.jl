@@ -1,10 +1,10 @@
 DecisionTree.jl is licensed under the MIT License:
 
 > Code is originally adapted from MILK: Machine Learning Toolkit
-> Copyright (C) 2008-2011, Luis Pedro Coelho <luis@luispedro.org>
+> Copyright (c) 2008-2011, Luis Pedro Coelho <luis@luispedro.org>
 > License: MIT. See COPYING.MIT file in the milk distribution
 >
-> Copyright (c) 2012: Ben Sadeghi
+> Copyright (c) 2012-2013, Ben Sadeghi
 >
 > Permission is hereby granted, free of charge, to any person obtaining
 > a copy of this software and associated documentation files (the

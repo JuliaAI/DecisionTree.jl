@@ -2,12 +2,12 @@ using RDatasets
 using DecisionTree
 
 iris = data("datasets", "iris")
-features = convert(Array{Float64,2}, matrix(iris[:, 2:5]));
-labels = convert(Array{UTF8String,1}, iris[:, "Species"]);
+features = matrix(iris[:, 2:5]);
+labels = vector(iris[:, "Species"]);
 
 # train full-tree classifier
 model = build_tree(labels, features);
-# prune tree: merge leaves having > 90% combined purity
+# prune tree: merge leaves having > 90% combined purity (default: 100%)
 model = prune_tree(model, 0.9);
 # apply learned model
 apply_tree(model, [5.9,3.0,5.1,1.9])
