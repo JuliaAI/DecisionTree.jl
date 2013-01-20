@@ -86,10 +86,9 @@ function build_tree{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U},
                 build_tree(labels[split],features[split,:], nsubfeatures),
                 build_tree(labels[!split],features[!split,:], nsubfeatures))
 end
-build_tree{S<:RealStr, T<:Real}(labels::Vector{S}, features::Matrix{T}) = build_tree(labels, features, 0)
+build_tree{T<:RealStr, S<:Real}(labels::Vector{T}, features::Matrix{S}) = build_tree(labels, features, 0)
 
 function prune_tree{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
-    purity_thresh -= eps()
     function _prune_run{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
         N = length(tree)
         if N == 1        ## a Leaf
@@ -97,9 +96,9 @@ function prune_tree{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
         elseif N == 2    ## a stump
             all_labels = [tree.left.values, tree.right.values]
             majority = majority_vote(all_labels)
-            mismatches = find(all_labels .!= majority)
-            purity = 1.0 - length(mismatches) / length(all_labels)
-            if purity > purity_thresh
+            matches = find(all_labels .== majority)
+            purity = length(matches) / length(all_labels)
+            if purity >= purity_thresh
                 return Leaf(majority, all_labels)
             else
                 return tree
