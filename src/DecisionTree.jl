@@ -86,7 +86,7 @@ function build_tree{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U},
                 build_tree(labels[split],features[split,:], nsubfeatures),
                 build_tree(labels[!split],features[!split,:], nsubfeatures))
 end
-build_tree{T<:RealStr, S<:Real}(labels::Vector{T}, features::Matrix{S}) = build_tree(labels, features, 0)
+build_tree{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}) = build_tree(labels, features, 0)
 
 function prune_tree{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
     function _prune_run{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)

@@ -3,7 +3,7 @@ DecisionTree.jl
 
 Decision Tree Classifier in Julia
 
-Implementation of the greedy ID3 algorithm, with
+Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm), with
 * post pruning (pessimistic pruning)
 * parallelized bagging (random forests)
 * adaptive boosting (decision stumps)
