@@ -2,19 +2,18 @@ module DecisionTree
 
 import Base.length, Base.convert, Base.promote_rule
 
-export Leaf, Node, RealStr,
+export Leaf, Node,
        build_stump, build_tree, prune_tree, apply_tree,
        build_forest, apply_forest,
        build_adaboost_stumps, apply_adaboost_stumps,
        sample, majority_vote, confusion_matrix,
        nfoldCV_forest, nfoldCV_stumps
 
-typealias RealStr Union(Real,String)
 include("measures.jl")
 
 type Leaf
-    majority::RealStr
-    values::Array
+    majority::Any
+    values::Vector
 end
 
 type Node
@@ -34,7 +33,7 @@ function length(tree::Union(Leaf,Node))
     return length(s) - 1
 end
 
-function _split{T<:RealStr, U<:Real, V<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, weights::Vector{V})
+function _split{T<:Real, U<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, weights::Vector{U})
     nf = size(features,2)
     best = None
     best_val = -Inf
@@ -62,7 +61,7 @@ function _split{T<:RealStr, U<:Real, V<:Real}(labels::Vector{T}, features::Matri
     return best
 end
 
-function build_stump{T<:RealStr, U<:Real, V<:Real}(labels::Vector{T}, features::Matrix{U}, weights::Vector{V})
+function build_stump{T<:Real, U<:Real}(labels::Vector, features::Matrix{T}, weights::Vector{U})
     S = _split(labels, features, 0, weights)
     if S == None
         return Leaf(majority_vote(labels), labels)
@@ -73,9 +72,9 @@ function build_stump{T<:RealStr, U<:Real, V<:Real}(labels::Vector{T}, features::
                 Leaf(majority_vote(labels[split]), labels[split]),
                 Leaf(majority_vote(labels[!split]), labels[!split]))
 end
-build_stump{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}) = build_stump(labels, features, [0])
+build_stump{T<:Real}(labels::Vector, features::Matrix{T}) = build_stump(labels, features, [0])
 
-function build_tree{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer)
+function build_tree{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer)
     S = _split(labels, features, nsubfeatures, [0])
     if S == None
         return Leaf(majority_vote(labels), labels)
@@ -86,7 +85,7 @@ function build_tree{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U},
                 build_tree(labels[split],features[split,:], nsubfeatures),
                 build_tree(labels[!split],features[!split,:], nsubfeatures))
 end
-build_tree{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}) = build_tree(labels, features, 0)
+build_tree{T<:Real}(labels::Vector, features::Matrix{T}) = build_tree(labels, features, 0)
 
 function prune_tree{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
     function _prune_run{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
@@ -130,14 +129,16 @@ end
 
 function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Matrix{U})
     N = size(features,1)
-    predictions = zeros(Any,N)
-    for i in 1:N
+    label = apply_tree(tree, squeeze(features[1,:]))
+    predictions = zeros(typeof(label),N)
+    predictions[1] = label
+    for i in 2:N
         predictions[i] = apply_tree(tree, squeeze(features[i,:]))
     end
-    return convert(Array{UTF8String,1}, predictions)
+    return predictions
 end
 
-function build_forest{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer)
+function build_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, ntrees::Integer)
     N = int(0.7 * length(labels))
     forest = @parallel (vcat) for i in 1:ntrees
         _labels, _features = sample(labels, features, N)
@@ -153,19 +154,21 @@ function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features:
     for i in 1:ntrees
         votes[i] = apply_tree(forest[i],features)
     end
-    return majority_vote(convert(Array{UTF8String,1}, votes))
+    return majority_vote(votes)
 end
 
 function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features::Matrix{U})
     N = size(features,1)
-    predictions = zeros(Any,N)
-    for i in 1:N
+    label = apply_forest(forest, squeeze(features[1,:]))
+    predictions = zeros(typeof(label),N)
+    predictions[1] = label
+    for i in 2:N
         predictions[i] = apply_forest(forest, squeeze(features[i,:]))
     end
-    return convert(Array{UTF8String,1}, predictions)
+    return predictions
 end
 
-function build_adaboost_stumps{T<:RealStr, U<:Real}(labels::Vector{T}, features::Matrix{U}, niterations::Integer)
+function build_adaboost_stumps{T<:Real}(labels::Vector, features::Matrix{T}, niterations::Integer)
     N = length(labels)
     weights = ones(N) / N
     stumps = []
@@ -211,11 +214,13 @@ end
 
 function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Vector{T}, coeffs::Vector{U}, features::Matrix{V})
     N = size(features,1)
-    predictions = zeros(Any,N)
-    for i in 1:N
+    label = apply_adaboost_stumps(stumps, coeffs, squeeze(features[1,:]))
+    predictions = zeros(typeof(label),N)
+    predictions[1] = label
+    for i in 2:N
         predictions[i] = apply_adaboost_stumps(stumps, coeffs, squeeze(features[i,:]))
     end
-    return convert(Array{UTF8String,1}, predictions)
+    return predictions
 end
 
 end # module
