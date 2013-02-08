@@ -50,7 +50,7 @@ function majority_vote(labels::Vector)
     end
     top_vote = None
     top_count = -Inf
-    for i in pairs(counts)
+    for i in collect(counts)
         if i[2] > top_count
             top_vote = i[1]
             top_count = i[2]

@@ -81,9 +81,27 @@ function build_tree{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::
     end
     id, thresh = S
     split = features[:,id] .< thresh
-    return Node(id, thresh,
+    left = labels[split]
+    right = labels[!split]
+    purity_left = mean(left .== left[1])
+    purity_right = mean(right .== right[1])
+    if purity_right == 1 && purity_left == 1
+        return Node(id, thresh,
+                    Leaf(left[1], left),
+                    Leaf(right[1], right))
+    elseif purity_left == 1
+        return Node(id, thresh,
+                    Leaf(left[1], left),
+                    build_tree(labels[!split],features[!split,:], nsubfeatures))
+    elseif purity_right == 1
+        return Node(id, thresh,
+                    build_tree(labels[split],features[split,:], nsubfeatures),
+                    Leaf(right[1], right))
+    else
+        return Node(id, thresh,
                 build_tree(labels[split],features[split,:], nsubfeatures),
                 build_tree(labels[!split],features[!split,:], nsubfeatures))
+    end
 end
 build_tree{T<:Real}(labels::Vector, features::Matrix{T}) = build_tree(labels, features, 0)
 
@@ -129,11 +147,11 @@ end
 
 function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Matrix{U})
     N = size(features,1)
-    label = apply_tree(tree, squeeze(features[1,:]))
+    label = apply_tree(tree, squeeze(features[1,:],1))
     predictions = zeros(typeof(label),N)
     predictions[1] = label
     for i in 2:N
-        predictions[i] = apply_tree(tree, squeeze(features[i,:]))
+        predictions[i] = apply_tree(tree, squeeze(features[i,:],1))
     end
     return predictions
 end
@@ -142,8 +160,7 @@ function build_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures
     N = int(0.7 * length(labels))
     forest = @parallel (vcat) for i in 1:ntrees
         _labels, _features = sample(labels, features, N)
-        tree = build_tree(_labels, _features, nsubfeatures)
-        prune_tree(tree)
+        build_tree(_labels, _features, nsubfeatures)
     end
     return forest
 end
@@ -159,11 +176,11 @@ end
 
 function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features::Matrix{U})
     N = size(features,1)
-    label = apply_forest(forest, squeeze(features[1,:]))
+    label = apply_forest(forest, squeeze(features[1,:],1))
     predictions = zeros(typeof(label),N)
     predictions[1] = label
     for i in 2:N
-        predictions[i] = apply_forest(forest, squeeze(features[i,:]))
+        predictions[i] = apply_forest(forest, squeeze(features[i,:],1))
     end
     return predictions
 end
@@ -203,7 +220,7 @@ function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Ve
     end
     top_prediction = None
     top_count = -Inf
-    for i in pairs(counts)
+    for i in collect(counts)
         if i[2] > top_count
             top_prediction = i[1]
             top_count = i[2]
@@ -214,11 +231,11 @@ end
 
 function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Vector{T}, coeffs::Vector{U}, features::Matrix{V})
     N = size(features,1)
-    label = apply_adaboost_stumps(stumps, coeffs, squeeze(features[1,:]))
+    label = apply_adaboost_stumps(stumps, coeffs, squeeze(features[1,:],1))
     predictions = zeros(typeof(label),N)
     predictions[1] = label
     for i in 2:N
-        predictions[i] = apply_adaboost_stumps(stumps, coeffs, squeeze(features[i,:]))
+        predictions[i] = apply_adaboost_stumps(stumps, coeffs, squeeze(features[i,:],1))
     end
     return predictions
 end
