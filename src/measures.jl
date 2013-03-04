@@ -2,10 +2,7 @@ function _set_entropy(labels::Vector)
     N = length(labels)
     counts = Dict()
     for i in labels
-        if !has(counts,i)
-            counts[i] = 0
-        end
-        counts[i] += 1
+        counts[i] = get(counts, i, 0) + 1
     end
     entropy = 0
     for i in counts
@@ -42,11 +39,7 @@ end
 function majority_vote(labels::Vector)
     counts = Dict()
     for i in labels
-        if has(counts,i)
-            counts[i] += 1
-        else
-            counts[i] = 0
-        end
+        counts[i] = get(counts, i, 0) + 1
     end
     top_vote = None
     top_count = -Inf
@@ -59,7 +52,7 @@ function majority_vote(labels::Vector)
     return top_vote
 end
 
-function sample{T<:Real}(labels::Vector, features::Matrix{T}, nsamples::Integer)
+function _sample{T<:Real}(labels::Vector, features::Matrix{T}, nsamples::Integer)
     inds = iceil(length(labels) * rand(nsamples)) ## with replacement
     return (labels[inds], features[inds,:])
 end
@@ -87,6 +80,32 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     println(CM)
     println("Accuracy ", accuracy)
     println("Kappa    ", kappa)
+end
+
+function nfoldCV_tree{T<:Real}(labels::Vector, features::Matrix{T}, pruning_purity::Real, nfolds::Integer)
+    if nfolds < 2
+        return
+    end
+    N = length(labels)
+    ntest = ifloor(N / nfolds)
+    inds = randperm(N)
+    for i in 1:nfolds
+        test_inds = falses(N)
+        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
+        train_inds = !test_inds
+        test_features = features[inds[test_inds],:]
+        test_labels = labels[inds[test_inds]]
+        train_features = features[inds[train_inds],:]
+        train_labels = labels[inds[train_inds]]
+        model = build_tree(train_labels, train_features, 0)
+        if pruning_purity < 1.0
+            model = prune_tree(model, pruning_purity)
+        end
+        predictions = apply_tree(model, test_features)
+        println()
+        println("Fold ", i)
+        confusion_matrix(test_labels, predictions)
+    end
 end
 
 function nfoldCV_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)

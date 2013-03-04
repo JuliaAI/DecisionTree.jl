@@ -11,6 +11,10 @@ model = build_tree(labels, features);
 model = prune_tree(model, 0.9);
 # apply learned model
 apply_tree(model, [5.9,3.0,5.1,1.9])
+# pretty print of the tree
+print_tree(model)
+# run n-fold cross validation for pruned tree, using 90% purity threshold purning, and 3 CV folds
+nfoldCV_tree(labels, features, 0.9, 3)
 
 # train random forest classifier, using 2 random features and 10 trees
 model = build_forest(labels, features, 2, 10);

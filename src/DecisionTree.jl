@@ -2,12 +2,11 @@ module DecisionTree
 
 import Base.length, Base.convert, Base.promote_rule
 
-export Leaf, Node,
-       build_stump, build_tree, prune_tree, apply_tree,
-       build_forest, apply_forest,
-       build_adaboost_stumps, apply_adaboost_stumps,
-       sample, majority_vote, confusion_matrix,
-       nfoldCV_forest, nfoldCV_stumps
+export Leaf, Node, print_tree,
+       build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
+       build_forest, apply_forest, nfoldCV_forest,
+       build_adaboost_stumps, apply_adaboost_stumps, nfoldCV_stumps,
+       majority_vote, confusion_matrix
 
 include("measures.jl")
 
@@ -23,7 +22,7 @@ type Node
     right::Union(Leaf,Node)
 end
 
-convert(::Type{Node}, x::Leaf) = Node(1, Inf, x, Leaf(0,[0]))
+convert(::Type{Node}, x::Leaf) = Node(1, Inf, x, Leaf(Nothing,[Nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
@@ -32,6 +31,19 @@ function length(tree::Union(Leaf,Node))
     s = split(s, "Leaf")
     return length(s) - 1
 end
+
+function print_tree(tree::Union(Leaf,Node), indent::Integer)
+    if typeof(tree) == Leaf
+        println(tree.majority)
+    else
+        println("Feature $(tree.featid), Threshold $(tree.featval)")
+        print("    " ^ indent * "L-> ")
+        print_tree(tree.left, indent + 1)
+        print("    " ^ indent * "R-> ")
+        print_tree(tree.right, indent + 1)
+    end
+end
+print_tree(tree::Union(Leaf,Node)) = print_tree(tree, 0)
 
 function _split{T<:Real, U<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, weights::Vector{U})
     nf = size(features,2)
@@ -159,7 +171,7 @@ end
 function build_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, ntrees::Integer)
     N = int(0.7 * length(labels))
     forest = @parallel (vcat) for i in 1:ntrees
-        _labels, _features = sample(labels, features, N)
+        _labels, _features = _sample(labels, features, N)
         build_tree(_labels, _features, nsubfeatures)
     end
     return forest
@@ -212,11 +224,7 @@ function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Ve
     counts = Dict()
     for i in 1:nstumps
         prediction = apply_tree(stumps[i], features)
-        if has(counts, prediction)
-            counts[prediction] += coeffs[i]
-        else
-            counts[prediction] = coeffs[i]
-        end
+        counts[prediction] = get(counts, prediction, 0.0) + coeffs[i]
     end
     top_prediction = None
     top_count = -Inf
