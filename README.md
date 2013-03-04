@@ -12,7 +12,7 @@ Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm
 Adapted from [MILK: Machine Learning Toolkit](https://github.com/luispedro/milk)
 
 # Installation
-You can install DecisionTree.jl using Julia's package manager:
+You can install DecisionTree.jl using Julia's package manager
 ```julia
 Pkg.add("DecisionTree")
 ```
@@ -51,7 +51,7 @@ apply_forest(model, [5.9,3.0,5.1,1.9])
 # run n-fold cross validation for forests, using 2 random features, 10 trees and 3 folds
 nfoldCV_forest(labels, features, 2, 10, 3)
 ```
-Adaptive-boosted decision stumps
+Adaptive-boosted decision stumps classifier
 ```julia
 # train adaptive-boosted stumps, using 7 iterations
 model, coeffs = build_adaboost_stumps(labels, features, 7);

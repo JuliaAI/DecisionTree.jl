@@ -8,14 +8,11 @@ end
 function show(io::IO, cm::ConfusionMatrix)
     print(io, "Classes:  ")
     show(io, cm.classes)
-    print(io, "\n")
-    print(io, "Matrix:   ")
+    print(io, "\nMatrix:   ")
     show(io, cm.matrix)
-    print(io, "\n")
-    print(io, "Accuracy: ")
+    print(io, "\nAccuracy: ")
     show(io, cm.accuracy)
-    print(io, "\n")
-    print(io, "Kappa:    ")
+    print(io, "\nKappa:    ")
     show(io, cm.kappa)
 end
 
