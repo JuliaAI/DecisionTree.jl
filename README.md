@@ -11,30 +11,49 @@ Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm
 
 Adapted from [MILK: Machine Learning Toolkit](https://github.com/luispedro/milk)
 
+# Installation
+You can install DecisionTree.jl using Julia's package manager:
+```julia
+Pkg.add("DecisionTree")
+```
+
 # Usage Example
+Load RDatasets and DecisionTree packages
 ```julia
 using RDatasets
 using DecisionTree
-
+```
+Separate Iris data features and labels
+```julia
 iris = data("datasets", "iris")
 features = matrix(iris[:, 2:5]);
 labels = vector(iris[:, "Species"]);
-
+```
+Pruned-tree classifier
+```julia
 # train full-tree classifier
 model = build_tree(labels, features);
-# prune tree: merge leaves having >= 90% combined purity (default 100%)
+# prune tree: merge leaves having >= 90% combined purity (default: 100%)
 model = prune_tree(model, 0.9);
+# pretty print of the tree
+print_tree(model)
 # apply learned model
 apply_tree(model, [5.9,3.0,5.1,1.9])
-
+# run n-fold cross validation for pruned tree, using 90% purity threshold purning, and 3 CV folds
+nfoldCV_tree(labels, features, 0.9, 3)
+```
+Random forest classifier
+```julia
 # train random forest classifier, using 2 random features and 10 trees
 model = build_forest(labels, features, 2, 10);
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
 # run n-fold cross validation for forests, using 2 random features, 10 trees and 3 folds
 nfoldCV_forest(labels, features, 2, 10, 3)
-
-# train adaptive-boosted decision stumps, using 7 iterations
+```
+Adaptive-boosted decision stumps
+```julia
+# train adaptive-boosted stumps, using 7 iterations
 model, coeffs = build_adaboost_stumps(labels, features, 7);
 # apply learned model
 apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
@@ -42,6 +61,3 @@ apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
 nfoldCV_stumps(labels, features, 7, 3)
 ```
 
-# Coming Soon
-
-* Support for missing values, DataFrames

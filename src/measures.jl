@@ -1,3 +1,24 @@
+type ConfusionMatrix
+    classes::Vector
+    matrix::Matrix{Int}
+    accuracy::FloatingPoint
+    kappa::Any
+end
+
+function show(io::IO, cm::ConfusionMatrix)
+    print(io, "Classes:  ")
+    show(io, cm.classes)
+    print(io, "\n")
+    print(io, "Matrix:   ")
+    show(io, cm.matrix)
+    print(io, "\n")
+    print(io, "Accuracy: ")
+    show(io, cm.accuracy)
+    print(io, "\n")
+    print(io, "Kappa:    ")
+    show(io, cm.kappa)
+end
+
 function _set_entropy(labels::Vector)
     N = length(labels)
     counts = Dict()
@@ -36,6 +57,11 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
+function _sample{T<:Real}(labels::Vector, features::Matrix{T}, nsamples::Integer)
+    inds = rand(1:length(labels), nsamples) ## with replacement
+    return (labels[inds], features[inds,:])
+end
+
 function majority_vote(labels::Vector)
     counts = Dict()
     for i in labels
@@ -50,11 +76,6 @@ function majority_vote(labels::Vector)
         end
     end
     return top_vote
-end
-
-function _sample{T<:Real}(labels::Vector, features::Matrix{T}, nsamples::Integer)
-    inds = iceil(length(labels) * rand(nsamples)) ## with replacement
-    return (labels[inds], features[inds,:])
 end
 
 function confusion_matrix(actual::Vector, predicted::Vector)
@@ -76,10 +97,7 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     prob_chance = (sum(CM,1) * sum(CM,2))[1] / sum(CM)^2
     prob_chance = prob_chance[1]
     kappa = (accuracy - prob_chance) / (1.0 - prob_chance)
-    println(classes)
-    println(CM)
-    println("Accuracy ", accuracy)
-    println("Kappa    ", kappa)
+    return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
 function nfoldCV_tree{T<:Real}(labels::Vector, features::Matrix{T}, pruning_purity::Real, nfolds::Integer)
@@ -89,6 +107,7 @@ function nfoldCV_tree{T<:Real}(labels::Vector, features::Matrix{T}, pruning_puri
     N = length(labels)
     ntest = ifloor(N / nfolds)
     inds = randperm(N)
+    accuracy = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
         test_inds[(i - 1) * ntest + 1 : i * ntest] = true
@@ -102,10 +121,12 @@ function nfoldCV_tree{T<:Real}(labels::Vector, features::Matrix{T}, pruning_puri
             model = prune_tree(model, pruning_purity)
         end
         predictions = apply_tree(model, test_features)
-        println()
-        println("Fold ", i)
-        confusion_matrix(test_labels, predictions)
+        cm = confusion_matrix(test_labels, predictions)
+        accuracy[i] = cm.accuracy
+        println("\nFold ", i)
+        println(cm)
     end
+    println("\nMean Accuracy: ", mean(accuracy))
 end
 
 function nfoldCV_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
@@ -115,6 +136,7 @@ function nfoldCV_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatur
     N = length(labels)
     ntest = ifloor(N / nfolds)
     inds = randperm(N)
+    accuracy = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
         test_inds[(i - 1) * ntest + 1 : i * ntest] = true
@@ -130,10 +152,12 @@ function nfoldCV_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatur
             model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
             predictions = apply_forest(model, test_features)
         end
-        println()
-        println("Fold ", i)
-        confusion_matrix(test_labels, predictions)
+        cm = confusion_matrix(test_labels, predictions)
+        accuracy[i] = cm.accuracy
+        println("\nFold ", i)
+        println(cm)
     end
+    println("\nMean Accuracy: ", mean(accuracy))
 end
 
 function nfoldCV_stumps{T<:Real}(labels::Vector, features::Matrix{T}, niterations::Integer, nfolds::Integer)
@@ -143,6 +167,7 @@ function nfoldCV_stumps{T<:Real}(labels::Vector, features::Matrix{T}, niteration
     N = length(labels)
     ntest = ifloor(N / nfolds)
     inds = randperm(N)
+    accuracy = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
         test_inds[(i - 1) * ntest + 1 : i * ntest] = true
@@ -153,9 +178,11 @@ function nfoldCV_stumps{T<:Real}(labels::Vector, features::Matrix{T}, niteration
         train_labels = labels[inds[train_inds]]
         model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
         predictions = apply_adaboost_stumps(model, coeffs, test_features)
-        println()
-        println("Fold ", i)
-        confusion_matrix(test_labels, predictions)
+        cm = confusion_matrix(test_labels, predictions)
+        accuracy[i] = cm.accuracy
+        println("\nFold ", i)
+        println(cm)
     end
+    println("\nMean Accuracy: ", mean(accuracy))
 end
 

@@ -1,12 +1,12 @@
 module DecisionTree
 
-import Base.length, Base.convert, Base.promote_rule
+import Base.length, Base.convert, Base.promote_rule, Base.show
 
 export Leaf, Node, print_tree,
        build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
        build_forest, apply_forest, nfoldCV_forest,
        build_adaboost_stumps, apply_adaboost_stumps, nfoldCV_stumps,
-       majority_vote, confusion_matrix
+       majority_vote, ConfusionMatrix, confusion_matrix
 
 include("measures.jl")
 
