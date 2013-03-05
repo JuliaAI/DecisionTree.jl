@@ -34,7 +34,9 @@ end
 
 function print_tree(tree::Union(Leaf,Node), indent::Integer)
     if typeof(tree) == Leaf
-        println(tree.majority)
+        matches = find(tree.values .== tree.majority)
+        ratio = string(length(matches)) * "/" * string(length(tree.values))
+        println("$(tree.majority) $(ratio)")
     else
         println("Feature $(tree.featid), Threshold $(tree.featval)")
         print("    " ^ indent * "L-> ")
