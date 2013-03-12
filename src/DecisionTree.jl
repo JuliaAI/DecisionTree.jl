@@ -1,6 +1,6 @@
 module DecisionTree
 
-import Base.length, Base.convert, Base.promote_rule, Base.show
+import Base.length, Base.convert, Base.promote_rule, Base.show, Base.zeros
 
 export Leaf, Node, print_tree,
        build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
@@ -22,6 +22,8 @@ type Node
     right::Union(Leaf,Node)
 end
 
+zeros{T<:ByteString}(::Type{T},args...) = fill("",args...)
+
 convert(::Type{Node}, x::Leaf) = Node(1, Inf, x, Leaf(Nothing,[Nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
@@ -36,7 +38,7 @@ function print_tree(tree::Union(Leaf,Node), indent::Integer)
     if typeof(tree) == Leaf
         matches = find(tree.values .== tree.majority)
         ratio = string(length(matches)) * "/" * string(length(tree.values))
-        println("$(tree.majority) $(ratio)")
+        println("$(tree.majority) : $(ratio)")
     else
         println("Feature $(tree.featid), Threshold $(tree.featval)")
         print("    " ^ indent * "L-> ")
