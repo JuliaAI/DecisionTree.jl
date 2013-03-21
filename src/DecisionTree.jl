@@ -1,6 +1,6 @@
 module DecisionTree
 
-import Base.length, Base.convert, Base.promote_rule, Base.show, Base.zeros
+import Base.length, Base.convert, Base.promote_rule, Base.show
 
 export Leaf, Node, print_tree,
        build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
@@ -21,8 +21,6 @@ type Node
     left::Union(Leaf,Node)
     right::Union(Leaf,Node)
 end
-
-zeros{T<:ByteString}(::Type{T},args...) = fill("",args...)
 
 convert(::Type{Node}, x::Leaf) = Node(1, Inf, x, Leaf(Nothing,[Nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
@@ -164,7 +162,7 @@ end
 function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Matrix{U})
     N = size(features,1)
     label = apply_tree(tree, squeeze(features[1,:],1))
-    predictions = zeros(typeof(label),N)
+    predictions = Array(typeof(label),N)
     predictions[1] = label
     for i in 2:N
         predictions[i] = apply_tree(tree, squeeze(features[i,:],1))
@@ -183,7 +181,7 @@ end
 
 function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features::Vector{U})
     ntrees = length(forest)
-    votes = zeros(Any,ntrees)
+    votes = Array(Any,ntrees)
     for i in 1:ntrees
         votes[i] = apply_tree(forest[i],features)
     end
@@ -193,7 +191,7 @@ end
 function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features::Matrix{U})
     N = size(features,1)
     label = apply_forest(forest, squeeze(features[1,:],1))
-    predictions = zeros(typeof(label),N)
+    predictions = Array(typeof(label),N)
     predictions[1] = label
     for i in 2:N
         predictions[i] = apply_forest(forest, squeeze(features[i,:],1))
@@ -244,7 +242,7 @@ end
 function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Vector{T}, coeffs::Vector{U}, features::Matrix{V})
     N = size(features,1)
     label = apply_adaboost_stumps(stumps, coeffs, squeeze(features[1,:],1))
-    predictions = zeros(typeof(label),N)
+    predictions = Array(typeof(label),N)
     predictions[1] = label
     for i in 2:N
         predictions[i] = apply_adaboost_stumps(stumps, coeffs, squeeze(features[i,:],1))
