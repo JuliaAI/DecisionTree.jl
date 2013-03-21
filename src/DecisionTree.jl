@@ -208,7 +208,7 @@ function build_adaboost_stumps{T<:Real}(labels::Vector, features::Matrix{T}, nit
         new_stump = build_stump(labels, features, weights)
         predictions = apply_tree(new_stump, features)
         err = _weighted_error(labels, predictions, weights)
-        new_coeff = 0.5 * log((1.0 - err) / err)
+        new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))
         mismatches = labels .!= predictions
         weights[mismatches] *= exp(new_coeff)
         weights[!mismatches] *= exp(-new_coeff)
