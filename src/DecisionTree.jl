@@ -17,12 +17,12 @@ end
 
 type Node
     featid::Integer
-    featval::Real
+    featval::Any
     left::Union(Leaf,Node)
     right::Union(Leaf,Node)
 end
 
-convert(::Type{Node}, x::Leaf) = Node(1, Inf, x, Leaf(nothing,[nothing]))
+convert(::Type{Node}, x::Leaf) = Node(1, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
@@ -46,7 +46,8 @@ function print_tree(tree::Union(Leaf,Node), indent::Integer)
 end
 print_tree(tree::Union(Leaf,Node)) = print_tree(tree, 0)
 
-function _split{T<:Real, U<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, weights::Vector{U})
+function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights::Vector)
+
     nf = size(features,2)
     best = None
     best_val = -Inf
@@ -74,7 +75,7 @@ function _split{T<:Real, U<:Real}(labels::Vector, features::Matrix{T}, nsubfeatu
     return best
 end
 
-function build_stump{T<:Real, U<:Real}(labels::Vector, features::Matrix{T}, weights::Vector{U})
+function build_stump(labels::Vector, features::Matrix, weights)
     S = _split(labels, features, 0, weights)
     if S == None
         return Leaf(majority_vote(labels), labels)
@@ -85,9 +86,9 @@ function build_stump{T<:Real, U<:Real}(labels::Vector, features::Matrix{T}, weig
                 Leaf(majority_vote(labels[split]), labels[split]),
                 Leaf(majority_vote(labels[!split]), labels[!split]))
 end
-build_stump{T<:Real}(labels::Vector, features::Matrix{T}) = build_stump(labels, features, [0])
+build_stump(labels::Vector, features::Matrix) = build_stump(labels, features, [0])
 
-function build_tree{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer)
+function build_tree(labels::Vector, features::Matrix, nsubfeatures::Integer)
     S = _split(labels, features, nsubfeatures, [0])
     if S == None
         return Leaf(majority_vote(labels), labels)
@@ -116,10 +117,10 @@ function build_tree{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::
                     build_tree(labels_right,features[!split,:], nsubfeatures))
     end
 end
-build_tree{T<:Real}(labels::Vector, features::Matrix{T}) = build_tree(labels, features, 0)
+build_tree(labels::Vector, features::Matrix) = build_tree(labels, features, 0)
 
-function prune_tree{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
-    function _prune_run{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
+function prune_tree(tree::Union(Leaf,Node), purity_thresh::Real)
+    function _prune_run(tree::Union(Leaf,Node), purity_thresh::Real)
         N = length(tree)
         if N == 1        ## a Leaf
             return tree
@@ -146,11 +147,13 @@ function prune_tree{T<:Union(Leaf,Node)}(tree::T, purity_thresh::Real)
     end
     return pruned
 end
-prune_tree{T<:Union(Leaf,Node)}(tree::T) = prune_tree(tree, 1.0) ## defaults to 100% purity pruning
+prune_tree(tree::Union(Leaf,Node)) = prune_tree(tree, 1.0) ## defaults to 100% purity pruning
 
-function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Vector{U})
+function apply_tree(tree::Union(Leaf,Node), features::Vector)
     if typeof(tree) == Leaf
         return tree.majority
+    elseif tree.featval == nothing
+        return apply_tree(tree.left, features)
     elseif features[tree.featid] < tree.featval
         return apply_tree(tree.left, features)
     else
@@ -158,7 +161,7 @@ function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Vector{U})
     end
 end
 
-function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Matrix{U})
+function apply_tree(tree::Union(Leaf,Node), features::Matrix)
     N = size(features,1)
     predictions = Array(Any,N)
     for i in 1:N
@@ -167,7 +170,7 @@ function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Matrix{U})
     return predictions
 end
 
-function build_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, ntrees::Integer)
+function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer)
     Nlabels = length(labels)
     Nsamples = int(0.7 * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
@@ -177,7 +180,7 @@ function build_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures
     return forest
 end
 
-function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features::Vector{U})
+function apply_forest{T<:Union(Leaf,Node)}(forest::Vector{T}, features::Vector)
     ntrees = length(forest)
     votes = Array(Any,ntrees)
     for i in 1:ntrees
@@ -186,7 +189,7 @@ function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features:
     return majority_vote(votes)
 end
 
-function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features::Matrix{U})
+function apply_forest{T<:Union(Leaf,Node)}(forest::Vector{T}, features::Matrix)
     N = size(features,1)
     predictions = Array(Any,N)
     for i in 1:N
@@ -195,7 +198,7 @@ function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features:
     return predictions
 end
 
-function build_adaboost_stumps{T<:Real}(labels::Vector, features::Matrix{T}, niterations::Integer)
+function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer)
     N = length(labels)
     weights = ones(N) / N
     stumps = Node[]
@@ -218,7 +221,7 @@ function build_adaboost_stumps{T<:Real}(labels::Vector, features::Matrix{T}, nit
     return (stumps, coeffs)
 end
 
-function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Vector{T}, coeffs::Vector{U}, features::Vector{V})
+function apply_adaboost_stumps{T<:Union(Leaf,Node)}(stumps::Vector{T}, coeffs::Vector{FloatingPoint}, features::Vector)
     nstumps = length(stumps)
     counts = Dict()
     for i in 1:nstumps
@@ -236,7 +239,7 @@ function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Ve
     return top_prediction
 end
 
-function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Vector{T}, coeffs::Vector{U}, features::Matrix{V})
+function apply_adaboost_stumps{T<:Union(Leaf,Node)}(stumps::Vector{T}, coeffs::Vector{FloatingPoint}, features::Matrix)
     N = size(features,1)
     predictions = Array(Any,N)
     for i in 1:N

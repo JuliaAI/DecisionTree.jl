@@ -91,7 +91,7 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
-function nfoldCV_tree{T<:Real}(labels::Vector, features::Matrix{T}, pruning_purity::Real, nfolds::Integer)
+function nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)
     if nfolds < 2
         return
     end
@@ -120,7 +120,7 @@ function nfoldCV_tree{T<:Real}(labels::Vector, features::Matrix{T}, pruning_puri
     println("\nMean Accuracy: ", mean(accuracy))
 end
 
-function nfoldCV_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
+function nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
     if nfolds < 2 || ntrees < 1
         return
     end
@@ -151,7 +151,7 @@ function nfoldCV_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatur
     println("\nMean Accuracy: ", mean(accuracy))
 end
 
-function nfoldCV_stumps{T<:Real}(labels::Vector, features::Matrix{T}, niterations::Integer, nfolds::Integer)
+function nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)
     if nfolds < 2 || niterations < 1
         return
     end
