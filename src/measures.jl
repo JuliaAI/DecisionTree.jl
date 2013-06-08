@@ -2,7 +2,7 @@ type ConfusionMatrix
     classes::Vector
     matrix::Matrix{Int}
     accuracy::FloatingPoint
-    kappa::Any
+    kappa::FloatingPoint
 end
 
 function show(io::IO, cm::ConfusionMatrix)
@@ -54,11 +54,6 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
-function _sample{T<:Real}(labels::Vector, features::Matrix{T}, nsamples::Integer)
-    inds = rand(1:length(labels), nsamples) ## with replacement
-    return (labels[inds], features[inds,:])
-end
-
 function majority_vote(labels::Vector)
     counts = Dict()
     for i in labels
@@ -92,7 +87,6 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     end
     accuracy = trace(CM) / sum(CM)
     prob_chance = (sum(CM,1) * sum(CM,2))[1] / sum(CM)^2
-    prob_chance = prob_chance[1]
     kappa = (accuracy - prob_chance) / (1.0 - prob_chance)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end

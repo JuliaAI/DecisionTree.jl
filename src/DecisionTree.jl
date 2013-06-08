@@ -22,13 +22,12 @@ type Node
     right::Union(Leaf,Node)
 end
 
-convert(::Type{Node}, x::Leaf) = Node(1, Inf, x, Leaf(Nothing,[Nothing]))
+convert(::Type{Node}, x::Leaf) = Node(1, Inf, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
 function length(tree::Union(Leaf,Node))
-    s = string(tree)
-    s = split(s, "Leaf")
+    s = split(string(tree), "Leaf")
     return length(s) - 1
 end
 
@@ -161,20 +160,19 @@ end
 
 function apply_tree{T<:Union(Leaf,Node), U<:Real}(tree::T, features::Matrix{U})
     N = size(features,1)
-    label = apply_tree(tree, squeeze(features[1,:],1))
-    predictions = Array(typeof(label),N)
-    predictions[1] = label
-    for i in 2:N
+    predictions = Array(Any,N)
+    for i in 1:N
         predictions[i] = apply_tree(tree, squeeze(features[i,:],1))
     end
     return predictions
 end
 
 function build_forest{T<:Real}(labels::Vector, features::Matrix{T}, nsubfeatures::Integer, ntrees::Integer)
-    N = int(0.7 * length(labels))
+    Nlabels = length(labels)
+    Nsamples = int(0.7 * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
-        _labels, _features = _sample(labels, features, N)
-        build_tree(_labels, _features, nsubfeatures)
+        inds = rand(1:Nlabels, Nsamples)
+        build_tree(labels[inds], features[inds,:], nsubfeatures)
     end
     return forest
 end
@@ -190,10 +188,8 @@ end
 
 function apply_forest{T<:Union(Leaf,Node), U<:Real}(forest::Vector{T}, features::Matrix{U})
     N = size(features,1)
-    label = apply_forest(forest, squeeze(features[1,:],1))
-    predictions = Array(typeof(label),N)
-    predictions[1] = label
-    for i in 2:N
+    predictions = Array(Any,N)
+    for i in 1:N
         predictions[i] = apply_forest(forest, squeeze(features[i,:],1))
     end
     return predictions
@@ -202,19 +198,19 @@ end
 function build_adaboost_stumps{T<:Real}(labels::Vector, features::Matrix{T}, niterations::Integer)
     N = length(labels)
     weights = ones(N) / N
-    stumps = []
-    coeffs = []
+    stumps = Node[]
+    coeffs = FloatingPoint[]
     for i in 1:niterations
         new_stump = build_stump(labels, features, weights)
         predictions = apply_tree(new_stump, features)
         err = _weighted_error(labels, predictions, weights)
         new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))
-        mismatches = labels .!= predictions
-        weights[mismatches] *= exp(new_coeff)
-        weights[!mismatches] *= exp(-new_coeff)
+        matches = labels .== predictions
+        weights[!matches] *= exp(new_coeff)
+        weights[matches] *= exp(-new_coeff)
         weights /= sum(weights)
-        coeffs = [coeffs, new_coeff]
-        stumps = [stumps, new_stump]
+        push!(coeffs, new_coeff)
+        push!(stumps, new_stump)
         if err < 1e-6
             break
         end
@@ -242,10 +238,8 @@ end
 
 function apply_adaboost_stumps{T<:Union(Leaf,Node), U<:Real, V<:Real}(stumps::Vector{T}, coeffs::Vector{U}, features::Matrix{V})
     N = size(features,1)
-    label = apply_adaboost_stumps(stumps, coeffs, squeeze(features[1,:],1))
-    predictions = Array(typeof(label),N)
-    predictions[1] = label
-    for i in 2:N
+    predictions = Array(Any,N)
+    for i in 1:N
         predictions[i] = apply_adaboost_stumps(stumps, coeffs, squeeze(features[i,:],1))
     end
     return predictions
