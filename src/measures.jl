@@ -91,7 +91,8 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
-function nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)
+function _nfoldCV(classifier::Symbol, labels, features, args...)
+    nfolds = args[end]
     if nfolds < 2
         return
     end
@@ -107,41 +108,27 @@ function nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nf
         test_labels = labels[inds[test_inds]]
         train_features = features[inds[train_inds],:]
         train_labels = labels[inds[train_inds]]
-        model = build_tree(train_labels, train_features, 0)
-        if pruning_purity < 1.0
-            model = prune_tree(model, pruning_purity)
-        end
-        predictions = apply_tree(model, test_features)
-        cm = confusion_matrix(test_labels, predictions)
-        accuracy[i] = cm.accuracy
-        println("\nFold ", i)
-        println(cm)
-    end
-    println("\nMean Accuracy: ", mean(accuracy))
-end
-
-function nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)
-    if nfolds < 2 || ntrees < 1
-        return
-    end
-    N = length(labels)
-    ntest = ifloor(N / nfolds)
-    inds = randperm(N)
-    accuracy = zeros(nfolds)
-    for i in 1:nfolds
-        test_inds = falses(N)
-        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
-        train_inds = !test_inds
-        test_features = features[inds[test_inds],:]
-        test_labels = labels[inds[test_inds]]
-        train_features = features[inds[train_inds],:]
-        train_labels = labels[inds[train_inds]]
-        if ntrees == 1
-            model = build_tree(train_labels, train_features, nsubfeatures)
+        if classifier == :tree
+            pruning_purity = args[1]
+            model = build_tree(train_labels, train_features, 0)
+            if pruning_purity < 1.0
+                model = prune_tree(model, pruning_purity)
+            end
             predictions = apply_tree(model, test_features)
-        else
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
-            predictions = apply_forest(model, test_features)
+        elseif classifier == :forest
+            nsubfeatures = args[1]
+            ntrees = args[2]
+            if ntrees == 1
+                model = build_tree(train_labels, train_features, nsubfeatures)
+                predictions = apply_tree(model, test_features)
+            else
+                model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
+                predictions = apply_forest(model, test_features)
+            end
+        elseif classifier == :stumps
+            niterations = args[1]
+            model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
+            predictions = apply_adaboost_stumps(model, coeffs, test_features)
         end
         cm = confusion_matrix(test_labels, predictions)
         accuracy[i] = cm.accuracy
@@ -149,31 +136,10 @@ function nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer,
         println(cm)
     end
     println("\nMean Accuracy: ", mean(accuracy))
+    return accuracy
 end
 
-function nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)
-    if nfolds < 2 || niterations < 1
-        return
-    end
-    N = length(labels)
-    ntest = ifloor(N / nfolds)
-    inds = randperm(N)
-    accuracy = zeros(nfolds)
-    for i in 1:nfolds
-        test_inds = falses(N)
-        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
-        train_inds = !test_inds
-        test_features = features[inds[test_inds],:]
-        test_labels = labels[inds[test_inds]]
-        train_features = features[inds[train_inds],:]
-        train_labels = labels[inds[train_inds]]
-        model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
-        predictions = apply_adaboost_stumps(model, coeffs, test_features)
-        cm = confusion_matrix(test_labels, predictions)
-        accuracy[i] = cm.accuracy
-        println("\nFold ", i)
-        println(cm)
-    end
-    println("\nMean Accuracy: ", mean(accuracy))
-end
+nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                       = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
+nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)   = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, nfolds)
+nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                     = _nfoldCV(:stumps, labels, features, niterations, nfolds)
 
