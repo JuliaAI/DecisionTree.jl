@@ -22,7 +22,7 @@ type Node
     right::Union(Leaf,Node)
 end
 
-convert(::Type{Node}, x::Leaf) = Node(1, nothing, x, Leaf(nothing,[nothing]))
+convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
@@ -47,7 +47,6 @@ end
 print_tree(tree::Union(Leaf,Node)) = print_tree(tree, 0)
 
 function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights::Vector)
-
     nf = size(features,2)
     best = None
     best_val = -Inf
@@ -60,7 +59,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights
     for i in 1:nf
         domain_i = sort(unique(features[:,inds[i]]))
         for d in domain_i[2:]
-            cur_split = features[:,i] .< d
+            cur_split = features[:,inds[i]] .< d
             if weights == [0]
                 value = _info_gain(labels[cur_split], labels[!cur_split])
             else
@@ -68,7 +67,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights
             end
             if value > best_val
                 best_val = value
-                best = (i,d)
+                best = (inds[i], d)
             end
         end
     end
@@ -173,7 +172,7 @@ end
 function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer)
     Nlabels = length(labels)
     Nsamples = int(0.7 * Nlabels)
-    forest = @parallel (vcat) for i in 1:ntrees
+    forest = @parallel (vcat) for i in [1:ntrees]
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], nsubfeatures)
     end
