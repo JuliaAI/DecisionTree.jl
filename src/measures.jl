@@ -118,13 +118,8 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
         elseif classifier == :forest
             nsubfeatures = args[1]
             ntrees = args[2]
-            if ntrees == 1
-                model = build_tree(train_labels, train_features, nsubfeatures)
-                predictions = apply_tree(model, test_features)
-            else
-                model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
-                predictions = apply_forest(model, test_features)
-            end
+            model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
+            predictions = apply_forest([model], test_features)
         elseif classifier == :stumps
             niterations = args[1]
             model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
