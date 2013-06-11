@@ -96,6 +96,14 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     if nfolds < 2
         return
     end
+    if classifier == :tree
+        pruning_purity = args[1]
+    elseif classifier == :forest
+        nsubfeatures = args[1]
+        ntrees = args[2]
+    elseif classifier == :stumps
+        niterations = args[1]
+    end
     N = length(labels)
     ntest = ifloor(N / nfolds)
     inds = randperm(N)
@@ -109,19 +117,15 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
         train_features = features[inds[train_inds],:]
         train_labels = labels[inds[train_inds]]
         if classifier == :tree
-            pruning_purity = args[1]
             model = build_tree(train_labels, train_features, 0)
             if pruning_purity < 1.0
                 model = prune_tree(model, pruning_purity)
             end
             predictions = apply_tree(model, test_features)
         elseif classifier == :forest
-            nsubfeatures = args[1]
-            ntrees = args[2]
             model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
-            predictions = apply_forest([model], test_features)
+            predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
-            niterations = args[1]
             model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
             predictions = apply_adaboost_stumps(model, coeffs, test_features)
         end

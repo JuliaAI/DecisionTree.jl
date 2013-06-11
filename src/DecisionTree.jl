@@ -54,7 +54,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights
         inds = randperm(nf)[1:nsubfeatures]
         nf = nsubfeatures
     else
-        inds = 1:nf
+        inds = [1:nf]
     end
     for i in 1:nf
         domain_i = sort(unique(features[:,inds[i]]))
@@ -74,7 +74,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights
     return best
 end
 
-function build_stump(labels::Vector, features::Matrix, weights)
+function build_stump(labels::Vector, features::Matrix, weights::Vector)
     S = _split(labels, features, 0, weights)
     if S == None
         return Leaf(majority_vote(labels), labels)
@@ -176,7 +176,7 @@ function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, n
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], nsubfeatures)
     end
-    return forest
+    return [forest]
 end
 
 function apply_forest{T<:Union(Leaf,Node)}(forest::Vector{T}, features::Vector)
