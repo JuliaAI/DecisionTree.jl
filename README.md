@@ -7,7 +7,7 @@ Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm
 * parallelized bagging (random forests)
 * adaptive boosting (decision stumps)
 * cross validation (n-fold)
-* support for nominal and numerical datasets
+* support for mixed nominal and numerical data
 
 Adapted from [MILK: Machine Learning Toolkit](https://github.com/luispedro/milk)
 
