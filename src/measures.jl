@@ -16,9 +16,9 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _set_entropy(labels::Vector)
+function _set_entropy{T}(labels::Vector{T})
     N = length(labels)
-    counts = Dict()
+    counts = Dict{T,Int}()
     for i in labels
         counts[i] = get(counts, i, 0) + 1
     end
