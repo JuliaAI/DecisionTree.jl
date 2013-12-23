@@ -10,12 +10,12 @@ export Leaf, Node, print_tree,
 
 include("measures.jl")
 
-type Leaf
+immutable Leaf
     majority::Any
     values::Vector
 end
 
-type Node
+immutable Node
     featid::Integer
     featval::Any
     left::Union(Leaf,Node)
@@ -31,7 +31,7 @@ function length(tree::Union(Leaf,Node))
     return length(s) - 1
 end
 
-function print_tree(tree::Union(Leaf,Node), indent::Integer)
+function print_tree(tree::Union(Leaf,Node), indent=0)
     if typeof(tree) == Leaf
         matches = find(tree.values .== tree.majority)
         ratio = string(length(matches)) * "/" * string(length(tree.values))
@@ -44,7 +44,6 @@ function print_tree(tree::Union(Leaf,Node), indent::Integer)
         print_tree(tree.right, indent + 1)
     end
 end
-print_tree(tree::Union(Leaf,Node)) = print_tree(tree, 0)
 
 function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights::Vector)
     nf = size(features,2)
@@ -74,7 +73,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights
     return best
 end
 
-function build_stump(labels::Vector, features::Matrix, weights::Vector)
+function build_stump(labels::Vector, features::Matrix, weights=[0])
     S = _split(labels, features, 0, weights)
     if S == None
         return Leaf(majority_vote(labels), labels)
@@ -85,9 +84,8 @@ function build_stump(labels::Vector, features::Matrix, weights::Vector)
                 Leaf(majority_vote(labels[split]), labels[split]),
                 Leaf(majority_vote(labels[!split]), labels[!split]))
 end
-build_stump(labels::Vector, features::Matrix) = build_stump(labels, features, [0])
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures::Integer)
+function build_tree(labels::Vector, features::Matrix, nsubfeatures=0)
     S = _split(labels, features, nsubfeatures, [0])
     if S == None
         return Leaf(majority_vote(labels), labels)
@@ -116,9 +114,8 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures::Integer)
                     build_tree(labels_right,features[!split,:], nsubfeatures))
     end
 end
-build_tree(labels::Vector, features::Matrix) = build_tree(labels, features, 0)
 
-function prune_tree(tree::Union(Leaf,Node), purity_thresh::Real)
+function prune_tree(tree::Union(Leaf,Node), purity_thresh=1.0)
     function _prune_run(tree::Union(Leaf,Node), purity_thresh::Real)
         N = length(tree)
         if N == 1        ## a Leaf
@@ -146,7 +143,6 @@ function prune_tree(tree::Union(Leaf,Node), purity_thresh::Real)
     end
     return pruned
 end
-prune_tree(tree::Union(Leaf,Node)) = prune_tree(tree, 1.0) ## defaults to 100% purity pruning
 
 function apply_tree(tree::Union(Leaf,Node), features::Vector)
     if typeof(tree) == Leaf

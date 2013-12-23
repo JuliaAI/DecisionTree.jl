@@ -22,7 +22,7 @@ function _set_entropy{T}(labels::Vector{T})
     for i in labels
         counts[i] = get(counts, i, 0) + 1
     end
-    entropy = 0
+    entropy = 0.0
     for i in counts
         v = i[2]
         if v > 0
@@ -54,13 +54,13 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
-function majority_vote(labels::Vector)
-    counts = Dict()
+function majority_vote{T}(labels::Vector{T})
+    counts = Dict{T,Int}()
     for i in labels
         counts[i] = get(counts, i, 0) + 1
     end
-    top_vote = None
-    top_count = -Inf
+    top_vote = labels[1]
+    top_count = -1
     for i in collect(counts)
         if i[2] > top_count
             top_vote = i[1]
