@@ -45,13 +45,14 @@ accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 ```
 Random forest classifier
 ```julia
-# train random forest classifier, using 2 random features and 10 trees
-model = build_forest(labels, features, 2, 10);
+# train random forest classifier
+# using 2 random features, 10 trees, and 0.5 of samples per tree (optional)
+model = build_forest(labels, features, 2, 10, 0.5);
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
-# run n-fold cross validation for forests,
-# using 2 random features, 10 trees and 3 folds
-accuracy = nfoldCV_forest(labels, features, 2, 10, 3)
+# run n-fold cross validation for forests
+# using 2 random features, 10 trees, 3 folds and 0.5 of samples per tree (optional)
+accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
 ```
 Adaptive-boosted decision stumps classifier
 ```julia

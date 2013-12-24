@@ -165,9 +165,9 @@ function apply_tree(tree::Union(Leaf,Node), features::Matrix)
     return predictions
 end
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer)
+function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7)
     Nlabels = length(labels)
-    Nsamples = int(0.7 * Nlabels)
+    Nsamples = int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in [1:ntrees]
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], nsubfeatures)

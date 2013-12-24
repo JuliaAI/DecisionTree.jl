@@ -101,6 +101,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     elseif classifier == :forest
         nsubfeatures = args[1]
         ntrees = args[2]
+        partialsampling = args[3]
     elseif classifier == :stumps
         niterations = args[1]
     end
@@ -123,7 +124,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
             end
             predictions = apply_tree(model, test_features)
         elseif classifier == :forest
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees)
+            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, partialsampling)
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
             model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
@@ -138,7 +139,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     return accuracy
 end
 
-nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                       = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
-nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer)   = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, nfolds)
-nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                     = _nfoldCV(:stumps, labels, features, niterations, nfolds)
+nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                       			= _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
+nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)	= _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
+nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                     			= _nfoldCV(:stumps, labels, features, niterations, nfolds)
 
