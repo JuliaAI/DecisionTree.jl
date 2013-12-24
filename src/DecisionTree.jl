@@ -1,6 +1,6 @@
 module DecisionTree
 
-import Base.length, Base.convert, Base.promote_rule, Base.show
+import Base: length, convert, promote_rule, show, start, next, done
 
 export Leaf, Node, print_tree,
        build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
@@ -45,9 +45,71 @@ function print_tree(tree::Union(Leaf,Node), indent=0)
     end
 end
 
-function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights::Vector)
+const NO_BEST=(0,0)
+
+function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Vector)
+    if weights == [0]
+        _split_info_gain(labels, features, nsubfeatures)
+    else
+        _split_neg_z1_loss(labels, features, nsubfeatures, weights)
+    end
+end
+
+# Provide an iterator giving the unique values and corresponding ranges
+# in a sorted vector
+# Note: the vector is assumed to be sorted, and no checking is done!
+immutable UniqueRanges
+    v::AbstractVector
+end
+
+start(u::UniqueRanges) = 1
+done(u::UniqueRanges, s) = done(u.v, s)
+next(u::UniqueRanges, s) = (val = u.v[s]; t = searchsortedlast(u.v, val, s, length(u.v), Base.Order.Forward); ((val, s:t), t+1))
+
+function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
+    nf = size(features, 2)
+    N = length(labels)
+
+    best = NO_BEST
+    best_val = -Inf
+
+    if nsubfeatures > 0
+        inds = randperm(nf)[1:nsubfeatures]
+    else
+        inds = [1:nf]
+    end
+
+    for i in inds
+        ord = sortperm(features[:,i])
+        features_i = features[ord,i]
+        labels_i = labels[ord]
+
+        hist1 = _hist(labels_i, 1:0)
+        hist2 = _hist(labels_i)
+        N1 = 0
+        N2 = N
+
+        for (d, range) in UniqueRanges(features_i)
+            value = _info_gain(N1, hist1, N2, hist2)
+            if value > best_val
+                best_val = value
+                best = (i, d)
+            end
+
+            deltaN = length(range)
+
+            _hist_add(hist1, labels_i, range)
+            _hist_sub(hist2, labels_i, range)
+            N1 += deltaN
+            N2 -= deltaN
+        end
+    end
+    return best
+end
+
+function _split_neg_z1_loss(labels::Vector, features::Matrix, nsubfeatures::Integer, weights::Vector)
     nf = size(features,2)
-    best = None
+    best = NO_BEST
     best_val = -Inf
     if nsubfeatures > 0
         inds = randperm(nf)[1:nsubfeatures]
@@ -59,11 +121,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Integer, weights
         domain_i = sort(unique(features[:,inds[i]]))
         for d in domain_i[2:]
             cur_split = features[:,inds[i]] .< d
-            if weights == [0]
-                value = _info_gain(labels[cur_split], labels[!cur_split])
-            else
-                value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[!cur_split], weights[!cur_split])
-            end
+            value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[!cur_split], weights[!cur_split])
             if value > best_val
                 best_val = value
                 best = (inds[i], d)
@@ -75,7 +133,7 @@ end
 
 function build_stump(labels::Vector, features::Matrix, weights=[0])
     S = _split(labels, features, 0, weights)
-    if S == None
+    if S == NO_BEST
         return Leaf(majority_vote(labels), labels)
     end
     id, thresh = S
