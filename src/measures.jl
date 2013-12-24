@@ -16,12 +16,17 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _set_entropy{T}(labels::Vector{T})
-    N = length(labels)
+function _hist{T}(labels::Vector{T})
     counts = Dict{T,Int}()
     for i in labels
         counts[i] = get(counts, i, 0) + 1
     end
+    return counts
+end
+
+function _set_entropy(labels::Vector)
+    N = length(labels)
+    counts = _hist(labels)
     entropy = 0.0
     for i in counts
         v = i[2]
@@ -54,11 +59,8 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
-function majority_vote{T}(labels::Vector{T})
-    counts = Dict{T,Int}()
-    for i in labels
-        counts[i] = get(counts, i, 0) + 1
-    end
+function majority_vote(labels::Vector)
+    counts = _hist(labels)
     top_vote = labels[1]
     top_count = -1
     for i in collect(counts)
@@ -139,7 +141,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     return accuracy
 end
 
-nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                       			= _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
-nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)	= _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
-nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                     			= _nfoldCV(:stumps, labels, features, niterations, nfolds)
+nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                                           = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
+nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
+nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, niterations, nfolds)
 

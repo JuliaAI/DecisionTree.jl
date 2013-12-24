@@ -166,6 +166,7 @@ function apply_tree(tree::Union(Leaf,Node), features::Matrix)
 end
 
 function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7)
+    partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in [1:ntrees]
