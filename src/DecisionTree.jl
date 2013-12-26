@@ -145,7 +145,7 @@ end
 
 function build_tree(labels::Vector, features::Matrix, nsubfeatures=0)
     S = _split(labels, features, nsubfeatures, [0])
-    if S == None
+    if S == NO_BEST
         return Leaf(majority_vote(labels), labels)
     end
     id, thresh = S
