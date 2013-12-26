@@ -16,20 +16,28 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _hist{T}(labels::Vector{T})
-    counts = Dict{T,Int}()
-    for i in labels
-        counts[i] = get(counts, i, 0) + 1
+function _hist_add{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+    for i in region
+        lbl = labels[i]
+        counts[lbl] = get(counts, lbl, 0) + 1
     end
     return counts
 end
 
-function _set_entropy(labels::Vector)
-    N = length(labels)
-    counts = _hist(labels)
+function _hist_sub{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+    for i in region
+        lbl = labels[i]
+        counts[lbl] -= 1
+    end
+    return counts
+end
+
+_hist{T}(labels::Vector{T}, region::Range1{Int} = 1:endof(labels)) = 
+    _hist_add(Dict{T,Int}(), labels, region)
+
+function _set_entropy{T}(counts::Dict{T,Int}, N::Int)
     entropy = 0.0
-    for i in counts
-        v = i[2]
+    for v in values(counts)
         if v > 0
             entropy += v * log(v)
         end
@@ -39,11 +47,19 @@ function _set_entropy(labels::Vector)
     return entropy
 end
 
+_set_entropy(labels::Vector) = _set_entropy(_hist(labels), length(labels))
+
 function _info_gain(labels0::Vector, labels1::Vector)
     N0 = length(labels0)
     N1 = length(labels1)
     N = N0 + N1
     H = - N0/N * _set_entropy(labels0) - N1/N * _set_entropy(labels1)
+    return H
+end
+
+function _info_gain{T}(N1::Int, counts1::Dict{T,Int}, N2::Int, counts2::Dict{T,Int})
+    N = N1 + N2
+    H = - N1/N * _set_entropy(counts1, N1) - N2/N * _set_entropy(counts2, N2)
     return H
 end
 
