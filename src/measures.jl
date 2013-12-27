@@ -16,7 +16,7 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _hist_add{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
     for i in region
         lbl = labels[i]
         counts[lbl] = get(counts, lbl, 0) + 1
@@ -24,7 +24,7 @@ function _hist_add{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int
     return counts
 end
 
-function _hist_sub{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+function _hist_sub!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
     for i in region
         lbl = labels[i]
         counts[lbl] -= 1
@@ -32,8 +32,17 @@ function _hist_sub{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int
     return counts
 end
 
+function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+    for i in region
+        lbl = labels[i]
+        counts_from[lbl] -= 1
+        counts_to[lbl] = get(counts_to, lbl, 0) + 1
+    end
+    nothing
+end
+
 _hist{T}(labels::Vector{T}, region::Range1{Int} = 1:endof(labels)) = 
-    _hist_add(Dict{T,Int}(), labels, region)
+    _hist_add!(Dict{T,Int}(), labels, region)
 
 function _set_entropy{T}(counts::Dict{T,Int}, N::Int)
     entropy = 0.0

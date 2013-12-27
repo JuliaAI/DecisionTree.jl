@@ -31,18 +31,18 @@ function length(tree::Union(Leaf,Node))
     return length(s) - 1
 end
 
-function print_tree(tree::Union(Leaf,Node), indent=0)
-    if typeof(tree) == Leaf
-        matches = find(tree.values .== tree.majority)
-        ratio = string(length(matches)) * "/" * string(length(tree.values))
-        println("$(tree.majority) : $(ratio)")
-    else
-        println("Feature $(tree.featid), Threshold $(tree.featval)")
-        print("    " ^ indent * "L-> ")
-        print_tree(tree.left, indent + 1)
-        print("    " ^ indent * "R-> ")
-        print_tree(tree.right, indent + 1)
-    end
+function print_tree(tree::Leaf, indent=0)
+    matches = find(tree.values .== tree.majority)
+    ratio = string(length(matches)) * "/" * string(length(tree.values))
+    println("$(tree.majority) : $(ratio)")
+end
+
+function print_tree(tree::Node, indent=0)
+    println("Feature $(tree.featid), Threshold $(tree.featval)")
+    print("    " ^ indent * "L-> ")
+    print_tree(tree.left, indent + 1)
+    print("    " ^ indent * "R-> ")
+    print_tree(tree.right, indent + 1)
 end
 
 const NO_BEST=(0,0)
@@ -64,7 +64,9 @@ end
 
 start(u::UniqueRanges) = 1
 done(u::UniqueRanges, s) = done(u.v, s)
-next(u::UniqueRanges, s) = (val = u.v[s]; t = searchsortedlast(u.v, val, s, length(u.v), Base.Order.Forward); ((val, s:t), t+1))
+next(u::UniqueRanges, s) = (val = u.v[s]; 
+                            t = searchsortedlast(u.v, val, s, length(u.v), Base.Order.Forward);
+                            ((val, s:t), t+1))
 
 function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
     nf = size(features, 2)
@@ -98,8 +100,7 @@ function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
 
             deltaN = length(range)
 
-            _hist_add(hist1, labels_i, range)
-            _hist_sub(hist2, labels_i, range)
+            _hist_shift!(hist2, hist1, labels_i, range)
             N1 += deltaN
             N2 -= deltaN
         end
@@ -202,10 +203,10 @@ function prune_tree(tree::Union(Leaf,Node), purity_thresh=1.0)
     return pruned
 end
 
-function apply_tree(tree::Union(Leaf,Node), features::Vector)
-    if typeof(tree) == Leaf
-        return tree.majority
-    elseif tree.featval == nothing
+apply_tree(leaf::Leaf, feature::Vector) = leaf.majority
+
+function apply_tree(tree::Node, features::Vector)
+    if tree.featval == nothing
         return apply_tree(tree.left, features)
     elseif features[tree.featid] < tree.featval
         return apply_tree(tree.left, features)
