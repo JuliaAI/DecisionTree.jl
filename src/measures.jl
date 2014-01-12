@@ -38,7 +38,7 @@ function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, label
         counts_from[lbl] -= 1
         counts_to[lbl] = get(counts_to, lbl, 0) + 1
     end
-    nothing
+    return nothing
 end
 
 _hist{T}(labels::Vector{T}, region::Range1{Int} = 1:endof(labels)) = 
@@ -57,14 +57,6 @@ function _set_entropy{T}(counts::Dict{T,Int}, N::Int)
 end
 
 _set_entropy(labels::Vector) = _set_entropy(_hist(labels), length(labels))
-
-function _info_gain(labels0::Vector, labels1::Vector)
-    N0 = length(labels0)
-    N1 = length(labels1)
-    N = N0 + N1
-    H = - N0/N * _set_entropy(labels0) - N1/N * _set_entropy(labels1)
-    return H
-end
 
 function _info_gain{T}(N1::Int, counts1::Dict{T,Int}, N2::Int, counts2::Dict{T,Int})
     N = N1 + N2
@@ -85,13 +77,16 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
 end
 
 function majority_vote(labels::Vector)
+    if length(labels) == 0
+        return nothing
+    end
     counts = _hist(labels)
     top_vote = labels[1]
     top_count = -1
-    for i in collect(counts)
-        if i[2] > top_count
-            top_vote = i[1]
-            top_count = i[2]
+    for (k,v) in counts
+        if v > top_count
+            top_vote = k
+            top_count = v
         end
     end
     return top_vote
@@ -121,7 +116,7 @@ end
 function _nfoldCV(classifier::Symbol, labels, features, args...)
     nfolds = args[end]
     if nfolds < 2
-        return
+        return nothing
     end
     if classifier == :tree
         pruning_purity = args[1]

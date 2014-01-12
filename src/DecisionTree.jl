@@ -51,7 +51,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Ve
     if weights == [0]
         _split_info_gain(labels, features, nsubfeatures)
     else
-        _split_neg_z1_loss(labels, features, nsubfeatures, weights)
+        _split_neg_z1_loss(labels, features, weights)
     end
 end
 
@@ -108,16 +108,11 @@ function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
     return best
 end
 
-function _split_neg_z1_loss(labels::Vector, features::Matrix, nsubfeatures::Integer, weights::Vector)
+function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     nf = size(features,2)
     best = NO_BEST
     best_val = -Inf
-    if nsubfeatures > 0
-        inds = randperm(nf)[1:nsubfeatures]
-        nf = nsubfeatures
-    else
-        inds = [1:nf]
-    end
+    inds = [1:nf]
     for i in 1:nf
         domain_i = sort(unique(features[:,inds[i]]))
         for d in domain_i[2:]
@@ -283,12 +278,12 @@ function apply_adaboost_stumps{T<:Union(Leaf,Node)}(stumps::Vector{T}, coeffs::V
         prediction = apply_tree(stumps[i], features)
         counts[prediction] = get(counts, prediction, 0.0) + coeffs[i]
     end
-    top_prediction = None
+    top_prediction = stumps[1].left.majority
     top_count = -Inf
-    for i in collect(counts)
-        if i[2] > top_count
-            top_prediction = i[1]
-            top_count = i[2]
+    for (k,v) in counts
+        if v > top_count
+            top_prediction = k
+            top_count = v
         end
     end
     return top_prediction
