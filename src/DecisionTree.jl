@@ -2,7 +2,7 @@ module DecisionTree
 
 import Base: length, convert, promote_rule, show, start, next, done
 
-export Leaf, Node, print_tree,
+export Leaf, Node, Ensemble, print_tree, depth,
        build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
        build_forest, apply_forest, nfoldCV_forest,
        build_adaboost_stumps, apply_adaboost_stumps, nfoldCV_stumps,
@@ -22,14 +22,30 @@ immutable Node
     right::Union(Leaf,Node)
 end
 
+immutable Ensemble
+    trees::Vector{Node}
+end
+
 convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
-function length(tree::Union(Leaf,Node))
-    s = split(string(tree), "Leaf")
-    return length(s) - 1
+immutable UniqueRanges
+    v::AbstractVector
 end
+
+start(u::UniqueRanges) = 1
+done(u::UniqueRanges, s) = done(u.v, s)
+next(u::UniqueRanges, s) = (val = u.v[s];
+                            t = searchsortedlast(u.v, val, s, length(u.v), Base.Order.Forward);
+                            ((val, s:t), t+1))
+
+length(leaf::Leaf) = 1
+length(tree::Node) = length(tree.left) + length(tree.right)
+length(ensemble::Ensemble) = length(ensemble.trees)
+
+depth(leaf::Leaf) = 0
+depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
 function print_tree(tree::Leaf, indent=0)
     matches = find(tree.values .== tree.majority)
@@ -54,19 +70,6 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Ve
         _split_neg_z1_loss(labels, features, weights)
     end
 end
-
-# Provide an iterator giving the unique values and corresponding ranges
-# in a sorted vector
-# Note: the vector is assumed to be sorted, and no checking is done!
-immutable UniqueRanges
-    v::AbstractVector
-end
-
-start(u::UniqueRanges) = 1
-done(u::UniqueRanges, s) = done(u.v, s)
-next(u::UniqueRanges, s) = (val = u.v[s]; 
-                            t = searchsortedlast(u.v, val, s, length(u.v), Base.Order.Forward);
-                            ((val, s:t), t+1))
 
 function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
     nf = size(features, 2)
@@ -225,19 +228,19 @@ function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, n
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], nsubfeatures)
     end
-    return [forest]
+    return Ensemble([forest])
 end
 
-function apply_forest{T<:Union(Leaf,Node)}(forest::Vector{T}, features::Vector)
+function apply_forest(forest::Ensemble, features::Vector)
     ntrees = length(forest)
     votes = Array(Any,ntrees)
     for i in 1:ntrees
-        votes[i] = apply_tree(forest[i],features)
+        votes[i] = apply_tree(forest.trees[i],features)
     end
     return majority_vote(votes)
 end
 
-function apply_forest{T<:Union(Leaf,Node)}(forest::Vector{T}, features::Matrix)
+function apply_forest(forest::Ensemble, features::Matrix)
     N = size(features,1)
     predictions = Array(Any,N)
     for i in 1:N
@@ -266,17 +269,17 @@ function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::In
             break
         end
     end
-    return (stumps, coeffs)
+    return (Ensemble(stumps), coeffs)
 end
 
-function apply_adaboost_stumps{T<:Union(Leaf,Node)}(stumps::Vector{T}, coeffs::Vector{FloatingPoint}, features::Vector)
+function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{FloatingPoint}, features::Vector)
     nstumps = length(stumps)
     counts = Dict()
     for i in 1:nstumps
-        prediction = apply_tree(stumps[i], features)
+        prediction = apply_tree(stumps.trees[i], features)
         counts[prediction] = get(counts, prediction, 0.0) + coeffs[i]
     end
-    top_prediction = stumps[1].left.majority
+    top_prediction = stumps.trees[1].left.majority
     top_count = -Inf
     for (k,v) in counts
         if v > top_count
@@ -287,13 +290,32 @@ function apply_adaboost_stumps{T<:Union(Leaf,Node)}(stumps::Vector{T}, coeffs::V
     return top_prediction
 end
 
-function apply_adaboost_stumps{T<:Union(Leaf,Node)}(stumps::Vector{T}, coeffs::Vector{FloatingPoint}, features::Matrix)
+function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{FloatingPoint}, features::Matrix)
     N = size(features,1)
     predictions = Array(Any,N)
     for i in 1:N
         predictions[i] = apply_adaboost_stumps(stumps, coeffs, squeeze(features[i,:],1))
     end
     return predictions
+end
+
+function show(io::IO, leaf::Leaf)
+    println(io, "Decision Leaf")
+    println(io, "Majority: $(leaf.majority)")
+    print(io,   "Samples:  $(length(leaf.values))")
+end
+
+function show(io::IO, tree::Node)
+    println(io, "Decision Tree")
+    println(io, "Leaves: $(length(tree))")
+    print(io,   "Depth:  $(depth(tree))")
+end
+
+function show(io::IO, ensemble::Ensemble)
+    println(io, "Ensemble of Decision Trees")
+    println(io, "Trees:      $(length(ensemble))")
+    println(io, "Avg Leaves: $(mean([length(tree) for tree in ensemble.trees]))")
+    print(io,   "Avg Depth:  $(mean([depth(tree) for tree in ensemble.trees]))")
 end
 
 end # module
