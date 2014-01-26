@@ -113,7 +113,7 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     best_val = -Inf
     for i in [1:size(features,2)]
         domain_i = sort(unique(features[:,i]))
-        for d in domain_i[2:]
+        for d in domain_i[2:end]
             cur_split = features[:,i] .< d
             value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[!cur_split], weights[!cur_split])
             if value > best_val

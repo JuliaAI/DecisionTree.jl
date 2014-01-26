@@ -2,8 +2,8 @@ using RDatasets
 using DecisionTree
 
 iris = data("datasets", "iris")
-features = matrix(iris[:, 2:5]);
-labels = vector(iris[:, "Species"]);
+features = array(iris[:, 1:4]);
+labels = array(iris[:, "Species"]);
 
 # train full-tree classifier
 model = build_tree(labels, features);
