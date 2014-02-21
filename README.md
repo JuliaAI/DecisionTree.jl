@@ -25,16 +25,16 @@ using DecisionTree
 ```
 Separate Fisher's Iris dataset features and labels
 ```julia
-iris = data("datasets", "iris")
+iris = dataset("datasets", "iris")
 features = array(iris[:, 1:4]);
-labels = array(iris[:, "Species"]);
+labels = array(iris[:, 5]);
 ```
 Pruned tree classifier
 ```julia
 # train full-tree classifier
-model = build_tree(labels, features);
+model = build_tree(labels, features)
 # prune tree: merge leaves having >= 90% combined purity (default: 100%)
-model = prune_tree(model, 0.9);
+model = prune_tree(model, 0.9)
 # pretty print of the tree
 print_tree(model)
 # apply learned model
@@ -47,7 +47,7 @@ Random forest classifier
 ```julia
 # train random forest classifier
 # using 2 random features, 10 trees, and 0.5 of samples per tree (optional)
-model = build_forest(labels, features, 2, 10, 0.5);
+model = build_forest(labels, features, 2, 10, 0.5)
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
 # run n-fold cross validation for forests
