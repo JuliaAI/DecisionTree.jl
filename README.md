@@ -2,8 +2,10 @@
 
 Decision Tree Classifier and Regressor in Julia
 
-## Classifer
-Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm), with
+Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm)
+
+## Classifier
+Includes:
 * post pruning (pessimistic pruning)
 * parallelized bagging (random forests)
 * adaptive boosting (decision stumps)
@@ -13,9 +15,11 @@ Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm
 Adapted from [MILK: Machine Learning Toolkit](https://github.com/luispedro/milk)
 
 ## Regressor
+Includes:
 * parallelized bagging (random forests)
 * cross validation (n-fold)
 * currently, only features of type float are supported
+
 Note that regression is implied if labels/targets are of type float
 
 ## Installation
@@ -96,7 +100,7 @@ model = build_forest(labels,features, 2, 10, 5, 0.7)
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation on regression forest
-# using 2 random features, 10 trees, 3 folds, averaging of 5 samples per leaf (optional),
+# using 2 random features, 10 trees, 3 folds, averaging of 5 samples/leaf (optional),
 # and 0.7 porition of samples per tree (optional)
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
