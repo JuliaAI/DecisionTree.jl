@@ -76,6 +76,24 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
+function _mse_loss{T<:FloatingPoint}(labels::Vector{T}, features::Vector{T}, thresh)
+    s1l = s1r = s2l = s2r = 0.0
+    nl = nr = 0
+    for i in 1:length(labels)
+      if features[i] < thresh
+        s1l += labels[i]^2
+        s2l += labels[i]
+        nl += 1
+      else
+        s1r += labels[i]^2
+        s2r += labels[i]
+        nr += 1
+      end
+    end
+    loss = s1l - s2l^2/nl + s1r - s2r^2/nr
+    return -loss
+end
+
 function majority_vote(labels::Vector)
     if length(labels) == 0
         return nothing
@@ -91,6 +109,8 @@ function majority_vote(labels::Vector)
     end
     return top_vote
 end
+
+### Classification ###
 
 function confusion_matrix(actual::Vector, predicted::Vector)
     @assert length(actual) == length(predicted)
@@ -161,7 +181,67 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     return accuracy
 end
 
-nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                                           = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
+nfoldCV_tree(labels::Vector{Any}, features::Matrix, pruning_purity::Real, nfolds::Integer)                                      = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
 nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
 nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, niterations, nfolds)
+
+### Regression ###
+
+function mean_squared_error(actual, predicted)
+    @assert length(actual) == length(predicted)
+    return mean((actual - predicted).^2)
+end
+
+function R2(actual, predicted)
+    @assert length(actual) == length(predicted)
+    ss_residual = sum((actual - predicted).^2)
+    ss_total = sum((actual .- mean(actual)).^2)
+    return 1.0 - ss_residual/ss_total
+end
+
+function _nfoldCV{T<:FloatingPoint}(regressor::Symbol, labels::Vector{T}, features, args...)
+    nfolds = args[end]
+    if nfolds < 2
+        return nothing
+    end
+    if regressor == :tree
+        maxlabels = args[1]
+    elseif regressor == :forest
+        nsubfeatures = args[1]
+        ntrees = args[2]
+        maxlabels = args[3]
+        partialsampling = args[4]
+    end
+    N = length(labels)
+    ntest = ifloor(N / nfolds)
+    inds = randperm(N)
+    R2s = zeros(nfolds)
+    for i in 1:nfolds
+        test_inds = falses(N)
+        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
+        train_inds = !test_inds
+        test_features = features[inds[test_inds],:]
+        test_labels = labels[inds[test_inds]]
+        train_features = features[inds[train_inds],:]
+        train_labels = labels[inds[train_inds]]
+        if regressor == :tree
+            model = build_tree(train_labels, train_features, maxlabels, 0)
+            predictions = apply_tree(model, test_features)
+        elseif regressor == :forest
+            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, maxlabels, partialsampling)
+            predictions = apply_forest(model, test_features)
+        end
+        err = mean_squared_error(test_labels, predictions)
+        r2 = R2(test_labels, predictions)
+        R2s[i] = r2
+        println("\nFold ", i)
+        println("Mean Squared Error:     ", err)
+        println("Coeff of Determination: ", r2)
+    end
+    println("\nMean Coeff of Determination: ", mean(R2s))
+    return R2s
+end
+
+nfoldCV_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels=5::Integer)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+nfoldCV_forest{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
 

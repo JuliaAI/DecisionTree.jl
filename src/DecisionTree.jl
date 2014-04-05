@@ -6,7 +6,8 @@ export Leaf, Node, Ensemble, print_tree, depth,
        build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
        build_forest, apply_forest, nfoldCV_forest,
        build_adaboost_stumps, apply_adaboost_stumps, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix
+       majority_vote, ConfusionMatrix, confusion_matrix,
+       mean_squared_error, R2
 
 include("measures.jl")
 
@@ -63,6 +64,9 @@ end
 
 const NO_BEST=(0,0)
 
+
+### Classification ###
+
 function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Vector)
     if weights == [0]
         _split_info_gain(labels, features, nsubfeatures)
@@ -116,12 +120,12 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     best_val = -Inf
     for i in [1:size(features,2)]
         domain_i = sort(unique(features[:,i]))
-        for d in domain_i[2:end]
-            cur_split = features[:,i] .< d
+        for thresh in domain_i[2:end]
+            cur_split = features[:,i] .< thresh
             value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[!cur_split], weights[!cur_split])
             if value > best_val
                 best_val = value
-                best = (i, d)
+                best = (i, thresh)
             end
         end
     end
@@ -217,7 +221,11 @@ function apply_tree(tree::Union(Leaf,Node), features::Matrix)
     for i in 1:N
         predictions[i] = apply_tree(tree, squeeze(features[i,:],1))
     end
-    return predictions
+    if typeof(predictions[1]) <: FloatingPoint
+        return convert(Array{Float64,1}, predictions)
+    else
+        return predictions
+    end
 end
 
 function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7)
@@ -237,7 +245,11 @@ function apply_forest(forest::Ensemble, features::Vector)
     for i in 1:ntrees
         votes[i] = apply_tree(forest.trees[i],features)
     end
-    return majority_vote(votes)
+    if typeof(votes[1]) <: FloatingPoint
+        return mean(votes)
+    else
+        return majority_vote(votes)
+    end
 end
 
 function apply_forest(forest::Ensemble, features::Matrix)
@@ -246,7 +258,11 @@ function apply_forest(forest::Ensemble, features::Matrix)
     for i in 1:N
         predictions[i] = apply_forest(forest, squeeze(features[i,:],1))
     end
-    return predictions
+    if typeof(predictions[1]) <: FloatingPoint
+        return convert(Array{Float64,1}, predictions)
+    else
+        return predictions
+    end
 end
 
 function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer)
@@ -317,6 +333,81 @@ function show(io::IO, ensemble::Ensemble)
     println(io, "Avg Leaves: $(mean([length(tree) for tree in ensemble.trees]))")
     print(io,   "Avg Depth:  $(mean([depth(tree) for tree in ensemble.trees]))")
 end
+
+
+### Regression ###
+
+function _split_mse{T<:FloatingPoint}(labels::Vector{T}, features::Matrix{T}, nsubfeatures::Int)
+    nr, nf = size(features)
+    best = NO_BEST
+    best_val = -Inf
+
+    if nsubfeatures > 0
+        inds = randperm(nf)[1:nsubfeatures]
+    else
+        inds = [1:nf]
+    end
+
+    for i in inds
+        if nr > 100
+            features_i = features[:,i]
+            domain_i = quantile(features_i, linspace(0.01,0.99,99))
+            labels_i = labels
+        else
+            ord = sortperm(features[:,i])
+            features_i = features[ord,i]
+            domain_i = features_i
+            labels_i = labels[ord]
+        end
+        for thresh in domain_i[2:end]
+            value = _mse_loss(labels_i, features_i, thresh)
+            if value > best_val
+                best_val = value
+                best = (i, thresh)
+            end
+        end
+    end
+    return best
+end
+
+function build_stump{T<:FloatingPoint}(labels::Vector{T}, features::Matrix)
+    S = _split_mse(labels, features, 0)
+    if S == NO_BEST
+        return Leaf(mean(labels), labels)
+    end
+    id, thresh = S
+    split = features[:,id] .< thresh
+    return Node(id, thresh,
+                Leaf(mean(labels[split]), labels[split]),
+                Leaf(mean(labels[!split]), labels[!split]))
+end
+
+function build_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, maxlabels=5, nsubfeatures=0)
+    if length(labels) <= maxlabels
+        return Leaf(mean(labels), labels)
+    end
+    S = _split_mse(labels, features, nsubfeatures)
+    if S == NO_BEST
+        return Leaf(majority_vote(labels), labels)
+    end
+    id, thresh = S
+    split = features[:,id] .< thresh
+    return Node(id, thresh,
+                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures),
+                build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures))
+end
+
+function build_forest{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
+    partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
+    Nlabels = length(labels)
+    Nsamples = int(partialsampling * Nlabels)
+    forest = @parallel (vcat) for i in [1:ntrees]
+        inds = rand(1:Nlabels, Nsamples)
+        build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures)
+    end
+    return Ensemble([forest])
+end
+
 
 end # module
 

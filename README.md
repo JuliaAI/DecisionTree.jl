@@ -1,7 +1,8 @@
 # DecisionTree.jl
 
-Decision Tree Classifier in Julia
+Decision Tree Classifier and Regressor in Julia
 
+## Classifer
 Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm), with
 * post pruning (pessimistic pruning)
 * parallelized bagging (random forests)
@@ -11,13 +12,19 @@ Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm
 
 Adapted from [MILK: Machine Learning Toolkit](https://github.com/luispedro/milk)
 
+## Regressor
+* parallelized bagging (random forests)
+* cross validation (n-fold)
+* currently, only features of type float are supported
+Note that regression is implied if labels/targets are of type float
+
 ## Installation
 You can install DecisionTree.jl using Julia's package manager
 ```julia
 Pkg.add("DecisionTree")
 ```
 
-## Usage Example
+## Classification Example
 Load RDatasets and DecisionTree packages
 ```julia
 using RDatasets
@@ -46,7 +53,7 @@ accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 Random forest classifier
 ```julia
 # train random forest classifier
-# using 2 random features, 10 trees, and 0.5 of samples per tree (optional)
+# using 2 random features, 10 trees, and 0.5 portion of samples per tree (optional)
 model = build_forest(labels, features, 2, 10, 0.5)
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
@@ -64,3 +71,33 @@ apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
 accuracy = nfoldCV_stumps(labels, features, 7, 3)
 ```
 
+## Regression Example
+```julia
+n, m = 10^3, 5 ;
+features = randn(n, m);
+weights = rand(-2:2, m);
+labels = features * weights;
+```
+Regression Tree
+```julia
+# train regression tree, using an averaging of 5 samples per leaf (optional)
+model = build_tree(labels, features, 5)
+# apply learned model
+apply_tree(model, [5.9,3.0,5.1,1.9,0.0])
+# run n-fold cross validation, using 3 folds, averaging of 5 samples per leaf (optional)
+# returns array of coefficients of determination (R^2)
+r2 = nfoldCV_tree(labels, features, 3, 5)
+```
+Regression Random Forest
+```julia
+# train regression forest, using 2 random features, 10 trees, 3 folds,
+# averaging of 5 samples per leaf (optional), 0.7 of samples per tree (optional)
+model = build_forest(labels,features, 2, 10, 5, 0.7)
+# apply learned model
+apply_forest(model, [5.9,3.0,5.1,1.9,0.0])
+# run n-fold cross validation on regression forest
+# using 2 random features, 10 trees, 3 folds, averaging of 5 samples per leaf (optional),
+# and 0.7 porition of samples per tree (optional)
+# returns array of coefficients of determination (R^2)
+r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
+```
