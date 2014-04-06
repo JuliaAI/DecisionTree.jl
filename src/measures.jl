@@ -181,7 +181,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     return accuracy
 end
 
-nfoldCV_tree(labels::Vector{Any}, features::Matrix, pruning_purity::Real, nfolds::Integer)                                      = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
+nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                                           = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
 nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
 nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, niterations, nfolds)
 
@@ -242,6 +242,6 @@ function _nfoldCV{T<:FloatingPoint}(regressor::Symbol, labels::Vector{T}, featur
     return R2s
 end
 
-nfoldCV_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels=5::Integer)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+nfoldCV_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
 nfoldCV_forest{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
 

@@ -40,7 +40,7 @@ iris = dataset("datasets", "iris")
 features = array(iris[:, 1:4]);
 labels = array(iris[:, 5]);
 ```
-Pruned tree classifier
+Pruned Tree Classifier
 ```julia
 # train full-tree classifier
 model = build_tree(labels, features)
@@ -54,7 +54,7 @@ apply_tree(model, [5.9,3.0,5.1,1.9])
 # using 90% purity threshold purning, and 3 CV folds
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 ```
-Random forest classifier
+Random Forest Classifier
 ```julia
 # train random forest classifier
 # using 2 random features, 10 trees, and 0.5 portion of samples per tree (optional)
@@ -65,7 +65,7 @@ apply_forest(model, [5.9,3.0,5.1,1.9])
 # using 2 random features, 10 trees, 3 folds and 0.5 of samples per tree (optional)
 accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
 ```
-Adaptive-boosted decision stumps classifier
+Adaptive-Boosted Decision Stumps Classifier
 ```julia
 # train adaptive-boosted stumps, using 7 iterations
 model, coeffs = build_adaboost_stumps(labels, features, 7);
@@ -87,7 +87,7 @@ Regression Tree
 # train regression tree, using an averaging of 5 samples per leaf (optional)
 model = build_tree(labels, features, 5)
 # apply learned model
-apply_tree(model, [5.9,3.0,5.1,1.9,0.0])
+apply_tree(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation, using 3 folds, averaging of 5 samples per leaf (optional)
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_tree(labels, features, 3, 5)
@@ -98,7 +98,7 @@ Regression Random Forest
 # averaging of 5 samples per leaf (optional), 0.7 of samples per tree (optional)
 model = build_forest(labels,features, 2, 10, 5, 0.7)
 # apply learned model
-apply_forest(model, [5.9,3.0,5.1,1.9,0.0])
+apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation on regression forest
 # using 2 random features, 10 trees, 3 folds, averaging of 5 samples/leaf (optional),
 # and 0.7 porition of samples per tree (optional)
