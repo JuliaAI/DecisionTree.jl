@@ -232,10 +232,12 @@ function _nfoldCV{T<:FloatingPoint}(regressor::Symbol, labels::Vector{T}, featur
             predictions = apply_forest(model, test_features)
         end
         err = mean_squared_error(test_labels, predictions)
+        corr = cor(test_labels, predictions)
         r2 = R2(test_labels, predictions)
         R2s[i] = r2
         println("\nFold ", i)
         println("Mean Squared Error:     ", err)
+        println("Correlation Coeff:      ", corr)
         println("Coeff of Determination: ", r2)
     end
     println("\nMean Coeff of Determination: ", mean(R2s))

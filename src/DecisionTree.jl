@@ -351,7 +351,7 @@ function _split_mse{T<:FloatingPoint}(labels::Vector{T}, features::Matrix{T}, ns
     for i in inds
         if nr > 100
             features_i = features[:,i]
-            domain_i = quantile(features_i, linspace(0.01,0.99,99))
+            domain_i = quantile(features_i, linspace(0.01, 0.99, 99))
             labels_i = labels
         else
             ord = sortperm(features[:,i])
@@ -388,7 +388,7 @@ function build_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, maxla
     end
     S = _split_mse(labels, features, nsubfeatures)
     if S == NO_BEST
-        return Leaf(majority_vote(labels), labels)
+        return Leaf(mean(labels), labels)
     end
     id, thresh = S
     split = features[:,id] .< thresh
