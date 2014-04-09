@@ -11,7 +11,7 @@ test_sample = randn(1,m)
 model = build_tree(labels, features)
 apply_tree(model, test_sample)
 r2 = nfoldCV_tree(labels, features, 3)
-@test mean(r2) > 0.7
+@test mean(r2) > 0.6
 
 # regression forest
 model = build_forest(labels,features, 3, 10)
