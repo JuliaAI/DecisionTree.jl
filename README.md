@@ -37,8 +37,8 @@ using DecisionTree
 Separate Fisher's Iris dataset features and labels
 ```julia
 iris = dataset("datasets", "iris")
-features = array(iris[:, 1:4]);
-labels = array(iris[:, 5]);
+features = matrix(iris[:, 1:4]);
+labels = vector(iris[:, 5]);
 ```
 Pruned Tree Classifier
 ```julia
