@@ -48,18 +48,22 @@ length(ensemble::Ensemble) = length(ensemble.trees)
 depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
-function print_tree(tree::Leaf, indent=0)
-    matches = find(tree.values .== tree.majority)
-    ratio = string(length(matches)) * "/" * string(length(tree.values))
-    println("$(tree.majority) : $(ratio)")
+function print_tree(leaf::Leaf, depth=-1, indent=0)
+    matches = find(leaf.values .== leaf.majority)
+    ratio = string(length(matches)) * "/" * string(length(leaf.values))
+    println("$(leaf.majority) : $(ratio)")
 end
 
-function print_tree(tree::Node, indent=0)
+function print_tree(tree::Node, depth=-1, indent=0)
+    if depth == indent
+        println()
+        return
+    end
     println("Feature $(tree.featid), Threshold $(tree.featval)")
     print("    " ^ indent * "L-> ")
-    print_tree(tree.left, indent + 1)
+    print_tree(tree.left, depth, indent + 1)
     print("    " ^ indent * "R-> ")
-    print_tree(tree.right, indent + 1)
+    print_tree(tree.right, depth, indent + 1)
 end
 
 const NO_BEST=(0,0)

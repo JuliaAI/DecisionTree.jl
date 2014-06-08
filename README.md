@@ -50,8 +50,8 @@ Pruned Tree Classifier
 model = build_tree(labels, features)
 # prune tree: merge leaves having >= 90% combined purity (default: 100%)
 model = prune_tree(model, 0.9)
-# pretty print of the tree
-print_tree(model)
+# pretty print of the tree, to a depth of 5 nodes (optional)
+print_tree(model, 5)
 # apply learned model
 apply_tree(model, [5.9,3.0,5.1,1.9])
 # run n-fold cross validation for pruned tree,
