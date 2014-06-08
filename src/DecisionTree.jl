@@ -341,7 +341,7 @@ end
 
 ### Regression ###
 
-function _split_mse{T<:FloatingPoint}(labels::Vector{T}, features::Matrix{T}, nsubfeatures::Int)
+function _split_mse{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int)
     nr, nf = size(features)
     best = NO_BEST
     best_val = -Inf
@@ -374,7 +374,7 @@ function _split_mse{T<:FloatingPoint}(labels::Vector{T}, features::Matrix{T}, ns
     return best
 end
 
-function build_stump{T<:FloatingPoint}(labels::Vector{T}, features::Matrix)
+function build_stump{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U})
     S = _split_mse(labels, features, 0)
     if S == NO_BEST
         return Leaf(mean(labels), labels)
@@ -386,7 +386,7 @@ function build_stump{T<:FloatingPoint}(labels::Vector{T}, features::Matrix)
                 Leaf(mean(labels[!split]), labels[!split]))
 end
 
-function build_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, maxlabels=5, nsubfeatures=0)
+function build_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0)
     if length(labels) <= maxlabels
         return Leaf(mean(labels), labels)
     end
@@ -401,7 +401,7 @@ function build_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, maxla
                 build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures))
 end
 
-function build_forest{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
+function build_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = int(partialsampling * Nlabels)

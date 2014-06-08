@@ -76,7 +76,7 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
-function _mse_loss{T<:FloatingPoint}(labels::Vector{T}, features::Vector{T}, thresh)
+function _mse_loss{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Vector{U}, thresh)
     s1l = s1r = s2l = s2r = 0.0
     nl = nr = 0
     for i in 1:length(labels)
@@ -199,7 +199,7 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV{T<:FloatingPoint}(regressor::Symbol, labels::Vector{T}, features, args...)
+function _nfoldCV{T<:FloatingPoint, U<:Real}(regressor::Symbol, labels::Vector{T}, features::Matrix{U}, args...)
     nfolds = args[end]
     if nfolds < 2
         return nothing
@@ -244,6 +244,6 @@ function _nfoldCV{T<:FloatingPoint}(regressor::Symbol, labels::Vector{T}, featur
     return R2s
 end
 
-nfoldCV_tree{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
-nfoldCV_forest{T<:FloatingPoint}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
+nfoldCV_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+nfoldCV_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
 

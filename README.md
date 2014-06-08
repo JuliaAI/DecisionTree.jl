@@ -18,7 +18,7 @@ Adapted from [MILK: Machine Learning Toolkit](https://github.com/luispedro/milk)
 Includes:
 * parallelized bagging (random forests)
 * cross validation (n-fold)
-* currently, only features of type float are supported
+* support for numerical features
 
 Note that regression is implied if labels/targets are of type float
 
