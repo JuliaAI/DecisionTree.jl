@@ -8,7 +8,7 @@ end
 function show(io::IO, cm::ConfusionMatrix)
     print(io, "Classes:  ")
     show(io, cm.classes)
-    print(io, "\nMatrix:   ")
+    println(io, "\nMatrix:   ")
     show(io, cm.matrix)
     print(io, "\nAccuracy: ")
     show(io, cm.accuracy)
@@ -77,20 +77,20 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
 end
 
 function _mse_loss{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Vector{U}, thresh)
-    s1l = s1r = s2l = s2r = 0.0
+    s_l = s_r = s2_l = s2_r = 0.0
     nl = nr = 0
     for i in 1:length(labels)
       if features[i] < thresh
-        s1l += labels[i]^2
-        s2l += labels[i]
+        s_l += labels[i]
+        s2_l += labels[i]^2
         nl += 1
       else
-        s1r += labels[i]^2
-        s2r += labels[i]
+        s_r += labels[i]
+        s2_r += labels[i]^2
         nr += 1
       end
     end
-    loss = s1l - s2l^2/nl + s1r - s2r^2/nr
+    loss = s2_l - s_l^2/nl + s2_r - s_r^2/nr
     return -loss
 end
 
