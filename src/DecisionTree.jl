@@ -226,7 +226,7 @@ function apply_tree(tree::Union(Leaf,Node), features::Matrix)
         predictions[i] = apply_tree(tree, squeeze(features[i,:],1))
     end
     if typeof(predictions[1]) <: FloatingPoint
-        return convert(Array{Float64,1}, predictions)
+        return float(predictions)
     else
         return predictions
     end
@@ -263,7 +263,7 @@ function apply_forest(forest::Ensemble, features::Matrix)
         predictions[i] = apply_forest(forest, squeeze(features[i,:],1))
     end
     if typeof(predictions[1]) <: FloatingPoint
-        return convert(Array{Float64,1}, predictions)
+        return float(predictions)
     else
         return predictions
     end

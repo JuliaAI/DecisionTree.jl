@@ -79,14 +79,15 @@ end
 function _mse_loss{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Vector{U}, thresh)
     s_l = s_r = s2_l = s2_r = 0.0
     nl = nr = 0
-    for i in 1:length(labels)
+    @inbounds for i in 1:length(labels)
+      l = labels[i]
       if features[i] < thresh
-        s_l += labels[i]
-        s2_l += labels[i]^2
+        s_l += l
+        s2_l += l*l
         nl += 1
       else
-        s_r += labels[i]
-        s2_r += labels[i]^2
+        s_r += l
+        s2_r += l*l
         nr += 1
       end
     end
@@ -148,7 +149,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
         niterations = args[1]
     end
     N = length(labels)
-    ntest = ifloor(N / nfolds)
+    ntest = int(floor(N / nfolds))
     inds = randperm(N)
     accuracy = zeros(nfolds)
     for i in 1:nfolds
@@ -213,7 +214,7 @@ function _nfoldCV{T<:FloatingPoint, U<:Real}(regressor::Symbol, labels::Vector{T
         partialsampling = args[4]
     end
     N = length(labels)
-    ntest = ifloor(N / nfolds)
+    ntest = int(floor(N / nfolds))
     inds = randperm(N)
     R2s = zeros(nfolds)
     for i in 1:nfolds
