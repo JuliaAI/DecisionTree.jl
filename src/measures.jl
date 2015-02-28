@@ -118,7 +118,7 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     N = length(actual)
     _actual = zeros(Int,N)
     _predicted = zeros(Int,N)
-    classes = sort(unique([actual, predicted]))
+    classes = sort(unique([actual; predicted]))
     N = length(classes)
     for i in 1:N
         _actual[actual .== classes[i]] = i

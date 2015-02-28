@@ -87,9 +87,10 @@ function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
     best_val = -Inf
 
     if nsubfeatures > 0
-        inds = randperm(nf)[1:nsubfeatures]
+        r = randperm(nf)
+        inds = r[1:nsubfeatures]
     else
-        inds = [1:nf]
+        inds = 1:nf
     end
 
     for i in inds
@@ -122,7 +123,7 @@ end
 function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     best = NO_BEST
     best_val = -Inf
-    for i in [1:size(features,2)]
+    for i in 1:size(features,2)
         domain_i = sort(unique(features[:,i]))
         for thresh in domain_i[2:end]
             cur_split = features[:,i] .< thresh
@@ -184,7 +185,7 @@ function prune_tree(tree::Union(Leaf,Node), purity_thresh=1.0)
         if N == 1        ## a Leaf
             return tree
         elseif N == 2    ## a stump
-            all_labels = [tree.left.values, tree.right.values]
+            all_labels = [tree.left.values; tree.right.values]
             majority = majority_vote(all_labels)
             matches = find(all_labels .== majority)
             purity = length(matches) / length(all_labels)
@@ -236,11 +237,11 @@ function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, n
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = int(partialsampling * Nlabels)
-    forest = @parallel (vcat) for i in [1:ntrees]
+    forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], nsubfeatures)
     end
-    return Ensemble([forest])
+    return Ensemble([forest;])
 end
 
 function apply_forest(forest::Ensemble, features::Vector)
@@ -347,9 +348,10 @@ function _split_mse{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matr
     best_val = -Inf
 
     if nsubfeatures > 0
-        inds = randperm(nf)[1:nsubfeatures]
+        r = randperm(nf)
+        inds = r[1:nsubfeatures]
     else
-        inds = [1:nf]
+        inds = 1:nf
     end
 
     for i in inds
@@ -405,11 +407,11 @@ function build_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Ma
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = int(partialsampling * Nlabels)
-    forest = @parallel (vcat) for i in [1:ntrees]
+    forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures)
     end
-    return Ensemble([forest])
+    return Ensemble([forest;])
 end
 
 
