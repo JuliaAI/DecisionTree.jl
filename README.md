@@ -1,5 +1,9 @@
 # DecisionTree.jl
 
+[![Build Status](https://travis-ci.org/bensadeghi/DecisionTree.jl.svg?branch=master)](https://travis-ci.org/bensadeghi/DecisionTree.jl)
+[![Coverage Status](https://coveralls.io/repos/bensadeghi/DecisionTree.jl/badge.svg?branch=master)](https://coveralls.io/r/bensadeghi/DecisionTree.jl?branch=master)
+[![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_release.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=release)
+
 Decision Tree Classifier and Regressor in Julia
 
 Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm)
