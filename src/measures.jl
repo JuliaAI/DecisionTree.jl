@@ -149,7 +149,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
         niterations = args[1]
     end
     N = length(labels)
-    ntest = int(floor(N / nfolds))
+    ntest = _int(floor(N / nfolds))
     inds = randperm(N)
     accuracy = zeros(nfolds)
     for i in 1:nfolds
@@ -214,7 +214,7 @@ function _nfoldCV{T<:FloatingPoint, U<:Real}(regressor::Symbol, labels::Vector{T
         partialsampling = args[4]
     end
     N = length(labels)
-    ntest = int(floor(N / nfolds))
+    ntest = _int(floor(N / nfolds))
     inds = randperm(N)
     R2s = zeros(nfolds)
     for i in 1:nfolds

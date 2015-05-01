@@ -4,7 +4,7 @@ using DecisionTree
 n,m = 10^3, 5 ;
 features = rand(n,m);
 weights = rand(-1:1,m);
-labels = int(round(features * weights));
+labels = _int(features * weights);
 
 println("\n##### nfoldCV Classification Tree #####")
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)

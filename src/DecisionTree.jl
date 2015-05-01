@@ -7,7 +7,14 @@ export Leaf, Node, Ensemble, print_tree, depth,
        build_forest, apply_forest, nfoldCV_forest,
        build_adaboost_stumps, apply_adaboost_stumps, nfoldCV_stumps,
        majority_vote, ConfusionMatrix, confusion_matrix,
-       mean_squared_error, R2
+       mean_squared_error, R2, _int
+
+if VERSION.minor >= 4
+    typealias Range1{Int} Range{Int}
+    _int(x) = round(Int, x)
+else
+    _int(x) = int(x)
+end
 
 include("measures.jl")
 
@@ -236,7 +243,7 @@ end
 function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7)
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
-    Nsamples = int(partialsampling * Nlabels)
+    Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], nsubfeatures)
@@ -406,7 +413,7 @@ end
 function build_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
-    Nsamples = int(partialsampling * Nlabels)
+    Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures)
