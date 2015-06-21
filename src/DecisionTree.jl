@@ -9,9 +9,10 @@ export Leaf, Node, Ensemble, print_tree, depth,
        majority_vote, ConfusionMatrix, confusion_matrix,
        mean_squared_error, R2, _int
 
-if VERSION.minor >= 4
+if VERSION >= v"0.4.0-dev+0"
     typealias Range1{Int} Range{Int}
     _int(x) = round(Int, x)
+    float(x) = map(FloatingPoint, x)
 else
     _int(x) = int(x)
 end
