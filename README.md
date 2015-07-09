@@ -102,7 +102,7 @@ r2 = nfoldCV_tree(labels, features, 3, 5)
 ```
 Regression Random Forest
 ```julia
-# train regression forest, using 2 random features, 10 trees, 3 folds,
+# train regression forest, using 2 random features, 10 trees,
 # averaging of 5 samples per leaf (optional), 0.7 of samples per tree (optional)
 model = build_forest(labels,features, 2, 10, 5, 0.7)
 # apply learned model
