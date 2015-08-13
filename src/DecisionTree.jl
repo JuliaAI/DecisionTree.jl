@@ -9,7 +9,7 @@ export Leaf, Node, Ensemble, print_tree, depth,
        majority_vote, ConfusionMatrix, confusion_matrix,
        mean_squared_error, R2, _int
 
-if VERSION >= v"0.4.0-dev+0"
+if VERSION >= v"0.4.0-dev"
     typealias Range1{Int} Range{Int}
     _int(x) = round(Int, x)
     float(x) = map(FloatingPoint, x)
