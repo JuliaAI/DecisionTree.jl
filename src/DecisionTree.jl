@@ -7,7 +7,7 @@ export Leaf, Node, Ensemble, print_tree, depth,
        build_forest, apply_forest, nfoldCV_forest,
        build_adaboost_stumps, apply_adaboost_stumps, nfoldCV_stumps,
        majority_vote, ConfusionMatrix, confusion_matrix,
-       mean_squared_error, R2, _int
+       mean_squared_error, R2, _int, parse_tree_for_feature_ids, parse_tree_for_leaf
 
 if VERSION >= v"0.4.0-dev+0"
     typealias Range1{Int} Range{Int}
@@ -157,34 +157,77 @@ function build_stump(labels::Vector, features::Matrix, weights=[0])
                 Leaf(majority_vote(labels[!split]), labels[!split]))
 end
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures=0)
-    S = _split(labels, features, nsubfeatures, [0])
-    if S == NO_BEST
+function build_tree(labels::Vector, features::Matrix, nsubfeatures=0; maxdepth=0)
+    if maxdepth<0
+        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth>0, or maxdepth=0 for infinite depth)")
+    end
+
+    S = DecisionTree._split(labels, features, nsubfeatures, [0])
+    if S == DecisionTree.NO_BEST
         return Leaf(majority_vote(labels), labels)
     end
     id, thresh = S
     split = features[:,id] .< thresh
-    labels_left = labels[split]
-    labels_right = labels[!split]
-    pure_left = all(labels_left .== labels_left[1])
-    pure_right = all(labels_right .== labels_right[1])
-    if pure_right && pure_left
-        return Node(id, thresh,
-                    Leaf(labels_left[1], labels_left),
-                    Leaf(labels_right[1], labels_right))
-    elseif pure_left
-        return Node(id, thresh,
-                    Leaf(labels_left[1], labels_left),
-                    build_tree(labels_right,features[!split,:], nsubfeatures))
-    elseif pure_right
-        return Node(id, thresh,
-                    build_tree(labels_left,features[split,:], nsubfeatures),
-                    Leaf(labels_right[1], labels_right))
-    else
-        return Node(id, thresh,
-                    build_tree(labels_left,features[split,:], nsubfeatures),
-                    build_tree(labels_right,features[!split,:], nsubfeatures))
+
+    make_leaf_or_tree = function(split_selector)
+        split_labels = labels[split_selector]
+
+        if maxdepth==1
+            is_pure_or_at_bottom = true
+        else
+            is_pure_or_at_bottom = all(split_labels .== split_labels[1])
+        end
+
+        if is_pure_or_at_bottom
+            return DecisionTree.Leaf(split_labels[1], split_labels)
+        else
+            return build_tree(split_labels, features[split_selector,:], nsubfeatures; maxdepth=max(maxdepth-1,0))
+        end
     end
+
+    tree_left = make_leaf_or_tree(split)
+    tree_right = make_leaf_or_tree(!split)
+
+    return Node(id, thresh, tree_left, tree_right)
+end
+
+function parse_tree_for_leaf(leaf::Leaf, features::Vector)
+    return leaf::Leaf
+end
+
+function parse_tree_for_leaf(tree::Node, features::Vector)
+    if tree.featval == nothing
+        # Not sure why it is possible, but I leave it as in the sources of DecisionTree.jl
+        return _parse_tree_for_values(tree.left, features)
+    elseif features[tree.featid] < tree.featval
+        return parse_tree_for_leaf(tree.left, features)
+    else
+        return parse_tree_for_leaf(tree.right, features)
+    end
+end
+
+function parse_tree_for_leaf(tree::Union(Leaf,Node), all_features::Matrix)
+    nsamples = size(all_features)[1]
+    nfeatures = size(all_features)[2]
+    predicted_leafs = Array(Leaf,nsamples)
+
+    for i in 1:nsamples
+        features_for_sample = squeeze(all_features[i,:],1)
+        predicted_leafs[i] = parse_tree_for_leaf(tree, features_for_sample)
+    end
+
+    return predicted_leafs
+end
+
+function parse_tree_for_feature_ids(tree::Leaf)
+    return Array(Integer,0)
+end
+
+function parse_tree_for_feature_ids(tree::Node)
+    return vcat(
+        tree.featid::Integer,
+        parse_tree_for_feature_ids(tree.left),
+        parse_tree_for_feature_ids(tree.right))::Array{Integer,1}
 end
 
 function prune_tree(tree::Union(Leaf,Node), purity_thresh=1.0)
@@ -396,7 +439,15 @@ function build_stump{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Mat
                 Leaf(mean(labels[!split]), labels[!split]))
 end
 
-function build_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0)
+function build_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0;maxdepth=0)
+    if maxdepth<0
+        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth>0, or maxdepth=0 for infinite depth)")
+    end
+    
+    if maxdepth == 1
+        return Leaf(mean(labels), labels)
+    end
+  
     if length(labels) <= maxlabels
         return Leaf(mean(labels), labels)
     end
@@ -407,17 +458,20 @@ function build_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matr
     id, thresh = S
     split = features[:,id] .< thresh
     return Node(id, thresh,
-                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures),
-                build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures))
+                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures;maxdepth=max(maxdepth-1,0)),
+                build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures;maxdepth=max(maxdepth-1,0)))
 end
 
-function build_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
+function build_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7;maxdepth=0)
+    if maxdepth<0
+        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth>0, or maxdepth=0 for infinite depth)")
+    end
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures)
+        build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures;maxdepth=maxdepth)
     end
     return Ensemble([forest;])
 end
