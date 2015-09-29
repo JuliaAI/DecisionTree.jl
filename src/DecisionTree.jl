@@ -1,5 +1,7 @@
 module DecisionTree
 
+using Compat
+
 import Base: length, convert, promote_rule, show, start, next, done
 
 export Leaf, Node, Ensemble, print_tree, depth,
@@ -24,12 +26,14 @@ immutable Leaf
     values::Vector
 end
 
-immutable Node
+@compat immutable Node
     featid::Integer
     featval::Any
-    left::Union(Leaf,Node)
-    right::Union(Leaf,Node)
+    left::Union{Leaf,Node}
+    right::Union{Leaf,Node}
 end
+
+@compat typealias LeafOrNode Union{Leaf,Node}
 
 immutable Ensemble
     trees::Vector{Node}
@@ -187,8 +191,8 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0)
     end
 end
 
-function prune_tree(tree::Union(Leaf,Node), purity_thresh=1.0)
-    function _prune_run(tree::Union(Leaf,Node), purity_thresh::Real)
+function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
+    function _prune_run(tree::LeafOrNode, purity_thresh::Real)
         N = length(tree)
         if N == 1        ## a Leaf
             return tree
@@ -228,7 +232,7 @@ function apply_tree(tree::Node, features::Vector)
     end
 end
 
-function apply_tree(tree::Union(Leaf,Node), features::Matrix)
+function apply_tree(tree::LeafOrNode, features::Matrix)
     N = size(features,1)
     predictions = Array(Any,N)
     for i in 1:N
