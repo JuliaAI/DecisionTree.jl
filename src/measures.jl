@@ -1,8 +1,8 @@
 type ConfusionMatrix
     classes::Vector
     matrix::Matrix{Int}
-    accuracy::FloatingPoint
-    kappa::FloatingPoint
+    accuracy::Float64
+    kappa::Float64
 end
 
 function show(io::IO, cm::ConfusionMatrix)
@@ -76,7 +76,7 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
-function _mse_loss{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Vector{U}, thresh)
+function _mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector{U}, thresh)
     s_l = s_r = s2_l = s2_r = 0.0
     nl = nr = 0
     @inbounds for i in 1:length(labels)
@@ -200,7 +200,7 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV{T<:FloatingPoint, U<:Real}(regressor::Symbol, labels::Vector{T}, features::Matrix{U}, args...)
+function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, features::Matrix{U}, args...)
     nfolds = args[end]
     if nfolds < 2
         return nothing
@@ -245,6 +245,6 @@ function _nfoldCV{T<:FloatingPoint, U<:Real}(regressor::Symbol, labels::Vector{T
     return R2s
 end
 
-nfoldCV_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
-nfoldCV_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
+nfoldCV_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+nfoldCV_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
 

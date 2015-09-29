@@ -14,7 +14,7 @@ export Leaf, Node, Ensemble, print_tree, depth,
 if VERSION >= v"0.4.0-dev"
     typealias Range1{Int} Range{Int}
     _int(x) = round(Int, x)
-    float(x) = map(FloatingPoint, x)
+    float(x) = map(Float64, x)
 else
     _int(x) = int(x)
 end
@@ -238,7 +238,7 @@ function apply_tree(tree::LeafOrNode, features::Matrix)
     for i in 1:N
         predictions[i] = apply_tree(tree, squeeze(features[i,:],1))
     end
-    if typeof(predictions[1]) <: FloatingPoint
+    if typeof(predictions[1]) <: Float64
         return float(predictions)
     else
         return predictions
@@ -262,7 +262,7 @@ function apply_forest(forest::Ensemble, features::Vector)
     for i in 1:ntrees
         votes[i] = apply_tree(forest.trees[i],features)
     end
-    if typeof(votes[1]) <: FloatingPoint
+    if typeof(votes[1]) <: Float64
         return mean(votes)
     else
         return majority_vote(votes)
@@ -275,7 +275,7 @@ function apply_forest(forest::Ensemble, features::Matrix)
     for i in 1:N
         predictions[i] = apply_forest(forest, squeeze(features[i,:],1))
     end
-    if typeof(predictions[1]) <: FloatingPoint
+    if typeof(predictions[1]) <: Float64
         return float(predictions)
     else
         return predictions
@@ -286,7 +286,7 @@ function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::In
     N = length(labels)
     weights = ones(N) / N
     stumps = Node[]
-    coeffs = FloatingPoint[]
+    coeffs = Float64[]
     for i in 1:niterations
         new_stump = build_stump(labels, features, weights)
         predictions = apply_tree(new_stump, features)
@@ -305,7 +305,7 @@ function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::In
     return (Ensemble(stumps), coeffs)
 end
 
-function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{FloatingPoint}, features::Vector)
+function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Vector)
     nstumps = length(stumps)
     counts = Dict()
     for i in 1:nstumps
@@ -323,7 +323,7 @@ function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{FloatingPoint}, 
     return top_prediction
 end
 
-function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{FloatingPoint}, features::Matrix)
+function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Matrix)
     N = size(features,1)
     predictions = Array(Any,N)
     for i in 1:N
@@ -354,7 +354,7 @@ end
 
 ### Regression ###
 
-function _split_mse{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int)
+function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int)
     nr, nf = size(features)
     best = NO_BEST
     best_val = -Inf
@@ -388,7 +388,7 @@ function _split_mse{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matr
     return best
 end
 
-function build_stump{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U})
+function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U})
     S = _split_mse(labels, features, 0)
     if S == NO_BEST
         return Leaf(mean(labels), labels)
@@ -400,7 +400,7 @@ function build_stump{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Mat
                 Leaf(mean(labels[!split]), labels[!split]))
 end
 
-function build_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0)
+function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0)
     if length(labels) <= maxlabels
         return Leaf(mean(labels), labels)
     end
@@ -415,7 +415,7 @@ function build_tree{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matr
                 build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures))
 end
 
-function build_forest{T<:FloatingPoint, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
+function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
