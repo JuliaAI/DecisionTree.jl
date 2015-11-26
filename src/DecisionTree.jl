@@ -2,7 +2,7 @@ module DecisionTree
 
 using Compat
 
-import Base: length, convert, promote_rule, show, start, next, done
+import Base: length, convert, promote_rule, show, start, next, done, squeeze
 
 export Leaf, Node, Ensemble, print_tree, depth,
        build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
@@ -18,6 +18,8 @@ if VERSION >= v"0.4.0-dev"
 else
     _int(x) = int(x)
 end
+
+squeeze(v::Vector, i::Integer) = v
 
 include("measures.jl")
 
