@@ -13,7 +13,7 @@ export Leaf, Node, Ensemble, print_tree, depth,
 
 if VERSION >= v"0.4.0-dev"
     typealias Range1{Int} Range{Int}
-    _int(x) = round(Int, x)
+    _int(x) = round(Integer, x)
     float(x) = map(Float64, x)
 else
     _int(x) = int(x)
