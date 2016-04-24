@@ -11,6 +11,10 @@ export Leaf, Node, Ensemble, print_tree, depth,
        majority_vote, ConfusionMatrix, confusion_matrix,
        mean_squared_error, R2, _int
 
+export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
+       RandomForestRegressor, AdaBoostStumpClassifier, predict, predict_proba,
+       fit!, get_classes
+
 #####################################
 ##### Compatilibity Corrections #####
 
@@ -67,6 +71,7 @@ next(u::UniqueRanges, s) = (val = u.v[s];
 include("measures.jl")
 include("classification.jl")
 include("regression.jl")
+include("scikitlearnAPI.jl")
 
 
 #############################
