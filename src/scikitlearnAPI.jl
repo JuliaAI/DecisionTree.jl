@@ -121,7 +121,7 @@ type RandomForestClassifier <: BaseClassifier
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
-declare_hyperparameters(DecisionTreeClassifier,
+declare_hyperparameters(RandomForestClassifier,
                         [:nsubfeatures, :ntrees, :partialsampling])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
@@ -164,7 +164,7 @@ type RandomForestRegressor <: BaseRegressor
         new(nsubfeatures, ntrees, partialsampling)
 end
 
-declare_hyperparameters(DecisionTreeRegressor,
+declare_hyperparameters(RandomForestRegressor,
                         [:nsubfeatures, :ntrees, :partialsampling])
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
