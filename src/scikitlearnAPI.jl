@@ -62,7 +62,7 @@ Decision tree regression. See
 Hyperparameters:
 
 - `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
-- `maxlabels`: maximum number of samples per leaf
+- `maxlabels`: maximum number of samples per leaf, split leaf if exceeded
 - `nsubfeatures`: number of features to select at random (default: keep all)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
@@ -123,7 +123,7 @@ type RandomForestClassifier <: BaseClassifier
         new(nsubfeatures, ntrees, partialsampling)
 end
 
-get_classes(dt::DecisionTreeClassifier) = dt.classes
+get_classes(rf::RandomForestClassifier) = rf.classes
 declare_hyperparameters(RandomForestClassifier,
                         [:nsubfeatures, :ntrees, :partialsampling])
 
@@ -154,7 +154,7 @@ Hyperparameters:
 
 - `nsubfeatures`: number of features to select in each tree at random (default:
   keep all)
-- `maxlabels`: maximum number of samples per leaf
+- `maxlabels`: maximum number of samples per leaf, split leaf if exceeded
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
 
