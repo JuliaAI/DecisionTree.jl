@@ -4,12 +4,20 @@ using Compat
 
 import Base: length, convert, promote_rule, show, start, next, done, squeeze
 
-export Leaf, Node, Ensemble, print_tree, depth,
-       build_stump, build_tree, prune_tree, apply_tree, nfoldCV_tree,
-       build_forest, apply_forest, nfoldCV_forest,
-       build_adaboost_stumps, apply_adaboost_stumps, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix,
-       mean_squared_error, R2, _int
+export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
+       prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
+       apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
+       apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
+       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error,
+       R2, _int
+
+# ScikitLearn API
+export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
+       RandomForestRegressor, AdaBoostStumpClassifier,
+       # Should we export these functions? They have a conflict with
+       # DataFrames/RDataset over fit!, and users can always
+       # `using ScikitLearnBase`.
+       predict, predict_proba, fit!, get_classes
 
 #####################################
 ##### Compatilibity Corrections #####
@@ -67,6 +75,7 @@ next(u::UniqueRanges, s) = (val = u.v[s];
 include("measures.jl")
 include("classification.jl")
 include("regression.jl")
+include("scikitlearnAPI.jl")
 
 
 #############################

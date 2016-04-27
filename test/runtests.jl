@@ -1,7 +1,8 @@
 using Base.Test
 using DecisionTree
 
-tests = ["classification_rand.jl", "regression_rand.jl"]
+tests = ["classification_rand.jl", "regression_rand.jl",
+         "classification_scikitlearn.jl"]
 
 println("Running tests...")
 for curtest in tests

@@ -37,7 +37,7 @@ Pkg.add("DecisionTree")
 ## Classification Example
 Load RDatasets and DecisionTree packages
 ```julia
-using RDatasets
+using RDatasets: dataset
 using DecisionTree
 ```
 Separate Fisher's Iris dataset features and labels
@@ -56,6 +56,8 @@ model = prune_tree(model, 0.9)
 print_tree(model, 5)
 # apply learned model
 apply_tree(model, [5.9,3.0,5.1,1.9])
+# get the probability of each label
+apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for pruned tree,
 # using 90% purity threshold purning, and 3 CV folds
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
@@ -67,6 +69,8 @@ Random Forest Classifier
 model = build_forest(labels, features, 2, 10, 0.5)
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
+# get the probability of each label
+apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for forests
 # using 2 random features, 10 trees, 3 folds and 0.5 of samples per tree (optional)
 accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
@@ -77,6 +81,8 @@ Adaptive-Boosted Decision Stumps Classifier
 model, coeffs = build_adaboost_stumps(labels, features, 7);
 # apply learned model
 apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
+# get the probability of each label
+apply_adaboost_stumps_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 accuracy = nfoldCV_stumps(labels, features, 7, 3)
 ```
@@ -111,3 +117,31 @@ apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
 ```
+
+## ScikitLearn.jl
+
+DecisionTree.jl supports the [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) interface and algorithms (cross-validation, hyperparameter tuning,
+pipelines, ...) The classifier example above can be rewritten as:
+
+```julia
+# train full-tree classifier
+model = DecisionTreeClassifier(pruning_purity_threshold=0.9)
+fit!(model, features, labels)
+# pretty print of the tree, to a depth of 5 nodes (optional)
+print_tree(model.root, 5)
+# apply learned model
+predict(model, [5.9,3.0,5.1,1.9])
+# get the probability of each label
+predict_proba(model, [5.9,3.0,5.1,1.9])
+println(get_classes(model)) # returns the ordering of the columns in predict_proba's output
+# run n-fold cross validation over 3 CV folds
+# See ScikitLearn.jl for installation instructions
+using ScikitLearn.CrossValidation: cross_val_score
+accuracy = cross_val_score(model, features, labels, cv=3)
+```
+
+These models are available: `DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier, RandomForestRegressor, AdaBoostStumpClassifier`. See each
+model's help (eg. `?DecisionTreeRegressor` at the REPL) for more information.
+
+Also have a look at these [classification](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Classifier_Comparison_Julia.ipynb), and [regression](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Decision_Tree_Regression_Julia.ipynb) notebooks.
+
