@@ -59,7 +59,7 @@ function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
                 build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures))
 end
 
-function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=0.5, partialsampling=0.7)
+function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7)
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)

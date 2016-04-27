@@ -54,6 +54,7 @@ predict_log_proba(dt::DecisionTreeClassifier, X) =
 
 """
     DecisionTreeRegressor(; pruning_purity_threshold=nothing,
+                          maxlabels::Int=5,
                           nsubfeatures::Int=0)
 Decision tree regression. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
@@ -61,18 +62,20 @@ Decision tree regression. See
 Hyperparameters:
 
 - `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
+- `maxlabels`: maximum number of samples per leaf
 - `nsubfeatures`: number of features to select at random (default: keep all)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 type DecisionTreeRegressor <: BaseRegressor
     pruning_purity_threshold::Nullable{Float64}
+    maxlabels::Int
     nsubfeatures::Int
     root::Node
     # No pruning by default (I think purity_threshold=1.0 is a no-op, maybe
     # we could use that)
-    DecisionTreeRegressor(;pruning_purity_threshold=nothing, nsubfeatures=0) =
-        new(convert(Nullable{Float64}, pruning_purity_threshold), nsubfeatures)
+    DecisionTreeRegressor(;pruning_purity_threshold=nothing, maxlabels=5, nsubfeatures=0) =
+        new(convert(Nullable{Float64}, pruning_purity_threshold), maxlabels, nsubfeatures)
 end
 
 declare_hyperparameters(DecisionTreeRegressor,
@@ -82,7 +85,7 @@ function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
     # build_tree knows that its a regression problem by its argument types. I'm
     # not sure why X has to be Float64, but the method signature requires it
     # (as of April 2016).
-    dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.nsubfeatures)
+    dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.maxlabels, dt.nsubfeatures)
     if !isnull(dt.pruning_purity_threshold)
         dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
     end
@@ -95,8 +98,8 @@ predict(dt::DecisionTreeRegressor, X) = apply_tree(dt.root, X)
 # Random Forest Classification
 
 """
-    RandomForestClassifier(; nsubfeatures=0,
-                           ntrees=10,
+    RandomForestClassifier(; nsubfeatures::Int=0,
+                           ntrees::Int=10,
                            partialsampling=0.7)
 Random forest classification. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
@@ -140,8 +143,9 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
 # Random Forest Regression
 
 """
-    RandomForestRegressor(; nsubfeatures=0,
-                          ntrees=10,
+    RandomForestRegressor(; nsubfeatures::Int=0,
+                          maxlabels::Int=5,
+                          ntrees::Int=10,
                           partialsampling=0.7)
 Random forest regression. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
@@ -150,6 +154,7 @@ Hyperparameters:
 
 - `nsubfeatures`: number of features to select in each tree at random (default:
   keep all)
+- `maxlabels`: maximum number of samples per leaf
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
 
@@ -157,11 +162,12 @@ Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 type RandomForestRegressor <: BaseRegressor
     nsubfeatures::Int
+    maxlabels::Int
     ntrees::Int
     partialsampling::Float64
     ensemble::Ensemble
-    RandomForestRegressor(; nsubfeatures=0, ntrees=10, partialsampling=0.7) = 
-        new(nsubfeatures, ntrees, partialsampling)
+    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7) =
+        new(nsubfeatures, ntrees, maxlabels, partialsampling)
 end
 
 declare_hyperparameters(RandomForestRegressor,
@@ -169,7 +175,7 @@ declare_hyperparameters(RandomForestRegressor,
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
     rf.ensemble = build_forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
-                               rf.ntrees, rf.partialsampling)
+                               rf.ntrees, rf.maxlabels, rf.partialsampling)
     rf
 end
 
@@ -179,7 +185,7 @@ predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
 # AdaBoost Stump Classifier
 
 """
-    AdaBoostStumpClassifier(; niterations=0)
+    AdaBoostStumpClassifier(; niterations::Int=0)
 
 Adaboosted decision tree stumps. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
