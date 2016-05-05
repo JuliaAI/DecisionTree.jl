@@ -79,7 +79,7 @@ type DecisionTreeRegressor <: BaseRegressor
 end
 
 declare_hyperparameters(DecisionTreeRegressor,
-                        [:pruning_purity_threshold, :nsubfeatures])
+                        [:pruning_purity_threshold, :maxlabels, :nsubfeatures])
 
 function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
     # build_tree knows that its a regression problem by its argument types. I'm
@@ -171,7 +171,7 @@ type RandomForestRegressor <: BaseRegressor
 end
 
 declare_hyperparameters(RandomForestRegressor,
-                        [:nsubfeatures, :ntrees, :partialsampling])
+                        [:nsubfeatures, :ntrees, :maxlabels, :partialsampling])
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
     rf.ensemble = build_forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
