@@ -167,7 +167,7 @@ type RandomForestRegressor <: BaseRegressor
     partialsampling::Float64
     ensemble::Ensemble
     RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7) =
-        new(nsubfeatures, ntrees, maxlabels, partialsampling)
+        new(nsubfeatures, maxlabels, ntrees, partialsampling)
 end
 
 declare_hyperparameters(RandomForestRegressor,
