@@ -24,15 +24,53 @@ function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
         else
             domain_i = features_i
         end
-        for thresh in domain_i[2:end]
-            value = _mse_loss(labels_i, features_i, thresh)
-            if value > best_val
-                best_val = value
-                best = (i, thresh)
+        value, thresh = _best_mse_loss(labels_i, features_i, domain_i)
+        if value > best_val
+            best_val = value
+            best = (i, thresh)
+        end
+    end
+
+    return best
+end
+
+function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector{U}, domain)
+    best_val = -Inf
+    best_thresh = 0.0
+    s_l = s2_l = zero(T)
+    su = sum(labels)::T
+    su2 = zero(T); for l in labels su2 += l*l end  # sum of squares
+    nl = 0
+    n = length(labels)
+    i = 1
+    # @assert issorted(features)  # true, but costly assert
+    # Because the `features` are sorted, below is an O(N) algorithm for finding
+    # the optimal threshold amongst `domain`. We simply iterate through the
+    # array and update s_l and s_r (= sum(labels) - s_l) as we go. - @cstjean
+    @inbounds for thresh in domain[2:end]
+        while i <= length(labels) && features[i] < thresh
+            l = labels[i]
+
+            s_l += l
+            s2_l += l*l
+            nl += 1
+
+            i += 1
+        end
+        s_r = su - s_l
+        s2_r = su2 - s2_l
+        nr = n - nl
+        # This check is necessary I think because in theory all labels could
+        # be the same, then either nl or nr would be 0. - @cstjean
+        if nr > 0 && nl > 0
+            loss = s2_l - s_l^2/nl + s2_r - s_r^2/nr
+            if -loss > best_val
+                best_val = -loss
+                best_thresh = thresh
             end
         end
     end
-    return best
+    return best_val, best_thresh
 end
 
 function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U})
