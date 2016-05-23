@@ -1,5 +1,6 @@
 function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int)
     nr, nf = size(features)
+
     best = NO_BEST
     best_val = -Inf
 
@@ -11,15 +12,17 @@ function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
     end
 
     for i in inds
+        # Sorting used to be performed only when nr <= 100, but doing it
+        # unconditionally improved fitting performance by 20%. It's a bit of a
+        # puzzle. Either it improved type-stability, or perhaps branch
+        # prediction is much better on a sorted sequence.
+        ord = sortperm(features[:,i])
+        features_i = features[ord,i]
+        labels_i = labels[ord]
         if nr > 100
-            features_i = features[:,i]
             domain_i = quantile(features_i, linspace(0.01, 0.99, 99))
-            labels_i = labels
         else
-            ord = sortperm(features[:,i])
-            features_i = features[ord,i]
             domain_i = features_i
-            labels_i = labels[ord]
         end
         for thresh in domain_i[2:end]
             value = _mse_loss(labels_i, features_i, thresh)
