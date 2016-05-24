@@ -20,8 +20,12 @@ function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
         features_i = features[ord,i]
         labels_i = labels[ord]
         if nr > 100
-            domain_i = quantile(features_i, linspace(0.01, 0.99, 99);
-                                sorted=true)
+            if VERSION >= v"0.4.0-dev"
+                domain_i = quantile(features_i, linspace(0.01, 0.99, 99);
+                                    sorted=true)
+            else  # sorted=true isn't supported on StatsBase's Julia 0.3 version
+                domain_i = quantile(features_i, linspace(0.01, 0.99, 99))
+            end
         else
             domain_i = features_i
         end
