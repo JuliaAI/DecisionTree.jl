@@ -20,7 +20,8 @@ function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
         features_i = features[ord,i]
         labels_i = labels[ord]
         if nr > 100
-            domain_i = quantile(features_i, linspace(0.01, 0.99, 99))
+            domain_i = quantile(features_i, linspace(0.01, 0.99, 99);
+                                sorted=true)
         else
             domain_i = features_i
         end
@@ -34,7 +35,14 @@ function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
     return best
 end
 
+""" Finds the threshold to split `features` with that minimizes the
+mean-squared-error loss over `labels`.
+
+Returns (best_val, best_thresh), where `best_val` is -MSE """
 function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector{U}, domain)
+    # True, but costly assert. However, see
+    # https://github.com/JuliaStats/StatsBase.jl/issues/164
+    # @assert issorted(features) && issorted(domain) 
     best_val = -Inf
     best_thresh = 0.0
     s_l = s2_l = zero(T)
@@ -43,7 +51,6 @@ function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector
     nl = 0
     n = length(labels)
     i = 1
-    # @assert issorted(features)  # true, but costly assert
     # Because the `features` are sorted, below is an O(N) algorithm for finding
     # the optimal threshold amongst `domain`. We simply iterate through the
     # array and update s_l and s_r (= sum(labels) - s_l) as we go. - @cstjean
