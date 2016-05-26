@@ -161,7 +161,8 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
                           maxlabels::Int=5,
                           ntrees::Int=10,
                           partialsampling=0.7,
-                          maxdepth=-1)
+                          maxdepth=-1,
+                          rng=nothing)
 Random forest regression. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -182,19 +183,23 @@ type RandomForestRegressor <: BaseRegressor
     ntrees::Int
     partialsampling::Float64
     maxdepth::Int
+    rng::AbstractRNG
     ensemble::Ensemble
-    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=-1) =
-        new(nsubfeatures, maxlabels, ntrees, partialsampling, maxdepth)
+    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=-1, rng=nothing) =
+        new(nsubfeatures, maxlabels, ntrees, partialsampling, maxdepth,
+            mk_rng(rng))
 end
 
 declare_hyperparameters(RandomForestRegressor,
                         [:nsubfeatures, :ntrees, :maxlabels, :partialsampling,
-                         :maxdepth])
+                         # I'm not crazy about :rng being a hyperparameter,
+                         # since it'll change throughout fitting, but it works
+                         :maxdepth, :rng])
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
     rf.ensemble = build_forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
                                rf.ntrees, rf.maxlabels, rf.partialsampling,
-                               rf.maxdepth)
+                               rf.maxdepth; rng=rf.rng)
     rf
 end
 
