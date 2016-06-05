@@ -58,7 +58,7 @@ function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector
     # Because the `features` are sorted, below is an O(N) algorithm for finding
     # the optimal threshold amongst `domain`. We simply iterate through the
     # array and update s_l and s_r (= sum(labels) - s_l) as we go. - @cstjean
-    @inbounds for thresh in domain[2:end]
+    @inbounds for thresh in domain
         while i <= length(labels) && features[i] < thresh
             l = labels[i]
 
