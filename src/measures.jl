@@ -76,25 +76,6 @@ function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Ve
     return err
 end
 
-function _mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector{U}, thresh)
-    s_l = s_r = s2_l = s2_r = 0.0
-    nl = nr = 0
-    @inbounds for i in 1:length(labels)
-      l = labels[i]
-      if features[i] < thresh
-        s_l += l
-        s2_l += l*l
-        nl += 1
-      else
-        s_r += l
-        s2_r += l*l
-        nr += 1
-      end
-    end
-    loss = s2_l - s_l^2/nl + s2_r - s_r^2/nr
-    return -loss
-end
-
 function majority_vote(labels::Vector)
     if length(labels) == 0
         return nothing
