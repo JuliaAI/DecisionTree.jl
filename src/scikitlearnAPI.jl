@@ -240,4 +240,6 @@ predict_proba(ada::AdaBoostStumpClassifier, X) =
 ################################################################################
 # Common functions
 
-depth(dt::Union{DecisionTreeClassifier, DecisionTreeRegressor}) = depth(dt.root)
+# Cannot use Union{} in Julia 0.3
+depth(dt::DecisionTreeClassifier) = depth(dt.root)
+depth(dt::DecisionTreeRegressor) = depth(dt.root)
