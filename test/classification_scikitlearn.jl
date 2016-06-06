@@ -18,3 +18,12 @@ model = fit!(RandomForestClassifier(), features, labels)
 model = fit!(AdaBoostStumpClassifier(), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
 mean(predict(model, features) .== labels)
+
+srand(2)
+N = 3000
+X = randn(N, 10)
+# TODO: we should probably support fit!(::DecisionTreeClassifier, ::BitArray)
+y = convert(Vector{Bool}, randn(N) .< 0)
+maxdepth = 5
+model = fit!(DecisionTreeClassifier(maxdepth=maxdepth), X, y)
+@test depth(model) == maxdepth - 1 # -1 because `depth` doesn't count leaves
