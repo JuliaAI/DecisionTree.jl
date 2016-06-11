@@ -8,7 +8,9 @@
 
 Decision Tree Classifier and Regressor in Julia
 
-Implementation of the [ID3 algorithm](http://en.wikipedia.org/wiki/ID3_algorithm)
+Supports the [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) API
+Available models: `DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier, RandomForestRegressor, AdaBoostStumpClassifier`
+See each model's help (eg. `?DecisionTreeRegressor` at the REPL) for more information
 
 ## Classifier
 Includes:
@@ -120,8 +122,8 @@ r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
 
 ## ScikitLearn.jl
 
-DecisionTree.jl supports the [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) interface and algorithms (cross-validation, hyperparameter tuning,
-pipelines, ...) The classifier example above can be rewritten as:
+DecisionTree.jl supports the [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) interface and algorithms (cross-validation, hyperparameter tuning, pipelines, ...)
+The classifier example above can be rewritten as:
 
 ```julia
 # train full-tree classifier
@@ -140,8 +142,8 @@ using ScikitLearn.CrossValidation: cross_val_score
 accuracy = cross_val_score(model, features, labels, cv=3)
 ```
 
-These models are available: `DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier, RandomForestRegressor, AdaBoostStumpClassifier`. See each
-model's help (eg. `?DecisionTreeRegressor` at the REPL) for more information.
+Available models: `DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier, RandomForestRegressor, AdaBoostStumpClassifier`
+See each model's help (eg. `?DecisionTreeRegressor` at the REPL) for more information
 
 Also have a look at these [classification](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Classifier_Comparison_Julia.ipynb), and [regression](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Decision_Tree_Regression_Julia.ipynb) notebooks.
 
