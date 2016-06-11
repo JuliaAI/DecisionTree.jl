@@ -26,4 +26,4 @@ X = randn(N, 10)
 y = convert(Vector{Bool}, randn(N) .< 0)
 maxdepth = 5
 model = fit!(DecisionTreeClassifier(maxdepth=maxdepth), X, y)
-@test depth(model) == maxdepth - 1 # -1 because `depth` doesn't count leaves
+@test depth(model) == maxdepth

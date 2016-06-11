@@ -19,4 +19,4 @@ X = randn(N, 10)
 y = randn(N)
 maxdepth = 5
 model = fit!(DecisionTreeRegressor(maxdepth=maxdepth), X, y)
-@test depth(model) == maxdepth - 1 # -1 because `depth` doesn't count leaves
+@test depth(model) == maxdepth
