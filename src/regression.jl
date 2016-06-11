@@ -96,11 +96,11 @@ function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}
                 Leaf(mean(labels[!split]), labels[!split]))
 end
 
-function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=0)
-    if maxdepth<0
-        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth>0, or maxdepth=0 for infinite depth)")
+function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1)
+    if maxdepth < -1
+        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
     end
-    if length(labels) <= maxlabels || maxdepth==1
+    if length(labels) <= maxlabels || maxdepth==0
         return Leaf(mean(labels), labels)
     end
     S = _split_mse(labels, features, nsubfeatures)
@@ -110,11 +110,11 @@ function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
     id, thresh = S
     split = features[:,id] .< thresh
     return Node(id, thresh,
-                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, 0)),
-                build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures, max(maxdepth-1, 0)))
+                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1)),
+                build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1)))
 end
 
-function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=0)
+function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1)
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)

@@ -112,10 +112,10 @@ function build_stump(labels::Vector, features::Matrix, weights=[0])
                 Leaf(majority_vote(labels[!split]), labels[!split]))
 end
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=0)
-    if maxdepth<0
-        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth>0, or maxdepth=0 for infinite depth)")
-    elseif maxdepth==1
+function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1)
+    if maxdepth < -1
+        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
+    elseif maxdepth==0
         return Leaf(majority_vote(labels), labels)
     end
     S = _split(labels, features, nsubfeatures, [0])
@@ -136,18 +136,18 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=0
         return Node(id, thresh,
                     Leaf(labels_left[1], labels_left),
                     build_tree(labels_right,features[!split,:], nsubfeatures,
-                               max(maxdepth-1, 0)))
+                               max(maxdepth-1, -1)))
     elseif pure_right
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
-                               max(maxdepth-1, 0)),
+                               max(maxdepth-1, -1)),
                     Leaf(labels_right[1], labels_right))
     else
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
-                               max(maxdepth-1, 0)),
+                               max(maxdepth-1, -1)),
                     build_tree(labels_right,features[!split,:], nsubfeatures,
-                               max(maxdepth-1, 0)))
+                               max(maxdepth-1, -1)))
     end
 end
 
@@ -229,7 +229,7 @@ end
 apply_tree_proba(tree::Node, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=0)
+function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1)
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)

@@ -6,14 +6,14 @@ import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
 
 """
     DecisionTreeClassifier(; pruning_purity_threshold=nothing,
-                           nsubfeatures::Int=0, maxdepth::Int=0)
+                           nsubfeatures::Int=0, maxdepth::Int=-1)
 Decision tree classifier. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
 
 - `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
 - `nsubfeatures`: number of features to select at random (default: keep all)
-- `maxdepth`: maximum depth of the decision tree (default=0: no maximum)
+- `maxdepth`: maximum depth of the decision tree (default: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -27,7 +27,7 @@ type DecisionTreeClassifier <: BaseClassifier
     classes::Vector   # an arbitrary ordering of the labels 
     # No pruning by default
     DecisionTreeClassifier(;pruning_purity_threshold=nothing, nsubfeatures=0,
-                           maxdepth=0) =
+                           maxdepth=-1) =
         new(convert(Nullable{Float64}, pruning_purity_threshold), nsubfeatures,
             maxdepth)
 end
@@ -68,7 +68,7 @@ Hyperparameters:
 - `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
 - `maxlabels`: maximum number of samples per leaf, split leaf if exceeded
 - `nsubfeatures`: number of features to select at random (default: keep all)
-- `maxdepth`: maximum depth of the decision tree (default=0: no maximum)
+- `maxdepth`: maximum depth of the decision tree (default: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -81,7 +81,7 @@ type DecisionTreeRegressor <: BaseRegressor
     # No pruning by default (I think purity_threshold=1.0 is a no-op, maybe
     # we could use that)
     DecisionTreeRegressor(;pruning_purity_threshold=nothing, maxlabels=5,
-                          nsubfeatures=0, maxdepth=0) =
+                          nsubfeatures=0, maxdepth=-1) =
         new(convert(Nullable{Float64}, pruning_purity_threshold), maxlabels,
             nsubfeatures, maxdepth)
 end
@@ -111,7 +111,7 @@ predict(dt::DecisionTreeRegressor, X) = apply_tree(dt.root, X)
     RandomForestClassifier(; nsubfeatures::Int=0,
                            ntrees::Int=10,
                            partialsampling=0.7,
-                           maxdepth=0)
+                           maxdepth=-1)
 Random forest classification. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -121,7 +121,7 @@ Hyperparameters:
   keep all)
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
-- `maxdepth`: maximum depth of the decision trees (default=0: no maximum)
+- `maxdepth`: maximum depth of the decision trees (default: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -133,7 +133,7 @@ type RandomForestClassifier <: BaseClassifier
     ensemble::Ensemble
     classes::Vector
     RandomForestClassifier(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
-                           maxdepth=0) = 
+                           maxdepth=-1) =
         new(nsubfeatures, ntrees, partialsampling, maxdepth)
 end
 
@@ -161,7 +161,7 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
                           maxlabels::Int=5,
                           ntrees::Int=10,
                           partialsampling=0.7,
-                          maxdepth=0)
+                          maxdepth=-1)
 Random forest regression. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -172,7 +172,7 @@ Hyperparameters:
 - `maxlabels`: maximum number of samples per leaf, split leaf if exceeded
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
-- `maxdepth`: maximum depth of the decision trees (default=0: no maximum)
+- `maxdepth`: maximum depth of the decision trees (default: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -183,7 +183,7 @@ type RandomForestRegressor <: BaseRegressor
     partialsampling::Float64
     maxdepth::Int
     ensemble::Ensemble
-    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=0) =
+    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=-1) =
         new(nsubfeatures, maxlabels, ntrees, partialsampling, maxdepth)
 end
 
