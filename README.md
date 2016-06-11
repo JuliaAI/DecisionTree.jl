@@ -65,8 +65,8 @@ accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 Random Forest Classifier
 ```julia
 # train random forest classifier
-# using 2 random features, 10 trees, and 0.5 portion of samples per tree (optional)
-model = build_forest(labels, features, 2, 10, 0.5)
+# using 2 random features, 10 trees, 0.5 portion of samples per tree (optional), and a maximum tree depth of 6 (optional)
+model = build_forest(labels, features, 2, 10, 0.5, 6)
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
@@ -125,7 +125,7 @@ pipelines, ...) The classifier example above can be rewritten as:
 
 ```julia
 # train full-tree classifier
-model = DecisionTreeClassifier(pruning_purity_threshold=0.9)
+model = DecisionTreeClassifier(pruning_purity_threshold=0.9, maxdepth=6)
 fit!(model, features, labels)
 # pretty print of the tree, to a depth of 5 nodes (optional)
 print_tree(model.root, 5)

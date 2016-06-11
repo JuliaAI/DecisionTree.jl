@@ -6,13 +6,14 @@ import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
 
 """
     DecisionTreeClassifier(; pruning_purity_threshold=nothing,
-                           nsubfeatures::Int=0)
+                           nsubfeatures::Int=0, maxdepth::Int=0)
 Decision tree classifier. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
 
 - `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
 - `nsubfeatures`: number of features to select at random (default: keep all)
+- `maxdepth`: maximum depth of the decision tree (default=0: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -20,20 +21,23 @@ type DecisionTreeClassifier <: BaseClassifier
     pruning_purity_threshold::Nullable{Float64} # no pruning if null
     # Does nsubfeatures make sense for a stand-alone decision tree?
     nsubfeatures::Int
+    maxdepth::Int
     root::Node
     # classes (in scikit-learn) === labels (in DecisionTree.jl)
     classes::Vector   # an arbitrary ordering of the labels 
     # No pruning by default
-    DecisionTreeClassifier(;pruning_purity_threshold=nothing, nsubfeatures=0) =
-        new(convert(Nullable{Float64}, pruning_purity_threshold), nsubfeatures)
+    DecisionTreeClassifier(;pruning_purity_threshold=nothing, nsubfeatures=0,
+                           maxdepth=0) =
+        new(convert(Nullable{Float64}, pruning_purity_threshold), nsubfeatures,
+            maxdepth)
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
 declare_hyperparameters(DecisionTreeClassifier,
-                        [:pruning_purity_threshold, :nsubfeatures])
+                        [:pruning_purity_threshold, :nsubfeatures, :maxdepth])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
-    dt.root = build_tree(y, X, dt.nsubfeatures)
+    dt.root = build_tree(y, X, dt.nsubfeatures, dt.maxdepth)
     if !isnull(dt.pruning_purity_threshold)
         dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
     end
@@ -64,6 +68,7 @@ Hyperparameters:
 - `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
 - `maxlabels`: maximum number of samples per leaf, split leaf if exceeded
 - `nsubfeatures`: number of features to select at random (default: keep all)
+- `maxdepth`: maximum depth of the decision tree (default=0: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -71,21 +76,26 @@ type DecisionTreeRegressor <: BaseRegressor
     pruning_purity_threshold::Nullable{Float64}
     maxlabels::Int
     nsubfeatures::Int
+    maxdepth::Int
     root::Node
     # No pruning by default (I think purity_threshold=1.0 is a no-op, maybe
     # we could use that)
-    DecisionTreeRegressor(;pruning_purity_threshold=nothing, maxlabels=5, nsubfeatures=0) =
-        new(convert(Nullable{Float64}, pruning_purity_threshold), maxlabels, nsubfeatures)
+    DecisionTreeRegressor(;pruning_purity_threshold=nothing, maxlabels=5,
+                          nsubfeatures=0, maxdepth=0) =
+        new(convert(Nullable{Float64}, pruning_purity_threshold), maxlabels,
+            nsubfeatures, maxdepth)
 end
 
 declare_hyperparameters(DecisionTreeRegressor,
-                        [:pruning_purity_threshold, :maxlabels, :nsubfeatures])
+                        [:pruning_purity_threshold, :maxlabels, :nsubfeatures,
+                         :maxdepth])
 
 function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
     # build_tree knows that its a regression problem by its argument types. I'm
     # not sure why X has to be Float64, but the method signature requires it
     # (as of April 2016).
-    dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.maxlabels, dt.nsubfeatures)
+    dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.maxlabels,
+                         dt.nsubfeatures, dt.maxdepth)
     if !isnull(dt.pruning_purity_threshold)
         dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
     end
@@ -100,7 +110,8 @@ predict(dt::DecisionTreeRegressor, X) = apply_tree(dt.root, X)
 """
     RandomForestClassifier(; nsubfeatures::Int=0,
                            ntrees::Int=10,
-                           partialsampling=0.7)
+                           partialsampling=0.7,
+                           maxdepth=0)
 Random forest classification. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -110,6 +121,7 @@ Hyperparameters:
   keep all)
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
+- `maxdepth`: maximum depth of the decision trees (default=0: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -117,19 +129,21 @@ type RandomForestClassifier <: BaseClassifier
     nsubfeatures::Int
     ntrees::Int
     partialsampling::Float64
+    maxdepth::Int
     ensemble::Ensemble
     classes::Vector
-    RandomForestClassifier(; nsubfeatures=0, ntrees=10, partialsampling=0.7) = 
-        new(nsubfeatures, ntrees, partialsampling)
+    RandomForestClassifier(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
+                           maxdepth=0) = 
+        new(nsubfeatures, ntrees, partialsampling, maxdepth)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
 declare_hyperparameters(RandomForestClassifier,
-                        [:nsubfeatures, :ntrees, :partialsampling])
+                        [:nsubfeatures, :ntrees, :partialsampling, :maxdepth])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
     rf.ensemble = build_forest(y, X, rf.nsubfeatures, rf.ntrees,
-                               rf.partialsampling)
+                               rf.partialsampling, rf.maxdepth)
     rf.classes = sort(unique(y))
     rf
 end
@@ -146,7 +160,8 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
     RandomForestRegressor(; nsubfeatures::Int=0,
                           maxlabels::Int=5,
                           ntrees::Int=10,
-                          partialsampling=0.7)
+                          partialsampling=0.7,
+                          maxdepth=0)
 Random forest regression. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -157,6 +172,7 @@ Hyperparameters:
 - `maxlabels`: maximum number of samples per leaf, split leaf if exceeded
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
+- `maxdepth`: maximum depth of the decision trees (default=0: no maximum)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -165,17 +181,20 @@ type RandomForestRegressor <: BaseRegressor
     maxlabels::Int
     ntrees::Int
     partialsampling::Float64
+    maxdepth::Int
     ensemble::Ensemble
-    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7) =
-        new(nsubfeatures, maxlabels, ntrees, partialsampling)
+    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=0) =
+        new(nsubfeatures, maxlabels, ntrees, partialsampling, maxdepth)
 end
 
 declare_hyperparameters(RandomForestRegressor,
-                        [:nsubfeatures, :ntrees, :maxlabels, :partialsampling])
+                        [:nsubfeatures, :ntrees, :maxlabels, :partialsampling,
+                         :maxdepth])
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
     rf.ensemble = build_forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
-                               rf.ntrees, rf.maxlabels, rf.partialsampling)
+                               rf.ntrees, rf.maxlabels, rf.partialsampling,
+                               rf.maxdepth)
     rf
 end
 
@@ -217,3 +236,10 @@ predict(ada::AdaBoostStumpClassifier, X) =
 
 predict_proba(ada::AdaBoostStumpClassifier, X) =
     apply_adaboost_stumps_proba(ada.ensemble, ada.coeffs, X, ada.classes)
+
+################################################################################
+# Common functions
+
+# Cannot use Union{} in Julia 0.3
+depth(dt::DecisionTreeClassifier) = depth(dt.root)
+depth(dt::DecisionTreeRegressor) = depth(dt.root)

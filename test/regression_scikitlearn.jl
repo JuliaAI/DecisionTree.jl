@@ -12,3 +12,11 @@ model = fit!(DecisionTreeRegressor(maxlabels=5, pruning_purity_threshold=0.1), f
 
 model = fit!(RandomForestRegressor(ntrees=10, maxlabels=5, nsubfeatures=2), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
+
+srand(2)
+N = 3000
+X = randn(N, 10)
+y = randn(N)
+maxdepth = 5
+model = fit!(DecisionTreeRegressor(maxdepth=maxdepth), X, y)
+@test depth(model) == maxdepth - 1 # -1 because `depth` doesn't count leaves
