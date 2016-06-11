@@ -59,7 +59,7 @@ apply_tree(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for pruned tree,
-# using 90% purity threshold purning, and 3 CV folds
+# using 90% purity threshold pruning, and 3 CV folds
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 ```
 Random Forest Classifier
