@@ -6,7 +6,8 @@ import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
 
 """
     DecisionTreeClassifier(; pruning_purity_threshold=nothing,
-                           nsubfeatures::Int=0, maxdepth::Int=-1)
+                           nsubfeatures::Int=0, maxdepth::Int=-1,
+                           rng=Base.GLOBAL_RNG)
 Decision tree classifier. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -14,6 +15,8 @@ Hyperparameters:
 - `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
 - `nsubfeatures`: number of features to select at random (default: keep all)
 - `maxdepth`: maximum depth of the decision tree (default: no maximum)
+- `rng`: the random number generator to use. Can be an `Int`, which will be used
+  to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -22,14 +25,15 @@ type DecisionTreeClassifier <: BaseClassifier
     # Does nsubfeatures make sense for a stand-alone decision tree?
     nsubfeatures::Int
     maxdepth::Int
+    rng::AbstractRNG
     root::Node
     # classes (in scikit-learn) === labels (in DecisionTree.jl)
     classes::Vector   # an arbitrary ordering of the labels 
     # No pruning by default
     DecisionTreeClassifier(;pruning_purity_threshold=nothing, nsubfeatures=0,
-                           maxdepth=-1) =
+                           maxdepth=-1, rng=Base.GLOBAL_RNG) =
         new(convert(Nullable{Float64}, pruning_purity_threshold), nsubfeatures,
-            maxdepth)
+            maxdepth, mk_rng(rng))
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
@@ -37,7 +41,7 @@ declare_hyperparameters(DecisionTreeClassifier,
                         [:pruning_purity_threshold, :nsubfeatures, :maxdepth])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
-    dt.root = build_tree(y, X, dt.nsubfeatures, dt.maxdepth)
+    dt.root = build_tree(y, X, dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
     if !isnull(dt.pruning_purity_threshold)
         dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
     end
@@ -59,7 +63,8 @@ predict_log_proba(dt::DecisionTreeClassifier, X) =
 """
     DecisionTreeRegressor(; pruning_purity_threshold=nothing,
                           maxlabels::Int=5,
-                          nsubfeatures::Int=0)
+                          nsubfeatures::Int=0,
+                          rng=Base.GLOBAL_RNG)
 Decision tree regression. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -69,6 +74,8 @@ Hyperparameters:
 - `maxlabels`: maximum number of samples per leaf, split leaf if exceeded
 - `nsubfeatures`: number of features to select at random (default: keep all)
 - `maxdepth`: maximum depth of the decision tree (default: no maximum)
+- `rng`: the random number generator to use. Can be an `Int`, which will be used
+  to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -77,13 +84,14 @@ type DecisionTreeRegressor <: BaseRegressor
     maxlabels::Int
     nsubfeatures::Int
     maxdepth::Int
+    rng::AbstractRNG
     root::Node
     # No pruning by default (I think purity_threshold=1.0 is a no-op, maybe
     # we could use that)
     DecisionTreeRegressor(;pruning_purity_threshold=nothing, maxlabels=5,
-                          nsubfeatures=0, maxdepth=-1) =
+                          nsubfeatures=0, maxdepth=-1, rng=Base.GLOBAL_RNG) =
         new(convert(Nullable{Float64}, pruning_purity_threshold), maxlabels,
-            nsubfeatures, maxdepth)
+            nsubfeatures, maxdepth, mk_rng(rng))
 end
 
 declare_hyperparameters(DecisionTreeRegressor,
@@ -95,7 +103,7 @@ function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
     # not sure why X has to be Float64, but the method signature requires it
     # (as of April 2016).
     dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.maxlabels,
-                         dt.nsubfeatures, dt.maxdepth)
+                         dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
     if !isnull(dt.pruning_purity_threshold)
         dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
     end
@@ -111,7 +119,8 @@ predict(dt::DecisionTreeRegressor, X) = apply_tree(dt.root, X)
     RandomForestClassifier(; nsubfeatures::Int=0,
                            ntrees::Int=10,
                            partialsampling=0.7,
-                           maxdepth=-1)
+                           maxdepth=-1,
+                           rng=Base.GLOBAL_RNG)
 Random forest classification. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -122,6 +131,8 @@ Hyperparameters:
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
 - `maxdepth`: maximum depth of the decision trees (default: no maximum)
+- `rng`: the random number generator to use. Can be an `Int`, which will be used
+  to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -130,11 +141,12 @@ type RandomForestClassifier <: BaseClassifier
     ntrees::Int
     partialsampling::Float64
     maxdepth::Int
+    rng::AbstractRNG
     ensemble::Ensemble
     classes::Vector
     RandomForestClassifier(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
-                           maxdepth=-1) =
-        new(nsubfeatures, ntrees, partialsampling, maxdepth)
+                           maxdepth=-1, rng=Base.GLOBAL_RNG) =
+        new(nsubfeatures, ntrees, partialsampling, maxdepth, mk_rng(rng))
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
@@ -143,7 +155,7 @@ declare_hyperparameters(RandomForestClassifier,
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
     rf.ensemble = build_forest(y, X, rf.nsubfeatures, rf.ntrees,
-                               rf.partialsampling, rf.maxdepth)
+                               rf.partialsampling, rf.maxdepth; rng=rf.rng)
     rf.classes = sort(unique(y))
     rf
 end
@@ -162,7 +174,7 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
                           ntrees::Int=10,
                           partialsampling=0.7,
                           maxdepth=-1,
-                          rng=nothing)
+                          rng=Base.GLOBAL_RNG)
 Random forest regression. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -174,6 +186,8 @@ Hyperparameters:
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
 - `maxdepth`: maximum depth of the decision trees (default: no maximum)
+- `rng`: the random number generator to use. Can be an `Int`, which will be used
+  to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -185,7 +199,7 @@ type RandomForestRegressor <: BaseRegressor
     maxdepth::Int
     rng::AbstractRNG
     ensemble::Ensemble
-    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=-1, rng=nothing) =
+    RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=-1, rng=Base.GLOBAL_RNG) =
         new(nsubfeatures, maxlabels, ntrees, partialsampling, maxdepth,
             mk_rng(rng))
 end

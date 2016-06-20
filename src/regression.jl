@@ -1,7 +1,6 @@
 # Convenience functions - make a Random Number Generator object
 mk_rng(rng::AbstractRNG) = rng
 mk_rng(seed::Int) = MersenneTwister(seed)
-mk_rng(::Void) = Base.GLOBAL_RNG
 
 function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int, rng)
     nr, nf = size(features)
@@ -120,7 +119,7 @@ function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
 end
 
 function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
-    rng = mk_rng(rng)::MersenneTwister
+    rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
