@@ -77,7 +77,7 @@ Hyperparameters:
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
-Implements `fit!`, `predict`, `predict_proba`, `get_classes`
+Implements `fit!`, `predict`, `get_classes`
 """
 type DecisionTreeRegressor <: BaseRegressor
     pruning_purity_threshold::Nullable{Float64}
@@ -189,7 +189,7 @@ Hyperparameters:
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
-Implements `fit!`, `predict`, `predict_proba`, `get_classes`
+Implements `fit!`, `predict`, `get_classes`
 """
 type RandomForestRegressor <: BaseRegressor
     nsubfeatures::Int
