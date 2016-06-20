@@ -38,7 +38,8 @@ end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
 declare_hyperparameters(DecisionTreeClassifier,
-                        [:pruning_purity_threshold, :nsubfeatures, :maxdepth])
+                        [:pruning_purity_threshold, :nsubfeatures, :maxdepth,
+                         :rng])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
     dt.root = build_tree(y, X, dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
@@ -96,7 +97,7 @@ end
 
 declare_hyperparameters(DecisionTreeRegressor,
                         [:pruning_purity_threshold, :maxlabels, :nsubfeatures,
-                         :maxdepth])
+                         :maxdepth, :rng])
 
 function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
     # build_tree knows that its a regression problem by its argument types. I'm
@@ -151,7 +152,8 @@ end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
 declare_hyperparameters(RandomForestClassifier,
-                        [:nsubfeatures, :ntrees, :partialsampling, :maxdepth])
+                        [:nsubfeatures, :ntrees, :partialsampling, :maxdepth,
+                         :rng])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
     rf.ensemble = build_forest(y, X, rf.nsubfeatures, rf.ntrees,
@@ -231,21 +233,26 @@ Adaboosted decision tree stumps. See
 Hyperparameters:
 
 - `niterations`: number of iterations of AdaBoost
+- `rng`: the random number generator to use. Can be an `Int`, which will be used
+  to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 type AdaBoostStumpClassifier <: BaseClassifier
     niterations::Int
+    rng::AbstractRNG
     ensemble::Ensemble
     coeffs::Vector{Float64}
     classes::Vector
-    AdaBoostStumpClassifier(; niterations=10) = new(niterations)
+    AdaBoostStumpClassifier(; niterations=10, rng=Base.GLOBAL_RNG) =
+        new(niterations, mk_rng(rng))
 end
-declare_hyperparameters(AdaBoostStumpClassifier, [:niterations])
+declare_hyperparameters(AdaBoostStumpClassifier, [:niterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 
 function fit!(ada::AdaBoostStumpClassifier, X, y)
-    ada.ensemble, ada.coeffs = build_adaboost_stumps(y, X, ada.niterations)
+    ada.ensemble, ada.coeffs =
+        build_adaboost_stumps(y, X, ada.niterations; rng=ada.rng)
     ada.classes = sort(unique(y))
     ada
 end

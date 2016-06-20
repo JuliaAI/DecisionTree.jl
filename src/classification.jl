@@ -238,7 +238,7 @@ function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, n
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
-        inds = rand(1:Nlabels, Nsamples)
+        inds = rand(rng, 1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], nsubfeatures, maxdepth;
                    rng=rng)
     end
