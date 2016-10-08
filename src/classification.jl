@@ -1,8 +1,7 @@
 # Utilities
 
 # Returns a dict ("Label1" => 1, "Label2" => 2, "Label3" => 3, ...)
-label_index(labels) =
-    Dict([c=>i for (i, c) in enumerate(labels)])
+label_index(labels) = Dict([Pair(v => k) for (k, v) in enumerate(labels)])
 
 ## Helper function. Counts the votes.
 ## Returns a vector of probabilities (eg. [0.2, 0.6, 0.2]) which is in the same
