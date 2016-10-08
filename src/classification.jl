@@ -34,15 +34,16 @@ end
 
 ################################################################################
 
-function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Vector)
+function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Vector, rng::AbstractRNG)
     if weights == [0]
-        _split_info_gain(labels, features, nsubfeatures)
+        _split_info_gain(labels, features, nsubfeatures, rng)
     else
         _split_neg_z1_loss(labels, features, weights)
     end
 end
 
-function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
+function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int,
+                          rng::AbstractRNG)
     nf = size(features, 2)
     N = length(labels)
 
@@ -50,7 +51,7 @@ function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int)
     best_val = -Inf
 
     if nsubfeatures > 0
-        r = randperm(nf)
+        r = randperm(rng, nf)
         inds = r[1:nsubfeatures]
     else
         inds = 1:nf
@@ -100,8 +101,9 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     return best
 end
 
-function build_stump(labels::Vector, features::Matrix, weights=[0])
-    S = _split(labels, features, 0, weights)
+function build_stump(labels::Vector, features::Matrix, weights=[0];
+                     rng=Base.GLOBAL_RNG)
+    S = _split(labels, features, 0, weights, rng)
     if S == NO_BEST
         return Leaf(majority_vote(labels), labels)
     end
@@ -112,13 +114,14 @@ function build_stump(labels::Vector, features::Matrix, weights=[0])
                 Leaf(majority_vote(labels[!split]), labels[!split]))
 end
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1)
+function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
+    rng = mk_rng(rng)::AbstractRNG
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
     elseif maxdepth==0
         return Leaf(majority_vote(labels), labels)
     end
-    S = _split(labels, features, nsubfeatures, [0])
+    S = _split(labels, features, nsubfeatures, [0], rng)
     if S == NO_BEST
         return Leaf(majority_vote(labels), labels)
     end
@@ -136,18 +139,18 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
         return Node(id, thresh,
                     Leaf(labels_left[1], labels_left),
                     build_tree(labels_right,features[!split,:], nsubfeatures,
-                               max(maxdepth-1, -1)))
+                               max(maxdepth-1, -1); rng=rng))
     elseif pure_right
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
-                               max(maxdepth-1, -1)),
+                               max(maxdepth-1, -1); rng=rng),
                     Leaf(labels_right[1], labels_right))
     else
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
-                               max(maxdepth-1, -1)),
+                               max(maxdepth-1, -1); rng=rng),
                     build_tree(labels_right,features[!split,:], nsubfeatures,
-                               max(maxdepth-1, -1)))
+                               max(maxdepth-1, -1); rng=rng))
     end
 end
 
@@ -229,13 +232,15 @@ end
 apply_tree_proba(tree::Node, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1)
+function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+    rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
-        inds = rand(1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], nsubfeatures, maxdepth)
+        inds = rand(rng, 1:Nlabels, Nsamples)
+        build_tree(labels[inds], features[inds,:], nsubfeatures, maxdepth;
+                   rng=rng)
     end
     return Ensemble([forest;])
 end
@@ -283,13 +288,13 @@ apply_forest_proba(forest::Ensemble, features::Matrix, labels) =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 
-function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer)
+function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer; rng=Base.GLOBAL_RNG)
     N = length(labels)
     weights = ones(N) / N
     stumps = Node[]
     coeffs = Float64[]
     for i in 1:niterations
-        new_stump = build_stump(labels, features, weights)
+        new_stump = build_stump(labels, features, weights; rng=rng)
         predictions = apply_tree(new_stump, features)
         err = _weighted_error(labels, predictions, weights)
         new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))

@@ -1,5 +1,6 @@
 using Base.Test
 using DecisionTree
+using ScikitLearnBase
 
 srand(2)
 n,m = 10^3, 5 ;
@@ -27,3 +28,14 @@ y = convert(Vector{Bool}, randn(N) .< 0)
 maxdepth = 5
 model = fit!(DecisionTreeClassifier(maxdepth=maxdepth), X, y)
 @test depth(model) == maxdepth
+
+
+## Test that the RNG arguments work as expected
+srand(2)
+X = randn(100, 10)
+y = rand(Bool, 100);
+
+@test predict_proba(fit!(RandomForestClassifier(; rng=10), X, y), X) ==
+    predict_proba(fit!(RandomForestClassifier(; rng=10), X, y), X)
+@test predict_proba(fit!(RandomForestClassifier(; rng=10), X, y), X) !=
+    predict_proba(fit!(RandomForestClassifier(; rng=12), X, y), X)

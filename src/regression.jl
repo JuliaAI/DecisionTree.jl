@@ -1,11 +1,15 @@
-function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int)
+# Convenience functions - make a Random Number Generator object
+mk_rng(rng::AbstractRNG) = rng
+mk_rng(seed::Int) = MersenneTwister(seed)
+
+function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int, rng)
     nr, nf = size(features)
 
     best = NO_BEST
     best_val = -Inf
 
     if nsubfeatures > 0
-        r = randperm(nf)
+        r = randperm(rng, nf)
         inds = r[1:nsubfeatures]
     else
         inds = 1:nf
@@ -84,8 +88,8 @@ function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector
     return best_val, best_thresh
 end
 
-function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U})
-    S = _split_mse(labels, features, 0)
+function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}; rng=Base.GLOBAL_RNG)
+    S = _split_mse(labels, features, 0, rng)
     if S == NO_BEST
         return Leaf(mean(labels), labels)
     end
@@ -96,31 +100,32 @@ function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}
                 Leaf(mean(labels[!split]), labels[!split]))
 end
 
-function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1)
+function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
     end
     if length(labels) <= maxlabels || maxdepth==0
         return Leaf(mean(labels), labels)
     end
-    S = _split_mse(labels, features, nsubfeatures)
+    S = _split_mse(labels, features, nsubfeatures, rng)
     if S == NO_BEST
         return Leaf(mean(labels), labels)
     end
     id, thresh = S
     split = features[:,id] .< thresh
     return Node(id, thresh,
-                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1)),
-                build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1)))
+                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng),
+                build_tree(labels[!split], features[!split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng))
 end
 
-function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1)
+function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+    rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
-        inds = rand(1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures, maxdepth)
+        inds = rand(rng, 1:Nlabels, Nsamples)
+        build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures, maxdepth; rng=rng)
     end
     return Ensemble([forest;])
 end
