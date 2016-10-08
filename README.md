@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/bensadeghi/DecisionTree.jl.svg?branch=master)](https://travis-ci.org/bensadeghi/DecisionTree.jl)
 [![Coverage Status](https://coveralls.io/repos/bensadeghi/DecisionTree.jl/badge.svg?branch=master)](https://coveralls.io/r/bensadeghi/DecisionTree.jl?branch=master)
 
-[![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.3.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.3)
 [![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.4.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.4)
+[![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.5.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.5)
 
 Decision Tree Classifier and Regressor in Julia
 
