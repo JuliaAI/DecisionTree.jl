@@ -1,5 +1,5 @@
 import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
-                        fit!, get_classes, declare_hyperparameters
+                        fit!, get_classes, @declare_hyperparameters
 
 ################################################################################
 # Classifier
@@ -37,9 +37,9 @@ type DecisionTreeClassifier <: BaseClassifier
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
-declare_hyperparameters(DecisionTreeClassifier,
-                        [:pruning_purity_threshold, :nsubfeatures, :maxdepth,
-                         :rng])
+@declare_hyperparameters(DecisionTreeClassifier,
+                         [:pruning_purity_threshold, :nsubfeatures, :maxdepth,
+                          :rng])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
     dt.root = build_tree(y, X, dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
@@ -95,9 +95,9 @@ type DecisionTreeRegressor <: BaseRegressor
             nsubfeatures, maxdepth, mk_rng(rng))
 end
 
-declare_hyperparameters(DecisionTreeRegressor,
-                        [:pruning_purity_threshold, :maxlabels, :nsubfeatures,
-                         :maxdepth, :rng])
+@declare_hyperparameters(DecisionTreeRegressor,
+                         [:pruning_purity_threshold, :maxlabels, :nsubfeatures,
+                          :maxdepth, :rng])
 
 function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
     # build_tree knows that its a regression problem by its argument types. I'm
@@ -151,9 +151,9 @@ type RandomForestClassifier <: BaseClassifier
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
-declare_hyperparameters(RandomForestClassifier,
-                        [:nsubfeatures, :ntrees, :partialsampling, :maxdepth,
-                         :rng])
+@declare_hyperparameters(RandomForestClassifier,
+                         [:nsubfeatures, :ntrees, :partialsampling, :maxdepth,
+                          :rng])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
     rf.ensemble = build_forest(y, X, rf.nsubfeatures, rf.ntrees,
@@ -206,11 +206,11 @@ type RandomForestRegressor <: BaseRegressor
             mk_rng(rng))
 end
 
-declare_hyperparameters(RandomForestRegressor,
-                        [:nsubfeatures, :ntrees, :maxlabels, :partialsampling,
-                         # I'm not crazy about :rng being a hyperparameter,
-                         # since it'll change throughout fitting, but it works
-                         :maxdepth, :rng])
+@declare_hyperparameters(RandomForestRegressor,
+                         [:nsubfeatures, :ntrees, :maxlabels, :partialsampling,
+                          # I'm not crazy about :rng being a hyperparameter,
+                          # since it'll change throughout fitting, but it works
+                          :maxdepth, :rng])
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
     rf.ensemble = build_forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
@@ -247,7 +247,7 @@ type AdaBoostStumpClassifier <: BaseClassifier
     AdaBoostStumpClassifier(; niterations=10, rng=Base.GLOBAL_RNG) =
         new(niterations, mk_rng(rng))
 end
-declare_hyperparameters(AdaBoostStumpClassifier, [:niterations, :rng])
+@declare_hyperparameters(AdaBoostStumpClassifier, [:niterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 
 function fit!(ada::AdaBoostStumpClassifier, X, y)
