@@ -4,7 +4,7 @@ module DecisionTree
 
 using Compat
 
-import Base: length, convert, promote_rule, show, start, next, done, squeeze
+import Base: length, convert, promote_rule, show, start, next, done
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
@@ -24,14 +24,12 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
 #####################################
 ##### Compatilibity Corrections #####
 
-if VERSION >= v"0.4.0-dev"
-    typealias Range1{Int} Range{Int}
-    _int(x) = round(Integer, x)
-    float(x) = map(Float64, x)
-else
-    _int(x) = int(x)
-end
-squeeze(v::Vector, i::Integer) = v
+typealias Range1{Int} Range{Int}
+_int(x) = round(Integer, x)
+float(x) = map(Float64, x)
+
+_squeeze(m::Matrix, i::Int) = squeeze(m, i)
+_squeeze(v::Vector, i::Int) = v
 
 
 ###########################
