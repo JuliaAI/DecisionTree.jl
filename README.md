@@ -5,6 +5,7 @@
 
 [![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.4.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.4)
 [![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.5.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.5)
+[![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.6.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.6)
 
 Decision Tree Classifier and Regressor in Julia
 
