@@ -1,5 +1,9 @@
 # Utilities
 
+# Helper to support both Julia 0.5 and 0.6. `.!arr` is invalid in 0.5, and
+# `!arr` triggers a warning in 0.6.
+neg(arr) = map(!, arr)
+
 # Returns a dict ("Label1" => 1, "Label2" => 2, "Label3" => 3, ...)
 label_index(labels) = Dict([Pair(v => k) for (k, v) in enumerate(labels)])
 
@@ -90,7 +94,7 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
         domain_i = sort(unique(features[:,i]))
         for thresh in domain_i[2:end]
             cur_split = features[:,i] .< thresh
-            value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[!cur_split], weights[!cur_split])
+            value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[neg(cur_split)], weights[neg(cur_split)])
             if value > best_val
                 best_val = value
                 best = (i, thresh)
@@ -110,7 +114,7 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
     split = features[:,id] .< thresh
     return Node(id, thresh,
                 Leaf(majority_vote(labels[split]), labels[split]),
-                Leaf(majority_vote(labels[!split]), labels[!split]))
+                Leaf(majority_vote(labels[neg(split)]), labels[neg(split)]))
 end
 
 function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
@@ -127,7 +131,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     id, thresh = S
     split = features[:,id] .< thresh
     labels_left = labels[split]
-    labels_right = labels[!split]
+    labels_right = labels[neg(split)]
     pure_left = all(labels_left .== labels_left[1])
     pure_right = all(labels_right .== labels_right[1])
     if pure_right && pure_left
@@ -137,7 +141,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     elseif pure_left
         return Node(id, thresh,
                     Leaf(labels_left[1], labels_left),
-                    build_tree(labels_right,features[!split,:], nsubfeatures,
+                    build_tree(labels_right,features[neg(split),:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng))
     elseif pure_right
         return Node(id, thresh,
@@ -148,7 +152,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng),
-                    build_tree(labels_right,features[!split,:], nsubfeatures,
+                    build_tree(labels_right,features[neg(split),:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng))
     end
 end
@@ -298,7 +302,7 @@ function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::In
         err = _weighted_error(labels, predictions, weights)
         new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))
         matches = labels .== predictions
-        weights[!matches] *= exp(new_coeff)
+        weights[neg(matches)] *= exp(new_coeff)
         weights[matches] *= exp(-new_coeff)
         weights /= sum(weights)
         push!(coeffs, new_coeff)

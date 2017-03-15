@@ -136,7 +136,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     for i in 1:nfolds
         test_inds = falses(N)
         test_inds[(i - 1) * ntest + 1 : i * ntest] = true
-        train_inds = !test_inds
+        train_inds = neg(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]
         train_features = features[inds[train_inds],:]
@@ -201,7 +201,7 @@ function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, fea
     for i in 1:nfolds
         test_inds = falses(N)
         test_inds[(i - 1) * ntest + 1 : i * ntest] = true
-        train_inds = !test_inds
+        train_inds = neg(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]
         train_features = features[inds[train_inds],:]
