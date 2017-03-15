@@ -25,7 +25,7 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
 ##### Compatilibity Corrections #####
 
 const Range1 = Range
-_int(x) = round.(Integer, x)
+_int(x) = map(y->round(Integer, y), x)
 float(x) = map(Float64, x)
 
 _squeeze(m::Matrix, i::Int) = squeeze(m, i)
