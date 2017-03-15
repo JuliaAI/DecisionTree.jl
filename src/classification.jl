@@ -28,7 +28,7 @@ end
 function stack_function_results(row_fun::Function, X::Matrix)
     N = size(X, 1)
     N_cols = length(row_fun(_squeeze(X[1,:],1))) # gets the number of columns
-    out = Array(Float64, N, N_cols)
+    out = Array{Float64}(N, N_cols)
     for i in 1:N
         out[i, :] = row_fun(_squeeze(X[i,:],1))
     end
@@ -200,7 +200,7 @@ end
 
 function apply_tree(tree::LeafOrNode, features::Matrix)
     N = size(features,1)
-    predictions = Array(Any,N)
+    predictions = Array{Any}(N)
     for i in 1:N
         predictions[i] = apply_tree(tree, _squeeze(features[i,:],1))
     end
@@ -250,7 +250,7 @@ end
 
 function apply_forest(forest::Ensemble, features::Vector)
     ntrees = length(forest)
-    votes = Array(Any,ntrees)
+    votes = Array{Any}(ntrees)
     for i in 1:ntrees
         votes[i] = apply_tree(forest.trees[i],features)
     end
@@ -263,7 +263,7 @@ end
 
 function apply_forest(forest::Ensemble, features::Matrix)
     N = size(features,1)
-    predictions = Array(Any,N)
+    predictions = Array{Any}(N)
     for i in 1:N
         predictions[i] = apply_forest(forest, _squeeze(features[i,:],1))
     end
@@ -334,7 +334,7 @@ end
 
 function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Matrix)
     N = size(features,1)
-    predictions = Array(Any,N)
+    predictions = Array{Any}(N)
     for i in 1:N
         predictions[i] = apply_adaboost_stumps(stumps, coeffs, _squeeze(features[i,:],1))
     end
