@@ -1,9 +1,5 @@
 # Utilities
 
-# Helper to support both Julia 0.5 and 0.6. `.!arr` is invalid in 0.5, and
-# `!arr` triggers a warning in 0.6.
-neg(arr) = map(!, arr)
-
 # Returns a dict ("Label1" => 1, "Label2" => 2, "Label3" => 3, ...)
 label_index(labels) = Dict([Pair(v => k) for (k, v) in enumerate(labels)])
 
