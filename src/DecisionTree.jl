@@ -25,7 +25,7 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
 ##### Compatilibity Corrections #####
 
 typealias Range1{Int} Range{Int}
-_int(x) = round(Integer, x)
+_int(x) = round.(Integer, x)
 float(x) = map(Float64, x)
 
 _squeeze(m::Matrix, i::Int) = squeeze(m, i)
