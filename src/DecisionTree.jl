@@ -24,12 +24,14 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
 #####################################
 ##### Compatilibity Corrections #####
 
-typealias Range1{Int} Range{Int}
-_int(x) = round(Integer, x)
+const Range1 = Range
+_int(x) = map(y->round(Integer, y), x)
 float(x) = map(Float64, x)
 
 _squeeze(m::Matrix, i::Int) = squeeze(m, i)
 _squeeze(v::Vector, i::Int) = v
+# `.!arr` is invalid in 0.5, and `!arr` triggers a warning in 0.6.
+neg(arr) = map(!, arr)
 
 
 ###########################
@@ -42,14 +44,14 @@ immutable Leaf
     values::Vector
 end
 
-@compat immutable Node
+immutable Node
     featid::Integer
     featval::Any
     left::Union{Leaf,Node}
     right::Union{Leaf,Node}
 end
 
-@compat typealias LeafOrNode Union{Leaf,Node}
+const LeafOrNode = Union{Leaf,Node}
 
 immutable Ensemble
     trees::Vector{Node}
