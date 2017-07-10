@@ -39,25 +39,24 @@ neg(arr) = map(!, arr)
 
 const NO_BEST=(0,0)
 
-immutable Leaf
-    majority::Any
-    values::Vector
+immutable Leaf{S}
+    majority::S
+    values::Vector{S}
 end
 
-immutable Node
-    featid::Integer
-    featval::Any
-    left::Union{Leaf,Node}
-    right::Union{Leaf,Node}
+immutable Node{S,T}
+    featid::Int
+    featval::T
+    left::Union{Leaf{S},Node{S, T}}
+    right::Union{Leaf{S},Node{S, T}}
 end
 
-const LeafOrNode = Union{Leaf,Node}
+@compat const LeafOrNode{S,T} = Union{Leaf{S},Node{S, T}}
 
-immutable Ensemble
-    trees::Vector{Node}
+immutable Ensemble{S, T}
+    trees::Vector{Node{S, T}}
 end
 
-convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
