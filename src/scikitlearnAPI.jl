@@ -26,7 +26,7 @@ type DecisionTreeClassifier <: BaseClassifier
     nsubfeatures::Int
     maxdepth::Int
     rng::AbstractRNG
-    root::Node
+    root::LeafOrNode
     # classes (in scikit-learn) === labels (in DecisionTree.jl)
     classes::Vector   # an arbitrary ordering of the labels 
     # No pruning by default
@@ -86,7 +86,7 @@ type DecisionTreeRegressor <: BaseRegressor
     nsubfeatures::Int
     maxdepth::Int
     rng::AbstractRNG
-    root::Node
+    root::LeafOrNode
     # No pruning by default (I think purity_threshold=1.0 is a no-op, maybe
     # we could use that)
     DecisionTreeRegressor(;pruning_purity_threshold=nothing, maxlabels=5,

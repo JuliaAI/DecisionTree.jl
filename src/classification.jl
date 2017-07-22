@@ -226,7 +226,7 @@ function apply_tree_proba(tree::Node, features::Vector, labels)
     end
 end
 
-apply_tree_proba(tree::Node, features::Matrix, labels) =
+apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
 function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
