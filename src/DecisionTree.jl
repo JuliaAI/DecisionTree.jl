@@ -30,7 +30,6 @@ float(x) = map(Float64, x)
 
 _squeeze(m::Matrix, i::Int) = squeeze(m, i)
 _squeeze(v::Vector, i::Int) = v
-# `.!arr` is invalid in 0.5, and `!arr` triggers a warning in 0.6.
 neg(arr) = map(!, arr)
 
 
@@ -56,9 +55,6 @@ end
 immutable Ensemble{S, T}
     trees::Vector{Node{S, T}}
 end
-
-promote_rule(::Type{Node}, ::Type{Leaf}) = Node
-promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
 immutable UniqueRanges
     v::AbstractVector
