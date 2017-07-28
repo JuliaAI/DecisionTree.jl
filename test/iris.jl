@@ -1,10 +1,10 @@
 using Base.Test
-using RDatasets
+using RDatasets: dataset
 using DecisionTree
 
-iris = dataset("datasets", "iris")
-features = array(iris[:, 1:4]);
-labels = array(iris[:, 5]);
+iris = dataset("datasets", "iris");
+features = convert(Array, iris[:, 1:4]);
+labels = convert(Array, iris[:, 5]);
 
 # train full-tree classifier
 model = build_tree(labels, features)
