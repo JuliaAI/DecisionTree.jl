@@ -41,21 +41,7 @@ function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Ve
     end
 end
 
-function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int,
-                          rng::AbstractRNG)
-    nf = size(features, 2)
-    N = length(labels)
-
-    best = NO_BEST
-    best_val = -Inf
-
-    if nsubfeatures > 0
-        r = randperm(rng, nf)
-        inds = r[1:nsubfeatures]
-    else
-        inds = 1:nf
-    end
-
+function _split_info_gain_loop(best, best_val, inds, features, labels, N)
     for i in inds
         ord = sortperm(features[:,i])
         features_i = features[ord,i]
@@ -81,6 +67,24 @@ function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int,
         end
     end
     return best
+end
+
+function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int,
+                          rng::AbstractRNG)
+    nf = size(features, 2)
+    N = length(labels)
+
+    best = NO_BEST
+    best_val = -Inf
+
+    if nsubfeatures > 0
+        r = randperm(rng, nf)
+        inds = r[1:nsubfeatures]
+    else
+        inds = 1:nf
+    end
+
+    return _split_info_gain_loop(best, best_val, inds, features, labels, N)
 end
 
 function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)

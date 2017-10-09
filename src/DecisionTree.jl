@@ -56,8 +56,8 @@ immutable Ensemble{S, T}
     trees::Vector{Node{S, T}}
 end
 
-immutable UniqueRanges
-    v::AbstractVector
+immutable UniqueRanges{V<:AbstractVector}
+    v::V
 end
 
 start(u::UniqueRanges) = 1
