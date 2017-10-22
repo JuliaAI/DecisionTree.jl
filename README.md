@@ -75,7 +75,7 @@ apply_forest(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for forests
-# using 2 random features, 10 trees, 3 folds and 0.5 of samples per tree (optional)
+# using 2 random features, 10 trees, 3 folds, and 0.5 portion of samples per tree (optional)
 accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
 ```
 Adaptive-Boosted Decision Stumps Classifier
@@ -103,19 +103,19 @@ Regression Tree
 model = build_tree(labels, features, 5)
 # apply learned model
 apply_tree(model, [-0.9,3.0,5.1,1.9,0.0])
-# run n-fold cross validation, using 3 folds, averaging of 5 samples per leaf (optional)
+# run n-fold cross validation, using 3 folds and averaging of 5 samples per leaf (optional)
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_tree(labels, features, 3, 5)
 ```
 Regression Random Forest
 ```julia
 # train regression forest, using 2 random features, 10 trees,
-# averaging of 5 samples per leaf (optional), 0.7 of samples per tree (optional)
-model = build_forest(labels,features, 2, 10, 5, 0.7)
+# averaging of 5 samples per leaf (optional), and 0.7 portion of samples per tree (optional)
+model = build_forest(labels, features, 2, 10, 5, 0.7)
 # apply learned model
 apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation on regression forest
-# using 2 random features, 10 trees, 3 folds, averaging of 5 samples/leaf (optional),
+# using 2 random features, 10 trees, 3 folds, averaging of 5 samples per leaf (optional),
 # and 0.7 porition of samples per tree (optional)
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
@@ -148,4 +148,3 @@ Available models: `DecisionTreeClassifier, DecisionTreeRegressor, RandomForestCl
 See each model's help (eg. `?DecisionTreeRegressor` at the REPL) for more information
 
 Also have a look at these [classification](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Classifier_Comparison_Julia.ipynb), and [regression](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Decision_Tree_Regression_Julia.ipynb) notebooks.
-
