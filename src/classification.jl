@@ -186,10 +186,12 @@ function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
     return pruned
 end
 
-apply_tree{S}(leaf::Leaf{S}, feature::Vector)::S = leaf.majority
+apply_tree(leaf::Leaf, feature::Vector) = leaf.majority
 
-function apply_tree{S,T}(tree::Node{S,T}, features::Vector)::S
-    if features[tree.featid] < tree.featval
+function apply_tree(tree::Node, features::Vector)
+    if tree.featval == nothing
+        return apply_tree(tree.left, features)
+    elseif features[tree.featid] < tree.featval
         return apply_tree(tree.left, features)
     else
         return apply_tree(tree.right, features)
@@ -246,17 +248,18 @@ function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, n
     return Ensemble([forest;])
 end
 
-function apply_forest{S, T}(forest::Ensemble{S, T}, features::Vector)
+function apply_forest(forest::Ensemble, features::Vector)
     ntrees = length(forest)
-    votes = Array{S}(ntrees)
+    votes = Array{Any}(ntrees)
     for i in 1:ntrees
         votes[i] = apply_tree(forest.trees[i],features)
     end
-    summarize_votes(votes)
+    if typeof(votes[1]) <: Float64
+        return mean(votes)
+    else
+        return majority_vote(votes)
+    end
 end
-
-summarize_votes{S<:Float64}(votes::Vector{S}) = mean(votes)
-summarize_votes(votes::Vector) = majority_vote(votes)
 
 function apply_forest(forest::Ensemble, features::Matrix)
     N = size(features,1)
@@ -288,10 +291,10 @@ apply_forest_proba(forest::Ensemble, features::Matrix, labels) =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 
-function build_adaboost_stumps{S,T}(labels::Vector{S}, features::Matrix{T}, niterations::Integer; rng=Base.GLOBAL_RNG)
+function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer; rng=Base.GLOBAL_RNG)
     N = length(labels)
     weights = ones(N) / N
-    stumps = Node{S,T}[]
+    stumps = Node[]
     coeffs = Float64[]
     for i in 1:niterations
         new_stump = build_stump(labels, features, weights; rng=rng)
@@ -358,3 +361,4 @@ function apply_adaboost_stumps_proba(stumps::Ensemble, coeffs::Vector{Float64},
                                                            labels),
                            features)
 end
+
