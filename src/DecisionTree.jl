@@ -2,8 +2,6 @@ __precompile__()
 
 module DecisionTree
 
-using Compat
-
 import Base: length, convert, promote_rule, show, start, next, done
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
@@ -24,14 +22,7 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
 #####################################
 ##### Compatilibity Corrections #####
 
-const Range1 = Range
 _int(x) = map(y->round(Integer, y), x)
-float(x) = map(Float64, x)
-
-_squeeze(m::Matrix, i::Int) = squeeze(m, i)
-_squeeze(v::Vector, i::Int) = v
-neg(arr) = map(!, arr)
-
 
 ###########################
 ########## Types ##########
@@ -50,7 +41,7 @@ immutable Node
     right::Union{Leaf,Node}
 end
 
-@compat const LeafOrNode = Union{Leaf,Node}
+const LeafOrNode = Union{Leaf,Node}
 
 immutable Ensemble
     trees::Vector{Node}

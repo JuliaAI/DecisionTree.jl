@@ -23,10 +23,10 @@ end
 # and returns a Matrix containing the resulting vectors, stacked vertically
 function stack_function_results(row_fun::Function, X::Matrix)
     N = size(X, 1)
-    N_cols = length(row_fun(_squeeze(X[1,:],1))) # gets the number of columns
+    N_cols = length(row_fun(X[1, :])) # gets the number of columns
     out = Array{Float64}(N, N_cols)
     for i in 1:N
-        out[i, :] = row_fun(_squeeze(X[i,:],1))
+        out[i, :] = row_fun(X[i, :])
     end
     return out
 end
@@ -94,7 +94,7 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
         domain_i = sort(unique(features[:,i]))
         for thresh in domain_i[2:end]
             cur_split = features[:,i] .< thresh
-            value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[neg(cur_split)], weights[neg(cur_split)])
+            value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[(!).(cur_split)], weights[(!).(cur_split)])
             if value > best_val
                 best_val = value
                 best = (i, thresh)
@@ -114,7 +114,7 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
     split = features[:,id] .< thresh
     return Node(id, thresh,
                 Leaf(majority_vote(labels[split]), labels[split]),
-                Leaf(majority_vote(labels[neg(split)]), labels[neg(split)]))
+                Leaf(majority_vote(labels[(!).(split)]), labels[(!).(split)]))
 end
 
 function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
@@ -131,7 +131,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     id, thresh = S
     split = features[:,id] .< thresh
     labels_left = labels[split]
-    labels_right = labels[neg(split)]
+    labels_right = labels[(!).(split)]
     pure_left = all(labels_left .== labels_left[1])
     pure_right = all(labels_right .== labels_right[1])
     if pure_right && pure_left
@@ -141,7 +141,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     elseif pure_left
         return Node(id, thresh,
                     Leaf(labels_left[1], labels_left),
-                    build_tree(labels_right,features[neg(split),:], nsubfeatures,
+                    build_tree(labels_right,features[(!).(split),:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng))
     elseif pure_right
         return Node(id, thresh,
@@ -152,7 +152,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng),
-                    build_tree(labels_right,features[neg(split),:], nsubfeatures,
+                    build_tree(labels_right,features[(!).(split),:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng))
     end
 end
@@ -202,10 +202,10 @@ function apply_tree(tree::LeafOrNode, features::Matrix)
     N = size(features,1)
     predictions = Array{Any}(N)
     for i in 1:N
-        predictions[i] = apply_tree(tree, _squeeze(features[i,:],1))
+        predictions[i] = apply_tree(tree, features[i, :])
     end
     if typeof(predictions[1]) <: Float64
-        return float(predictions)
+        return Float64.(predictions)
     else
         return predictions
     end
@@ -252,7 +252,7 @@ function apply_forest(forest::Ensemble, features::Vector)
     ntrees = length(forest)
     votes = Array{Any}(ntrees)
     for i in 1:ntrees
-        votes[i] = apply_tree(forest.trees[i],features)
+        votes[i] = apply_tree(forest.trees[i], features)
     end
     if typeof(votes[1]) <: Float64
         return mean(votes)
@@ -265,10 +265,10 @@ function apply_forest(forest::Ensemble, features::Matrix)
     N = size(features,1)
     predictions = Array{Any}(N)
     for i in 1:N
-        predictions[i] = apply_forest(forest, _squeeze(features[i,:],1))
+        predictions[i] = apply_forest(forest, features[i, :])
     end
     if typeof(predictions[1]) <: Float64
-        return float(predictions)
+        return Float64.(predictions)
     else
         return predictions
     end
@@ -302,7 +302,7 @@ function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::In
         err = _weighted_error(labels, predictions, weights)
         new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))
         matches = labels .== predictions
-        weights[neg(matches)] *= exp(new_coeff)
+        weights[(!).(matches)] *= exp(new_coeff)
         weights[matches] *= exp(-new_coeff)
         weights /= sum(weights)
         push!(coeffs, new_coeff)
@@ -336,7 +336,7 @@ function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, featur
     N = size(features,1)
     predictions = Array{Any}(N)
     for i in 1:N
-        predictions[i] = apply_adaboost_stumps(stumps, coeffs, _squeeze(features[i,:],1))
+        predictions[i] = apply_adaboost_stumps(stumps, coeffs, features[i,:])
     end
     return predictions
 end

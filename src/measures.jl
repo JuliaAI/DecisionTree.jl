@@ -16,7 +16,7 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
     for i in region
         lbl = labels[i]
         counts[lbl] = get(counts, lbl, 0) + 1
@@ -24,7 +24,7 @@ function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{In
     return counts
 end
 
-function _hist_sub!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+function _hist_sub!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
     for i in region
         lbl = labels[i]
         counts[lbl] -= 1
@@ -32,7 +32,7 @@ function _hist_sub!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::Range1{In
     return counts
 end
 
-function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, labels::Vector{T}, region::Range1{Int})
+function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
     for i in region
         lbl = labels[i]
         counts_from[lbl] -= 1
@@ -41,7 +41,7 @@ function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, label
     return nothing
 end
 
-_hist{T}(labels::Vector{T}, region::Range1{Int} = 1:endof(labels)) = 
+_hist{T}(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) = 
     _hist_add!(Dict{T,Int}(), labels, region)
 
 function _set_entropy{T}(counts::Dict{T,Int}, N::Int)
@@ -136,7 +136,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     for i in 1:nfolds
         test_inds = falses(N)
         test_inds[(i - 1) * ntest + 1 : i * ntest] = true
-        train_inds = neg(test_inds)
+        train_inds = (!).(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]
         train_features = features[inds[train_inds],:]
@@ -201,7 +201,7 @@ function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, fea
     for i in 1:nfolds
         test_inds = falses(N)
         test_inds[(i - 1) * ntest + 1 : i * ntest] = true
-        train_inds = neg(test_inds)
+        train_inds = (!).(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]
         train_features = features[inds[train_inds],:]
