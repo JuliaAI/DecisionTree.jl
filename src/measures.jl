@@ -142,17 +142,17 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
         train_features = features[inds[train_inds],:]
         train_labels = labels[inds[train_inds]]
         if classifier == :tree
-            model = build_tree(train_labels, train_features, 0)
+            model = tree(train_labels, train_features, 0)
             if pruning_purity < 1.0
-                model = prune_tree(model, pruning_purity)
+                model = prune(model, pruning_purity)
             end
-            predictions = apply_tree(model, test_features)
+            predictions = apply(model, test_features)
         elseif classifier == :forest
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, partialsampling)
-            predictions = apply_forest(model, test_features)
+            model = forest(train_labels, train_features, nsubfeatures, ntrees, partialsampling)
+            predictions = apply(model, test_features)
         elseif classifier == :stumps
-            model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
-            predictions = apply_adaboost_stumps(model, coeffs, test_features)
+            model, coeffs = adaboost_stumps(train_labels, train_features, niterations)
+            predictions = apply(model, coeffs, test_features)
         end
         cm = confusion_matrix(test_labels, predictions)
         accuracy[i] = cm.accuracy
@@ -207,11 +207,11 @@ function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, fea
         train_features = features[inds[train_inds],:]
         train_labels = labels[inds[train_inds]]
         if regressor == :tree
-            model = build_tree(train_labels, train_features, maxlabels, 0)
-            predictions = apply_tree(model, test_features)
+            model = tree(train_labels, train_features, maxlabels, 0)
+            predictions = apply(model, test_features)
         elseif regressor == :forest
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, maxlabels, partialsampling)
-            predictions = apply_forest(model, test_features)
+            model = forest(train_labels, train_features, nsubfeatures, ntrees, maxlabels, partialsampling)
+            predictions = apply(model, test_features)
         end
         err = mean_squared_error(test_labels, predictions)
         corr = cor(test_labels, predictions)

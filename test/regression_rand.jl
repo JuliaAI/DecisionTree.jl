@@ -7,7 +7,7 @@ weights = rand(-2:2,m);
 labels = features * weights;
 
 maxdepth = 3
-model = build_tree(labels, features, 5, 0, maxdepth)
+model = tree(labels, features, 5, 0, maxdepth)
 @test depth(model) == maxdepth
 
 println("\n##### nfoldCV Regression Tree #####")

@@ -42,18 +42,18 @@ get_classes(dt::DecisionTreeClassifier) = dt.classes
                           :rng])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
-    dt.root = build_tree(y, X, dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
+    dt.root = tree(y, X, dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
     if !isnull(dt.pruning_purity_threshold)
-        dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
+        dt.root = prune(dt.root, get(dt.pruning_purity_threshold))
     end
     dt.classes = sort(unique(y))
     dt
 end
 
-predict(dt::DecisionTreeClassifier, X) = apply_tree(dt.root, X)
+predict(dt::DecisionTreeClassifier, X) = apply(dt.root, X)
 
 predict_proba(dt::DecisionTreeClassifier, X) =
-    apply_tree_proba(dt.root, X, dt.classes)
+    predict_proba(dt.root, X, dt.classes)
 
 predict_log_proba(dt::DecisionTreeClassifier, X) =
     log(predict_proba(dt, X)) # this will yield -Inf when p=0. Hmmm...
@@ -100,18 +100,18 @@ end
                           :maxdepth, :rng])
 
 function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
-    # build_tree knows that its a regression problem by its argument types. I'm
+    # tree knows that its a regression problem by its argument types. I'm
     # not sure why X has to be Float64, but the method signature requires it
     # (as of April 2016).
-    dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.maxlabels,
+    dt.root = tree(y, convert(Matrix{Float64}, X), dt.maxlabels,
                          dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
     if !isnull(dt.pruning_purity_threshold)
-        dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
+        dt.root = prune(dt.root, get(dt.pruning_purity_threshold))
     end
     dt
 end
 
-predict(dt::DecisionTreeRegressor, X) = apply_tree(dt.root, X)
+predict(dt::DecisionTreeRegressor, X) = apply(dt.root, X)
 
 ################################################################################
 # Random Forest Classification
@@ -143,7 +143,7 @@ type RandomForestClassifier <: BaseClassifier
     partialsampling::Float64
     maxdepth::Int
     rng::AbstractRNG
-    ensemble::Ensemble
+    forest::Forest
     classes::Vector
     RandomForestClassifier(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
                            maxdepth=-1, rng=Base.GLOBAL_RNG) =
@@ -156,16 +156,16 @@ get_classes(rf::RandomForestClassifier) = rf.classes
                           :rng])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
-    rf.ensemble = build_forest(y, X, rf.nsubfeatures, rf.ntrees,
+    rf.forest = forest(y, X, rf.nsubfeatures, rf.ntrees,
                                rf.partialsampling, rf.maxdepth; rng=rf.rng)
     rf.classes = sort(unique(y))
     rf
 end
 
 predict_proba(rf::RandomForestClassifier, X) = 
-    apply_forest_proba(rf.ensemble, X, rf.classes)
+    apply_proba(rf.forest, X, rf.classes)
 
-predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
+predict(rf::RandomForestClassifier, X) = apply(rf.forest, X)
 
 ################################################################################
 # Random Forest Regression
@@ -200,7 +200,7 @@ type RandomForestRegressor <: BaseRegressor
     partialsampling::Float64
     maxdepth::Int
     rng::AbstractRNG
-    ensemble::Ensemble
+    forest::Forest
     RandomForestRegressor(; nsubfeatures=0, ntrees=10, maxlabels=5, partialsampling=0.7, maxdepth=-1, rng=Base.GLOBAL_RNG) =
         new(nsubfeatures, maxlabels, ntrees, partialsampling, maxdepth,
             mk_rng(rng))
@@ -213,13 +213,13 @@ end
                           :maxdepth, :rng])
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
-    rf.ensemble = build_forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
+    rf.forest = forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
                                rf.ntrees, rf.maxlabels, rf.partialsampling,
                                rf.maxdepth; rng=rf.rng)
     rf
 end
 
-predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
+predict(rf::RandomForestRegressor, X) = apply(rf.forest, X)
 
 ################################################################################
 # AdaBoost Stump Classifier
@@ -252,16 +252,16 @@ get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 
 function fit!(ada::AdaBoostStumpClassifier, X, y)
     ada.ensemble, ada.coeffs =
-        build_adaboost_stumps(y, X, ada.niterations; rng=ada.rng)
+        adaboost_stumps(y, X, ada.niterations; rng=ada.rng)
     ada.classes = sort(unique(y))
     ada
 end
 
 predict(ada::AdaBoostStumpClassifier, X) =
-    apply_adaboost_stumps(ada.ensemble, ada.coeffs, X)
+    apply(ada.ensemble, ada.coeffs, X)
 
 predict_proba(ada::AdaBoostStumpClassifier, X) =
-    apply_adaboost_stumps_proba(ada.ensemble, ada.coeffs, X, ada.classes)
+    apply_proba(ada.ensemble, ada.coeffs, X, ada.classes)
 
 ################################################################################
 # Common functions

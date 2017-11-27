@@ -104,7 +104,7 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     return best
 end
 
-function build_stump(labels::Vector, features::Matrix, weights=[0];
+function stump(labels::Vector, features::Matrix, weights=[0];
                      rng=Base.GLOBAL_RNG)
     S = _split(labels, features, 0, weights, rng)
     if S == NO_BEST
@@ -117,7 +117,7 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
                 Leaf(majority_vote(labels[neg(split)]), labels[neg(split)]))
 end
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
@@ -141,23 +141,23 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     elseif pure_left
         return Node(id, thresh,
                     Leaf(labels_left[1], labels_left),
-                    build_tree(labels_right,features[neg(split),:], nsubfeatures,
+                    tree(labels_right,features[neg(split),:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng))
     elseif pure_right
         return Node(id, thresh,
-                    build_tree(labels_left,features[split,:], nsubfeatures,
+                    tree(labels_left,features[split,:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng),
                     Leaf(labels_right[1], labels_right))
     else
         return Node(id, thresh,
-                    build_tree(labels_left,features[split,:], nsubfeatures,
+                    tree(labels_left,features[split,:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng),
-                    build_tree(labels_right,features[neg(split),:], nsubfeatures,
+                    tree(labels_right,features[neg(split),:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng))
     end
 end
 
-function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
+function prune(tree::LeafOrNode, purity_thresh=1.0)
     function _prune_run(tree::LeafOrNode, purity_thresh::Real)
         N = length(tree)
         if N == 1        ## a Leaf
@@ -186,23 +186,23 @@ function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
     return pruned
 end
 
-apply_tree(leaf::Leaf, feature::Vector) = leaf.majority
+apply(leaf::Leaf, feature::Vector) = leaf.majority
 
-function apply_tree(tree::Node, features::Vector)
+function apply(tree::Node, features::Vector)
     if tree.featval == nothing
-        return apply_tree(tree.left, features)
+        return apply(tree.left, features)
     elseif features[tree.featid] < tree.featval
-        return apply_tree(tree.left, features)
+        return apply(tree.left, features)
     else
-        return apply_tree(tree.right, features)
+        return apply(tree.right, features)
     end
 end
 
-function apply_tree(tree::LeafOrNode, features::Matrix)
+function apply(tree::LeafOrNode, features::Matrix)
     N = size(features,1)
     predictions = Array{Any}(N)
     for i in 1:N
-        predictions[i] = apply_tree(tree, _squeeze(features[i,:],1))
+        predictions[i] = apply(tree, _squeeze(features[i,:],1))
     end
     if typeof(predictions[1]) <: Float64
         return float(predictions)
@@ -211,7 +211,7 @@ function apply_tree(tree::LeafOrNode, features::Matrix)
     end
 end
 
-"""    apply_tree_proba(::Node, features, col_labels::Vector)
+"""    apply_proba(::Node, features, col_labels::Vector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
@@ -219,40 +219,40 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-apply_tree_proba(leaf::Leaf, features::Vector, labels) =
+apply_proba(leaf::Leaf, features::Vector, labels) =
     compute_probabilities(labels, leaf.values)
 
-function apply_tree_proba(tree::Node, features::Vector, labels)
+function apply_proba(tree::Node, features::Vector, labels)
     if tree.featval === nothing
-        return apply_tree_proba(tree.left, features, labels)
+        return apply_proba(tree.left, features, labels)
     elseif features[tree.featid] < tree.featval
-        return apply_tree_proba(tree.left, features, labels)
+        return apply_proba(tree.left, features, labels)
     else
-        return apply_tree_proba(tree.right, features, labels)
+        return apply_proba(tree.right, features, labels)
     end
 end
 
-apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
-    stack_function_results(row->apply_tree_proba(tree, row, labels), features)
+apply_proba(tree::LeafOrNode, features::Matrix, labels) =
+    stack_function_results(row->apply_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(rng, 1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], nsubfeatures, maxdepth;
+        tree(labels[inds], features[inds,:], nsubfeatures, maxdepth;
                    rng=rng)
     end
-    return Ensemble([forest;])
+    return Forest([forest;])
 end
 
-function apply_forest(forest::Ensemble, features::Vector)
+function apply(forest::Forest, features::Vector)
     ntrees = length(forest)
     votes = Array{Any}(ntrees)
     for i in 1:ntrees
-        votes[i] = apply_tree(forest.trees[i],features)
+        votes[i] = apply(forest.trees[i],features)
     end
     if typeof(votes[1]) <: Float64
         return mean(votes)
@@ -261,11 +261,11 @@ function apply_forest(forest::Ensemble, features::Vector)
     end
 end
 
-function apply_forest(forest::Ensemble, features::Matrix)
+function apply(forest::Forest, features::Matrix)
     N = size(features,1)
     predictions = Array{Any}(N)
     for i in 1:N
-        predictions[i] = apply_forest(forest, _squeeze(features[i,:],1))
+        predictions[i] = apply(forest, _squeeze(features[i,:],1))
     end
     if typeof(predictions[1]) <: Float64
         return float(predictions)
@@ -274,7 +274,7 @@ function apply_forest(forest::Ensemble, features::Matrix)
     end
 end
 
-"""    apply_forest_proba(forest::Ensemble, features, col_labels::Vector)
+"""    apply_proba(forest::Forest, features, col_labels::Vector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
@@ -282,23 +282,23 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-function apply_forest_proba(forest::Ensemble, features::Vector, labels)
-    votes = [apply_tree(tree, features) for tree in forest.trees]
+function apply_proba(forest::Forest, features::Vector, labels)
+    votes = [apply(tree, features) for tree in forest.trees]
     return compute_probabilities(labels, votes)
 end
 
-apply_forest_proba(forest::Ensemble, features::Matrix, labels) =
-    stack_function_results(row->apply_forest_proba(forest, row, labels),
+apply_proba(forest::Forest, features::Matrix, labels) =
+    stack_function_results(row->apply_proba(forest, row, labels),
                            features)
 
-function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer; rng=Base.GLOBAL_RNG)
+function adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer; rng=Base.GLOBAL_RNG)
     N = length(labels)
     weights = ones(N) / N
     stumps = Node[]
     coeffs = Float64[]
     for i in 1:niterations
-        new_stump = build_stump(labels, features, weights; rng=rng)
-        predictions = apply_tree(new_stump, features)
+        new_stump = stump(labels, features, weights; rng=rng)
+        predictions = apply(new_stump, features)
         err = _weighted_error(labels, predictions, weights)
         new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))
         matches = labels .== predictions
@@ -314,11 +314,11 @@ function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::In
     return (Ensemble(stumps), coeffs)
 end
 
-function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Vector)
+function apply(stumps::Ensemble, coeffs::Vector{Float64}, features::Vector)
     nstumps = length(stumps)
     counts = Dict()
     for i in 1:nstumps
-        prediction = apply_tree(stumps.trees[i], features)
+        prediction = apply(stumps.trees[i], features)
         counts[prediction] = get(counts, prediction, 0.0) + coeffs[i]
     end
     top_prediction = stumps.trees[1].left.majority
@@ -332,16 +332,16 @@ function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, featur
     return top_prediction
 end
 
-function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Matrix)
+function apply(stumps::Ensemble, coeffs::Vector{Float64}, features::Matrix)
     N = size(features,1)
     predictions = Array{Any}(N)
     for i in 1:N
-        predictions[i] = apply_adaboost_stumps(stumps, coeffs, _squeeze(features[i,:],1))
+        predictions[i] = apply(stumps, coeffs, _squeeze(features[i,:],1))
     end
     return predictions
 end
 
-"""    apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features, labels::Vector)
+"""    apply_proba(stumps::Ensemble, coeffs, features, labels::Vector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
@@ -349,15 +349,15 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-function apply_adaboost_stumps_proba(stumps::Ensemble, coeffs::Vector{Float64},
+function apply_proba(stumps::Ensemble, coeffs::Vector{Float64},
                                      features::Vector, labels::Vector)
-    votes = [apply_tree(stump, features) for stump in stumps.trees]
+    votes = [apply(stump, features) for stump in stumps.trees]
     compute_probabilities(labels, votes, coeffs)
 end
 
-function apply_adaboost_stumps_proba(stumps::Ensemble, coeffs::Vector{Float64},
+function apply_proba(stumps::Ensemble, coeffs::Vector{Float64},
                                     features::Matrix, labels::Vector)
-    stack_function_results(row->apply_adaboost_stumps_proba(stumps, coeffs, row,
+    stack_function_results(row->apply_proba(stumps, coeffs, row,
                                                            labels),
                            features)
 end

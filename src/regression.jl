@@ -88,7 +88,7 @@ function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector
     return best_val, best_thresh
 end
 
-function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}; rng=Base.GLOBAL_RNG)
+function stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}; rng=Base.GLOBAL_RNG)
     S = _split_mse(labels, features, 0, rng)
     if S == NO_BEST
         return Leaf(mean(labels), labels)
@@ -100,7 +100,7 @@ function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}
                 Leaf(mean(labels[neg(split)]), labels[neg(split)]))
 end
 
-function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
     end
@@ -114,18 +114,18 @@ function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
     id, thresh = S
     split = features[:,id] .< thresh
     return Node(id, thresh,
-                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng),
-                build_tree(labels[neg(split)], features[neg(split),:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng))
+                tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng),
+                tree(labels[neg(split)], features[neg(split),:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng))
 end
 
-function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(rng, 1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures, maxdepth; rng=rng)
+        tree(labels[inds], features[inds,:], maxlabels, nsubfeatures, maxdepth; rng=rng)
     end
-    return Ensemble([forest;])
+    return Forest([forest;])
 end

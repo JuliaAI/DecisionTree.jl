@@ -15,18 +15,18 @@ features[:,2] = string.(tf[randperm(m)]);
 features[:,3] = round(Int, features[:,3]);
 features[:,4] = tf[inds];
 
-model = build_tree(labels, features);
-preds = apply_tree(model, features);
-cm = confusion_matrix(labels, preds);
+model = tree(labels, features)
+preds = apply(model, features)
+cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
 
-model = build_forest(labels, features,2,3);
-preds = apply_forest(model, features);
-cm = confusion_matrix(labels, preds);
+model = forest(labels, features,2,3)
+preds = apply(model, features)
+cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
 
-model, coeffs = build_adaboost_stumps(labels, features, 7);
-preds = apply_adaboost_stumps(model, coeffs, features);
-cm = confusion_matrix(labels, preds);
+model, coeffs = adaboost_stumps(labels, features, 7)
+preds = apply(model, coeffs, features)
+cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
 

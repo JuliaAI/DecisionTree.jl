@@ -6,10 +6,9 @@ using Compat
 
 import Base: length, convert, promote_rule, show, start, next, done
 
-export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
-       prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
-       apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
-       apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
+export Leaf, Node, Ensemble, print_tree, depth, stump, tree,
+       prune, apply, apply_proba, nfoldCV_tree, forest,
+       predict, nfoldCV_forest, adaboost_stumps, nfoldCV_stumps,
        majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error,
        R2, _int
 
@@ -52,6 +51,10 @@ end
 
 @compat const LeafOrNode = Union{Leaf,Node}
 
+immutable Forest
+    trees::Vector{Node}
+end
+
 immutable Ensemble
     trees::Vector{Node}
 end
@@ -84,6 +87,7 @@ include("scikitlearnAPI.jl")
 
 length(leaf::Leaf) = 1
 length(tree::Node) = length(tree.left) + length(tree.right)
+length(forest::Forest) = length(forest.trees)
 length(ensemble::Ensemble) = length(ensemble.trees)
 
 depth(leaf::Leaf) = 0

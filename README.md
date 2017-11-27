@@ -52,15 +52,15 @@ labels = convert(Array, iris[:, 5]);
 Pruned Tree Classifier
 ```julia
 # train full-tree classifier
-model = build_tree(labels, features)
+model = tree(labels, features)
 # prune tree: merge leaves having >= 90% combined purity (default: 100%)
-model = prune_tree(model, 0.9)
+model = prune(model, 0.9)
 # pretty print of the tree, to a depth of 5 nodes (optional)
 print_tree(model, 5)
 # apply learned model
-apply_tree(model, [5.9,3.0,5.1,1.9])
+apply(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
-apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
+apply_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for pruned tree,
 # using 90% purity threshold pruning, and 3 CV folds
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
@@ -69,11 +69,11 @@ Random Forest Classifier
 ```julia
 # train random forest classifier
 # using 2 random features, 10 trees, 0.5 portion of samples per tree (optional), and a maximum tree depth of 6 (optional)
-model = build_forest(labels, features, 2, 10, 0.5, 6)
+model = forest(labels, features, 2, 10, 0.5, 6)
 # apply learned model
-apply_forest(model, [5.9,3.0,5.1,1.9])
+apply(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
-apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
+apply_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for forests
 # using 2 random features, 10 trees, 3 folds, and 0.5 portion of samples per tree (optional)
 accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
@@ -81,11 +81,11 @@ accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
 Adaptive-Boosted Decision Stumps Classifier
 ```julia
 # train adaptive-boosted stumps, using 7 iterations
-model, coeffs = build_adaboost_stumps(labels, features, 7);
+model, coeffs = adaboost_stumps(labels, features, 7);
 # apply learned model
-apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
+apply(model, coeffs, [5.9,3.0,5.1,1.9])
 # get the probability of each label
-apply_adaboost_stumps_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
+apply_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 accuracy = nfoldCV_stumps(labels, features, 7, 3)
 ```
@@ -100,9 +100,9 @@ labels = features * weights;
 Regression Tree
 ```julia
 # train regression tree, using an averaging of 5 samples per leaf (optional)
-model = build_tree(labels, features, 5)
+model = tree(labels, features, 5)
 # apply learned model
-apply_tree(model, [-0.9,3.0,5.1,1.9,0.0])
+apply(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation, using 3 folds and averaging of 5 samples per leaf (optional)
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_tree(labels, features, 3, 5)
@@ -111,9 +111,9 @@ Regression Random Forest
 ```julia
 # train regression forest, using 2 random features, 10 trees,
 # averaging of 5 samples per leaf (optional), and 0.7 portion of samples per tree (optional)
-model = build_forest(labels, features, 2, 10, 5, 0.7)
+model = forest(labels, features, 2, 10, 5, 0.7)
 # apply learned model
-apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
+apply(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation on regression forest
 # using 2 random features, 10 trees, 3 folds, averaging of 5 samples per leaf (optional),
 # and 0.7 porition of samples per tree (optional)
@@ -134,7 +134,7 @@ fit!(model, features, labels)
 # pretty print of the tree, to a depth of 5 nodes (optional)
 print_tree(model.root, 5)
 # apply learned model
-predict(model, [5.9,3.0,5.1,1.9])
+apply_proba(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 predict_proba(model, [5.9,3.0,5.1,1.9])
 println(get_classes(model)) # returns the ordering of the columns in predict_proba's output
