@@ -1,5 +1,6 @@
 using Base.Test
 using DecisionTree
+using DataFrames
 
 srand(16)
 
@@ -9,17 +10,53 @@ weights = rand(-1:1,m);
 labels = _int(features * weights);
 
 maxdepth = 3
-model = build_tree(labels, features, 0, maxdepth)
-@test depth(model) == maxdepth
 
-println("\n##### nfoldCV Classification Tree #####")
-accuracy = nfoldCV_tree(labels, features, 0.9, 3)
-@test mean(accuracy) > 0.7
+@testset "nfoldCV - Classification" begin
 
-println("\n##### nfoldCV Classification Forest #####")
-accuracy = nfoldCV_forest(labels, features, 2, 10, 3)
-@test mean(accuracy) > 0.7
+    @testset "Arrays" begin
 
-println("\n##### nfoldCV Adaboosted Stumps #####")
-accuracy = nfoldCV_stumps(labels, features, 7, 3)
-@test mean(accuracy) > 0.5
+        @testset "nfoldCV Tree" begin
+            model = build_tree(labels, features, 0, maxdepth)
+            @test depth(model) == maxdepth
+
+            accuracy = nfoldCV_tree(labels, features, 0.9, 3)
+            @test mean(accuracy) > 0.7
+        end
+
+        @testset "nfoldCV Forest" begin
+            accuracy = nfoldCV_forest(labels, features, 2, 10, 3)
+            @test mean(accuracy) > 0.7
+        end
+
+        @testset "nfoldCV Adaboosted Stumps" begin
+            accuracy = nfoldCV_stumps(labels, features, 7, 3)
+            @test mean(accuracy) > 0.5
+        end
+
+    end
+
+    @testset "DataFrame" begin
+
+        df = hcat(DataFrame(features), DataFrame(target = labels))
+
+        @testset "nfoldCV Tree" begin
+            model = build_tree(df, :target, 0, maxdepth)
+            @test depth(model) == maxdepth
+
+            accuracy = nfoldCV_tree(df, :target, 0.9, 3)
+            @test mean(accuracy) > 0.7
+        end
+
+        @testset "nfoldCV Forest" begin
+            accuracy = nfoldCV_forest(df, :target, 2, 10, 3)
+            @test mean(accuracy) > 0.7
+        end
+
+        @testset "nfoldCV Adaboosted Stumps" begin
+            accuracy = nfoldCV_stumps(df, :target, 7, 3)
+            #@test mean(accuracy) > 0.7
+        end
+        
+    end
+
+end

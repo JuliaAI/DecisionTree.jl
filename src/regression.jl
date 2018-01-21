@@ -2,7 +2,7 @@
 mk_rng(rng::AbstractRNG) = rng
 mk_rng(seed::Int) = MersenneTwister(seed)
 
-function _split_mse{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Int, rng)
+function _split_mse{T<:Float64}(labels::AbstractVector{T}, features::Union{Matrix, DataFrame}, nsubfeatures::Int, rng)
     nr, nf = size(features)
 
     best = NO_BEST
@@ -47,7 +47,7 @@ end
 mean-squared-error loss over `labels`.
 
 Returns (best_val, best_thresh), where `best_val` is -MSE """
-function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector{U}, domain)
+function _best_mse_loss{T<:Float64, U<:Real}(labels::AbstractVector{T}, features::AbstractVector{U}, domain)
     # True, but costly assert. However, see
     # https://github.com/JuliaStats/StatsBase.jl/issues/164
     # @assert issorted(features) && issorted(domain) 
@@ -88,7 +88,7 @@ function _best_mse_loss{T<:Float64, U<:Real}(labels::Vector{T}, features::Vector
     return best_val, best_thresh
 end
 
-function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}; rng=Base.GLOBAL_RNG)
+function build_stump{T<:Float64}(labels::AbstractVector{T}, features::Union{Matrix, DataFrame}; rng=Base.GLOBAL_RNG)
     S = _split_mse(labels, features, 0, rng)
     if S == NO_BEST
         return Leaf(mean(labels), labels)
@@ -97,10 +97,11 @@ function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}
     split = features[:,id] .< thresh
     return Node(id, thresh,
                 Leaf(mean(labels[split]), labels[split]),
-                Leaf(mean(labels[(!).(split)]), labels[(!).(split)]))
+                Leaf(mean(labels[(!).(split)]), labels[(!).(split)]),
+                T)
 end
 
-function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_tree{T<:Float64}(labels::AbstractVector{T}, features::Union{Matrix, DataFrame}, maxlabels::Integer=5, nsubfeatures::Integer=0, maxdepth::Integer=-1; rng=Base.GLOBAL_RNG)
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
     end
@@ -115,10 +116,11 @@ function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U},
     split = features[:,id] .< thresh
     return Node(id, thresh,
                 build_tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng),
-                build_tree(labels[(!).(split)], features[(!).(split),:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng))
+                build_tree(labels[(!).(split)], features[(!).(split),:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng), 
+                T)
 end
 
-function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_forest{T<:Float64}(labels::AbstractVector{T}, features::Union{Matrix, DataFrame}, nsubfeatures::Integer, ntrees::Integer, maxlabels::Integer=5, partialsampling::AbstractFloat=0.7, maxdepth::Integer=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)

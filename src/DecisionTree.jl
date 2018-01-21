@@ -3,6 +3,7 @@ __precompile__()
 module DecisionTree
 
 import Base: length, convert, promote_rule, show, start, next, done
+using DataFrames
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
@@ -14,9 +15,6 @@ export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
        RandomForestRegressor, AdaBoostStumpClassifier,
-       # Should we export these functions? They have a conflict with
-       # DataFrames/RDataset over fit!, and users can always
-       # `using ScikitLearnBase`.
        predict, predict_proba, fit!, get_classes
 
 #####################################
@@ -29,21 +27,22 @@ _int(x) = map(y->round(Integer, y), x)
 
 const NO_BEST=(0,0)
 
-immutable Leaf
-    majority::Any
-    values::Vector
+struct Leaf{T, A <: AbstractVector{T}}
+    majority::T
+    values::A
 end
 
-immutable Node
-    featid::Integer
+struct Node
+    featid::Int
     featval::Any
     left::Union{Leaf,Node}
     right::Union{Leaf,Node}
+    predict_type::Type
 end
 
 const LeafOrNode = Union{Leaf,Node}
 
-immutable Ensemble
+struct Ensemble
     trees::Vector{Node}
 end
 
@@ -51,7 +50,11 @@ convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
-immutable UniqueRanges{V<:AbstractVector}
+_predict_type(leaf::Leaf) = typeof(leaf.majority)
+_predict_type(node::Node) = node.predict_type
+_predict_type(ensemble::Ensemble) = _predict_type(first(ensemble.trees))
+
+struct UniqueRanges{V<:AbstractVector}
     v::V
 end
 
@@ -67,6 +70,7 @@ next(u::UniqueRanges, s) = (val = u.v[s];
 include("measures.jl")
 include("classification.jl")
 include("regression.jl")
+include("dataframesAPI.jl")
 include("scikitlearnAPI.jl")
 
 

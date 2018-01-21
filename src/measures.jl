@@ -1,4 +1,4 @@
-type ConfusionMatrix
+struct ConfusionMatrix
     classes::Vector
     matrix::Matrix{Int}
     accuracy::Float64
@@ -16,7 +16,7 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
+function _hist_add!{T}(counts::Dict{T,Int}, labels::AbstractVector{T}, region::UnitRange{Int})
     for i in region
         lbl = labels[i]
         counts[lbl] = get(counts, lbl, 0) + 1
@@ -24,7 +24,7 @@ function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange
     return counts
 end
 
-function _hist_sub!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
+function _hist_sub!{T}(counts::Dict{T,Int}, labels::AbstractVector{T}, region::UnitRange{Int})
     for i in region
         lbl = labels[i]
         counts[lbl] -= 1
@@ -32,7 +32,7 @@ function _hist_sub!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange
     return counts
 end
 
-function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
+function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, labels::AbstractVector{T}, region::UnitRange{Int})
     for i in region
         lbl = labels[i]
         counts_from[lbl] -= 1
@@ -41,7 +41,7 @@ function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, label
     return nothing
 end
 
-_hist{T}(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) = 
+_hist{T}(labels::AbstractVector{T}, region::UnitRange{Int} = 1:endof(labels)) = 
     _hist_add!(Dict{T,Int}(), labels, region)
 
 function _set_entropy{T}(counts::Dict{T,Int}, N::Int)
@@ -56,7 +56,7 @@ function _set_entropy{T}(counts::Dict{T,Int}, N::Int)
     return entropy
 end
 
-_set_entropy(labels::Vector) = _set_entropy(_hist(labels), length(labels))
+_set_entropy(labels::AbstractVector) = _set_entropy(_hist(labels), length(labels))
 
 function _info_gain{T}(N1::Int, counts1::Dict{T,Int}, N2::Int, counts2::Dict{T,Int})
     N = N1 + N2
@@ -64,19 +64,19 @@ function _info_gain{T}(N1::Int, counts1::Dict{T,Int}, N2::Int, counts2::Dict{T,I
     return H
 end
 
-function _neg_z1_loss{T<:Real}(labels::Vector, weights::Vector{T})
+function _neg_z1_loss{T<:Real}(labels::AbstractVector, weights::AbstractVector{T})
     missmatches = labels .!= majority_vote(labels)
     loss = sum(weights[missmatches])
     return -loss
 end
 
-function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Vector{T})
+function _weighted_error{T<:Real}(actual::AbstractVector, predicted::AbstractVector, weights::AbstractVector{T})
     mismatches = actual .!= predicted
     err = sum(weights[mismatches]) / sum(weights)
     return err
 end
 
-function majority_vote(labels::Vector)
+function majority_vote(labels::AbstractVector)
     if length(labels) == 0
         return nothing
     end
@@ -94,7 +94,7 @@ end
 
 ### Classification ###
 
-function confusion_matrix(actual::Vector, predicted::Vector)
+function confusion_matrix(actual::AbstractVector, predicted::AbstractVector)
     @assert length(actual) == length(predicted)
     N = length(actual)
     _actual = zeros(Int,N)
@@ -115,7 +115,7 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
-function _nfoldCV(classifier::Symbol, labels, features, args...)
+function _nfoldCV(classifier::Symbol, labels::AbstractArray, features::Union{Matrix, DataFrame}, args...)
     nfolds = args[end]
     if nfolds < 2
         return nothing
@@ -163,9 +163,12 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     return accuracy
 end
 
-nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                                           = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
-nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
-nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, niterations, nfolds)
+nfoldCV_tree(labels::AbstractVector, features::Union{Matrix, DataFrame}, pruning_purity::Real, nfolds::Integer)                                             = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
+nfoldCV_forest(labels::AbstractVector, features::Union{Matrix, DataFrame}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)    = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
+nfoldCV_stumps(labels::AbstractVector, features::Union{Matrix, DataFrame}, niterations::Integer, nfolds::Integer)                                           = _nfoldCV(:stumps, labels, features, niterations, nfolds)
+nfoldCV_tree(data::DataFrame, target_column::Union{Symbol, AbstractString}, pruning_purity::Real, nfolds::Integer)                                          = nfoldCV_tree(_check_dataframe_input(data, target_column)..., pruning_purity, nfolds)
+nfoldCV_forest(data::DataFrame, target_column::Union{Symbol, AbstractString}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7) = nfoldCV_forest(_check_dataframe_input(data, target_column)..., nsubfeatures, ntrees, nfolds, partialsampling)
+nfoldCV_stumps(data::DataFrame, target_column::Union{Symbol, AbstractString}, niterations::Integer, nfolds::Integer)                                        = nfoldCV_stumps(_check_dataframe_input(data, target_column)..., niterations, nfolds)
 
 ### Regression ###
 
@@ -181,7 +184,7 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, features::Matrix{U}, args...)
+function _nfoldCV{T<:Float64}(regressor::Symbol, labels::AbstractVector{T}, features::Union{Matrix, DataFrame}, args...)
     nfolds = args[end]
     if nfolds < 2
         return nothing
@@ -226,6 +229,6 @@ function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, fea
     return R2s
 end
 
-nfoldCV_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
-nfoldCV_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
-
+nfoldCV_tree{T<:Float64}(labels::AbstractVector{T}, features::Union{Matrix, DataFrame}, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+nfoldCV_tree(data::DataFrame, target_column::Union{Symbol, AbstractString}, nfolds::Integer, maxlabels::Integer=5)                  = nfoldCV_tree(_check_dataframe_input(data, target_column)..., nfolds, maxlabels)
+nfoldCV_forest{T<:Float64}(labels::AbstractVector{T}, features::Union{Matrix, DataFrame}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)

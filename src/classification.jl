@@ -6,7 +6,7 @@ label_index(labels) = Dict([Pair(v => k) for (k, v) in enumerate(labels)])
 ## Helper function. Counts the votes.
 ## Returns a vector of probabilities (eg. [0.2, 0.6, 0.2]) which is in the same
 ## order as get_labels(classifier) (eg. ["versicolor", "setosa", "virginica"])
-function compute_probabilities(labels::Vector, votes::Vector, weights=1.0)
+function compute_probabilities(labels::AbstractVector, votes::AbstractVector, weights=1.0)
     label2ind = label_index(labels)
     counts = zeros(Float64, length(label2ind))
     for (i, label) in enumerate(votes)
@@ -31,9 +31,22 @@ function stack_function_results(row_fun::Function, X::Matrix)
     return out
 end
 
+function stack_function_results(row_fun::Function, X::DataFrame)
+    N = size(X, 1)
+    N_cols = 0
+    for row in eachrow(X[1,:])
+        N_cols += length(row_fun(row)) # gets the number of columns
+    end
+    out = Array{Float64}(N, N_cols)
+    for row in eachrow(X)
+        out[row.row, :] = row_fun(row)
+    end
+    return out
+end
+
 ################################################################################
 
-function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Vector, rng::AbstractRNG)
+function _split(labels::AbstractVector, features::Union{Matrix, DataFrame}, nsubfeatures::Int, weights::AbstractVector, rng::AbstractRNG)
     if weights == [0]
         _split_info_gain(labels, features, nsubfeatures, rng)
     else
@@ -69,7 +82,7 @@ function _split_info_gain_loop(best, best_val, inds, features, labels, N)
     return best
 end
 
-function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int,
+function _split_info_gain(labels::AbstractVector, features::Union{Matrix, DataFrame}, nsubfeatures::Int,
                           rng::AbstractRNG)
     nf = size(features, 2)
     N = length(labels)
@@ -87,7 +100,7 @@ function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int,
     return _split_info_gain_loop(best, best_val, inds, features, labels, N)
 end
 
-function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
+function _split_neg_z1_loss(labels::AbstractVector, features::Union{Matrix, DataFrame}, weights::Vector)
     best = NO_BEST
     best_val = -Inf
     for i in 1:size(features,2)
@@ -104,7 +117,7 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     return best
 end
 
-function build_stump(labels::Vector, features::Matrix, weights=[0];
+function build_stump(labels::AbstractVector, features::Union{Matrix, DataFrame}, weights=[0];
                      rng=Base.GLOBAL_RNG)
     S = _split(labels, features, 0, weights, rng)
     if S == NO_BEST
@@ -114,10 +127,11 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
     split = features[:,id] .< thresh
     return Node(id, thresh,
                 Leaf(majority_vote(labels[split]), labels[split]),
-                Leaf(majority_vote(labels[(!).(split)]), labels[(!).(split)]))
+                Leaf(majority_vote(labels[(!).(split)]), labels[(!).(split)]),
+                eltype(labels))
 end
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_tree(labels::AbstractVector, features::Union{Matrix, DataFrame}, nsubfeatures::Integer=0, maxdepth::Integer=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
@@ -137,23 +151,27 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     if pure_right && pure_left
         return Node(id, thresh,
                     Leaf(labels_left[1], labels_left),
-                    Leaf(labels_right[1], labels_right))
+                    Leaf(labels_right[1], labels_right),
+                    eltype(labels))
     elseif pure_left
         return Node(id, thresh,
                     Leaf(labels_left[1], labels_left),
                     build_tree(labels_right,features[(!).(split),:], nsubfeatures,
-                               max(maxdepth-1, -1); rng=rng))
+                               max(maxdepth-1, -1); rng=rng),
+                    eltype(labels))
     elseif pure_right
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng),
-                    Leaf(labels_right[1], labels_right))
+                    Leaf(labels_right[1], labels_right),
+                    eltype(labels))
     else
         return Node(id, thresh,
                     build_tree(labels_left,features[split,:], nsubfeatures,
                                max(maxdepth-1, -1); rng=rng),
                     build_tree(labels_right,features[(!).(split),:], nsubfeatures,
-                               max(maxdepth-1, -1); rng=rng))
+                               max(maxdepth-1, -1); rng=rng),
+                    eltype(labels))
     end
 end
 
@@ -175,7 +193,8 @@ function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
         else
             return Node(tree.featid, tree.featval,
                         _prune_run(tree.left, purity_thresh),
-                        _prune_run(tree.right, purity_thresh))
+                        _prune_run(tree.right, purity_thresh),
+                        _predict_type(tree))
         end
     end
     pruned = _prune_run(tree, purity_thresh)
@@ -186,9 +205,9 @@ function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
     return pruned
 end
 
-apply_tree(leaf::Leaf, feature::Vector) = leaf.majority
+apply_tree(leaf::Leaf, feature::Union{AbstractVector, DataFrameRow}) = leaf.majority
 
-function apply_tree(tree::Node, features::Vector)
+function apply_tree(tree::Node, features::Union{AbstractVector, DataFrameRow})
     if tree.featval == nothing
         return apply_tree(tree.left, features)
     elseif features[tree.featid] < tree.featval
@@ -198,31 +217,41 @@ function apply_tree(tree::Node, features::Vector)
     end
 end
 
-function apply_tree(tree::LeafOrNode, features::Matrix)
-    N = size(features,1)
-    predictions = Array{Any}(N)
-    for i in 1:N
-        predictions[i] = apply_tree(tree, features[i, :])
-    end
-    if typeof(predictions[1]) <: Float64
-        return Float64.(predictions)
+function apply_tree(tree::LeafOrNode, features::Union{Matrix, DataFrame})
+    pred_type=_predict_type(tree)
+    if pred_type <: Union{CategoricalString, CategoricalValue}
+        predictions = CategoricalVector{pred_type}(size(features,1))
     else
-        return predictions
+        predictions = Vector{pred_type}(size(features,1))
     end
+    return _apply_tree_loop(tree, features, predictions)
 end
 
-"""    apply_tree_proba(::Node, features, col_labels::Vector)
+function _apply_tree_loop(tree::LeafOrNode, features::Matrix, predictions::AbstractVector)
+    for i in 1:length(predictions)
+        predictions[i] = apply_tree(tree, features[i, :])
+    end
+    return predictions
+end
+function _apply_tree_loop(tree::LeafOrNode, features::DataFrame, predictions::AbstractVector)
+    for row in eachrow(features)
+        predictions[row.row] = apply_tree(tree, row)
+    end
+    return predictions
+end
+
+"""    apply_tree_proba(tree, features, labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
 
-`col_labels` is a vector containing the distinct labels
+`labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-apply_tree_proba(leaf::Leaf, features::Vector, labels) =
+apply_tree_proba(leaf::Leaf, features::Union{AbstractVector, DataFrameRow}, labels::AbstractVector) =
     compute_probabilities(labels, leaf.values)
 
-function apply_tree_proba(tree::Node, features::Vector, labels)
+function apply_tree_proba(tree::Node, features::Union{AbstractVector, DataFrameRow}, labels::AbstractVector)
     if tree.featval === nothing
         return apply_tree_proba(tree.left, features, labels)
     elseif features[tree.featid] < tree.featval
@@ -232,10 +261,10 @@ function apply_tree_proba(tree::Node, features::Vector, labels)
     end
 end
 
-apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
+apply_tree_proba(tree::LeafOrNode, features::Union{Matrix, DataFrame}, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_forest(labels::AbstractVector, features::Union{Matrix, DataFrame}, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
@@ -248,9 +277,14 @@ function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, n
     return Ensemble([forest;])
 end
 
-function apply_forest(forest::Ensemble, features::Vector)
+function apply_forest(forest::Ensemble, features::Union{AbstractVector, DataFrameRow})
     ntrees = length(forest)
-    votes = Array{Any}(ntrees)
+    pred_type=_predict_type(forest)
+    if pred_type <: Union{CategoricalString, CategoricalValue}
+        votes = CategoricalVector{pred_type}(ntrees)
+    else
+        votes = Vector{pred_type}(ntrees)
+    end
     for i in 1:ntrees
         votes[i] = apply_tree(forest.trees[i], features)
     end
@@ -261,20 +295,30 @@ function apply_forest(forest::Ensemble, features::Vector)
     end
 end
 
-function apply_forest(forest::Ensemble, features::Matrix)
-    N = size(features,1)
-    predictions = Array{Any}(N)
-    for i in 1:N
-        predictions[i] = apply_forest(forest, features[i, :])
-    end
-    if typeof(predictions[1]) <: Float64
-        return Float64.(predictions)
+function apply_forest(forest::Ensemble, features::Union{Matrix, DataFrame})
+    pred_type=_predict_type(forest)
+    if pred_type <: Union{CategoricalString, CategoricalValue}
+        predictions = CategoricalVector{pred_type}(size(features,1))
     else
-        return predictions
+        predictions = Vector{pred_type}(size(features,1))
     end
+    return _apply_forest_loop(forest, features, predictions)
 end
 
-"""    apply_forest_proba(forest::Ensemble, features, col_labels::Vector)
+function _apply_forest_loop(forest::Ensemble, features::Matrix, predictions::AbstractVector)
+    for i in 1:length(predictions)
+        predictions[i] = apply_forest(forest, features[i, :])
+    end
+    return predictions
+end
+function _apply_forest_loop(forest::Ensemble, features::DataFrame, predictions::AbstractVector)
+    for row in eachrow(features)
+        predictions[row.row] = apply_forest(forest, row)
+    end
+    return predictions
+end
+
+"""    apply_forest_proba(forest::Ensemble, features::AbstractVector, col_labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
@@ -282,16 +326,16 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-function apply_forest_proba(forest::Ensemble, features::Vector, labels)
+function apply_forest_proba(forest::Ensemble, features::Union{AbstractVector, DataFrameRow}, labels::AbstractVector)
     votes = [apply_tree(tree, features) for tree in forest.trees]
     return compute_probabilities(labels, votes)
 end
 
-apply_forest_proba(forest::Ensemble, features::Matrix, labels) =
+apply_forest_proba(forest::Ensemble, features::Union{Matrix, DataFrame}, labels) =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 
-function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer; rng=Base.GLOBAL_RNG)
+function build_adaboost_stumps(labels::AbstractVector, features::Union{Matrix, DataFrame}, niterations::Integer; rng=Base.GLOBAL_RNG)
     N = length(labels)
     weights = ones(N) / N
     stumps = Node[]
@@ -314,7 +358,7 @@ function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::In
     return (Ensemble(stumps), coeffs)
 end
 
-function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Vector)
+function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Union{AbstractVector, DataFrameRow})
     nstumps = length(stumps)
     counts = Dict()
     for i in 1:nstumps
@@ -332,16 +376,30 @@ function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, featur
     return top_prediction
 end
 
-function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Matrix)
-    N = size(features,1)
-    predictions = Array{Any}(N)
-    for i in 1:N
-        predictions[i] = apply_adaboost_stumps(stumps, coeffs, features[i,:])
+function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Union{Matrix, DataFrame})
+    pred_type=_predict_type(stumps)
+    if pred_type <: Union{CategoricalString, CategoricalValue}
+        predictions = CategoricalVector{pred_type}(size(features,1))
+    else
+        predictions = Vector{pred_type}(size(features,1))
+    end
+    return _apply_adaboost_stumps_loop(stumps, coeffs, features, predictions)
+end
+
+function _apply_adaboost_stumps_loop(stumps::Ensemble, coeffs::Vector{Float64}, features::Matrix, predictions::AbstractVector)
+    for i in 1:length(predictions)
+        predictions[i] = apply_adaboost_stumps(stumps, coeffs, features[i, :])
+    end
+    return predictions
+end
+function _apply_adaboost_stumps_loop(stumps::Ensemble, coeffs::Vector{Float64}, features::DataFrame, predictions::AbstractVector)
+    for row in eachrow(features)
+        predictions[row.row] = apply_adaboost_stumps(stumps, coeffs, row)
     end
     return predictions
 end
 
-"""    apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features, labels::Vector)
+"""    apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features::AbstractVector, labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
@@ -350,13 +408,13 @@ n_labels` matrix of probabilities, each row summing up to 1.
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
 function apply_adaboost_stumps_proba(stumps::Ensemble, coeffs::Vector{Float64},
-                                     features::Vector, labels::Vector)
+                                     features::Union{AbstractVector, DataFrameRow}, labels::AbstractVector)
     votes = [apply_tree(stump, features) for stump in stumps.trees]
     compute_probabilities(labels, votes, coeffs)
 end
 
 function apply_adaboost_stumps_proba(stumps::Ensemble, coeffs::Vector{Float64},
-                                    features::Matrix, labels::Vector)
+                                    features::Union{Matrix, DataFrame}, labels::AbstractVector)
     stack_function_results(row->apply_adaboost_stumps_proba(stumps, coeffs, row,
                                                            labels),
                            features)
