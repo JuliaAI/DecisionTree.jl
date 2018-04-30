@@ -1,3 +1,10 @@
+
+# The code in this file is a small port from numpy's library
+# library which is distributed under the 3-Clause BSD license. 
+# The rest of DecisionTree.jl is released under the MIT license. 
+
+# this is the code for efficient generation 
+# of hypergeometric random variables ported from numpy.random
 function hypergeometric(good, bad, sample, rng)
 
         @inline function loggam(x)

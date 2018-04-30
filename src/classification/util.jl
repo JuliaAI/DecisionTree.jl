@@ -1,3 +1,8 @@
+
+# The code in this file is a small port from scikit-learn's library
+# which is distributed under the 3-Clause BSD license. 
+# The rest of DecisionTree.jl is released under the MIT license. 
+
 module util
 
     export gini, entropy, q_bi_sort!

@@ -1,7 +1,9 @@
+# The code in this file is a small port from scikit-learn's and numpy's 
+# library which is distributed under the 3-Clause BSD license. 
+# The rest of DecisionTree.jl is released under the MIT license. 
 
-module treeclassifieri# this is the code for efficient generation 
-# of hypergeometric random variables ported 
-# from numpy.random
+module treeclassifieri
+
     include("./util.jl")
     include("../hypgeom.jl")
 
@@ -10,16 +12,13 @@ module treeclassifieri# this is the code for efficient generation
     mutable struct NodeMeta
         l           :: NodeMeta  # right child
         r           :: NodeMeta  # left child
-
         labels      :: Array{Int64}
         label       :: Int64  # most likely label
         feature     :: Int64  # feature used for splittingthreshold   : Float32 # threshold value
         is_leaf     :: Bool
-
         depth       :: Int64
         region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
         features    :: Array{Int64}     # a list of features not known to be constant
-
         purity      :: Float32
         split_at    :: Int64            # index of samples
         NodeMeta() = new()
@@ -211,8 +210,6 @@ module treeclassifieri# this is the code for efficient generation
     end
 
 
-    # To do: check that Y actually has
-    # meta.n_classes classes
     function check_input(X                   :: Matrix,
                          Y                   :: Array{Int64, 1},
                          max_features        :: Int64,
