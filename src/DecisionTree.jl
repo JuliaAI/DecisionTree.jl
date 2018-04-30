@@ -65,7 +65,7 @@ next(u::UniqueRanges, s) = (val = u.v[s];
 ########## Includes ##########
 
 include("measures.jl")
-include("classification.jl")
+include("classification/main.jl")
 include("regression.jl")
 include("scikitlearnAPI.jl")
 

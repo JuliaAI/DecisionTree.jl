@@ -1,5 +1,7 @@
 # Utilities
 
+include("tree.jl")
+
 # Returns a dict ("Label1" => 1, "Label2" => 2, "Label3" => 3, ...)
 label_index(labels) = Dict([Pair(v => k) for (k, v) in enumerate(labels)])
 
@@ -111,50 +113,46 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
         return Leaf(majority_vote(labels), labels)
     end
     id, thresh = S
-    split = features[:,id] .< thresh
+    left = features[:,id] .< thresh
+    l_labels = labels[left]
+    r_labels = labels[(!).left]
     return Node(id, thresh,
-                Leaf(majority_vote(labels[split]), labels[split]),
-                Leaf(majority_vote(labels[(!).(split)]), labels[(!).(split)]))
+                Leaf(majority_vote(l_labels), l_labels),
+                Leaf(majority_vote(r_labels), r_labels))
 end
 
 function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
-    elseif maxdepth==0
-        return Leaf(majority_vote(labels), labels)
     end
-    S = _split(labels, features, nsubfeatures, [0], rng)
-    if S == NO_BEST
-        return Leaf(majority_vote(labels), labels)
+    if maxdepth == -1
+        maxdepth = typemax(Int64)
     end
-    id, thresh = S
-    split = features[:,id] .< thresh
-    labels_left = labels[split]
-    labels_right = labels[(!).(split)]
-    pure_left = all(labels_left .== labels_left[1])
-    pure_right = all(labels_right .== labels_right[1])
-    if pure_right && pure_left
-        return Node(id, thresh,
-                    Leaf(labels_left[1], labels_left),
-                    Leaf(labels_right[1], labels_right))
-    elseif pure_left
-        return Node(id, thresh,
-                    Leaf(labels_left[1], labels_left),
-                    build_tree(labels_right,features[(!).(split),:], nsubfeatures,
-                               max(maxdepth-1, -1); rng=rng))
-    elseif pure_right
-        return Node(id, thresh,
-                    build_tree(labels_left,features[split,:], nsubfeatures,
-                               max(maxdepth-1, -1); rng=rng),
-                    Leaf(labels_right[1], labels_right))
-    else
-        return Node(id, thresh,
-                    build_tree(labels_left,features[split,:], nsubfeatures,
-                               max(maxdepth-1, -1); rng=rng),
-                    build_tree(labels_right,features[(!).(split),:], nsubfeatures,
-                               max(maxdepth-1, -1); rng=rng))
+    if nsubfeatures == 0
+        nsubfeatures = size(features, 2)
     end
+
+    t = treeclassifier.build_tree(features, labels, nsubfeatures, maxdepth, 1, 2, Float32(0.0), rng)
+
+    function _convert(node :: treeclassifier.NodeMeta, labels :: Array)
+        if node.is_leaf
+            distribution = []
+            for (i, c) in enumerate(node.labels)
+                labelid = node.labels[i]
+                for _ in 1:c
+                    push!(distribution, labelid)
+                end
+            end
+            return Leaf(labels[node.label], distribution)
+        else
+            left = _convert(node.l, labels)
+            right = _convert(node.r, labels)
+            return Node(node.feature, node.threshold, left, right)
+        end
+    end
+
+    return _convert(t.root, t.list)
 end
 
 function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
