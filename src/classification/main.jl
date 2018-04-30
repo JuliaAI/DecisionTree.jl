@@ -121,7 +121,13 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
                 Leaf(majority_vote(r_labels), r_labels))
 end
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_tree(labels::Vector, features::Matrix, 
+                    nsubfeatures=0,
+                    maxdepth=-1,
+                    min_samples_leaf=1,
+                    min_samples_split=2,
+                    min_purity_increase=0.0;
+                    rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     if maxdepth < -1
         error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
@@ -133,7 +139,8 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
         nsubfeatures = size(features, 2)
     end
 
-    t = treeclassifier.build_tree(features, labels, nsubfeatures, maxdepth, 1, 2, Float32(0.0), rng)
+    t = treeclassifier.build_tree(features, labels, nsubfeatures, maxdepth, min_samples_leaf,
+                                  min_samples_split, min_purity_increase, rng)
 
     function _convert(node :: treeclassifier.NodeMeta, labels :: Array)
         if node.is_leaf

@@ -2,7 +2,7 @@
 # library which is distributed under the 3-Clause BSD license. 
 # The rest of DecisionTree.jl is released under the MIT license. 
 
-module treeclassifieri
+module treeclassifier
 
     include("./util.jl")
     include("../hypgeom.jl")
@@ -14,7 +14,8 @@ module treeclassifieri
         r           :: NodeMeta  # left child
         labels      :: Array{Int64}
         label       :: Int64  # most likely label
-        feature     :: Int64  # feature used for splittingthreshold   : Float32 # threshold value
+        feature     :: Int64  # feature used for splitting
+        threshold   :: Float32 # threshold value
         is_leaf     :: Bool
         depth       :: Int64
         region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
@@ -261,8 +262,9 @@ module treeclassifieri
                         max_depth           :: Int64,
                         min_samples_leaf    :: Int64,
                         min_samples_split   :: Int64,
-                        min_purity_increase :: Float32,
+                        min_purity_increase :: Real,
                         rng                 :: AbstractRNG)
+        min_purity_increase = Float32(min_purity_increase)
         n_samples, n_features = size(X)
         label_list, _Y = assign(Y)
         n_classes = Int64(length(label_list))
