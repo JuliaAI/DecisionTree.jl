@@ -121,8 +121,17 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
                 Leaf(majority_vote(r_labels), r_labels))
 end
 
+<<<<<<< HEAD:src/classification/main.jl
 function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1,
                     min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0; 
+=======
+function build_tree(labels::Vector, features::Matrix, 
+                    nsubfeatures=0,
+                    maxdepth=-1,
+                    min_samples_leaf=1,
+                    min_samples_split=2,
+                    min_purity_increase=0.0;
+>>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea:src/classification/main.jl
                     rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     if maxdepth < -1
@@ -134,6 +143,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     if nsubfeatures == 0
         nsubfeatures = size(features, 2)
     end
+<<<<<<< HEAD:src/classification/main.jl
     min_samples_leaf = Int64(min_samples_leaf)
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float32(min_purity_increase)
@@ -141,6 +151,12 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
         features, labels, nsubfeatures, maxdepth, 
         min_samples_leaf, min_samples_split, min_purity_increase, 
         rng=rng)
+=======
+
+    t = treeclassifier.build_tree(features, labels, nsubfeatures, maxdepth, min_samples_leaf,
+                                  min_samples_split, min_purity_increase, rng)
+
+>>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea:src/classification/main.jl
     function _convert(node :: treeclassifier.NodeMeta, labels :: Array)
         if node.is_leaf
             distribution = []

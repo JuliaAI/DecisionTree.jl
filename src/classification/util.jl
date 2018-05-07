@@ -1,3 +1,4 @@
+
 # The code in this file is a small port from scikit-learn's library
 # which is distributed under the 3-Clause BSD license. 
 # The rest of DecisionTree.jl is released under the MIT license. 
@@ -7,7 +8,7 @@
 module util
 
     export gini, entropy, q_bi_sort!
-
+    
     # returns the entropy of ns/n
     @inline function gini(ns::Array{Int64}, n::Int64)
         s = 0.0
