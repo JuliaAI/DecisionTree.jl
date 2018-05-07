@@ -99,6 +99,11 @@ module treeclassifier
         # only sample n_features used features
         # is a hypergeometric random variable
         total_features = size(X, 2)
+
+        # this is the total number of features that we expect to not
+        # be one of the known constant features. since we know exactly 
+        # what the non constant features are, we can sample at 'non_constants_used'
+        # non constant features instead of going through every feature randomly.
         non_constants_used = hypergeometric(n_features, total_features-n_features, max_features, rng)
         @inbounds while (unsplittable || indf <= non_constants_used) && indf <= n_features
             feature = let
