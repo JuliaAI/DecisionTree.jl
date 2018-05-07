@@ -15,7 +15,6 @@ module treeclassifier
         r           :: NodeMeta  # left child
         labels      :: Array{Int64}
         label       :: Int64  # most likely label
-<<<<<<< HEAD
         feature     :: Int64  # feature used for splittingthreshold   : Float32 # threshold value
         is_leaf     :: Bool
 
@@ -23,14 +22,6 @@ module treeclassifier
         region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
         features    :: Array{Int64} # a list of features not known to be constant
 
-=======
-        feature     :: Int64  # feature used for splitting
-        threshold   :: Float32 # threshold value
-        is_leaf     :: Bool
-        depth       :: Int64
-        region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
-        features    :: Array{Int64}     # a list of features not known to be constant
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
         purity      :: Float32
         split_at    :: Int64            # index of samples
         NodeMeta() = new()
@@ -49,7 +40,6 @@ module treeclassifier
     end
 
 
-<<<<<<< HEAD
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(X                   :: Matrix, # the feature array
@@ -73,33 +63,6 @@ module treeclassifier
         region = node.region
         n_samples = length(region)
         r_start = region.start - 1
-=======
-    # all features given in 'features'
-    # are not found to be constant
-    # while space for samples can be saved using
-    # recursive partitioning, the space of list of
-    # non-constant features cannot.
-    function _split!(X                   :: Matrix,
-                    Y                   :: Array{Int64, 1},
-                    node                :: NodeMeta,
-                    n_classes           :: Int64,
-                    max_features        :: Int64,
-                    max_depth           :: Int64,
-                    min_samples_leaf    :: Int64,
-                    min_samples_split   :: Int64,
-                    min_purity_increase :: Float32,
-                    indX                :: Array{Int64, 1},
-                    nc                  :: Array{Int64}, 
-                    ncl                 :: Array{Int64}, 
-                    ncr                 :: Array{Int64}, 
-                    Xf                  :: Array{Float32},
-                    Yf                  :: Array{Int64},
-                    rng                 :: AbstractRNG)
-        region = node.region
-        n_samples = length(region)
-        r_start = region.start - 1
-
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
         @simd for lab in 1:n_classes
             @inbounds nc[lab] = 0
         end
@@ -127,13 +90,9 @@ module treeclassifier
         threshold_hi = Inf32
 
         indf = 1
-<<<<<<< HEAD
         # the number of new constants found during this split
         n_constant = 0
         # true if every feature is constant
-=======
-        n_constant = 0
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
         unsplittable = true
         r_start = region.start - 1
         # the number of non constant features we will see if
@@ -148,11 +107,8 @@ module treeclassifier
                 features[indf]
             end
 
-<<<<<<< HEAD
             # in the begining, every node is 
             # on right of the threshold
-=======
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
             @simd for lab in 1:n_classes
                 ncl[lab] = 0
                 ncr[lab] = nc[lab]
@@ -164,10 +120,7 @@ module treeclassifier
                 Xf[i] = X[sub_i, feature]
             end
 
-<<<<<<< HEAD
             # sort Yf and Xf by Xf
-=======
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
             util.q_bi_sort!(Xf, Yf, 1, n_samples)
             nl, nr = 0, n_samples
             lo, hi = 0, 0
@@ -194,16 +147,8 @@ module treeclassifier
                     end
                 end
 
-<<<<<<< HEAD
                 # fill ncl and ncr in the direction
                 # that would require the smaller number of iterations
-=======
-                let delta = hi - lo + 1
-                    nl += delta
-                    nr -= delta
-                end
-
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
                 if hi - lo < n_samples - hi
                     @simd for i in lo:hi
                         ncr[Yf[i]] -= 1
@@ -226,10 +171,7 @@ module treeclassifier
                 last_f = curr_f
             end
 
-<<<<<<< HEAD
             # keep track of constant features to be used later.
-=======
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
             if is_constant
                 n_constant += 1
                 features[indf], features[n_constant] = features[n_constant], features[indf]
@@ -255,11 +197,8 @@ module treeclassifier
                 Xf[i] = X[indX[i + r_start], bf]
             end
             node.threshold = (threshold_lo + threshold_hi) / 2.0
-<<<<<<< HEAD
             # split the samples into two parts: ones that are greater than
             # the threshold and ones that are less than the threshold
-=======
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
             node.split_at = util.partition!(indX, Xf, node.threshold, region)
             node.feature = best_feature
             node.features = features[(n_constant+1):n_features]
@@ -277,11 +216,8 @@ module treeclassifier
     end
 
 
-<<<<<<< HEAD
     # To do: check that Y actually has
     # meta.n_classes classes
-=======
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
     function check_input(X                   :: Matrix,
                          Y                   :: Array{Int64, 1},
                          max_features        :: Int64,
@@ -308,7 +244,6 @@ module treeclassifier
         end
     end
 
-<<<<<<< HEAD
     # convert an array of labels into an array of integers
     # and a HashTable taking each integer to the original label.
 
@@ -325,8 +260,6 @@ module treeclassifier
     #   2 => '1760s',
     # }
     # 
-=======
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
     function assign(Y :: Array{T}) where T<:Any
         label_set = Set{T}()
         for y in Y
@@ -352,14 +285,8 @@ module treeclassifier
                         max_depth           :: Int64,
                         min_samples_leaf    :: Int64,
                         min_samples_split   :: Int64,
-<<<<<<< HEAD
                         min_purity_increase :: Float32;
                         rng=Base.GLOBAL_RNG :: AbstractRNG)
-=======
-                        min_purity_increase :: Real,
-                        rng                 :: AbstractRNG)
-        min_purity_increase = Float32(min_purity_increase)
->>>>>>> 3469c3d3c7e2302ea69f821b59cb4942788545ea
         n_samples, n_features = size(X)
         label_list, _Y = assign(Y)
         n_classes = Int64(length(label_list))
