@@ -1,7 +1,7 @@
 using Base.Test
 
 function loaddata()
-    f = open("./test/data/digits.csv")
+    f = open("data/digits.csv")
     data = readlines(f)[2:end]
     data = [[parse(Float32, i) 
         for i in split(row, ",")]
