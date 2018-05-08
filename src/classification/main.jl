@@ -115,7 +115,7 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
     id, thresh = S
     left = features[:,id] .< thresh
     l_labels = labels[left]
-    r_labels = labels[(!).left]
+    r_labels = labels[(!).(left)]
     return Node(id, thresh,
                 Leaf(majority_vote(l_labels), l_labels),
                 Leaf(majority_vote(r_labels), r_labels))
@@ -138,16 +138,17 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float32(min_purity_increase)
     t = treeclassifier.build_tree(
-        features, labels, nsubfeatures, maxdepth, 
+        features, labels, nsubfeatures, maxdepth,
         min_samples_leaf, min_samples_split, min_purity_increase, 
         rng=rng)
+
     function _convert(node :: treeclassifier.NodeMeta, labels :: Array)
         if node.is_leaf
             distribution = []
-            for (i, c) in enumerate(node.labels)
-                labelid = node.labels[i]
-                for _ in 1:c
-                    push!(distribution, labelid)
+            for i in 1:length(node.labels)
+                counts = node.labels[i]
+                for _ in 1:counts
+                    push!(distribution, labels[i])
                 end
             end
             return Leaf(labels[node.label], distribution)
@@ -157,7 +158,6 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
             return Node(node.feature, node.threshold, left, right)
         end
     end
-
     return _convert(t.root, t.list)
 end
 

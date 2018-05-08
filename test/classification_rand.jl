@@ -3,14 +3,14 @@ using DecisionTree
 
 srand(16)
 
-n,m = 10^3, 5 ;
+n,m = 10^3, 5;
 features = rand(n,m);
 weights = rand(-1:1,m);
 labels = _int(features * weights);
 
 maxdepth = 3
 model = build_tree(labels, features, 0, maxdepth)
-@test depth(model) == maxdepth
+@test depth(model) <= maxdepth
 
 println("\n##### nfoldCV Classification Tree #####")
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
