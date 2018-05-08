@@ -1,5 +1,5 @@
 using Base.Test
-include("../src/DecisionTree.jl")
+using DecisionTree
 
 tests = ["datatest.jl", "classification_rand.jl", "regression_rand.jl", "classification_hetero.jl",
          "misc.jl", "classification_scikitlearn.jl", "regression_scikitlearn.jl"]
