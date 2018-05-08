@@ -10,7 +10,7 @@ labels = _int(features * weights);
 
 maxdepth = 3
 model = build_tree(labels, features, 0, maxdepth)
-@test depth(model) <= maxdepth
+@test depth(model) == maxdepth
 
 println("\n##### nfoldCV Classification Tree #####")
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
