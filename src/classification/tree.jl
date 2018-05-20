@@ -25,7 +25,6 @@ module treeclassifier
 
         purity      :: Float32
         split_at    :: Int64            # index of samples
-        NodeMeta() = new()
         NodeMeta(features, region, depth) = (
             node = new();
             node.depth = depth;

@@ -51,16 +51,6 @@ convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
-immutable UniqueRanges{V<:AbstractVector}
-    v::V
-end
-
-start(u::UniqueRanges) = 1
-done(u::UniqueRanges, s) = done(u.v, s)
-next(u::UniqueRanges, s) = (val = u.v[s];
-                            t = searchsortedlast(u.v, val, s, length(u.v), Base.Order.Forward);
-                            ((val, s:t), t+1))
-
 ##############################
 ########## Includes ##########
 

@@ -24,45 +24,8 @@ function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange
     return counts
 end
 
-function _hist_sub!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
-    for i in region
-        lbl = labels[i]
-        counts[lbl] -= 1
-    end
-    return counts
-end
-
-function _hist_shift!{T}(counts_from::Dict{T,Int}, counts_to::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
-    for i in region
-        lbl = labels[i]
-        counts_from[lbl] -= 1
-        counts_to[lbl] = get(counts_to, lbl, 0) + 1
-    end
-    return nothing
-end
-
 _hist{T}(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) = 
     _hist_add!(Dict{T,Int}(), labels, region)
-
-function _set_entropy{T}(counts::Dict{T,Int}, N::Int)
-    entropy = 0.0
-    for v in values(counts)
-        if v > 0
-            entropy += v * log(v)
-        end
-    end
-    entropy /= -N
-    entropy += log(N)
-    return entropy
-end
-
-_set_entropy(labels::Vector) = _set_entropy(_hist(labels), length(labels))
-
-function _info_gain{T}(N1::Int, counts1::Dict{T,Int}, N2::Int, counts2::Dict{T,Int})
-    N = N1 + N2
-    H = - N1/N * _set_entropy(counts1, N1) - N2/N * _set_entropy(counts2, N2)
-    return H
-end
 
 function _neg_z1_loss{T<:Real}(labels::Vector, weights::Vector{T})
     missmatches = labels .!= majority_vote(labels)
