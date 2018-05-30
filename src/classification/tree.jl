@@ -208,11 +208,13 @@ module treeclassifier
             try 
                 node.threshold = (threshold_lo + threshold_hi)  / 2.0
             catch
-                node.threshold = threshold_lo
+                node.threshold = threshold_hi
             end
             # split the samples into two parts: ones that are greater than
-            # the threshold and ones that are less than the threshold
-            node.split_at = util.partition!(indX, Xf, node.threshold, region)
+            # the threshold and ones that are less than or equal to the threshold
+            #                                 ---------------------
+            # (so we partition at threshold_lo instead of node.threshold)
+            node.split_at = util.partition!(indX, Xf, threshold_lo, region)
             node.feature = best_feature
             node.features = features[(n_constant+1):n_features]
         end
