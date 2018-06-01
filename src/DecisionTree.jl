@@ -29,12 +29,12 @@ _int(x) = map(y->round(Integer, y), x)
 
 const NO_BEST=(0,0)
 
-immutable Leaf
+struct Leaf
     majority::Any
     values::Vector
 end
 
-immutable Node
+mutable struct Node
     featid::Integer
     featval::Any
     left::Union{Leaf,Node}
@@ -43,7 +43,7 @@ end
 
 const LeafOrNode = Union{Leaf,Node}
 
-immutable Ensemble
+struct Ensemble
     trees::Vector{Node}
 end
 

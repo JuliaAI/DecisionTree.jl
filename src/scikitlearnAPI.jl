@@ -20,7 +20,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
-type DecisionTreeClassifier <: BaseClassifier
+struct DecisionTreeClassifier <: BaseClassifier
     pruning_purity_threshold::Nullable{Float64} # no pruning if null
     # Does nsubfeatures make sense for a stand-alone decision tree?
     nsubfeatures::Int
@@ -80,7 +80,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `get_classes`
 """
-type DecisionTreeRegressor <: BaseRegressor
+struct DecisionTreeRegressor <: BaseRegressor
     pruning_purity_threshold::Nullable{Float64}
     maxlabels::Int
     nsubfeatures::Int
@@ -137,7 +137,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
-type RandomForestClassifier <: BaseClassifier
+struct RandomForestClassifier <: BaseClassifier
     nsubfeatures::Int
     ntrees::Int
     partialsampling::Float64
@@ -193,7 +193,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `get_classes`
 """
-type RandomForestRegressor <: BaseRegressor
+struct RandomForestRegressor <: BaseRegressor
     nsubfeatures::Int
     maxlabels::Int
     ntrees::Int
@@ -238,7 +238,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
-type AdaBoostStumpClassifier <: BaseClassifier
+struct AdaBoostStumpClassifier <: BaseClassifier
     niterations::Int
     rng::AbstractRNG
     ensemble::Ensemble

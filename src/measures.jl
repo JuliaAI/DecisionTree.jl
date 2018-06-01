@@ -1,4 +1,4 @@
-type ConfusionMatrix
+struct ConfusionMatrix
     classes::Vector
     matrix::Matrix{Int}
     accuracy::Float64
