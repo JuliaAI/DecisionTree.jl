@@ -20,7 +20,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
-struct DecisionTreeClassifier <: BaseClassifier
+mutable struct DecisionTreeClassifier <: BaseClassifier
     pruning_purity_threshold::Float64 # no pruning if 1.0
     # Does nsubfeatures make sense for a stand-alone decision tree?
     nsubfeatures::Int
@@ -43,8 +43,8 @@ get_classes(dt::DecisionTreeClassifier) = dt.classes
 
 function fit!(dt::DecisionTreeClassifier, X, y)
     dt.root = build_tree(y, X, dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
-    if !isnull(dt.pruning_purity_threshold)
-        dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
+    if dt.pruning_purity_threshold < 1.0
+        dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     end
     dt.classes = sort(unique(y))
     dt
@@ -80,7 +80,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `get_classes`
 """
-struct DecisionTreeRegressor <: BaseRegressor
+mutable struct DecisionTreeRegressor <: BaseRegressor
     pruning_purity_threshold::Float64
     maxlabels::Int
     nsubfeatures::Int
@@ -103,8 +103,8 @@ function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
     # (as of April 2016).
     dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.maxlabels,
                          dt.nsubfeatures, dt.maxdepth; rng=dt.rng)
-    if !isnull(dt.pruning_purity_threshold)
-        dt.root = prune_tree(dt.root, get(dt.pruning_purity_threshold))
+    if dt.pruning_purity_threshold < 1.0
+        dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     end
     dt
 end
@@ -135,7 +135,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
-struct RandomForestClassifier <: BaseClassifier
+mutable struct RandomForestClassifier <: BaseClassifier
     nsubfeatures::Int
     ntrees::Int
     partialsampling::Float64
@@ -191,7 +191,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `get_classes`
 """
-struct RandomForestRegressor <: BaseRegressor
+mutable struct RandomForestRegressor <: BaseRegressor
     nsubfeatures::Int
     maxlabels::Int
     ntrees::Int
@@ -236,7 +236,7 @@ Hyperparameters:
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
-struct AdaBoostStumpClassifier <: BaseClassifier
+mutable struct AdaBoostStumpClassifier <: BaseClassifier
     niterations::Int
     rng::AbstractRNG
     ensemble::Ensemble
