@@ -16,17 +16,6 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
-    for i in region
-        lbl = labels[i]
-        counts[lbl] = get(counts, lbl, 0) + 1
-    end
-    return counts
-end
-
-_hist{T}(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) = 
-    _hist_add!(Dict{T,Int}(), labels, region)
-
 function _neg_z1_loss{T<:Real}(labels::Vector, weights::Vector{T})
     missmatches = labels .!= majority_vote(labels)
     loss = sum(weights[missmatches])
