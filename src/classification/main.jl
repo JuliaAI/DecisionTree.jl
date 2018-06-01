@@ -162,6 +162,9 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
 end
 
 function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
+    if purity_thresh >= 1.0
+        return tree
+    end
     function _prune_run(tree::LeafOrNode, purity_thresh::Real)
         N = length(tree)
         if N == 1        ## a Leaf

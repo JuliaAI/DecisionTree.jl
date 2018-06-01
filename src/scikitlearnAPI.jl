@@ -21,7 +21,7 @@ Hyperparameters:
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 struct DecisionTreeClassifier <: BaseClassifier
-    pruning_purity_threshold::Nullable{Float64} # no pruning if null
+    pruning_purity_threshold::Float64 # no pruning if 1.0
     # Does nsubfeatures make sense for a stand-alone decision tree?
     nsubfeatures::Int
     maxdepth::Int
@@ -30,9 +30,9 @@ struct DecisionTreeClassifier <: BaseClassifier
     # classes (in scikit-learn) === labels (in DecisionTree.jl)
     classes::Vector   # an arbitrary ordering of the labels 
     # No pruning by default
-    DecisionTreeClassifier(;pruning_purity_threshold=nothing, nsubfeatures=0,
+    DecisionTreeClassifier(;pruning_purity_threshold=1.0, nsubfeatures=0,
                            maxdepth=-1, rng=Base.GLOBAL_RNG) =
-        new(convert(Nullable{Float64}, pruning_purity_threshold), nsubfeatures,
+        new(pruning_purity_threshold, nsubfeatures,
             maxdepth, mk_rng(rng))
 end
 
@@ -81,17 +81,15 @@ Hyperparameters:
 Implements `fit!`, `predict`, `get_classes`
 """
 struct DecisionTreeRegressor <: BaseRegressor
-    pruning_purity_threshold::Nullable{Float64}
+    pruning_purity_threshold::Float64
     maxlabels::Int
     nsubfeatures::Int
     maxdepth::Int
     rng::AbstractRNG
     root::LeafOrNode
-    # No pruning by default (I think purity_threshold=1.0 is a no-op, maybe
-    # we could use that)
-    DecisionTreeRegressor(;pruning_purity_threshold=nothing, maxlabels=5,
+    DecisionTreeRegressor(;pruning_purity_threshold=1.0, maxlabels=5,
                           nsubfeatures=0, maxdepth=-1, rng=Base.GLOBAL_RNG) =
-        new(convert(Nullable{Float64}, pruning_purity_threshold), maxlabels,
+        new(pruning_purity_threshold, maxlabels,
             nsubfeatures, maxdepth, mk_rng(rng))
 end
 
