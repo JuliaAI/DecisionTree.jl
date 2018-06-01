@@ -35,60 +35,6 @@ end
 
 ################################################################################
 
-function _split(labels::Vector, features::Matrix, nsubfeatures::Int, weights::Vector, rng::AbstractRNG)
-    if weights == [0]
-        _split_info_gain(labels, features, nsubfeatures, rng)
-    else
-        _split_neg_z1_loss(labels, features, weights)
-    end
-end
-
-function _split_info_gain_loop(best, best_val, inds, features, labels, N)
-    for i in inds
-        ord = sortperm(features[:,i])
-        features_i = features[ord,i]
-        labels_i = labels[ord]
-
-        hist1 = _hist(labels_i, 1:0)
-        hist2 = _hist(labels_i)
-        N1 = 0
-        N2 = N
-
-        for (d, range) in UniqueRanges(features_i)
-            value = _info_gain(N1, hist1, N2, hist2)
-            if value > best_val
-                best_val = value
-                best = (i, d)
-            end
-
-            deltaN = length(range)
-
-            _hist_shift!(hist2, hist1, labels_i, range)
-            N1 += deltaN
-            N2 -= deltaN
-        end
-    end
-    return best
-end
-
-function _split_info_gain(labels::Vector, features::Matrix, nsubfeatures::Int,
-                          rng::AbstractRNG)
-    nf = size(features, 2)
-    N = length(labels)
-
-    best = NO_BEST
-    best_val = -Inf
-
-    if nsubfeatures > 0
-        r = randperm(rng, nf)
-        inds = r[1:nsubfeatures]
-    else
-        inds = 1:nf
-    end
-
-    return _split_info_gain_loop(best, best_val, inds, features, labels, N)
-end
-
 function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
     best = NO_BEST
     best_val = -Inf
@@ -108,7 +54,7 @@ end
 
 function build_stump(labels::Vector, features::Matrix, weights=[0];
                      rng=Base.GLOBAL_RNG)
-    S = _split(labels, features, 0, weights, rng)
+    S = _split_neg_z1_loss(labels, features, weights)
     if S == NO_BEST
         return Leaf(majority_vote(labels), labels)
     end
