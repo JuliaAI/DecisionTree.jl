@@ -26,7 +26,7 @@ X = randn(N, 10)
 # TODO: we should probably support fit!(::DecisionTreeClassifier, ::BitArray)
 y = convert(Vector{Bool}, randn(N) .< 0)
 maxdepth = 5
-model = fit!(DecisionTreeClassifier(maxdepth=maxdepth), X, y)
+model = fit!(DecisionTreeClassifier(max_depth=maxdepth), X, y)
 @test depth(model) == maxdepth
 
 
