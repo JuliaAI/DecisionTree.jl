@@ -3,7 +3,7 @@ using DecisionTree
 
 srand(16)
 
-n,m = 10^3, 5 ;
+n,m = 10^3, 5;
 features = rand(n,m);
 weights = rand(-1:1,m);
 labels = _int(features * weights);

@@ -20,7 +20,7 @@ preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
 
-model = build_forest(labels, features,2,3)
+model = build_forest(labels, features, 2, 3)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
