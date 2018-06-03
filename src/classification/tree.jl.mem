@@ -1,0 +1,342 @@
+        - # The code in this file is a small port from scikit-learn's and numpy's 
+        - # library which is distributed under the 3-Clause BSD license. 
+        - # The rest of DecisionTree.jl is released under the MIT license. 
+        - 
+        - # written by Poom Chiarawongse <eight1911@gmail.com>
+        - 
+        - module treeclassifier
+        -     include("../util.jl")
+        - 
+        -     export build_tree
+        - 
+        -     mutable struct NodeMeta
+        -         l           :: NodeMeta  # right child
+        -         r           :: NodeMeta  # left child
+        -         labels      :: Array{Int64}
+        -         label       :: Int64  # most likely label
+        -         feature     :: Int64  # feature used for splitting
+        -         threshold   :: Any # threshold value
+        -         is_leaf     :: Bool
+        - 
+        -         depth       :: Int64
+        -         region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
+        -         features    :: Array{Int64} # a list of features not known to be constant
+        - 
+        -         split_at    :: Int64            # index of samples
+   686400         NodeMeta(features, region, depth) = (
+        -             node = new();
+        -             node.depth = depth;
+        -             node.region = region;
+        -             node.features = features;
+        -             node.is_leaf = false;
+        -             node)
+        -     end
+        - 
+        -     mutable struct Tree{T}
+        -         root :: NodeMeta
+        -         list :: Array{T}
+        -     end
+        - 
+        - 
+        -     # find an optimal split that satisfy the given constraints
+        -     # (max_depth, min_samples_split, min_purity_increase)
+        -     function _split!(X                   :: Matrix{T}, # the feature array
+        -                      Y                   :: Array{Int64, 1}, # the label array
+        -                      node                :: NodeMeta, # the node to split
+        -                      n_classes           :: Int64, # the total number of different labels
+        -                      max_features        :: Int64, # number of features to consider
+        -                      max_depth           :: Int64, # the maximum depth of the resultant tree
+        -                      min_samples_leaf    :: Int64, # the minimum number of samples each leaf needs to have
+        -                      min_samples_split   :: Int64, # the minimum number of samples in needed for a split
+        -                      min_purity_increase :: Float64, # minimum purity needed for a split
+        -                      indX                :: Array{Int64, 1}, # an array of sample indices, 
+        -                                                              # we split using samples in indX[node.region]
+        -                      # the five arrays below are given for optimization purposes
+        -                      nc                  :: Array{Int64}, # nc maintains a dictionary of all labels in the samples
+        -                      ncl                 :: Array{Int64}, # ncl maintains the counts of labels on the left
+        -                      ncr                 :: Array{Int64}, # ncr maintains the counts of labels on the right
+        -                      Xf                  :: Array{T},
+        -                      Yf                  :: Array{Int64},
+        -                      rng                 :: AbstractRNG) where T <: Any
+ 10134821         region = node.region
+        0         n_samples = length(region)
+        0         r_start = region.start - 1
+        0         @simd for lab in 1:n_classes
+        0             @inbounds nc[lab] = 0
+        -         end
+        - 
+        0         @simd for i in region
+        0             @inbounds nc[Y[indX[i]]] += 1
+        -         end
+        - 
+        0         node.label = indmax(nc)
+        - 
+        0         if (min_samples_leaf * 2  >  n_samples
+        -          || min_samples_split     >  n_samples
+        -          || max_depth             <= node.depth
+        -          || n_samples             == nc[node.label])
+   377600             node.labels = nc[:]
+        0             node.is_leaf = true
+        0             return
+        -         end
+        - 
+        0         features = node.features
+        0         n_features = length(features)
+        0         best_purity = -Inf
+        0         best_feature = -1
+        0         threshold_lo = Inf32
+        0         threshold_hi = Inf32
+        - 
+        0         indf = 1
+        -         # the number of new constants found during this split
+        0         n_constant = 0
+        -         # true if every feature is constant
+        0         unsplittable = true
+        -         # the number of non constant features we will see if
+        -         # only sample n_features used features
+        -         # is a hypergeometric random variable
+        0         total_features = size(X, 2)
+        - 
+        -         # this is the total number of features that we expect to not
+        -         # be one of the known constant features. since we know exactly 
+        -         # what the non constant features are, we can sample at 'non_constants_used'
+        -         # non constant features instead of going through every feature randomly.
+        0         non_constants_used = util.hypergeometric(n_features, total_features-n_features, max_features, rng)
+        0         @inbounds while (unsplittable || indf <= non_constants_used) && indf <= n_features
+        -             feature = let
+        0                 indr = rand(rng, indf:n_features)
+        0                 features[indf], features[indr] = features[indr], features[indf]
+        0                 features[indf]
+        -             end
+        - 
+        -             # in the begining, every node is 
+        -             # on right of the threshold
+        0             @simd for lab in 1:n_classes
+        0                 ncl[lab] = 0
+        0                 ncr[lab] = nc[lab]
+        -             end
+        - 
+        0             @simd for i in 1:n_samples
+        0                 sub_i = indX[i + r_start]
+        0                 Yf[i] = Y[sub_i]
+        0                 Xf[i] = X[sub_i, feature]
+        -             end
+        - 
+        -             # sort Yf and Xf by Xf
+        0             util.q_bi_sort!(Xf, Yf, 1, n_samples)
+        0             nl, nr = 0, n_samples
+        0             lo, hi = 0, 0
+        0             is_constant = true
+        0             while hi < n_samples
+        0                 lo = hi + 1
+        0                 curr_f = Xf[lo]
+        0                 hi = (lo < n_samples && curr_f == Xf[lo+1]
+        -                     ? searchsortedlast(Xf, curr_f, lo, n_samples, Base.Order.Forward)
+        -                     : lo)
+        - 
+        0                 (nl != 0) && (is_constant = false)
+        -                 # honor min_samples_leaf
+        0                 if nl >= min_samples_leaf && nr >= min_samples_leaf
+        0                     unsplittable = false
+        0                     purity = -(nl * util.gini(ncl, nl)
+        -                              + nr * util.gini(ncr, nr))
+        0                     if purity > best_purity
+        -                         # will take average at the end
+        0                         threshold_lo = last_f
+        0                         threshold_hi = curr_f
+        0                         best_purity = purity
+        0                         best_feature = feature
+        -                     end
+        -                 end
+        - 
+        0                 let delta = hi - lo + 1
+        0                     nl += delta
+        0                     nr -= delta
+        -                 end
+        -                 # fill ncl and ncr in the direction
+        -                 # that would require the smaller number of iterations
+        0                 if (hi << 1) < n_samples + lo # i.e., hi - lo < n_samples - hi
+        0                     @simd for i in lo:hi
+        0                         ncr[Yf[i]] -= 1
+        -                     end
+        0                     @simd for lab in 1:n_classes
+        0                         ncl[lab] = nc[lab] - ncr[lab]
+        -                     end
+        -                 else
+        0                     @simd for lab in 1:n_classes
+        0                         ncr[lab] = 0
+        -                     end
+        0                     @simd for i in (hi+1):n_samples
+        0                         ncr[Yf[i]] += 1
+        -                     end
+        0                     @simd for lab in 1:n_classes
+        0                         ncl[lab] = nc[lab] - ncr[lab]
+        -                     end
+        -                 end
+        - 
+        0                 last_f = curr_f
+        -             end
+        - 
+        -             # keep track of constant features to be used later.
+        0             if is_constant
+        0                 n_constant += 1
+        0                 features[indf], features[n_constant] = features[n_constant], features[indf]
+        -             end
+        - 
+        0             indf += 1
+        -         end
+        - 
+        -         # no splits honor min_samples_leaf
+        0         @inbounds if unsplittable || (best_purity / n_samples + util.entropy(nc, n_samples) < min_purity_increase)
+        0             node.labels = nc[:]
+        0             node.is_leaf = true
+        0             return
+        -         end
+        0         bf = Int64(best_feature)
+        0         @simd for i in 1:n_samples
+        0             Xf[i] = X[indX[i + r_start], bf]
+        -         end
+        0         try 
+    37536             node.threshold = (threshold_lo + threshold_hi) / 2
+        -         catch
+        0             node.threshold = threshold_hi
+        -         end
+        -         # split the samples into two parts: ones that are greater than
+        -         # the threshold and ones that are less than or equal to the threshold
+        -         #                                 ---------------------
+        -         # (so we partition at threshold_lo instead of node.threshold)
+        0         node.split_at = util.partition!(indX, Xf, threshold_lo, region)
+        0         node.feature = best_feature
+        0         node.features = features[(n_constant+1):n_features]
+        - 
+        - 
+        -     end
+        - 
+        -     @inline function fork!(node :: NodeMeta)
+        0         ind = node.split_at
+        0         region = node.region
+        0         features = node.features
+        -         # no need to copy because we will copy at the end
+        0         node.l = NodeMeta(features, region[    1:ind], node.depth + 1)
+        0         node.r = NodeMeta(features, region[ind+1:end], node.depth + 1)
+        -     end
+        - 
+        - 
+        -     # To do: check that Y actually has
+        -     # meta.n_classes classes
+        -     function check_input(X                   :: Matrix,
+        -                          Y                   :: Array{Int64, 1},
+        -                          max_features        :: Int64,
+        -                          max_depth           :: Int64,
+        -                          min_samples_leaf    :: Int64,
+        -                          min_samples_split   :: Int64,
+        -                          min_purity_increase :: Float64)
+        0         n_samples, n_features = size(X)
+        0         if length(Y) != n_samples
+        0             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
+        - 
+        0         elseif n_features < max_features
+        0             throw("number of features $(n_features) "
+        -                 * "is less than the number of "
+        -                 * "max features $(max_features)")
+        - 
+        0         elseif min_samples_leaf < 1
+        0             throw("min_samples_leaf must be a positive integer "
+        -                 * "(given $(min_samples_leaf))")
+        - 
+        0         elseif min_samples_split < 2
+        0             throw("min_samples_split must be at least 2 "
+        -                 * "(given $(min_samples_split))")
+        -         end
+        -     end
+        - 
+        -     # convert an array of labels into an array of integers
+        -     # and a HashTable taking each integer to the original label.
+        - 
+        -     # for example 
+        -     # 
+        -     # ['1880s', '1890s', '1760s', '1880s']
+        -     # 
+        -     # becomes 
+        -     # 
+        -     # [0, 1, 2, 1],
+        -     # {
+        -     #   0 => '1880s',
+        -     #   1 => '1890s',
+        -     #   2 => '1760s',
+        -     # }
+        -     # 
+        -     function assign(Y :: Array{T}) where T<:Any
+      224         label_set = Set{T}()
+        0         for y in Y
+        0             push!(label_set, y)
+        -         end
+     2240         label_list = collect(label_set)
+     1120         label_dict = Dict{T, Int64}()
+        0         @inbounds for i in 1:length(label_list)
+        0             label_dict[label_list[i]] = i
+        -         end
+        - 
+   203392         _Y = Array{Int64}(length(Y))
+        0         @inbounds for i in 1:length(Y)
+        0             _Y[i] = label_dict[Y[i]]
+        -         end
+        -         
+      448         return label_list, _Y
+        -     end
+        - 
+        -     function build_tree(X                   :: Matrix{T},
+        -                         Y                   :: Vector,
+        -                         max_features        :: Int64,
+        -                         max_depth           :: Int64,
+        -                         min_samples_leaf    :: Int64,
+        -                         min_samples_split   :: Int64,
+        -                         min_purity_increase :: Float64;
+        -                         rng=Base.GLOBAL_RNG :: AbstractRNG) where T <: Any
+   680419         n_samples, n_features = size(X)
+        0         label_list, _Y = assign(Y)
+        0         n_classes = Int64(length(label_list))
+        0         check_input(
+        -             X, _Y, 
+        -             max_features, 
+        -             max_depth,
+        -             min_samples_leaf,
+        -             min_samples_split,
+        -             min_purity_increase)
+   203840         indX = collect(Int64(1):Int64(n_samples))
+        -         tree = let
+        0             @inbounds root = NodeMeta(collect(1:n_features), 1:n_samples, 0)
+      448             Tree(root, label_list)
+        -         end
+        0         stack = NodeMeta[ tree.root ]
+        - 
+     2240         nc  = Array{Int64}(n_classes)
+     2240         ncl = Array{Int64}(n_classes)
+     2240         ncr = Array{Int64}(n_classes)
+   103040         Xf  = Array{T}(n_samples)
+   203392         Yf  = Array{Int64}(n_samples)
+        0         @inbounds while length(stack) > 0
+        0             node = pop!(stack)
+        0             _split!(
+        -                 X,
+        -                 _Y, 
+        -                 node, 
+        -                 n_classes,
+        -                 max_features, 
+        -                 max_depth,
+        -                 min_samples_leaf,
+        -                 min_samples_split,
+        -                 min_purity_increase,
+        -                 indX, 
+        -                 nc, ncl, ncr, Xf, Yf,
+        -                 rng)
+        0             if !node.is_leaf
+        0                 fork!(node)
+        0                 push!(stack, node.r)
+        0                 push!(stack, node.l)
+        -             end
+        -         end
+        0         return tree
+        -     end
+        - end
+        - 

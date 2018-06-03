@@ -82,7 +82,7 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     end
     min_samples_leaf = Int64(min_samples_leaf)
     min_samples_split = Int64(min_samples_split)
-    min_purity_increase = Float32(min_purity_increase)
+    min_purity_increase = Float64(min_purity_increase)
     t = treeclassifier.build_tree(
         features, labels, nsubfeatures, maxdepth,
         min_samples_leaf, min_samples_split, min_purity_increase, 
