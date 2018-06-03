@@ -138,8 +138,8 @@ module treeclassifier
                 # honor min_samples_leaf
                 if nl >= min_samples_leaf && nr >= min_samples_leaf
                     unsplittable = false
-                    purity = -(nl * util.gini(ncl, nl)
-                             + nr * util.gini(ncr, nr))
+                    purity = -(nl * util.entropy(ncl, nl)
+                             + nr * util.entropy(ncr, nr))
                     if purity > best_purity
                         # will take average at the end
                         threshold_lo = last_f
