@@ -94,7 +94,6 @@ module treeclassifier
         n_constant = 0
         # true if every feature is constant
         unsplittable = true
-        r_start = region.start - 1
         # the number of non constant features we will see if
         # only sample n_features used features
         # is a hypergeometric random variable
