@@ -102,26 +102,6 @@ function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}
                 Leaf(mean(labels[(!).(split)]), labels[(!).(split)]))
 end
 
-#=
-function build_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1; rng=Base.GLOBAL_RNG)
-    if maxdepth < -1
-        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
-    end
-    if length(labels) <= maxlabels || maxdepth==0
-        return Leaf(mean(labels), labels)
-    end
-    S = _split_mse(labels, features, nsubfeatures, rng)
-    if S == NO_BEST
-        return Leaf(mean(labels), labels)
-    end
-    id, thresh = S
-    split = features[:,id] .< thresh
-    return Node(id, thresh,
-                build_tree(labels[split], features[split,:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng),
-                build_tree(labels[(!).(split)], features[(!).(split),:], maxlabels, nsubfeatures, max(maxdepth-1, -1); rng=rng))
-end
-=#
-
 # TODO: add support for maxlabels
 function build_tree{T<:Float64, U<:Real}(
         labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1,
@@ -137,7 +117,10 @@ function build_tree{T<:Float64, U<:Real}(
     if nsubfeatures == 0
         nsubfeatures = size(features, 2)
     end
-    min_samples_leaf = Int64(min_samples_leaf)
+    if maxlabels == 0
+        maxlabels = typemax(Int64)
+    end
+    min_samples_leaf = Int64(min(min_samples_leaf, maxlabels))
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float64(min_purity_increase)
     t = treeregressor.build_tree(

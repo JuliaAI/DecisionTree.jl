@@ -1,3 +1,4 @@
 
-deafult:
-	julia test/runtests.jl
+
+default:
+	cd test && julia runtests.jl

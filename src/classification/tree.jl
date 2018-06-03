@@ -1,6 +1,6 @@
-# The code in this file is a small port from scikit-learn's and numpy's 
-# library which is distributed under the 3-Clause BSD license. 
-# The rest of DecisionTree.jl is released under the MIT license. 
+# The code in this file is a small port from scikit-learn's and numpy's
+# library which is distributed under the 3-Clause BSD license.
+# The rest of DecisionTree.jl is released under the MIT license.
 
 # written by Poom Chiarawongse <eight1911@gmail.com>
 
@@ -49,7 +49,7 @@ module treeclassifier
                      min_samples_leaf    :: Int64, # the minimum number of samples each leaf needs to have
                      min_samples_split   :: Int64, # the minimum number of samples in needed for a split
                      min_purity_increase :: Float64, # minimum purity needed for a split
-                     indX                :: Array{Int64, 1}, # an array of sample indices, 
+                     indX                :: Array{Int64, 1}, # an array of sample indices,
                                                              # we split using samples in indX[node.region]
                      # the five arrays below are given for optimization purposes
                      nc                  :: Array{Int64}, # nc maintains a dictionary of all labels in the samples
@@ -98,7 +98,7 @@ module treeclassifier
         total_features = size(X, 2)
 
         # this is the total number of features that we expect to not
-        # be one of the known constant features. since we know exactly 
+        # be one of the known constant features. since we know exactly
         # what the non constant features are, we can sample at 'non_constants_used'
         # non constant features instead of going through every feature randomly.
         non_constants_used = util.hypergeometric(n_features, total_features-n_features, max_features, rng)
@@ -109,7 +109,7 @@ module treeclassifier
                 features[indf]
             end
 
-            # in the begining, every node is 
+            # in the begining, every node is
             # on right of the threshold
             @simd for lab in 1:n_classes
                 ncl[lab] = 0
@@ -198,7 +198,7 @@ module treeclassifier
                 Xf[i] = X[indX[i + r_start], bf]
             end
 
-            try 
+            try
                 node.threshold = (threshold_lo + threshold_hi) / 2.0
             catch
                 node.threshold = threshold_hi
@@ -255,19 +255,19 @@ module treeclassifier
     # convert an array of labels into an array of integers
     # and a HashTable taking each integer to the original label.
 
-    # for example 
-    # 
+    # for example
+    #
     # ['1880s', '1890s', '1760s', '1880s']
-    # 
-    # becomes 
-    # 
+    #
+    # becomes
+    #
     # [0, 1, 2, 1],
     # {
     #   0 => '1880s',
     #   1 => '1890s',
     #   2 => '1760s',
     # }
-    # 
+    #
     function assign(Y :: Array{T}) where T<:Any
         label_set = Set{T}()
         for y in Y
@@ -283,7 +283,7 @@ module treeclassifier
         @inbounds for i in 1:length(Y)
             _Y[i] = label_dict[Y[i]]
         end
-        
+
         return label_list, _Y
     end
 
@@ -299,8 +299,8 @@ module treeclassifier
         label_list, _Y = assign(Y)
         n_classes = Int64(length(label_list))
         check_input(
-            X, _Y, 
-            max_features, 
+            X, _Y,
+            max_features,
             max_depth,
             min_samples_leaf,
             min_samples_split,
@@ -321,15 +321,15 @@ module treeclassifier
             node = pop!(stack)
             _split!(
                 X,
-                _Y, 
-                node, 
+                _Y,
+                node,
                 n_classes,
-                max_features, 
+                max_features,
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
                 min_purity_increase,
-                indX, 
+                indX,
                 nc, ncl, ncr, Xf, Yf,
                 rng)
             if !node.is_leaf
