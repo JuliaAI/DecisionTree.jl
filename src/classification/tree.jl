@@ -5,10 +5,9 @@
 # written by Poom Chiarawongse <eight1911@gmail.com>
 
 module treeclassifier
-    include("./util.jl")
-    include("../hypgeom.jl")
+    include("../util.jl")
 
-    export build_tree, comply, _split_entropy, _split_01
+    export build_tree
 
     mutable struct NodeMeta
         l           :: NodeMeta  # right child
@@ -23,7 +22,6 @@ module treeclassifier
         region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
         features    :: Array{Int64} # a list of features not known to be constant
 
-        purity      :: Float32
         split_at    :: Int64            # index of samples
         NodeMeta(features, region, depth) = (
             node = new();
@@ -50,7 +48,7 @@ module treeclassifier
                      max_depth           :: Int64, # the maximum depth of the resultant tree
                      min_samples_leaf    :: Int64, # the minimum number of samples each leaf needs to have
                      min_samples_split   :: Int64, # the minimum number of samples in needed for a split
-                     min_purity_increase :: Float32, # minimum purity needed for a split
+                     min_purity_increase :: Float64, # minimum purity needed for a split
                      indX                :: Array{Int64, 1}, # an array of sample indices, 
                                                              # we split using samples in indX[node.region]
                      # the five arrays below are given for optimization purposes
@@ -94,7 +92,6 @@ module treeclassifier
         n_constant = 0
         # true if every feature is constant
         unsplittable = true
-        r_start = region.start - 1
         # the number of non constant features we will see if
         # only sample n_features used features
         # is a hypergeometric random variable
@@ -104,7 +101,7 @@ module treeclassifier
         # be one of the known constant features. since we know exactly 
         # what the non constant features are, we can sample at 'non_constants_used'
         # non constant features instead of going through every feature randomly.
-        non_constants_used = hypergeometric(n_features, total_features-n_features, max_features, rng)
+        non_constants_used = util.hypergeometric(n_features, total_features-n_features, max_features, rng)
         @inbounds while (unsplittable || indf <= non_constants_used) && indf <= n_features
             feature = let
                 indr = rand(rng, indf:n_features)
@@ -158,7 +155,7 @@ module treeclassifier
                 end
                 # fill ncl and ncr in the direction
                 # that would require the smaller number of iterations
-                if hi - lo < n_samples - hi
+                if (hi << 1) < n_samples + lo # i.e., hi - lo < n_samples - hi
                     @simd for i in lo:hi
                         ncr[Yf[i]] -= 1
                     end
@@ -190,23 +187,19 @@ module treeclassifier
         end
 
         # no splits honor min_samples_leaf
-        @inbounds if unsplittable
+        @inbounds if (unsplittable
+            || (best_purity / n_samples + util.entropy(nc, n_samples) < min_purity_increase))
             node.labels = nc[:]
             node.is_leaf = true
             return
         else
-            node.purity = best_purity / n_samples
-            if (node.purity + util.entropy(nc, n_samples) < min_purity_increase)
-                node.labels = nc[:]
-                node.is_leaf = true
-                return
-            end
             bf = Int64(best_feature)
             @simd for i in 1:n_samples
                 Xf[i] = X[indX[i + r_start], bf]
             end
+
             try 
-                node.threshold = (threshold_lo + threshold_hi)  / 2.0
+                node.threshold = (threshold_lo + threshold_hi) / 2.0
             catch
                 node.threshold = threshold_hi
             end
@@ -239,7 +232,7 @@ module treeclassifier
                          max_depth           :: Int64,
                          min_samples_leaf    :: Int64,
                          min_samples_split   :: Int64,
-                         min_purity_increase :: Float32)
+                         min_purity_increase :: Float64)
         n_samples, n_features = size(X)
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
@@ -300,7 +293,7 @@ module treeclassifier
                         max_depth           :: Int64,
                         min_samples_leaf    :: Int64,
                         min_samples_split   :: Int64,
-                        min_purity_increase :: Float32;
+                        min_purity_increase :: Float64;
                         rng=Base.GLOBAL_RNG :: AbstractRNG) where T <: Any
         n_samples, n_features = size(X)
         label_list, _Y = assign(Y)
