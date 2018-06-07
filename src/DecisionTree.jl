@@ -56,7 +56,7 @@ promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
 include("measures.jl")
 include("classification/main.jl")
-include("regression.jl")
+include("regression/main.jl")
 include("scikitlearnAPI.jl")
 
 
