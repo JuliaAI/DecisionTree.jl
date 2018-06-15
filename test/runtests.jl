@@ -23,7 +23,8 @@ classification = ["classification/random.jl",
 regression =     ["regression/random.jl",
                   "regression/scikitlearn.jl"]
 
-miscellaneous =  ["miscellaneous/promote.jl"]
+miscellaneous =  ["miscellaneous/promote.jl",
+                  "miscellaneous/parallel.jl"]
 
 for list in [classification, regression, miscellaneous]
     run_tests(list)
