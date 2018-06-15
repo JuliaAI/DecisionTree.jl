@@ -1,5 +1,3 @@
-using Base.Test
-
 function loaddata()
     f = open("data/digits.csv")
     data = readlines(f)[2:end]

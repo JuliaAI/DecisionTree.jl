@@ -1,8 +1,5 @@
 ### Classification - Heterogeneously typed features (ints, floats, bools, strings)
 
-using Base.Test
-using DecisionTree
-
 m, n = 10^2, 5
 
 tf = [trues(Int(m/2)) falses(Int(m/2))]
@@ -29,4 +26,3 @@ model, coeffs = build_adaboost_stumps(labels, features, 7)
 preds = apply_adaboost_stumps(model, coeffs, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
-
