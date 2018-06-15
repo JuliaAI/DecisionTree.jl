@@ -6,15 +6,22 @@ weights = rand(-2:2,m);
 labels = features * weights;
 
 # over-fitting
-max_features = 1
-model = build_tree(labels, features, max_features)
+min_samples_leaf = 1
+model = build_tree(labels, features, min_samples_leaf)
 preds = apply_tree(model, features)
-@test R2(labels, preds) > 0.99      # R2: coeff of determination
+@test R2(labels, preds) > 0.95      # R2: coeff of determination
 
-max_features = 5
+# under-fitting
+min_samples_leaf = 100
+model = build_tree(labels, features, min_samples_leaf)
+preds = apply_tree(model, features)
+#@test R2(labels, preds) < 0.95      # R2: coeff of determination
+
+
+min_samples_leaf = 5
 max_depth = 3
 nsubfeatures = 0                    # all features
-model = build_tree(labels, features, max_features, nsubfeatures, max_depth)
+model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth)
 @test depth(model) == max_depth
 
 println("\n##### nfoldCV Regression Tree #####")
