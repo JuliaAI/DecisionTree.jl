@@ -1,6 +1,3 @@
-using Base.Test
-using DecisionTree
-using ScikitLearnBase
 
 srand(2)
 n,m = 10^3, 5 ;

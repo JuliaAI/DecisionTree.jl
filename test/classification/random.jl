@@ -1,6 +1,3 @@
-using Base.Test
-using DecisionTree
-
 srand(16)
 
 n,m = 10^3, 5;
@@ -11,6 +8,7 @@ labels = _int(features * weights);
 maxdepth = 3
 model = build_tree(labels, features, 0, maxdepth)
 @test depth(model) == maxdepth
+print_tree(model, 3)
 
 println("\n##### nfoldCV Classification Tree #####")
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
