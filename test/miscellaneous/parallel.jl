@@ -1,6 +1,6 @@
 # Test parallelization of random forests
 
-addprocs()
+addprocs(1)
 @test nprocs() > 1
 
 @everywhere using DecisionTree
