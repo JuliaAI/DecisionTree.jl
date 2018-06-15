@@ -9,13 +9,13 @@ labels = features * weights;
 min_samples_leaf = 1
 model = build_tree(labels, features, min_samples_leaf)
 preds = apply_tree(model, features)
-@test R2(labels, preds) > 0.95      # R2: coeff of determination
+@test R2(labels, preds) > 0.99      # R2: coeff of determination
 
 # under-fitting
 min_samples_leaf = 100
 model = build_tree(labels, features, min_samples_leaf)
 preds = apply_tree(model, features)
-#@test R2(labels, preds) < 0.95      # R2: coeff of determination
+@test R2(labels, preds) < 0.8
 
 
 min_samples_leaf = 5
