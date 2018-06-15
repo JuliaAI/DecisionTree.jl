@@ -15,15 +15,15 @@ function run_tests(list)
     end
 end
 
-classification = ["./classification/random.jl",
-                  "./classification/heterogeneous.jl",
-                  "./classification/digits.jl",
-                  "./classification/scikitlearn.jl"]
+classification = ["classification/random.jl",
+                  "classification/heterogeneous.jl",
+                  "classification/digits.jl",
+                  "classification/scikitlearn.jl"]
 
-regression =     ["./regression/random.jl",
-                  "./regression/scikitlearn.jl"]
+regression =     ["regression/random.jl",
+                  "regression/scikitlearn.jl"]
 
-miscellaneous =  ["./miscellaneous/promote.jl"]
+miscellaneous =  ["miscellaneous/promote.jl"]
 
 for list in [classification, regression, miscellaneous]
     run_tests(list)

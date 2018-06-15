@@ -6,7 +6,7 @@ function loaddata()
         for row in data]
     data = hcat(data...)
     Y = Int.(data[1, 1:end]) + 1
-    X = transpose(data[2:end, 1:end])
+    X = convert(Matrix, transpose(data[2:end, 1:end]))
 
     return X, Y
 
