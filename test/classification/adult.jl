@@ -1,3 +1,6 @@
+# Classification Test - Adult Data Set
+# https://archive.ics.uci.edu/ml/datasets/adult
+
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", "adult.csv");
 adult = readcsv("adult.csv");
 

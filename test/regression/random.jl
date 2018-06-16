@@ -10,6 +10,7 @@ min_samples_leaf = 1
 model = build_tree(labels, features, min_samples_leaf)
 preds = apply_tree(model, features)
 @test R2(labels, preds) > 0.99      # R2: coeff of determination
+### @test length(model) == n        # can / should this be enforced ???
 
 # under-fitting
 min_samples_leaf = 100

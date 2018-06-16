@@ -1,3 +1,6 @@
+# Classification Test - Iris Data Set
+# https://archive.ics.uci.edu/ml/datasets/iris
+
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data", "iris.csv")
 iris = readcsv("iris.csv");
 
