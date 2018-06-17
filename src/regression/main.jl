@@ -123,7 +123,7 @@ function build_tree{T<:Float64, U<:Real}(
     min_samples_leaf = Int64(min(min_samples_leaf, maxlabels))
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float64(min_purity_increase)
-    t = treeregressor.build_tree(
+    t = treeregressor.fit(
         features, labels, nsubfeatures, maxdepth,
         min_samples_leaf, min_samples_split, min_purity_increase, 
         rng=rng)
