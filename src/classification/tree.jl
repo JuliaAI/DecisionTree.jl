@@ -7,7 +7,7 @@
 module treeclassifier
     include("../util.jl")
 
-    export build_tree
+    export fit
 
     mutable struct NodeMeta
         l           :: NodeMeta  # right child
@@ -287,14 +287,14 @@ module treeclassifier
         return label_list, _Y
     end
 
-    function build_tree(X                   :: Matrix{T},
-                        Y                   :: Vector,
-                        max_features        :: Int64,
-                        max_depth           :: Int64,
-                        min_samples_leaf    :: Int64,
-                        min_samples_split   :: Int64,
-                        min_purity_increase :: Float64;
-                        rng=Base.GLOBAL_RNG :: AbstractRNG) where T <: Any
+    function fit(X                   :: Matrix{T},
+                 Y                   :: Vector,
+                 max_features        :: Int64,
+                 max_depth           :: Int64,
+                 min_samples_leaf    :: Int64,
+                 min_samples_split   :: Int64,
+                 min_purity_increase :: Float64;
+                 rng=Base.GLOBAL_RNG :: AbstractRNG) where T <: Any
         n_samples, n_features = size(X)
         label_list, _Y = assign(Y)
         n_classes = Int64(length(label_list))
