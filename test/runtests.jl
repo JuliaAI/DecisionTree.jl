@@ -21,6 +21,7 @@ classification = ["classification/random.jl",
                   "classification/scikitlearn.jl"]
 
 regression =     ["regression/random.jl",
+                  "regression/digits.jl",
                   "regression/scikitlearn.jl"]
 
 miscellaneous =  ["miscellaneous/promote.jl",
