@@ -6,22 +6,22 @@ import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
 
 """
     DecisionTreeClassifier(; pruning_purity_threshold=1.0,
-                           nsubfeatures::Int=0,
-                           maxdepth::Int=-1,
+                           max_depth::Int=-1,
                            min_samples_leaf::Int=1,
                            min_samples_split::Int=2,
                            min_purity_increase::Float=0.0,
+                           nsubfeatures::Int=0,
                            rng=Base.GLOBAL_RNG)
 Decision tree classifier. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
 
-- `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
-- `nsubfeatures`: number of features to select at random (default: keep all)
+- `pruning_purity_threshold`: (post-pruning) merge leaves having `>=thresh` combined purity (default: no pruning)
 - `max_depth`: maximum depth of the decision tree (default: no maximum)
 - `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 1)
 - `min_samples_split`: the minimum number of samples in needed for a split (default: 2)
 - `min_purity_increase`: minimum purity needed for a split (default: 0.0)
+- `nsubfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
@@ -29,20 +29,18 @@ Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 mutable struct DecisionTreeClassifier <: BaseClassifier
     pruning_purity_threshold::Float64 # no pruning if 1.0
-    nsubfeatures::Int
     max_depth::Int
     min_samples_leaf::Int
     min_samples_split::Int
     min_purity_increase::Float64
+    nsubfeatures::Int
     rng::AbstractRNG
-    root::LeafOrNode
-    # classes (in scikit-learn) === labels (in DecisionTree.jl)
-    classes::Vector   # an arbitrary ordering of the labels 
-    DecisionTreeClassifier(;pruning_purity_threshold=1.0, nsubfeatures=0,
-                           max_depth=-1, min_samples_leaf=1, min_samples_split=2,
-                           min_purity_increase=0.0, rng=Base.GLOBAL_RNG) =
-        new(pruning_purity_threshold, nsubfeatures, max_depth,
-            min_samples_leaf, min_samples_split, min_purity_increase, mk_rng(rng))
+    root::Union{LeafOrNode, Void}
+    classes::Union{Vector, Void}
+    DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
+                           min_purity_increase=0.0, nsubfeatures=0, rng=Base.GLOBAL_RNG, root=nothing, classes=nothing) =
+        new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
+            min_purity_increase, nsubfeatures, mk_rng(rng), root, classes)
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
@@ -67,23 +65,39 @@ predict_proba(dt::DecisionTreeClassifier, X) =
 predict_log_proba(dt::DecisionTreeClassifier, X) =
     log(predict_proba(dt, X)) # this will yield -Inf when p=0. Hmmm...
 
+function show(io::IO, dt::DecisionTreeClassifier)
+    println(io, "DecisionTreeClassifier")
+    println(io, "max_depth:                $(dt.max_depth)")
+    println(io, "min_samples_leaf:         $(dt.min_samples_leaf)")
+    println(io, "min_samples_split:        $(dt.min_samples_split)")
+    println(io, "min_purity_increase:      $(dt.min_purity_increase)")
+    println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
+    println(io, "nsubfeatures:             $(dt.nsubfeatures)")
+    println(io, "classes:                  $(dt.classes)")
+    println(io, "root:                     $(dt.root)")
+end
+
 ################################################################################
 # Regression
 
 """
     DecisionTreeRegressor(; pruning_purity_threshold=1.0,
-                          max_labels::Int=5,
-                          nsubfeatures::Int=0,
                           max_depth::Int-1,
+                          min_samples_leaf::Int=5,
+                          min_samples_split::Int=2,
+                          min_purity_increase::Float=0.0,
+                          nsubfeatures::Int=0,
                           rng=Base.GLOBAL_RNG)
 Decision tree regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
 
-- `pruning_purity_threshold`: merge leaves having `>=thresh` combined purity (default: no pruning)
-- `max_labels`: maximum number of samples per leaf, split leaf if exceeded
-- `nsubfeatures`: number of features to select at random (default: keep all)
+- `pruning_purity_threshold`: (post-pruning) merge leaves having `>=thresh` combined purity (default: no pruning)
 - `max_depth`: maximum depth of the decision tree (default: no maximum)
+- `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 5)
+- `min_samples_split`: the minimum number of samples in needed for a split (default: 2)
+- `min_purity_increase`: minimum purity needed for a split (default: 0.0)
+- `nsubfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
@@ -91,27 +105,26 @@ Implements `fit!`, `predict`, `get_classes`
 """
 mutable struct DecisionTreeRegressor <: BaseRegressor
     pruning_purity_threshold::Float64
-    max_labels::Int
-    nsubfeatures::Int
     max_depth::Int
+    min_samples_leaf::Int
+    min_samples_split::Int
+    min_purity_increase::Float64
+    nsubfeatures::Int
     rng::AbstractRNG
-    root::LeafOrNode
-    DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_labels=5,
-                          nsubfeatures=0, max_depth=-1, rng=Base.GLOBAL_RNG) =
-        new(pruning_purity_threshold, max_labels,
-            nsubfeatures, max_depth, mk_rng(rng))
+    root::Union{LeafOrNode, Void}
+    DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
+                          min_samples_split=2, min_purity_increase=0.0, nsubfeatures=0, rng=Base.GLOBAL_RNG, root=nothing) =
+        new(pruning_purity_threshold, max_depth, min_samples_leaf,
+            min_samples_split, min_purity_increase, nsubfeatures, mk_rng(rng), root)
 end
 
 @declare_hyperparameters(DecisionTreeRegressor,
-                         [:pruning_purity_threshold, :max_labels, :nsubfeatures,
-                          :max_depth, :rng])
+                         [:pruning_purity_threshold, :min_samples_leaf, :nsubfeatures,
+                          :max_depth, :min_samples_split, :min_purity_increase, :rng])
 
 function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
-    # build_tree knows that its a regression problem by its argument types. I'm
-    # not sure why X has to be Float64, but the method signature requires it
-    # (as of April 2016).
-    dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.max_labels,
-                         dt.nsubfeatures, dt.max_depth; rng=dt.rng)
+    dt.root = build_tree(y, convert(Matrix{Float64}, X), dt.min_samples_leaf,
+                         dt.nsubfeatures, dt.max_depth, dt.min_samples_split, dt.min_purity_increase; rng=dt.rng)
     if dt.pruning_purity_threshold < 1.0
         dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     end
@@ -119,6 +132,17 @@ function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
 end
 
 predict(dt::DecisionTreeRegressor, X) = apply_tree(dt.root, X)
+
+function show(io::IO, dt::DecisionTreeRegressor)
+    println(io, "DecisionTreeRegressor")
+    println(io, "max_depth:                $(dt.max_depth)")
+    println(io, "min_samples_leaf:         $(dt.min_samples_leaf)")
+    println(io, "min_samples_split:        $(dt.min_samples_split)")
+    println(io, "min_purity_increase:      $(dt.min_purity_increase)")
+    println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
+    println(io, "nsubfeatures:             $(dt.nsubfeatures)")
+    println(io, "root:                     $(dt.root)")
+end
 
 ################################################################################
 # Random Forest Classification
@@ -148,11 +172,11 @@ mutable struct RandomForestClassifier <: BaseClassifier
     partialsampling::Float64
     max_depth::Int
     rng::AbstractRNG
-    ensemble::Ensemble
-    classes::Vector
+    ensemble::Union{Ensemble, Void}
+    classes::Union{Vector, Void}
     RandomForestClassifier(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
-                           max_depth=-1, rng=Base.GLOBAL_RNG) =
-        new(nsubfeatures, ntrees, partialsampling, max_depth, mk_rng(rng))
+                           max_depth=-1, rng=Base.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
+        new(nsubfeatures, ntrees, partialsampling, max_depth, mk_rng(rng), ensemble, classes)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
@@ -172,15 +196,25 @@ predict_proba(rf::RandomForestClassifier, X) =
 
 predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
 
+function show(io::IO, dt::RandomForestClassifier)
+    println(io, "RandomForestClassifier")
+    println(io, "ntrees:          $(dt.ntrees)")
+    println(io, "max_depth:       $(dt.max_depth)")
+    println(io, "nsubfeatures:    $(dt.nsubfeatures)")
+    println(io, "partialsampling: $(dt.partialsampling)")
+    println(io, "classes:         $(dt.classes)")
+    println(io, "ensemble:        $(dt.ensemble)")
+end
+
 ################################################################################
 # Random Forest Regression
 
 """
     RandomForestRegressor(; nsubfeatures::Int=0,
-                          max_labels::Int=5,
                           ntrees::Int=10,
                           partialsampling::Float=0.7,
                           max_depth::Int=-1,
+                          min_samples_leaf::Int=5,
                           rng=Base.GLOBAL_RNG)
 Random forest regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -188,10 +222,10 @@ Hyperparameters:
 
 - `nsubfeatures`: number of features to select in each tree at random (default:
   keep all)
-- `max_labels`: maximum number of samples per leaf, split leaf if exceeded
 - `ntrees`: number of trees to train
 - `partialsampling`: fraction of samples to train each tree on
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
+- `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 5)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
@@ -199,31 +233,41 @@ Implements `fit!`, `predict`, `get_classes`
 """
 mutable struct RandomForestRegressor <: BaseRegressor
     nsubfeatures::Int
-    max_labels::Int
     ntrees::Int
     partialsampling::Float64
     max_depth::Int
+    min_samples_leaf::Int
     rng::AbstractRNG
-    ensemble::Ensemble
-    RandomForestRegressor(; nsubfeatures=0, ntrees=10, max_labels=5, partialsampling=0.7, max_depth=-1, rng=Base.GLOBAL_RNG) =
-        new(nsubfeatures, max_labels, ntrees, partialsampling, max_depth,
-            mk_rng(rng))
+    ensemble::Union{Ensemble, Void}
+    RandomForestRegressor(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
+                            max_depth=-1, min_samples_leaf=5, rng=Base.GLOBAL_RNG, ensemble=nothing) =
+        new(nsubfeatures, ntrees, partialsampling, max_depth, min_samples_leaf, mk_rng(rng), ensemble)
 end
 
 @declare_hyperparameters(RandomForestRegressor,
-                         [:nsubfeatures, :ntrees, :max_labels, :partialsampling,
+                         [:nsubfeatures, :ntrees, :min_samples_leaf, :partialsampling,
                           # I'm not crazy about :rng being a hyperparameter,
                           # since it'll change throughout fitting, but it works
                           :max_depth, :rng])
 
 function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
     rf.ensemble = build_forest(y, convert(Matrix{Float64}, X), rf.nsubfeatures,
-                               rf.ntrees, rf.max_labels, rf.partialsampling,
+                               rf.ntrees, rf.min_samples_leaf, rf.partialsampling,
                                rf.max_depth; rng=rf.rng)
     rf
 end
 
 predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
+
+function show(io::IO, dt::RandomForestRegressor)
+    println(io, "RandomForestRegressor")
+    println(io, "ntrees:           $(dt.ntrees)")
+    println(io, "max_depth:        $(dt.max_depth)")
+    println(io, "nsubfeatures:     $(dt.nsubfeatures)")
+    println(io, "partialsampling:  $(dt.partialsampling)")
+    println(io, "min_samples_leaf: $(dt.min_samples_leaf)")
+    println(io, "ensemble:         $(dt.ensemble)")
+end
 
 ################################################################################
 # AdaBoost Stump Classifier
@@ -245,11 +289,11 @@ Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
     niterations::Int
     rng::AbstractRNG
-    ensemble::Ensemble
-    coeffs::Vector{Float64}
-    classes::Vector
-    AdaBoostStumpClassifier(; niterations=10, rng=Base.GLOBAL_RNG) =
-        new(niterations, mk_rng(rng))
+    ensemble::Union{Ensemble, Void}
+    coeffs::Union{Vector{Float64}, Void}
+    classes::Union{Vector, Void}
+    AdaBoostStumpClassifier(; niterations=10, rng=Base.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
+        new(niterations, mk_rng(rng), ensemble, coeffs, classes)
 end
 @declare_hyperparameters(AdaBoostStumpClassifier, [:niterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
@@ -266,6 +310,14 @@ predict(ada::AdaBoostStumpClassifier, X) =
 
 predict_proba(ada::AdaBoostStumpClassifier, X) =
     apply_adaboost_stumps_proba(ada.ensemble, ada.coeffs, X, ada.classes)
+
+function show(io::IO, dt::AdaBoostStumpClassifier)
+    println(io, "AdaBoostStumpClassifier")
+    println(io, "niterations: $(dt.niterations)")
+    println(io, "coeffs:      $(dt.coeffs)")
+    println(io, "classes:     $(dt.classes)")
+    println(io, "ensemble:    $(dt.ensemble)")
+end
 
 ################################################################################
 # Common functions

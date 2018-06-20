@@ -144,7 +144,7 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, features::Matrix{U}, args...)
+function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Matrix, args...)
     nfolds = args[end]
     if nfolds < 2
         return nothing
@@ -189,7 +189,7 @@ function _nfoldCV{T<:Float64, U<:Real}(regressor::Symbol, labels::Vector{T}, fea
     return R2s
 end
 
-nfoldCV_tree{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
-nfoldCV_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
+nfoldCV_tree{T<:Float64}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+nfoldCV_forest{T<:Float64}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
 
 

@@ -5,10 +5,13 @@ features = rand(n,m);
 weights = rand(-1:1,m);
 labels = features * weights;
 
-model = fit!(DecisionTreeRegressor(max_labels=5, pruning_purity_threshold=0.1), features, labels)
+model = fit!(DecisionTreeRegressor(min_samples_leaf=5, pruning_purity_threshold=0.1), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
-model = fit!(RandomForestRegressor(ntrees=10, max_labels=5, nsubfeatures=2), features, labels)
+model = fit!(DecisionTreeRegressor(min_samples_split=5), features, labels)
+@test R2(labels, predict(model, features)) > 0.8
+
+model = fit!(RandomForestRegressor(ntrees=10, min_samples_leaf=5, nsubfeatures=2), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
 srand(2)
