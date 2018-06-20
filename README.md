@@ -56,7 +56,7 @@ labels = convert(Array, iris[:, 5]);
 Pruned Tree Classifier
 ```julia
 # train depth-truncated classifier
-model = DecisionTreeClassifier(pruning_purity_threshold=0.9, max_depth=6)
+model = DecisionTreeClassifier(max_depth=2)
 fit!(model, features, labels)
 # pretty print of the tree, to a depth of 5 nodes (optional)
 print_tree(model.root, 5)
@@ -75,6 +75,7 @@ Also have a look at these [classification](https://github.com/cstjean/ScikitLear
 
 ## Native API
 ### Classification Example
+Pruned Tree Classifier
 ```julia
 # train full-tree classifier
 model = build_tree(labels, features)
