@@ -7,11 +7,9 @@
 [![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.6.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.6)
 [![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.7.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.7)
 
-Decision Tree & Random Forest - Classifiers & Regressors in Julia
+Julia implementation of Decision Trees & Random Forests
 
-
-## Classifier
-Provides:
+## Classification
 * pre-pruning (max depth, min leaf size)
 * post-pruning (pessimistic pruning)
 * parallelized bagging (random forests)
@@ -19,8 +17,7 @@ Provides:
 * cross validation (n-fold)
 * support for mixed categorical and numerical data
 
-## Regressor
-Provides:
+## Regression
 * pre-pruning (max depth, min leaf size)
 * post-pruning (pessimistic pruning)
 * parallelized bagging (random forests)
