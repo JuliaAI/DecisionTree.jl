@@ -102,10 +102,9 @@ function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}
                 Leaf(mean(labels[(!).(split)]), labels[(!).(split)]))
 end
 
-# TODO: add support for maxlabels
 function build_tree{T<:Float64, U<:Real}(
-        labels::Vector{T}, features::Matrix{U}, maxlabels=5, nsubfeatures=0, maxdepth=-1,
-        min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0; 
+        labels::Vector{T}, features::Matrix{U}, min_samples_leaf=5, nsubfeatures=0,
+        maxdepth=-1, min_samples_split=2, min_purity_increase=0.0;
         rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     if maxdepth < -1
@@ -117,10 +116,7 @@ function build_tree{T<:Float64, U<:Real}(
     if nsubfeatures == 0
         nsubfeatures = size(features, 2)
     end
-    if maxlabels == 0
-        maxlabels = typemax(Int64)
-    end
-    min_samples_leaf = Int64(min(min_samples_leaf, maxlabels))
+    min_samples_leaf = Int64(min_samples_leaf)
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float64(min_purity_increase)
     t = treeregressor.fit(
