@@ -4,12 +4,12 @@ include("tree.jl")
 mk_rng(rng::AbstractRNG) = rng
 mk_rng(seed::Int) = MersenneTwister(seed)
 
-function build_stump{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}; rng=Base.GLOBAL_RNG)
+function build_stump{T<:Float64}(labels::Vector{T}, features::Matrix; rng=Base.GLOBAL_RNG)
     return build_tree(labels, features, 1, 0, 1)
 end
 
-function build_tree{T<:Float64, U<:Real}(
-        labels::Vector{T}, features::Matrix{U}, min_samples_leaf=5, nsubfeatures=0,
+function build_tree{T<:Float64}(
+        labels::Vector{T}, features::Matrix, min_samples_leaf=5, nsubfeatures=0,
         max_depth=-1, min_samples_split=2, min_purity_increase=0.0;
         rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
@@ -42,7 +42,7 @@ function build_tree{T<:Float64, U<:Real}(
     return _convert(t)
 end
 
-function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, min_samples_leaf=5, partialsampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
+function build_forest{T<:Float64}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, min_samples_leaf=5, partialsampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
