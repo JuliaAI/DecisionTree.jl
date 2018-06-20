@@ -35,13 +35,12 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     min_purity_increase::Float64
     nsubfeatures::Int
     rng::AbstractRNG
-    root::LeafOrNode
-    # classes (in scikit-learn) === labels (in DecisionTree.jl)
-    classes::Vector   # an arbitrary ordering of the labels 
+    root::Union{LeafOrNode, Void}
+    classes::Union{Vector, Void}
     DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
-                           min_purity_increase=0.0, nsubfeatures=0, rng=Base.GLOBAL_RNG) =
+                           min_purity_increase=0.0, nsubfeatures=0, rng=Base.GLOBAL_RNG, root=nothing, classes=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, nsubfeatures, mk_rng(rng))
+            min_purity_increase, nsubfeatures, mk_rng(rng), root, classes)
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
@@ -65,6 +64,18 @@ predict_proba(dt::DecisionTreeClassifier, X) =
 
 predict_log_proba(dt::DecisionTreeClassifier, X) =
     log(predict_proba(dt, X)) # this will yield -Inf when p=0. Hmmm...
+
+function show(io::IO, dt::DecisionTreeClassifier)
+    println(io, "DecisionTreeClassifier")
+    println(io, "max_depth:                $(dt.max_depth)")
+    println(io, "min_samples_leaf:         $(dt.min_samples_leaf)")
+    println(io, "min_samples_split:        $(dt.min_samples_split)")
+    println(io, "min_purity_increase:      $(dt.min_purity_increase)")
+    println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
+    println(io, "nsubfeatures:             $(dt.nsubfeatures)")
+    println(io, "classes:                  $(dt.classes)")
+    println(io, "root:                     $(dt.root)")
+end
 
 ################################################################################
 # Regression
@@ -100,11 +111,11 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
     min_purity_increase::Float64
     nsubfeatures::Int
     rng::AbstractRNG
-    root::LeafOrNode
+    root::Union{LeafOrNode, Void}
     DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
-                          min_samples_split=2, min_purity_increase=0.0, nsubfeatures=0, rng=Base.GLOBAL_RNG) =
+                          min_samples_split=2, min_purity_increase=0.0, nsubfeatures=0, rng=Base.GLOBAL_RNG, root=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf,
-            min_samples_split, min_purity_increase, nsubfeatures, mk_rng(rng))
+            min_samples_split, min_purity_increase, nsubfeatures, mk_rng(rng), root)
 end
 
 @declare_hyperparameters(DecisionTreeRegressor,
@@ -121,6 +132,17 @@ function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
 end
 
 predict(dt::DecisionTreeRegressor, X) = apply_tree(dt.root, X)
+
+function show(io::IO, dt::DecisionTreeRegressor)
+    println(io, "DecisionTreeRegressor")
+    println(io, "max_depth:                $(dt.max_depth)")
+    println(io, "min_samples_leaf:         $(dt.min_samples_leaf)")
+    println(io, "min_samples_split:        $(dt.min_samples_split)")
+    println(io, "min_purity_increase:      $(dt.min_purity_increase)")
+    println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
+    println(io, "nsubfeatures:             $(dt.nsubfeatures)")
+    println(io, "root:                     $(dt.root)")
+end
 
 ################################################################################
 # Random Forest Classification
@@ -150,11 +172,11 @@ mutable struct RandomForestClassifier <: BaseClassifier
     partialsampling::Float64
     max_depth::Int
     rng::AbstractRNG
-    ensemble::Ensemble
-    classes::Vector
+    ensemble::Union{Ensemble, Void}
+    classes::Union{Vector, Void}
     RandomForestClassifier(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
-                           max_depth=-1, rng=Base.GLOBAL_RNG) =
-        new(nsubfeatures, ntrees, partialsampling, max_depth, mk_rng(rng))
+                           max_depth=-1, rng=Base.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
+        new(nsubfeatures, ntrees, partialsampling, max_depth, mk_rng(rng), ensemble, classes)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
@@ -173,6 +195,16 @@ predict_proba(rf::RandomForestClassifier, X) =
     apply_forest_proba(rf.ensemble, X, rf.classes)
 
 predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
+
+function show(io::IO, dt::RandomForestClassifier)
+    println(io, "RandomForestClassifier")
+    println(io, "ntrees:          $(dt.ntrees)")
+    println(io, "max_depth:       $(dt.max_depth)")
+    println(io, "nsubfeatures:    $(dt.nsubfeatures)")
+    println(io, "partialsampling: $(dt.partialsampling)")
+    println(io, "classes:         $(dt.classes)")
+    println(io, "ensemble:        $(dt.ensemble)")
+end
 
 ################################################################################
 # Random Forest Regression
@@ -206,9 +238,10 @@ mutable struct RandomForestRegressor <: BaseRegressor
     max_depth::Int
     min_samples_leaf::Int
     rng::AbstractRNG
-    ensemble::Ensemble
-    RandomForestRegressor(; nsubfeatures=0, ntrees=10, partialsampling=0.7, max_depth=-1, min_samples_leaf=5, rng=Base.GLOBAL_RNG) =
-        new(nsubfeatures, ntrees, partialsampling, max_depth, min_samples_leaf, mk_rng(rng))
+    ensemble::Union{Ensemble, Void}
+    RandomForestRegressor(; nsubfeatures=0, ntrees=10, partialsampling=0.7,
+                            max_depth=-1, min_samples_leaf=5, rng=Base.GLOBAL_RNG, ensemble=nothing) =
+        new(nsubfeatures, ntrees, partialsampling, max_depth, min_samples_leaf, mk_rng(rng), ensemble)
 end
 
 @declare_hyperparameters(RandomForestRegressor,
@@ -225,6 +258,16 @@ function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
 end
 
 predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
+
+function show(io::IO, dt::RandomForestRegressor)
+    println(io, "RandomForestRegressor")
+    println(io, "ntrees:           $(dt.ntrees)")
+    println(io, "max_depth:        $(dt.max_depth)")
+    println(io, "nsubfeatures:     $(dt.nsubfeatures)")
+    println(io, "partialsampling:  $(dt.partialsampling)")
+    println(io, "min_samples_leaf: $(dt.min_samples_leaf)")
+    println(io, "ensemble:         $(dt.ensemble)")
+end
 
 ################################################################################
 # AdaBoost Stump Classifier
@@ -246,11 +289,11 @@ Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
     niterations::Int
     rng::AbstractRNG
-    ensemble::Ensemble
-    coeffs::Vector{Float64}
-    classes::Vector
-    AdaBoostStumpClassifier(; niterations=10, rng=Base.GLOBAL_RNG) =
-        new(niterations, mk_rng(rng))
+    ensemble::Union{Ensemble, Void}
+    coeffs::Union{Vector{Float64}, Void}
+    classes::Union{Vector, Void}
+    AdaBoostStumpClassifier(; niterations=10, rng=Base.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
+        new(niterations, mk_rng(rng), ensemble, coeffs, classes)
 end
 @declare_hyperparameters(AdaBoostStumpClassifier, [:niterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
@@ -267,6 +310,14 @@ predict(ada::AdaBoostStumpClassifier, X) =
 
 predict_proba(ada::AdaBoostStumpClassifier, X) =
     apply_adaboost_stumps_proba(ada.ensemble, ada.coeffs, X, ada.classes)
+
+function show(io::IO, dt::AdaBoostStumpClassifier)
+    println(io, "AdaBoostStumpClassifier")
+    println(io, "niterations: $(dt.niterations)")
+    println(io, "coeffs:      $(dt.coeffs)")
+    println(io, "classes:     $(dt.classes)")
+    println(io, "ensemble:    $(dt.ensemble)")
+end
 
 ################################################################################
 # Common functions
