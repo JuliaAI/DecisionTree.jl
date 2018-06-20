@@ -1,5 +1,7 @@
 __precompile__()
 
+using ScikitLearnBase
+
 module DecisionTree
 
 import Base: length, convert, promote_rule, show, start, next, done
@@ -13,11 +15,7 @@ export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
-       RandomForestRegressor, AdaBoostStumpClassifier,
-       # Should we export these functions? They have a conflict with
-       # DataFrames/RDataset over fit!, and users can always
-       # `using ScikitLearnBase`.
-       predict, predict_proba, fit!, get_classes
+       RandomForestRegressor, AdaBoostStumpClassifier
 
 #####################################
 ##### Compatilibity Corrections #####
