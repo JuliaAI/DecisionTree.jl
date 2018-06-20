@@ -35,13 +35,25 @@ You can install DecisionTree.jl using Julia's package manager
 Pkg.add("DecisionTree")
 ```
 
-## ScikitLearn.jl
+## ScikitLearn.jl API
 DecisionTree.jl supports the [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) interface and algorithms (cross-validation, hyperparameter tuning, pipelines, etc.)
 
 Available models: `DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier, RandomForestRegressor, AdaBoostStumpClassifier`.
 See each model's help (eg. `?DecisionTreeRegressor` at the REPL) for more information
 
-
+### Classification Example
+Load RDatasets and DecisionTree packages
+```julia
+using RDatasets: dataset
+using DecisionTree
+```
+Separate Fisher's Iris dataset features and labels
+```julia
+iris = dataset("datasets", "iris")
+features = convert(Array, iris[:, 1:4]);
+labels = convert(Array, iris[:, 5]);
+```
+Pruned Tree Classifier
 ```julia
 # train depth-truncated classifier
 model = DecisionTreeClassifier(pruning_purity_threshold=0.9, max_depth=6)
@@ -63,18 +75,6 @@ Also have a look at these [classification](https://github.com/cstjean/ScikitLear
 
 ## Native API
 ### Classification Example
-Load RDatasets and DecisionTree packages
-```julia
-using RDatasets: dataset
-using DecisionTree
-```
-Separate Fisher's Iris dataset features and labels
-```julia
-iris = dataset("datasets", "iris")
-features = convert(Array, iris[:, 1:4]);
-labels = convert(Array, iris[:, 5]);
-```
-Pruned Tree Classifier
 ```julia
 # train full-tree classifier
 model = build_tree(labels, features)
