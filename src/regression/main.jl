@@ -10,14 +10,14 @@ end
 
 function build_tree{T<:Float64, U<:Real}(
         labels::Vector{T}, features::Matrix{U}, min_samples_leaf=5, nsubfeatures=0,
-        maxdepth=-1, min_samples_split=2, min_purity_increase=0.0;
+        max_depth=-1, min_samples_split=2, min_purity_increase=0.0;
         rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
-    if maxdepth < -1
-        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
+    if max_depth < -1
+        error("Unexpected value for maxdepth: $(maxdepth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
     end
-    if maxdepth == -1
-        maxdepth = typemax(Int64)
+    if max_depth == -1
+        max_depth = typemax(Int64)
     end
     if nsubfeatures == 0
         nsubfeatures = size(features, 2)
@@ -26,7 +26,7 @@ function build_tree{T<:Float64, U<:Real}(
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float64(min_purity_increase)
     t = treeregressor.fit(
-        features, labels, nsubfeatures, maxdepth,
+        features, labels, nsubfeatures, max_depth,
         min_samples_leaf, min_samples_split, min_purity_increase, 
         rng=rng)
 
@@ -42,14 +42,14 @@ function build_tree{T<:Float64, U<:Real}(
     return _convert(t)
 end
 
-function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, maxlabels=5, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_forest{T<:Float64, U<:Real}(labels::Vector{T}, features::Matrix{U}, nsubfeatures::Integer, ntrees::Integer, min_samples_leaf=5, partialsampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:ntrees
         inds = rand(rng, 1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], maxlabels, nsubfeatures, maxdepth; rng=rng)
+        build_tree(labels[inds], features[inds,:], min_samples_leaf, nsubfeatures, max_depth; rng=rng)
     end
     return Ensemble([forest;])
 end
