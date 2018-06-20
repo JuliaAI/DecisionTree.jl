@@ -8,22 +8,29 @@ labels = features * weights;
 # over-fitting
 min_samples_leaf = 1
 model = build_tree(labels, features, min_samples_leaf)
-preds = apply_tree(model, features)
+preds = apply_tree(model, features);
 @test R2(labels, preds) > 0.99      # R2: coeff of determination
 ### @test length(model) == n        # can / should this be enforced ???
 
 # under-fitting
 min_samples_leaf = 100
 model = build_tree(labels, features, min_samples_leaf)
-preds = apply_tree(model, features)
+preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8
 
-
-min_samples_leaf = 5
-max_depth = 3
-nsubfeatures = 0                    # all features
+min_samples_leaf = 5; max_depth = 3; nsubfeatures = 0;
 model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth)
 @test depth(model) == max_depth
+
+min_samples_leaf = 1; nsubfeatures = 0; max_depth = -1; min_samples_split = 100;
+model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, min_samples_split)
+preds = apply_tree(model, features);
+@test R2(labels, preds) < 0.8
+
+min_samples_leaf = 1; nsubfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.5;
+model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, min_samples_split, min_purity_increase)
+preds = apply_tree(model, features);
+@test R2(labels, preds) < 0.95
 
 println("\n##### nfoldCV Regression Tree #####")
 r2 = nfoldCV_tree(labels, features, 3)
