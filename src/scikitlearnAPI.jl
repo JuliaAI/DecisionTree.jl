@@ -196,14 +196,14 @@ predict_proba(rf::RandomForestClassifier, X) =
 
 predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
 
-function show(io::IO, dt::RandomForestClassifier)
+function show(io::IO, rf::RandomForestClassifier)
     println(io, "RandomForestClassifier")
-    println(io, "ntrees:          $(dt.ntrees)")
-    println(io, "max_depth:       $(dt.max_depth)")
-    println(io, "nsubfeatures:    $(dt.nsubfeatures)")
-    println(io, "partialsampling: $(dt.partialsampling)")
-    println(io, "classes:         $(dt.classes)")
-    println(io, "ensemble:        $(dt.ensemble)")
+    println(io, "ntrees:          $(rf.ntrees)")
+    println(io, "max_depth:       $(rf.max_depth)")
+    println(io, "nsubfeatures:    $(rf.nsubfeatures)")
+    println(io, "partialsampling: $(rf.partialsampling)")
+    println(io, "classes:         $(rf.classes)")
+    println(io, "ensemble:        $(rf.ensemble)")
 end
 
 ################################################################################
@@ -259,14 +259,14 @@ end
 
 predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
 
-function show(io::IO, dt::RandomForestRegressor)
+function show(io::IO, rf::RandomForestRegressor)
     println(io, "RandomForestRegressor")
-    println(io, "ntrees:           $(dt.ntrees)")
-    println(io, "max_depth:        $(dt.max_depth)")
-    println(io, "nsubfeatures:     $(dt.nsubfeatures)")
-    println(io, "partialsampling:  $(dt.partialsampling)")
-    println(io, "min_samples_leaf: $(dt.min_samples_leaf)")
-    println(io, "ensemble:         $(dt.ensemble)")
+    println(io, "ntrees:           $(rf.ntrees)")
+    println(io, "max_depth:        $(rf.max_depth)")
+    println(io, "nsubfeatures:     $(rf.nsubfeatures)")
+    println(io, "partialsampling:  $(rf.partialsampling)")
+    println(io, "min_samples_leaf: $(rf.min_samples_leaf)")
+    println(io, "ensemble:         $(rf.ensemble)")
 end
 
 ################################################################################
@@ -311,12 +311,12 @@ predict(ada::AdaBoostStumpClassifier, X) =
 predict_proba(ada::AdaBoostStumpClassifier, X) =
     apply_adaboost_stumps_proba(ada.ensemble, ada.coeffs, X, ada.classes)
 
-function show(io::IO, dt::AdaBoostStumpClassifier)
+function show(io::IO, ada::AdaBoostStumpClassifier)
     println(io, "AdaBoostStumpClassifier")
-    println(io, "niterations: $(dt.niterations)")
-    println(io, "coeffs:      $(dt.coeffs)")
-    println(io, "classes:     $(dt.classes)")
-    println(io, "ensemble:    $(dt.ensemble)")
+    println(io, "niterations: $(ada.niterations)")
+    println(io, "coeffs:      $(ada.coeffs)")
+    println(io, "classes:     $(ada.classes)")
+    println(io, "ensemble:    $(ada.ensemble)")
 end
 
 ################################################################################
