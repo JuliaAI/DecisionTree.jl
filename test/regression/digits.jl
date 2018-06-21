@@ -13,8 +13,7 @@ end
 
 X, Y = loaddata()
 
-Y += 0.0 # convert X and Y to Float to enable regression
-X += 0.0
+Y = float.(Y) # labels/targets to Float to enable regression
 
 t = DecisionTree.build_tree(Y, X, 1)
 @test length(t) in [190, 191]

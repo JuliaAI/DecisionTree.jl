@@ -4,7 +4,7 @@
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv", "energy.csv");
 energy = readcsv("energy.csv");
 
-features = float.(energy[2:end, 3:end]);
+features = energy[2:end, 3:end];
 labels = float.(energy[2:end, 2]);
 
 # over-fitting

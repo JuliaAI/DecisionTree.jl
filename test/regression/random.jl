@@ -1,9 +1,11 @@
 srand(5)
 
-n,m = 10^3, 5 ;
-features = randn(n,m);
+n, m = 10^3, 5 ;
+features = Array{Any}(n, m);
+features[:,:] = randn(n, m);
+features[:,1] = round.(Integer, features[:,1]); # convert a column of integers
 weights = rand(-2:2,m);
-labels = features * weights;
+labels = float.(features * weights);            # cast to Array{Float64,1}
 
 # over-fitting
 min_samples_leaf = 1
