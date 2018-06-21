@@ -122,7 +122,7 @@ end
                          [:pruning_purity_threshold, :min_samples_leaf, :nsubfeatures,
                           :max_depth, :min_samples_split, :min_purity_increase, :rng])
 
-function fit!{T<:Real}(dt::DecisionTreeRegressor, X::Matrix, y::Vector{T})
+function fit!(dt::DecisionTreeRegressor, X::Matrix, y::Vector)
     dt.root = build_tree(float.(y), X, dt.min_samples_leaf,
                          dt.nsubfeatures, dt.max_depth, dt.min_samples_split, dt.min_purity_increase; rng=dt.rng)
     if dt.pruning_purity_threshold < 1.0
@@ -250,7 +250,7 @@ end
                           # since it'll change throughout fitting, but it works
                           :max_depth, :rng])
 
-function fit!{T<:Real}(rf::RandomForestRegressor, X::Matrix, y::Vector{T})
+function fit!(rf::RandomForestRegressor, X::Matrix, y::Vector)
     rf.ensemble = build_forest(float.(y), X, rf.nsubfeatures,
                                rf.ntrees, rf.min_samples_leaf, rf.partialsampling,
                                rf.max_depth; rng=rf.rng)
