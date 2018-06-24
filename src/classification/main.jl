@@ -247,12 +247,12 @@ apply_forest_proba(forest::Ensemble, features::Matrix, labels) =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 
-function build_adaboost_stumps(labels::Vector, features::Matrix, niterations::Integer; rng=Base.GLOBAL_RNG)
+function build_adaboost_stumps(labels::Vector, features::Matrix, n_iterations::Integer; rng=Base.GLOBAL_RNG)
     N = length(labels)
     weights = ones(N) / N
     stumps = Node[]
     coeffs = Float64[]
-    for i in 1:niterations
+    for i in 1:n_iterations
         new_stump = build_stump(labels, features, weights; rng=rng)
         predictions = apply_tree(new_stump, features)
         err = _weighted_error(labels, predictions, weights)

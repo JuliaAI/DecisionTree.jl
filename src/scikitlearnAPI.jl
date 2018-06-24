@@ -272,34 +272,34 @@ end
 # AdaBoost Stump Classifier
 
 """
-    AdaBoostStumpClassifier(; niterations::Int=0)
+    AdaBoostStumpClassifier(; n_iterations::Int=0)
 
 Adaboosted decision tree stumps. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
 
-- `niterations`: number of iterations of AdaBoost
+- `n_iterations`: number of iterations of AdaBoost
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
-    niterations::Int
+    n_iterations::Int
     rng::AbstractRNG
     ensemble::Union{Ensemble, Void}
     coeffs::Union{Vector{Float64}, Void}
     classes::Union{Vector, Void}
-    AdaBoostStumpClassifier(; niterations=10, rng=Base.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
-        new(niterations, mk_rng(rng), ensemble, coeffs, classes)
+    AdaBoostStumpClassifier(; n_iterations=10, rng=Base.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
+        new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
 end
-@declare_hyperparameters(AdaBoostStumpClassifier, [:niterations, :rng])
+@declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 
 function fit!(ada::AdaBoostStumpClassifier, X, y)
     ada.ensemble, ada.coeffs =
-        build_adaboost_stumps(y, X, ada.niterations; rng=ada.rng)
+        build_adaboost_stumps(y, X, ada.n_iterations; rng=ada.rng)
     ada.classes = sort(unique(y))
     ada
 end

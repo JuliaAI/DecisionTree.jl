@@ -90,7 +90,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
         n_trees = args[2]
         partial_sampling = args[3]
     elseif classifier == :stumps
-        niterations = args[1]
+        n_iterations = args[1]
     end
     N = length(labels)
     ntest = _int(floor(N / nfolds))
@@ -114,7 +114,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
             model = build_forest(train_labels, train_features, n_subfeatures, n_trees, partial_sampling)
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
-            model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
+            model, coeffs = build_adaboost_stumps(train_labels, train_features, n_iterations)
             predictions = apply_adaboost_stumps(model, coeffs, test_features)
         end
         cm = confusion_matrix(test_labels, predictions)
@@ -128,7 +128,7 @@ end
 
 nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                                           = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
 nfoldCV_forest(labels::Vector, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, partial_sampling=0.7)  = _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, partial_sampling, nfolds)
-nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, niterations, nfolds)
+nfoldCV_stumps(labels::Vector, features::Matrix, n_iterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, n_iterations, nfolds)
 
 ### Regression ###
 
