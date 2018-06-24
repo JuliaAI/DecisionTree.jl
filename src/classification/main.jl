@@ -70,15 +70,15 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
                 Leaf(majority_vote(r_labels), r_labels))
 end
 
-function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, maxdepth=-1,
+function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,
                     min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0; 
                     rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
-    if maxdepth < -1
-        error("Unexpected value for maxdepth: $(maxdepth) (expected: maxdepth >= 0, or maxdepth = -1 for infinite depth)")
+    if max_depth < -1
+        error("Unexpected value for max_depth: $(max_depth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
     end
-    if maxdepth == -1
-        maxdepth = typemax(Int64)
+    if max_depth == -1
+        max_depth = typemax(Int64)
     end
     if n_subfeatures == 0
         n_subfeatures = size(features, 2)
@@ -87,7 +87,7 @@ function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, maxdepth=
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float64(min_purity_increase)
     t = treeclassifier.fit(
-        features, labels, n_subfeatures, maxdepth,
+        features, labels, n_subfeatures, max_depth,
         min_samples_leaf, min_samples_split, min_purity_increase, 
         rng=rng)
 
@@ -191,14 +191,14 @@ end
 apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, n_subfeatures=0, n_trees=10, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_forest(labels::Vector, features::Matrix, n_subfeatures=0, n_trees=10, partialsampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:n_trees
         inds = rand(rng, 1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], n_subfeatures, maxdepth;
+        build_tree(labels[inds], features[inds,:], n_subfeatures, max_depth;
                    rng=rng)
     end
     return Ensemble([forest;])

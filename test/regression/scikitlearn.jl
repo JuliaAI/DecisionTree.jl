@@ -19,9 +19,9 @@ srand(2)
 N = 3000
 X = randn(N, 10)
 y = randn(N)
-maxdepth = 5
-model = fit!(DecisionTreeRegressor(max_depth=maxdepth), X, y)
-@test depth(model) == maxdepth
+max_depth = 5
+model = fit!(DecisionTreeRegressor(max_depth=max_depth), X, y)
+@test depth(model) == max_depth
 
 
 ## Test that the RNG arguments work as expected

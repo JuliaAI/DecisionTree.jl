@@ -14,7 +14,7 @@ function build_tree{T<:Float64}(
         rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     if max_depth < -1
-        error("Unexpected value for maxdepth: $(maxdepth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
+        error("Unexpected value for max_depth: $(max_depth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
     end
     if max_depth == -1
         max_depth = typemax(Int64)
