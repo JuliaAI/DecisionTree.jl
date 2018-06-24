@@ -191,7 +191,7 @@ end
 apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_forest(labels::Vector, features::Matrix, nsubfeatures=0, ntrees=10, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
