@@ -150,7 +150,7 @@ end
 """
     RandomForestClassifier(; n_subfeatures::Int=0,
                            n_trees::Int=10,
-                           partialsampling::Float=0.7,
+                           partial_sampling::Float=0.7,
                            max_depth::Int=-1,
                            rng=Base.GLOBAL_RNG)
 Random forest classification. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
@@ -159,7 +159,7 @@ Hyperparameters:
 
 - `n_subfeatures`: number of features to consider at random per split (default: keep all)
 - `n_trees`: number of trees to train (default: 10)
-- `partialsampling`: fraction of samples to train each tree on (default: 0.7)
+- `partial_sampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
@@ -169,24 +169,24 @@ Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 mutable struct RandomForestClassifier <: BaseClassifier
     n_subfeatures::Int
     n_trees::Int
-    partialsampling::Float64
+    partial_sampling::Float64
     max_depth::Int
     rng::AbstractRNG
     ensemble::Union{Ensemble, Void}
     classes::Union{Vector, Void}
-    RandomForestClassifier(; n_subfeatures=0, n_trees=10, partialsampling=0.7,
+    RandomForestClassifier(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
                            max_depth=-1, rng=Base.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
-        new(n_subfeatures, n_trees, partialsampling, max_depth, mk_rng(rng), ensemble, classes)
+        new(n_subfeatures, n_trees, partial_sampling, max_depth, mk_rng(rng), ensemble, classes)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
 @declare_hyperparameters(RandomForestClassifier,
-                         [:n_subfeatures, :n_trees, :partialsampling, :max_depth,
+                         [:n_subfeatures, :n_trees, :partial_sampling, :max_depth,
                           :rng])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
     rf.ensemble = build_forest(y, X, rf.n_subfeatures, rf.n_trees,
-                               rf.partialsampling, rf.max_depth; rng=rf.rng)
+                               rf.partial_sampling, rf.max_depth; rng=rf.rng)
     rf.classes = sort(unique(y))
     rf
 end
@@ -201,7 +201,7 @@ function show(io::IO, rf::RandomForestClassifier)
     println(io, "n_trees:          $(rf.n_trees)")
     println(io, "max_depth:       $(rf.max_depth)")
     println(io, "n_subfeatures:    $(rf.n_subfeatures)")
-    println(io, "partialsampling: $(rf.partialsampling)")
+    println(io, "partial_sampling: $(rf.partial_sampling)")
     println(io, "classes:         $(rf.classes)")
     println(io, "ensemble:        $(rf.ensemble)")
 end
@@ -212,7 +212,7 @@ end
 """
     RandomForestRegressor(; n_subfeatures::Int=0,
                           n_trees::Int=10,
-                          partialsampling::Float=0.7,
+                          partial_sampling::Float=0.7,
                           max_depth::Int=-1,
                           min_samples_leaf::Int=5,
                           rng=Base.GLOBAL_RNG)
@@ -222,7 +222,7 @@ Hyperparameters:
 
 - `n_subfeatures`: number of features to consider at random per split (default: keep all)
 - `n_trees`: number of trees to train (default: 10)
-- `partialsampling`: fraction of samples to train each tree on (default: 0.7)
+- `partial_sampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
 - `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 5)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
@@ -233,25 +233,25 @@ Implements `fit!`, `predict`, `get_classes`
 mutable struct RandomForestRegressor <: BaseRegressor
     n_subfeatures::Int
     n_trees::Int
-    partialsampling::Float64
+    partial_sampling::Float64
     max_depth::Int
     min_samples_leaf::Int
     rng::AbstractRNG
     ensemble::Union{Ensemble, Void}
-    RandomForestRegressor(; n_subfeatures=0, n_trees=10, partialsampling=0.7,
+    RandomForestRegressor(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
                             max_depth=-1, min_samples_leaf=5, rng=Base.GLOBAL_RNG, ensemble=nothing) =
-        new(n_subfeatures, n_trees, partialsampling, max_depth, min_samples_leaf, mk_rng(rng), ensemble)
+        new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, mk_rng(rng), ensemble)
 end
 
 @declare_hyperparameters(RandomForestRegressor,
-                         [:n_subfeatures, :n_trees, :min_samples_leaf, :partialsampling,
+                         [:n_subfeatures, :n_trees, :min_samples_leaf, :partial_sampling,
                           # I'm not crazy about :rng being a hyperparameter,
                           # since it'll change throughout fitting, but it works
                           :max_depth, :rng])
 
 function fit!(rf::RandomForestRegressor, X::Matrix, y::Vector)
     rf.ensemble = build_forest(float.(y), X, rf.n_subfeatures,
-                               rf.n_trees, rf.min_samples_leaf, rf.partialsampling,
+                               rf.n_trees, rf.min_samples_leaf, rf.partial_sampling,
                                rf.max_depth; rng=rf.rng)
     rf
 end
@@ -263,7 +263,7 @@ function show(io::IO, rf::RandomForestRegressor)
     println(io, "n_trees:           $(rf.n_trees)")
     println(io, "max_depth:        $(rf.max_depth)")
     println(io, "n_subfeatures:     $(rf.n_subfeatures)")
-    println(io, "partialsampling:  $(rf.partialsampling)")
+    println(io, "partial_sampling:  $(rf.partial_sampling)")
     println(io, "min_samples_leaf: $(rf.min_samples_leaf)")
     println(io, "ensemble:         $(rf.ensemble)")
 end
