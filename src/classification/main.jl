@@ -70,7 +70,7 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
                 Leaf(majority_vote(r_labels), r_labels))
 end
 
-function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-1,
+function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, maxdepth=-1,
                     min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0; 
                     rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
@@ -80,14 +80,14 @@ function build_tree(labels::Vector, features::Matrix, nsubfeatures=0, maxdepth=-
     if maxdepth == -1
         maxdepth = typemax(Int64)
     end
-    if nsubfeatures == 0
-        nsubfeatures = size(features, 2)
+    if n_subfeatures == 0
+        n_subfeatures = size(features, 2)
     end
     min_samples_leaf = Int64(min_samples_leaf)
     min_samples_split = Int64(min_samples_split)
     min_purity_increase = Float64(min_purity_increase)
     t = treeclassifier.fit(
-        features, labels, nsubfeatures, maxdepth,
+        features, labels, n_subfeatures, maxdepth,
         min_samples_leaf, min_samples_split, min_purity_increase, 
         rng=rng)
 
@@ -191,14 +191,14 @@ end
 apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures=0, n_trees=10, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_forest(labels::Vector, features::Matrix, n_subfeatures=0, n_trees=10, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
     forest = @parallel (vcat) for i in 1:n_trees
         inds = rand(rng, 1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], nsubfeatures, maxdepth;
+        build_tree(labels[inds], features[inds,:], n_subfeatures, maxdepth;
                    rng=rng)
     end
     return Ensemble([forest;])
