@@ -7,7 +7,7 @@
 [![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.6.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.6)
 [![DecisionTree](http://pkg.julialang.org/badges/DecisionTree_0.7.svg)](http://pkg.julialang.org/?pkg=DecisionTree&ver=0.7)
 
-Julia implementation of Decision Trees & Random Forests
+Julia implementation of Decision Tree and Random Forest algorithms
 
 ## Classification
 * pre-pruning (max depth, min leaf size)
@@ -72,7 +72,7 @@ Also have a look at these [classification](https://github.com/cstjean/ScikitLear
 
 ## Native API
 ### Classification Example
-Pruned Tree Classifier
+Decision Tree Classifier
 ```julia
 # train full-tree classifier
 model = build_tree(labels, features)
@@ -101,7 +101,7 @@ model = build_tree(labels, features, nsubfeatures, maxdepth, min_samples_leaf, m
 Random Forest Classifier
 ```julia
 # train random forest classifier
-# using 2 random features, 10 trees, 0.5 portion of samples per tree (optional), and a maximum tree depth of 6 (optional)
+# using 2 random features, 10 trees, 0.5 portion of samples per tree, and a maximum tree depth of 6
 model = build_forest(labels, features, 2, 10, 0.5, 6)
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
@@ -161,7 +161,7 @@ model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, 
 Regression Random Forest
 ```julia
 # train regression forest, using 2 random features, 10 trees,
-# averaging of 5 samples per leaf (optional), and 0.7 portion of samples per tree (optional)
+# averaging of 5 samples per leaf, and 0.7 portion of samples per tree
 model = build_forest(labels, features, 2, 10, 5, 0.7)
 # apply learned model
 apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
