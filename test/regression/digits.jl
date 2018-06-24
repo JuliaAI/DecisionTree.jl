@@ -1,3 +1,5 @@
+@testset "digits.jl" begin
+
 function loaddata()
     f = open("data/digits.csv")
     data = readlines(f)[2:end]
@@ -30,3 +32,5 @@ t = DecisionTree.build_tree(Y, X, 1, 0, -1, 20)
 
 t = DecisionTree.build_tree(Y, X, 1, 0, -1, 2, 0.25)
 @test length(t) == 103
+
+end # @testset

@@ -1,3 +1,5 @@
+@testset "random.jl" begin
+
 srand(5)
 
 n, m = 10^3, 5 ;
@@ -41,3 +43,5 @@ r2 = nfoldCV_tree(labels, features, 3)
 println("\n##### nfoldCV Regression Forest #####")
 r2 = nfoldCV_forest(labels, features, 2, 10, 3)
 @test mean(r2) > 0.8
+
+end # @testset

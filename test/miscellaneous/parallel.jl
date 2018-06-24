@@ -1,5 +1,7 @@
 # Test parallelization of random forests
 
+@testset "parallel.jl" begin
+
 addprocs(1)
 @test nprocs() > 1
 
@@ -28,3 +30,5 @@ labels = features * weights;
 model = build_forest(labels, features, 2, 10);
 preds = apply_forest(model, features);
 @test R2(labels, preds) > 0.9
+
+end # @testset

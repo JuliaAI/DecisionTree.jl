@@ -1,6 +1,8 @@
 # Classification Test - Adult Data Set
 # https://archive.ics.uci.edu/ml/datasets/adult
 
+@testset "adult.jl" begin
+
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", "adult.csv");
 adult = readcsv("adult.csv");
 
@@ -19,3 +21,5 @@ accuracy = nfoldCV_tree(labels, features, 0.9, 3);
 println("\n##### 3 foldCV Classification Forest #####")
 accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5);
 @test mean(accuracy) > 0.8
+
+end # @testset

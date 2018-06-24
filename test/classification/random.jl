@@ -1,3 +1,5 @@
+@testset "random.jl" begin
+
 srand(16)
 
 n,m = 10^3, 5;
@@ -21,3 +23,5 @@ accuracy = nfoldCV_forest(labels, features, 2, 10, 3)
 println("\n##### nfoldCV Adaboosted Stumps #####")
 accuracy = nfoldCV_stumps(labels, features, 7, 3)
 @test mean(accuracy) > 0.5
+
+end # @testset

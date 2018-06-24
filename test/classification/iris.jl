@@ -1,6 +1,8 @@
 # Classification Test - Iris Data Set
 # https://archive.ics.uci.edu/ml/datasets/iris
 
+@testset "iris.jl" begin
+
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data", "iris.csv")
 iris = readcsv("iris.csv");
 
@@ -44,3 +46,5 @@ preds = apply_adaboost_stumps(model, coeffs, features);
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
 accuracy = nfoldCV_stumps(labels, features, 7, 3);
 @test mean(accuracy) > 0.7
+
+end # @testset
