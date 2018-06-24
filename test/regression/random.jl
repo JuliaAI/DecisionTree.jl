@@ -25,17 +25,17 @@ model = build_tree(labels, features, min_samples_leaf)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8
 
-min_samples_leaf = 5; max_depth = 3; nsubfeatures = 0;
-model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth)
+min_samples_leaf = 5; max_depth = 3; n_subfeatures = 0;
+model = build_tree(labels, features, min_samples_leaf, n_subfeatures, max_depth)
 @test depth(model) == max_depth
 
-min_samples_leaf = 1; nsubfeatures = 0; max_depth = -1; min_samples_split = 100;
-model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, min_samples_split)
+min_samples_leaf = 1; n_subfeatures = 0; max_depth = -1; min_samples_split = 100;
+model = build_tree(labels, features, min_samples_leaf, n_subfeatures, max_depth, min_samples_split)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8
 
-min_samples_leaf = 1; nsubfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.5;
-model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, min_samples_split, min_purity_increase)
+min_samples_leaf = 1; n_subfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.5;
+model = build_tree(labels, features, min_samples_leaf, n_subfeatures, max_depth, min_samples_split, min_purity_increase)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.95
 

@@ -93,9 +93,9 @@ accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 1)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
-# nsubfeatures: number of features to select at random (default: 0, keep all)
-nsubfeatures=0; maxdepth=-1; min_samples_leaf=1; min_samples_split=2; min_purity_increase=0.0;
-model = build_tree(labels, features, nsubfeatures, maxdepth, min_samples_leaf, min_samples_split, min_purity_increase)
+# n_subfeatures: number of features to select at random (default: 0, keep all)
+n_subfeatures=0; max_depth=-1; min_samples_leaf=1; min_samples_split=2; min_purity_increase=0.0;
+model = build_tree(labels, features, n_subfeatures, max_depth, min_samples_leaf, min_samples_split, min_purity_increase)
 
 ```
 Random Forest Classifier
@@ -112,12 +112,12 @@ apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica
 accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
 
 # set of classification build_forest() parameters and respective default values
-# nsubfeatures: number of features to consider at random per split (default: 0, keep all)
-# ntrees: number of trees to train (default: 10)
-# partialsampling: fraction of samples to train each tree on (default: 0.7)
+# n_subfeatures: number of features to consider at random per split (default: 0, keep all)
+# n_trees: number of trees to train (default: 10)
+# partial_sampling: fraction of samples to train each tree on (default: 0.7)
 # max_depth: maximum depth of the decision trees (default: no maximum)
-nsubfeatures=0; ntrees=10; partialsampling=0.7; maxdepth=-1;
-model = build_forest(labels, features, nsubfeatures, ntrees, partialsampling, maxdepth)
+n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1;
+model = build_forest(labels, features, n_subfeatures, n_trees, partial_sampling, max_depth)
 ```
 Adaptive-Boosted Decision Stumps Classifier
 ```julia
@@ -153,9 +153,9 @@ r2 = nfoldCV_tree(labels, features, 3, 5)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
-# nsubfeatures: number of features to select at random (default: 0, keep all)
-min_samples_leaf = 5; nsubfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.0;
-model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, min_samples_split, min_purity_increase)
+# n_subfeatures: number of features to select at random (default: 0, keep all)
+min_samples_leaf = 5; n_subfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.0;
+model = build_tree(labels, features, min_samples_leaf, n_subfeatures, max_depth, min_samples_split, min_purity_increase)
 
 ```
 Regression Random Forest
@@ -172,11 +172,11 @@ apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
 r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
 
 # set of regression build_forest() parameters and respective default values
-# nsubfeatures: number of features to consider at random per split (default: 0, keep all)
-# ntrees: number of trees to train (default: 10)
-# partialsampling: fraction of samples to train each tree on (default: 0.7)
+# n_subfeatures: number of features to consider at random per split (default: 0, keep all)
+# n_trees: number of trees to train (default: 10)
+# partial_sampling: fraction of samples to train each tree on (default: 0.7)
 # max_depth: maximum depth of the decision trees (default: no maximum)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
-nsubfeatures=0; ntrees=10; min_samples_leaf=5; partialsampling=0.7; max_depth=-1;
-model = build_forest(labels, features, nsubfeatures, ntrees, min_samples_leaf, partialsampling, max_depth)
+n_subfeatures=0; n_trees=10; min_samples_leaf=5; partial_sampling=0.7; max_depth=-1;
+model = build_forest(labels, features, n_subfeatures, n_trees, min_samples_leaf, partial_sampling, max_depth)
 ```

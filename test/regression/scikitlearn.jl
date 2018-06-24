@@ -12,16 +12,16 @@ model = fit!(DecisionTreeRegressor(min_samples_leaf=5, pruning_purity_threshold=
 model = fit!(DecisionTreeRegressor(min_samples_split=5), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
-model = fit!(RandomForestRegressor(ntrees=10, min_samples_leaf=5, nsubfeatures=2), features, labels)
+model = fit!(RandomForestRegressor(n_trees=10, min_samples_leaf=5, n_subfeatures=2), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
 srand(2)
 N = 3000
 X = randn(N, 10)
 y = randn(N)
-maxdepth = 5
-model = fit!(DecisionTreeRegressor(max_depth=maxdepth), X, y)
-@test depth(model) == maxdepth
+max_depth = 5
+model = fit!(DecisionTreeRegressor(max_depth=max_depth), X, y)
+@test depth(model) == max_depth
 
 
 ## Test that the RNG arguments work as expected

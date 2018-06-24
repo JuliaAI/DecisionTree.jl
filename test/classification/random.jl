@@ -10,9 +10,9 @@ labels = _int(features * weights);
 model = build_stump(labels, features)
 @test depth(model) == 1
 
-maxdepth = 3
-model = build_tree(labels, features, 0, maxdepth)
-@test depth(model) == maxdepth
+max_depth = 3
+model = build_tree(labels, features, 0, max_depth)
+@test depth(model) == max_depth
 print_tree(model, 3)
 
 model = build_tree(labels, features)

@@ -23,9 +23,9 @@ N = 3000
 X = randn(N, 10)
 # TODO: we should probably support fit!(::DecisionTreeClassifier, ::BitArray)
 y = convert(Vector{Bool}, randn(N) .< 0)
-maxdepth = 5
-model = fit!(DecisionTreeClassifier(max_depth=maxdepth), X, y)
-@test depth(model) == maxdepth
+max_depth = 5
+model = fit!(DecisionTreeClassifier(max_depth=max_depth), X, y)
+@test depth(model) == max_depth
 
 
 ## Test that the RNG arguments work as expected
