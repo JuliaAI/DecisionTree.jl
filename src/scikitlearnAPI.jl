@@ -72,7 +72,7 @@ function show(io::IO, dt::DecisionTreeClassifier)
     println(io, "min_samples_split:        $(dt.min_samples_split)")
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
-    println(io, "n_subfeatures:             $(dt.n_subfeatures)")
+    println(io, "n_subfeatures:            $(dt.n_subfeatures)")
     println(io, "classes:                  $(dt.classes)")
     println(io, "root:                     $(dt.root)")
 end
@@ -140,7 +140,7 @@ function show(io::IO, dt::DecisionTreeRegressor)
     println(io, "min_samples_split:        $(dt.min_samples_split)")
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
-    println(io, "n_subfeatures:             $(dt.n_subfeatures)")
+    println(io, "n_subfeatures:            $(dt.n_subfeatures)")
     println(io, "root:                     $(dt.root)")
 end
 
@@ -199,11 +199,11 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
 function show(io::IO, rf::RandomForestClassifier)
     println(io, "RandomForestClassifier")
     println(io, "n_trees:          $(rf.n_trees)")
-    println(io, "max_depth:       $(rf.max_depth)")
     println(io, "n_subfeatures:    $(rf.n_subfeatures)")
+    println(io, "max_depth:        $(rf.max_depth)")
     println(io, "partial_sampling: $(rf.partial_sampling)")
-    println(io, "classes:         $(rf.classes)")
-    println(io, "ensemble:        $(rf.ensemble)")
+    println(io, "classes:          $(rf.classes)")
+    println(io, "ensemble:         $(rf.ensemble)")
 end
 
 ################################################################################
@@ -260,11 +260,11 @@ predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
 
 function show(io::IO, rf::RandomForestRegressor)
     println(io, "RandomForestRegressor")
-    println(io, "n_trees:           $(rf.n_trees)")
+    println(io, "n_trees:          $(rf.n_trees)")
+    println(io, "n_subfeatures:    $(rf.n_subfeatures)")
     println(io, "max_depth:        $(rf.max_depth)")
-    println(io, "n_subfeatures:     $(rf.n_subfeatures)")
-    println(io, "partial_sampling:  $(rf.partial_sampling)")
     println(io, "min_samples_leaf: $(rf.min_samples_leaf)")
+    println(io, "partial_sampling: $(rf.partial_sampling)")
     println(io, "ensemble:         $(rf.ensemble)")
 end
 
@@ -312,10 +312,10 @@ predict_proba(ada::AdaBoostStumpClassifier, X) =
 
 function show(io::IO, ada::AdaBoostStumpClassifier)
     println(io, "AdaBoostStumpClassifier")
-    println(io, "niterations: $(ada.niterations)")
-    println(io, "coeffs:      $(ada.coeffs)")
-    println(io, "classes:     $(ada.classes)")
-    println(io, "ensemble:    $(ada.ensemble)")
+    println(io, "n_iterations: $(ada.n_iterations)")
+    println(io, "coeffs:       $(ada.coeffs)")
+    println(io, "classes:      $(ada.classes)")
+    println(io, "ensemble:     $(ada.ensemble)")
 end
 
 ################################################################################
