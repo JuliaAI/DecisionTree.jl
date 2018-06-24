@@ -21,6 +21,6 @@ r2 = nfoldCV_tree(labels, features, 3);
 
 println("\n##### nfoldCV Regression Forest #####")
 r2 = nfoldCV_forest(labels, features, 2, 10, 3);
-@test mean(r2) > 0.4
+@test mean(r2) > 0.35
 
 end # @testset
