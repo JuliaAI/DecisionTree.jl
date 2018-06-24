@@ -15,6 +15,16 @@ model = build_tree(labels, features, 0, maxdepth)
 @test depth(model) == maxdepth
 print_tree(model, 3)
 
+model = build_tree(labels, features)
+preds = apply_tree(model, features)
+cm = confusion_matrix(labels, preds)
+@test cm.accuracy > 0.95
+
+model = build_forest(labels, features)
+preds = apply_forest(model, features)
+cm = confusion_matrix(labels, preds)
+@test cm.accuracy > 0.95
+
 println("\n##### nfoldCV Classification Tree #####")
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 @test mean(accuracy) > 0.7

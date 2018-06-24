@@ -39,6 +39,10 @@ model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, 
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.95
 
+model = build_forest(labels, features)
+preds = apply_forest(model, features)
+@test R2(labels, preds) > 0.9
+
 println("\n##### nfoldCV Regression Tree #####")
 r2 = nfoldCV_tree(labels, features, 3)
 @test mean(r2) > 0.6
