@@ -12,7 +12,7 @@ model = fit!(DecisionTreeRegressor(min_samples_leaf=5, pruning_purity_threshold=
 model = fit!(DecisionTreeRegressor(min_samples_split=5), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
-model = fit!(RandomForestRegressor(ntrees=10, min_samples_leaf=5, nsubfeatures=2), features, labels)
+model = fit!(RandomForestRegressor(n_trees=10, min_samples_leaf=5, nsubfeatures=2), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
 srand(2)

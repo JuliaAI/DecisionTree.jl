@@ -42,12 +42,12 @@ function build_tree{T<:Float64}(
     return _convert(t)
 end
 
-function build_forest{T<:Float64}(labels::Vector{T}, features::Matrix, nsubfeatures=0, ntrees=10, min_samples_leaf=5, partialsampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
+function build_forest{T<:Float64}(labels::Vector{T}, features::Matrix, nsubfeatures=0, n_trees=10, min_samples_leaf=5, partialsampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
     Nsamples = _int(partialsampling * Nlabels)
-    forest = @parallel (vcat) for i in 1:ntrees
+    forest = @parallel (vcat) for i in 1:n_trees
         inds = rand(rng, 1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], min_samples_leaf, nsubfeatures, max_depth; rng=rng)
     end

@@ -87,7 +87,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
         pruning_purity = args[1]
     elseif classifier == :forest
         nsubfeatures = args[1]
-        ntrees = args[2]
+        n_trees = args[2]
         partialsampling = args[3]
     elseif classifier == :stumps
         niterations = args[1]
@@ -111,7 +111,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
             end
             predictions = apply_tree(model, test_features)
         elseif classifier == :forest
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, partialsampling)
+            model = build_forest(train_labels, train_features, nsubfeatures, n_trees, partialsampling)
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
             model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
@@ -127,7 +127,7 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
 end
 
 nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                                           = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
-nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
+nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, n_trees::Integer, nfolds::Integer, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, n_trees, partialsampling, nfolds)
 nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, niterations, nfolds)
 
 ### Regression ###
@@ -153,7 +153,7 @@ function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Ma
         maxlabels = args[1]
     elseif regressor == :forest
         nsubfeatures = args[1]
-        ntrees = args[2]
+        n_trees = args[2]
         maxlabels = args[3]
         partialsampling = args[4]
     end
@@ -173,7 +173,7 @@ function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Ma
             model = build_tree(train_labels, train_features, maxlabels, 0)
             predictions = apply_tree(model, test_features)
         elseif regressor == :forest
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, maxlabels, partialsampling)
+            model = build_forest(train_labels, train_features, nsubfeatures, n_trees, maxlabels, partialsampling)
             predictions = apply_forest(model, test_features)
         end
         err = mean_squared_error(test_labels, predictions)
@@ -190,6 +190,6 @@ function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Ma
 end
 
 nfoldCV_tree{T<:Float64}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
-nfoldCV_forest{T<:Float64}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
+nfoldCV_forest{T<:Float64}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, n_trees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, n_trees, maxlabels, partialsampling, nfolds)
 
 
