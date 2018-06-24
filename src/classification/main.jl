@@ -54,6 +54,9 @@ end
 
 function build_stump(labels::Vector, features::Matrix, weights=[0];
                      rng=Base.GLOBAL_RNG)
+    if weights == [0]
+        return build_tree(labels, features, 0, 1)
+    end
     S = _split_neg_z1_loss(labels, features, weights)
     if S == NO_BEST
         return Leaf(majority_vote(labels), labels)
