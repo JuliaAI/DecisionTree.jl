@@ -5,7 +5,10 @@
 leaf = Leaf(0, [0])
 node = Node(1, 1, leaf, leaf)
 
-[leaf, node]
-[node, leaf]
+ln = [leaf, node]
+@test length(ln) == 2
+
+nl = [node, leaf]
+@test length(nl) == 2
 
 end # @testset
