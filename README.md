@@ -87,6 +87,16 @@ apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"]
 # run n-fold cross validation for pruned tree,
 # using 90% purity threshold pruning, and 3 CV folds
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
+
+# set of classification build_tree() parameters and respective default values
+# max_depth: maximum depth of the decision tree (default: -1, no maximum)
+# min_samples_leaf: the minimum number of samples each leaf needs to have (default: 1)
+# min_samples_split: the minimum number of samples in needed for a split (default: 2)
+# min_purity_increase: minimum purity needed for a split (default: 0.0)
+# nsubfeatures: number of features to select at random (default: 0, keep all)
+nsubfeatures=0; maxdepth=-1; min_samples_leaf=1; min_samples_split=2; min_purity_increase=0.0;
+model = build_tree(labels, features, nsubfeatures, maxdepth, min_samples_leaf, min_samples_split, min_purity_increase)
+
 ```
 Random Forest Classifier
 ```julia
@@ -100,6 +110,14 @@ apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica
 # run n-fold cross validation for forests
 # using 2 random features, 10 trees, 3 folds, and 0.5 portion of samples per tree (optional)
 accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
+
+# set of classification build_forest() parameters and respective default values
+# nsubfeatures: number of features to consider at random per split (default: 0, keep all)
+# ntrees: number of trees to train (default: 10)
+# partialsampling: fraction of samples to train each tree on (default: 0.7)
+# max_depth: maximum depth of the decision trees (default: no maximum)
+nsubfeatures=0; ntrees=10; partialsampling=0.7; maxdepth=-1;
+model = build_forest(labels, features, nsubfeatures, ntrees, partialsampling, maxdepth)
 ```
 Adaptive-Boosted Decision Stumps Classifier
 ```julia
@@ -129,6 +147,16 @@ apply_tree(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation, using 3 folds and averaging of 5 samples per leaf (optional)
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_tree(labels, features, 3, 5)
+
+# set of regression build_tree() parameters and respective default values
+# max_depth: maximum depth of the decision tree (default: -1, no maximum)
+# min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
+# min_samples_split: the minimum number of samples in needed for a split (default: 2)
+# min_purity_increase: minimum purity needed for a split (default: 0.0)
+# nsubfeatures: number of features to select at random (default: 0, keep all)
+min_samples_leaf = 5; nsubfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.0;
+model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, min_samples_split, min_purity_increase)
+
 ```
 Regression Random Forest
 ```julia
@@ -142,4 +170,13 @@ apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
 # and 0.7 porition of samples per tree (optional)
 # returns array of coefficients of determination (R^2)
 r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
+
+# set of regression build_forest() parameters and respective default values
+# nsubfeatures: number of features to consider at random per split (default: 0, keep all)
+# ntrees: number of trees to train (default: 10)
+# partialsampling: fraction of samples to train each tree on (default: 0.7)
+# max_depth: maximum depth of the decision trees (default: no maximum)
+# min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
+nsubfeatures=0; ntrees=10; min_samples_leaf=5; partialsampling=0.7; max_depth=-1;
+model = build_forest(labels, features, nsubfeatures, ntrees, min_samples_leaf, partialsampling, max_depth)
 ```
