@@ -7,6 +7,9 @@ features = rand(n,m);
 weights = rand(-1:1,m);
 labels = _int(features * weights);
 
+model = build_stump(labels, features)
+@test depth(model) == 1
+
 maxdepth = 3
 model = build_tree(labels, features, 0, maxdepth)
 @test depth(model) == maxdepth

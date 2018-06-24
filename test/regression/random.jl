@@ -9,6 +9,9 @@ features[:,1] = round.(Integer, features[:,1]); # convert a column of integers
 weights = rand(-2:2,m);
 labels = float.(features * weights);            # cast to Array{Float64,1}
 
+model = build_stump(labels, features)
+@test depth(model) == 1
+
 # over-fitting
 min_samples_leaf = 1
 model = build_tree(labels, features, min_samples_leaf)

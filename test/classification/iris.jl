@@ -9,6 +9,13 @@ iris = readcsv("iris.csv");
 features = iris[:, 1:4];
 labels = iris[:, 5];
 
+# train a decision stump (depth=1)
+model = build_stump(labels, features)
+preds = apply_tree(model, features);
+cm = confusion_matrix(labels, preds);
+@test cm.accuracy > 0.6
+@test depth(model) == 1
+
 # train full-tree classifier (over-fit)
 model = build_tree(labels, features);
 preds = apply_tree(model, features);
