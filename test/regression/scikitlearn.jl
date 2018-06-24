@@ -1,3 +1,4 @@
+@testset "scikitlearn.jl" begin
 
 srand(2)
 n,m = 10^3, 5 ;
@@ -32,3 +33,4 @@ y = randn(100)
 @test fit_predict!(RandomForestRegressor(; rng=10), X, y) !=
     fit_predict!(RandomForestRegressor(; rng=22), X, y)
 
+end # @testset

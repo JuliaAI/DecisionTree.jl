@@ -1,3 +1,5 @@
+@testset "scikitlearn.jl" begin
+
 srand(2)
 n,m = 10^3, 5 ;
 features = rand(n,m);
@@ -35,3 +37,5 @@ y = rand(Bool, 100);
     predict_proba(fit!(RandomForestClassifier(; rng=10), X, y), X)
 @test predict_proba(fit!(RandomForestClassifier(; rng=10), X, y), X) !=
     predict_proba(fit!(RandomForestClassifier(; rng=12), X, y), X)
+
+end # @testset

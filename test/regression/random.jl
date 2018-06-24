@@ -1,3 +1,5 @@
+@testset "random.jl" begin
+
 srand(5)
 
 n, m = 10^3, 5 ;
@@ -6,6 +8,9 @@ features[:,:] = randn(n, m);
 features[:,1] = round.(Integer, features[:,1]); # convert a column of integers
 weights = rand(-2:2,m);
 labels = float.(features * weights);            # cast to Array{Float64,1}
+
+model = build_stump(labels, features)
+@test depth(model) == 1
 
 # over-fitting
 min_samples_leaf = 1
@@ -34,6 +39,10 @@ model = build_tree(labels, features, min_samples_leaf, nsubfeatures, max_depth, 
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.95
 
+model = build_forest(labels, features)
+preds = apply_forest(model, features)
+@test R2(labels, preds) > 0.9
+
 println("\n##### nfoldCV Regression Tree #####")
 r2 = nfoldCV_tree(labels, features, 3)
 @test mean(r2) > 0.6
@@ -41,3 +50,5 @@ r2 = nfoldCV_tree(labels, features, 3)
 println("\n##### nfoldCV Regression Forest #####")
 r2 = nfoldCV_forest(labels, features, 2, 10, 3)
 @test mean(r2) > 0.8
+
+end # @testset

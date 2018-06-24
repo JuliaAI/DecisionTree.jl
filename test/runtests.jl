@@ -27,6 +27,14 @@ regression =     ["regression/random.jl",
 miscellaneous =  ["miscellaneous/promote.jl",
                   "miscellaneous/parallel.jl"]
 
-for list in [classification, regression, miscellaneous]
-    run_tests(list)
+test_suites = [("Classification", classification), ("Regression", regression), ("Miscellaneous", miscellaneous)]
+
+@testset "Test Suites" begin
+    for ts in 1:length(test_suites)
+        name = test_suites[ts][1]
+        list = test_suites[ts][2]
+        @testset "$name" begin
+            run_tests(list)
+        end
+    end
 end

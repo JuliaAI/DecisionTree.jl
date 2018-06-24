@@ -1,6 +1,8 @@
 # Regression Test - Appliances Energy Prediction Data Set
 # https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
+@testset "energy.jl" begin
+
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv", "energy.csv");
 energy = readcsv("energy.csv");
 
@@ -19,4 +21,6 @@ r2 = nfoldCV_tree(labels, features, 3);
 
 println("\n##### nfoldCV Regression Forest #####")
 r2 = nfoldCV_forest(labels, features, 2, 10, 3);
-@test mean(r2) > 0.4
+@test mean(r2) > 0.35
+
+end # @testset

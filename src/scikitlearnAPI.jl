@@ -157,9 +157,9 @@ Random forest classification. See [DecisionTree.jl's documentation](https://gith
 
 Hyperparameters:
 
-- `nsubfeatures`: number of features to select in each tree at random (default: keep all)
-- `ntrees`: number of trees to train
-- `partialsampling`: fraction of samples to train each tree on
+- `nsubfeatures`: number of features to consider at random per split (default: keep all)
+- `ntrees`: number of trees to train (default: 10)
+- `partialsampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
@@ -220,10 +220,9 @@ Random forest regression. See [DecisionTree.jl's documentation](https://github.c
 
 Hyperparameters:
 
-- `nsubfeatures`: number of features to select in each tree at random (default:
-  keep all)
-- `ntrees`: number of trees to train
-- `partialsampling`: fraction of samples to train each tree on
+- `nsubfeatures`: number of features to consider at random per split (default: keep all)
+- `ntrees`: number of trees to train (default: 10)
+- `partialsampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
 - `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 5)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used

@@ -54,6 +54,9 @@ end
 
 function build_stump(labels::Vector, features::Matrix, weights=[0];
                      rng=Base.GLOBAL_RNG)
+    if weights == [0]
+        return build_tree(labels, features, 0, 1)
+    end
     S = _split_neg_z1_loss(labels, features, weights)
     if S == NO_BEST
         return Leaf(majority_vote(labels), labels)
@@ -188,7 +191,7 @@ end
 apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
+function build_forest(labels::Vector, features::Matrix, nsubfeatures=0, ntrees=10, partialsampling=0.7, maxdepth=-1; rng=Base.GLOBAL_RNG)
     rng = mk_rng(rng)::AbstractRNG
     partialsampling = partialsampling > 1.0 ? 1.0 : partialsampling
     Nlabels = length(labels)
