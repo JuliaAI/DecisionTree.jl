@@ -5,7 +5,7 @@
 Distributed.addprocs(1)
 @test Distributed.nprocs() > 1
 
-# @Distributed.everywhere using Main.DecisionTree
+@Distributed.everywhere using DecisionTree
 
 Random.srand(16)
 
