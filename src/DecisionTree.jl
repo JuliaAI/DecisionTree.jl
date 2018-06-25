@@ -71,7 +71,7 @@ depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
 function print_tree(leaf::Leaf, depth=-1, indent=0)
-    matches = find(leaf.values .== leaf.majority)
+    matches = findall(leaf.values .== leaf.majority)
     ratio = string(length(matches)) * "/" * string(length(leaf.values))
     println("$(leaf.majority) : $(ratio)")
 end

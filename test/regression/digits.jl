@@ -1,3 +1,5 @@
+@testset "digits.jl" begin
+
 function loaddata()
     f = open("data/digits.csv")
     data = readlines(f)[2:end]
@@ -5,7 +7,7 @@ function loaddata()
         for i in split(row, ",")]
         for row in data]
     data = hcat(data...)
-    Y = Int.(data[1, 1:end]) + 1
+    Y = Int.(data[1, 1:end]) .+ 1
     X = convert(Matrix, transpose(data[2:end, 1:end]))
     return X, Y
 end
@@ -13,8 +15,7 @@ end
 
 X, Y = loaddata()
 
-Y += 0.0 # convert X and Y to Float to enable regression
-X += 0.0
+Y = float.(Y) # labels/targets to Float to enable regression
 
 t = DecisionTree.build_tree(Y, X, 1)
 @test length(t) in [190, 191]
@@ -31,3 +32,5 @@ t = DecisionTree.build_tree(Y, X, 1, 0, -1, 20)
 
 t = DecisionTree.build_tree(Y, X, 1, 0, -1, 2, 0.25)
 @test length(t) == 103
+
+end # @testset

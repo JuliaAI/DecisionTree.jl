@@ -1,11 +1,13 @@
 # Test parallelization of random forests
 
-addprocs(1)
-@test nprocs() > 1
+@testset "parallel.jl" begin
 
-@everywhere using DecisionTree
+Distributed.addprocs(1)
+@test Distributed.nprocs() > 1
 
-srand(16)
+@Distributed.everywhere using DecisionTree
+
+Random.srand(16)
 
 # Classification
 n,m = 10^3, 5;
@@ -16,7 +18,7 @@ labels = _int(features * weights);
 model = build_forest(labels, features, 2, 10);
 preds = apply_forest(model, features);
 cm = confusion_matrix(labels, preds);
-@test cm.accuracy > 0.9
+@test cm.accuracy > 0.8
 
 
 # Regression
@@ -27,4 +29,6 @@ labels = features * weights;
 
 model = build_forest(labels, features, 2, 10);
 preds = apply_forest(model, features);
-@test R2(labels, preds) > 0.9
+@test R2(labels, preds) > 0.8
+
+end # @testset

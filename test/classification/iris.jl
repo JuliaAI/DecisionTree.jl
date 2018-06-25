@@ -1,11 +1,20 @@
 # Classification Test - Iris Data Set
 # https://archive.ics.uci.edu/ml/datasets/iris
 
+@testset "iris.jl" begin
+
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data", "iris.csv")
 iris = readcsv("iris.csv");
 
 features = iris[:, 1:4];
 labels = iris[:, 5];
+
+# train a decision stump (depth=1)
+model = build_stump(labels, features)
+preds = apply_tree(model, features);
+cm = confusion_matrix(labels, preds);
+@test cm.accuracy > 0.6
+@test depth(model) == 1
 
 # train full-tree classifier (over-fit)
 model = build_tree(labels, features);
@@ -44,3 +53,5 @@ preds = apply_adaboost_stumps(model, coeffs, features);
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
 accuracy = nfoldCV_stumps(labels, features, 7, 3);
 @test mean(accuracy) > 0.7
+
+end # @testset

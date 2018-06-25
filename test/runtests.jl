@@ -1,11 +1,9 @@
-using DecisionTree
 using ScikitLearnBase
+using DecisionTree
+using Test
 
-if VERSION < v"0.7.0-DEV.2005"
-    using Base.Test
-else
-    using Test
-end
+import Distributed
+import Random
 
 function run_tests(list)
     for test in list
@@ -15,18 +13,36 @@ function run_tests(list)
     end
 end
 
-classification = ["classification/random.jl",
-                  "classification/heterogeneous.jl",
-                  "classification/digits.jl",
-                  "classification/scikitlearn.jl"]
+classification = [
+    "classification/random.jl",
+    "classification/heterogeneous.jl",
+    "classification/digits.jl",
+    "classification/scikitlearn.jl"
+]
 
-regression =     ["regression/random.jl",
-                  "regression/digits.jl",
-                  "regression/scikitlearn.jl"]
+regression =     [
+    "regression/random.jl",
+    "regression/digits.jl",
+    "regression/scikitlearn.jl"
+]
 
-miscellaneous =  ["miscellaneous/promote.jl",
-                  "miscellaneous/parallel.jl"]
+miscellaneous =  [
+    "miscellaneous/promote.jl",
+    "miscellaneous/parallel.jl"
+]
 
-for list in [classification, regression, miscellaneous]
-    run_tests(list)
+test_suites = [
+    ("Classification", classification),
+    ("Regression", regression),
+    ("Miscellaneous", miscellaneous)
+]
+
+@testset "Test Suites" begin
+    for ts in 1:length(test_suites)
+        name = test_suites[ts][1]
+        list = test_suites[ts][2]
+        @testset "$name" begin
+            run_tests(list)
+        end
+    end
 end

@@ -1,3 +1,6 @@
+using LinearAlgebra
+using Random
+
 struct ConfusionMatrix
     classes::Vector
     matrix::Matrix{Int}
@@ -16,7 +19,7 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
+function _hist_add!(counts::Dict{T, Int}, labels::Vector{T}, region::UnitRange{Int}) where T
     for i in region
         lbl = labels[i]
         counts[lbl] = get(counts, lbl, 0) + 1
@@ -24,16 +27,16 @@ function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange
     return counts
 end
 
-_hist{T}(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) = 
+_hist(labels::Vector{T}, region::UnitRange{Int} = 1:lastindex(labels)) where T = 
     _hist_add!(Dict{T,Int}(), labels, region)
 
-function _neg_z1_loss{T<:Real}(labels::Vector, weights::Vector{T})
+function _neg_z1_loss(labels::Vector, weights::Vector{T}) where T <: Real
     missmatches = labels .!= majority_vote(labels)
     loss = sum(weights[missmatches])
     return -loss
 end
 
-function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Vector{T})
+function _weighted_error(actual::Vector, predicted::Vector, weights::Vector{T}) where T <: Real
     mismatches = actual .!= predicted
     err = sum(weights[mismatches]) / sum(weights)
     return err
@@ -65,15 +68,15 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     classes = sort(unique([actual; predicted]))
     N = length(classes)
     for i in 1:N
-        _actual[actual .== classes[i]] = i
-        _predicted[predicted .== classes[i]] = i
+        _actual[actual .== classes[i]] .= i
+        _predicted[predicted .== classes[i]] .= i
     end
     CM = zeros(Int,N,N)
     for i in zip(_actual, _predicted)
         CM[i[1],i[2]] += 1
     end
-    accuracy = trace(CM) / sum(CM)
-    prob_chance = (sum(CM,1) * sum(CM,2))[1] / sum(CM)^2
+    accuracy = LinearAlgebra.tr(CM) / sum(CM)
+    prob_chance = (sum(CM,dims=1) * sum(CM,dims=2))[1] / sum(CM)^2
     kappa = (accuracy - prob_chance) / (1.0 - prob_chance)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
@@ -86,19 +89,19 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     if classifier == :tree
         pruning_purity = args[1]
     elseif classifier == :forest
-        nsubfeatures = args[1]
-        ntrees = args[2]
-        partialsampling = args[3]
+        n_subfeatures = args[1]
+        n_trees = args[2]
+        partial_sampling = args[3]
     elseif classifier == :stumps
-        niterations = args[1]
+        n_iterations = args[1]
     end
     N = length(labels)
     ntest = _int(floor(N / nfolds))
-    inds = randperm(N)
+    inds = Random.randperm(N)
     accuracy = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
-        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
+        test_inds[(i - 1) * ntest + 1 : i * ntest] .= true
         train_inds = (!).(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]
@@ -111,10 +114,10 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
             end
             predictions = apply_tree(model, test_features)
         elseif classifier == :forest
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, partialsampling)
+            model = build_forest(train_labels, train_features, n_subfeatures, n_trees, partial_sampling)
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
-            model, coeffs = build_adaboost_stumps(train_labels, train_features, niterations)
+            model, coeffs = build_adaboost_stumps(train_labels, train_features, n_iterations)
             predictions = apply_adaboost_stumps(model, coeffs, test_features)
         end
         cm = confusion_matrix(test_labels, predictions)
@@ -127,8 +130,8 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
 end
 
 nfoldCV_tree(labels::Vector, features::Matrix, pruning_purity::Real, nfolds::Integer)                                           = _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
-nfoldCV_forest(labels::Vector, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, partialsampling, nfolds)
-nfoldCV_stumps(labels::Vector, features::Matrix, niterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, niterations, nfolds)
+nfoldCV_forest(labels::Vector, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, partial_sampling=0.7)  = _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, partial_sampling, nfolds)
+nfoldCV_stumps(labels::Vector, features::Matrix, n_iterations::Integer, nfolds::Integer)                                         = _nfoldCV(:stumps, labels, features, n_iterations, nfolds)
 
 ### Regression ###
 
@@ -144,7 +147,29 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Matrix, args...)
+# Pearson's Correlation Coefficient
+function cor(x, y)
+    @assert(length(x) == length(y))
+    @assert(length(x) > 1)
+
+    n = length(x)
+
+    x_mean = sum(x) / n
+    y_mean = sum(y) / n
+
+    x_centered = x .- x_mean
+    y_centered = y .- y_mean
+
+    x_var = sum(x_centered .^ 2)
+    y_var = sum(y_centered .^ 2)
+
+    xy_cov = sum(x_centered .* y_centered)
+
+    return xy_cov / sqrt(x_var * y_var)
+
+end
+
+function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args...) where T <: Float64
     nfolds = args[end]
     if nfolds < 2
         return nothing
@@ -152,18 +177,18 @@ function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Ma
     if regressor == :tree
         maxlabels = args[1]
     elseif regressor == :forest
-        nsubfeatures = args[1]
-        ntrees = args[2]
+        n_subfeatures = args[1]
+        n_trees = args[2]
         maxlabels = args[3]
-        partialsampling = args[4]
+        partial_sampling = args[4]
     end
     N = length(labels)
     ntest = _int(floor(N / nfolds))
-    inds = randperm(N)
+    inds = Random.randperm(N)
     R2s = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
-        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
+        test_inds[(i - 1) * ntest + 1 : i * ntest] .= true
         train_inds = (!).(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]
@@ -173,7 +198,7 @@ function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Ma
             model = build_tree(train_labels, train_features, maxlabels, 0)
             predictions = apply_tree(model, test_features)
         elseif regressor == :forest
-            model = build_forest(train_labels, train_features, nsubfeatures, ntrees, maxlabels, partialsampling)
+            model = build_forest(train_labels, train_features, n_subfeatures, n_trees, maxlabels, partial_sampling)
             predictions = apply_forest(model, test_features)
         end
         err = mean_squared_error(test_labels, predictions)
@@ -189,7 +214,10 @@ function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Ma
     return R2s
 end
 
-nfoldCV_tree{T<:Float64}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
-nfoldCV_forest{T<:Float64}(labels::Vector{T}, features::Matrix, nsubfeatures::Integer, ntrees::Integer, nfolds::Integer, maxlabels::Integer=5, partialsampling=0.7)  = _nfoldCV(:forest, labels, features, nsubfeatures, ntrees, maxlabels, partialsampling, nfolds)
+nfoldCV_tree(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer = 5) where T <: Float64 =
+    _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+
+nfoldCV_forest(labels::Vector{T}, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, maxlabels::Integer = 5, partial_sampling = 0.7) where T <: Float64 = 
+    _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, maxlabels, partial_sampling, nfolds)
 
 
