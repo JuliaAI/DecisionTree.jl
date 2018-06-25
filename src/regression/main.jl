@@ -4,16 +4,16 @@ import Distributed
 
 # Convenience functions - make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
-mk_rng(seed::Int) = MersenneTwister(seed)
+mk_rng(seed::Int) = Random.MersenneTwister(seed)
 
-function build_stump(labels::Vector{T}, features::Matrix; rng = Base.GLOBAL_RNG) where T <: Float64
+function build_stump(labels::Vector{T}, features::Matrix; rng = Random.GLOBAL_RNG) where T <: Float64
     return build_tree(labels, features, 1, 0, 1)
 end
 
 function build_tree(
         labels::Vector{T}, features::Matrix, min_samples_leaf = 5,
         n_subfeatures = 0, max_depth = -1, min_samples_split = 2,
-        min_purity_increase = 0.0; rng = Base.GLOBAL_RNG) where T <: Float64
+        min_purity_increase = 0.0; rng = Random.GLOBAL_RNG) where T <: Float64
     rng = mk_rng(rng)::Random.AbstractRNG
     if max_depth < -1
         error("Unexpected value for max_depth: $(max_depth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
@@ -47,7 +47,7 @@ end
 function build_forest(
         labels::Vector{T}, features::Matrix, n_subfeatures = 0, n_trees = 10,
         min_samples_leaf = 5, partial_sampling = 0.7, max_depth = -1;
-        rng = Base.GLOBAL_RNG) where T <: Float64
+        rng = Random.GLOBAL_RNG) where T <: Float64
     rng = mk_rng(rng)::Random.AbstractRNG
     partial_sampling = partial_sampling > 1.0 ? 1.0 : partial_sampling
     Nlabels = length(labels)

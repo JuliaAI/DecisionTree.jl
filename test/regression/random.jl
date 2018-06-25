@@ -1,9 +1,9 @@
 @testset "random.jl" begin
 
-srand(5)
+Random.srand(5)
 
 n, m = 10^3, 5 ;
-features = Array{Any}(n, m);
+features = Array{Any}(undef, n, m);
 features[:,:] = randn(n, m);
 features[:,1] = round.(Integer, features[:,1]); # convert a column of integers
 weights = rand(-2:2,m);

@@ -133,6 +133,7 @@ module treeregressor
             # the least upper bound and the greatest lower bound
             # of the left and right nodes respectively
             lo, hi = 0, 0
+            last_f = Xf[1]
             is_constant = true
             while hi < n_samples
                 lo = hi + 1
@@ -270,7 +271,7 @@ module treeregressor
                  min_samples_leaf    :: Int64,
                  min_samples_split   :: Int64,
                  min_purity_increase :: Float64;
-                 rng=Base.GLOBAL_RNG :: AbstractRNG) where T <: Any
+                 rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where T <: Any
         n_samples, n_features = size(X)
         check_input(
             X, Y,
@@ -283,8 +284,8 @@ module treeregressor
         root = NodeMeta(collect(1:n_features), 1:n_samples, 0)
         stack = NodeMeta[ root ]
 
-        Xf  = Array{T}(n_samples)
-        Yf  = Array{Float64}(n_samples)
+        Xf  = Array{T}(undef, n_samples)
+        Yf  = Array{Float64}(undef, n_samples)
         @inbounds while length(stack) > 0
             node = pop!(stack)
             _split!(

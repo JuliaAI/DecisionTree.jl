@@ -7,7 +7,7 @@ function loaddata()
         for i in split(row, ",")]
         for row in data]
     data = hcat(data...)
-    Y = Int.(data[1, 1:end]) + 1
+    Y = Int.(data[1, 1:end]) .+ 1
     X = convert(Matrix, transpose(data[2:end, 1:end]))
     return X, Y
 end
@@ -19,6 +19,7 @@ X, Y = loaddata()
 
 t = DecisionTree.build_tree(Y, X)
 @test num_leaves(t) == 148
+@test sum(apply_tree(t, X) .== Y) == length(Y)
 
 t = DecisionTree.build_tree(Y, X, 0, 6)
 @test num_leaves(t) == 57

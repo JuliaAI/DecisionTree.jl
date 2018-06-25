@@ -1,3 +1,6 @@
+using LinearAlgebra
+using Random
+
 struct ConfusionMatrix
     classes::Vector
     matrix::Matrix{Int}
@@ -24,7 +27,7 @@ function _hist_add!(counts::Dict{T, Int}, labels::Vector{T}, region::UnitRange{I
     return counts
 end
 
-_hist(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) where T = 
+_hist(labels::Vector{T}, region::UnitRange{Int} = 1:lastindex(labels)) where T = 
     _hist_add!(Dict{T,Int}(), labels, region)
 
 function _neg_z1_loss(labels::Vector, weights::Vector{T}) where T <: Real
@@ -65,15 +68,15 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     classes = sort(unique([actual; predicted]))
     N = length(classes)
     for i in 1:N
-        _actual[actual .== classes[i]] = i
-        _predicted[predicted .== classes[i]] = i
+        _actual[actual .== classes[i]] .= i
+        _predicted[predicted .== classes[i]] .= i
     end
     CM = zeros(Int,N,N)
     for i in zip(_actual, _predicted)
         CM[i[1],i[2]] += 1
     end
-    accuracy = trace(CM) / sum(CM)
-    prob_chance = (sum(CM,1) * sum(CM,2))[1] / sum(CM)^2
+    accuracy = LinearAlgebra.tr(CM) / sum(CM)
+    prob_chance = (sum(CM,dims=1) * sum(CM,dims=2))[1] / sum(CM)^2
     kappa = (accuracy - prob_chance) / (1.0 - prob_chance)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
@@ -94,11 +97,11 @@ function _nfoldCV(classifier::Symbol, labels, features, args...)
     end
     N = length(labels)
     ntest = _int(floor(N / nfolds))
-    inds = randperm(N)
+    inds = Random.randperm(N)
     accuracy = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
-        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
+        test_inds[(i - 1) * ntest + 1 : i * ntest] .= true
         train_inds = (!).(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]
@@ -144,6 +147,28 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
+# Pearson's Correlation Coefficient
+function cor(x, y)
+    @assert(length(x) == length(y))
+    @assert(length(x) > 1)
+
+    n = length(x)
+
+    x_mean = sum(x) / n
+    y_mean = sum(y) / n
+
+    x_centered = x .- x_mean
+    y_centered = y .- y_mean
+
+    x_var = sum(x_centered .^ 2) / (n - 1)
+    y_var = sum(y_centered .^ 2) / (n - 1)
+
+    xy_cov = sum(x_centered .* y_centered) / n
+
+    return xy_cov / sqrt(x_var * y_var)
+
+end
+
 function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args...) where T <: Float64
     nfolds = args[end]
     if nfolds < 2
@@ -159,11 +184,11 @@ function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args..
     end
     N = length(labels)
     ntest = _int(floor(N / nfolds))
-    inds = randperm(N)
+    inds = Random.randperm(N)
     R2s = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
-        test_inds[(i - 1) * ntest + 1 : i * ntest] = true
+        test_inds[(i - 1) * ntest + 1 : i * ntest] .= true
         train_inds = (!).(test_inds)
         test_features = features[inds[test_inds],:]
         test_labels = labels[inds[test_inds]]

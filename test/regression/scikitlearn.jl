@@ -1,6 +1,6 @@
 @testset "scikitlearn.jl" begin
 
-srand(2)
+Random.srand(2)
 n,m = 10^3, 5 ;
 features = rand(n,m);
 weights = rand(-1:1,m);
@@ -15,7 +15,7 @@ model = fit!(DecisionTreeRegressor(min_samples_split=5), features, labels)
 model = fit!(RandomForestRegressor(n_trees=10, min_samples_leaf=5, n_subfeatures=2), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
-srand(2)
+Random.srand(2)
 N = 3000
 X = randn(N, 10)
 y = randn(N)
@@ -25,7 +25,7 @@ model = fit!(DecisionTreeRegressor(max_depth=max_depth), X, y)
 
 
 ## Test that the RNG arguments work as expected
-srand(2)
+Random.srand(2)
 X = randn(100, 10)
 y = randn(100)
 @test fit_predict!(RandomForestRegressor(; rng=10), X, y) ==
