@@ -160,10 +160,10 @@ function cor(x, y)
     x_centered = x .- x_mean
     y_centered = y .- y_mean
 
-    x_var = sum(x_centered .^ 2) / (n - 1)
-    y_var = sum(y_centered .^ 2) / (n - 1)
+    x_var = sum(x_centered .^ 2)
+    y_var = sum(y_centered .^ 2)
 
-    xy_cov = sum(x_centered .* y_centered) / n
+    xy_cov = sum(x_centered .* y_centered)
 
     return xy_cov / sqrt(x_var * y_var)
 
