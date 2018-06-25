@@ -16,7 +16,7 @@ function show(io::IO, cm::ConfusionMatrix)
     show(io, cm.kappa)
 end
 
-function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange{Int})
+function _hist_add!(counts::Dict{T, Int}, labels::Vector{T}, region::UnitRange{Int}) where T
     for i in region
         lbl = labels[i]
         counts[lbl] = get(counts, lbl, 0) + 1
@@ -24,16 +24,16 @@ function _hist_add!{T}(counts::Dict{T,Int}, labels::Vector{T}, region::UnitRange
     return counts
 end
 
-_hist{T}(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) = 
+_hist(labels::Vector{T}, region::UnitRange{Int} = 1:endof(labels)) where T = 
     _hist_add!(Dict{T,Int}(), labels, region)
 
-function _neg_z1_loss{T<:Real}(labels::Vector, weights::Vector{T})
+function _neg_z1_loss(labels::Vector, weights::Vector{T}) where T <: Real
     missmatches = labels .!= majority_vote(labels)
     loss = sum(weights[missmatches])
     return -loss
 end
 
-function _weighted_error{T<:Real}(actual::Vector, predicted::Vector, weights::Vector{T})
+function _weighted_error(actual::Vector, predicted::Vector, weights::Vector{T}) where T <: Real
     mismatches = actual .!= predicted
     err = sum(weights[mismatches]) / sum(weights)
     return err
@@ -144,7 +144,7 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Matrix, args...)
+function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args...) where T <: Float64
     nfolds = args[end]
     if nfolds < 2
         return nothing
@@ -189,7 +189,10 @@ function _nfoldCV{T<:Float64}(regressor::Symbol, labels::Vector{T}, features::Ma
     return R2s
 end
 
-nfoldCV_tree{T<:Float64}(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer=5)      = _nfoldCV(:tree, labels, features, maxlabels, nfolds)
-nfoldCV_forest{T<:Float64}(labels::Vector{T}, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, maxlabels::Integer=5, partial_sampling=0.7)  = _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, maxlabels, partial_sampling, nfolds)
+nfoldCV_tree(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer = 5) where T <: Float64 =
+    _nfoldCV(:tree, labels, features, maxlabels, nfolds)
+
+nfoldCV_forest(labels::Vector{T}, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, maxlabels::Integer = 5, partial_sampling = 0.7) where T <: Float64 = 
+    _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, maxlabels, partial_sampling, nfolds)
 
 

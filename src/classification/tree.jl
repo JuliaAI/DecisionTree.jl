@@ -6,6 +6,7 @@
 
 module treeclassifier
     include("../util.jl")
+    import Random
 
     export fit
 
@@ -57,7 +58,7 @@ module treeclassifier
                      ncr                 :: Array{Int64}, # ncr maintains the counts of labels on the right
                      Xf                  :: Array{T},
                      Yf                  :: Array{Int64},
-                     rng                 :: AbstractRNG) where T <: Any
+                     rng                 :: Random.AbstractRNG) where T <: Any
         region = node.region
         n_samples = length(region)
         r_start = region.start - 1

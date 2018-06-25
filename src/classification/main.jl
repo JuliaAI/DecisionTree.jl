@@ -1,6 +1,8 @@
 # Utilities
 
+
 include("tree.jl")
+import Distributed
 
 # Returns a dict ("Label1" => 1, "Label2" => 2, "Label3" => 3, ...)
 label_index(labels) = Dict([Pair(v => k) for (k, v) in enumerate(labels)])
@@ -196,7 +198,8 @@ function build_forest(labels::Vector, features::Matrix, n_subfeatures=0, n_trees
     partial_sampling = partial_sampling > 1.0 ? 1.0 : partial_sampling
     Nlabels = length(labels)
     Nsamples = _int(partial_sampling * Nlabels)
-    forest = @parallel (vcat) for i in 1:n_trees
+
+    forest = @Distributed.distributed (vcat) for i in 1:n_trees
         inds = rand(rng, 1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], n_subfeatures, max_depth;
                    rng=rng)

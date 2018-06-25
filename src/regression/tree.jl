@@ -7,6 +7,7 @@
 module treeregressor
     include("../util.jl")
 
+    import Random
     export fit
 
     mutable struct NodeMeta
@@ -47,7 +48,7 @@ module treeregressor
                      # the two arrays below are given for optimization purposes
                      Xf                  :: Array{T},
                      Yf                  :: Array{Float64},
-                     rng                 :: AbstractRNG) where T <: Any
+                     rng                 :: Random.AbstractRNG) where T <: Any
 
         region = node.region
         n_samples = length(region)
