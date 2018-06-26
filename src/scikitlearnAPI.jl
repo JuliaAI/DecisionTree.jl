@@ -1,6 +1,6 @@
 import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
                         fit!, get_classes, @declare_hyperparameters
-
+import Random
 ################################################################################
 # Classifier
 
@@ -11,7 +11,8 @@ import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
                            min_samples_split::Int=2,
                            min_purity_increase::Float=0.0,
                            n_subfeatures::Int=0,
-                           rng=Base.GLOBAL_RNG)
+                           rng=Random.GLOBAL_RNG)
+
 Decision tree classifier. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -34,11 +35,11 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     min_samples_split::Int
     min_purity_increase::Float64
     n_subfeatures::Int
-    rng::AbstractRNG
-    root::Union{LeafOrNode, Void}
-    classes::Union{Vector, Void}
+    rng::Random.Random.AbstractRNG
+    root::Union{LeafOrNode, Nothing}
+    classes::Union{Vector, Nothing}
     DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
-                           min_purity_increase=0.0, n_subfeatures=0, rng=Base.GLOBAL_RNG, root=nothing, classes=nothing) =
+                           min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing, classes=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
             min_purity_increase, n_subfeatures, mk_rng(rng), root, classes)
 end
@@ -87,7 +88,7 @@ end
                           min_samples_split::Int=2,
                           min_purity_increase::Float=0.0,
                           n_subfeatures::Int=0,
-                          rng=Base.GLOBAL_RNG)
+                          rng=Random.GLOBAL_RNG)
 Decision tree regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -110,10 +111,10 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
     min_samples_split::Int
     min_purity_increase::Float64
     n_subfeatures::Int
-    rng::AbstractRNG
-    root::Union{LeafOrNode, Void}
+    rng::Random.AbstractRNG
+    root::Union{LeafOrNode, Nothing}
     DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
-                          min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Base.GLOBAL_RNG, root=nothing) =
+                          min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf,
             min_samples_split, min_purity_increase, n_subfeatures, mk_rng(rng), root)
 end
@@ -152,7 +153,7 @@ end
                            n_trees::Int=10,
                            partial_sampling::Float=0.7,
                            max_depth::Int=-1,
-                           rng=Base.GLOBAL_RNG)
+                           rng=Random.GLOBAL_RNG)
 Random forest classification. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -171,11 +172,11 @@ mutable struct RandomForestClassifier <: BaseClassifier
     n_trees::Int
     partial_sampling::Float64
     max_depth::Int
-    rng::AbstractRNG
-    ensemble::Union{Ensemble, Void}
-    classes::Union{Vector, Void}
+    rng::Random.AbstractRNG
+    ensemble::Union{Ensemble, Nothing}
+    classes::Union{Vector, Nothing}
     RandomForestClassifier(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
-                           max_depth=-1, rng=Base.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
+                           max_depth=-1, rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, mk_rng(rng), ensemble, classes)
 end
 
@@ -215,7 +216,7 @@ end
                           partial_sampling::Float=0.7,
                           max_depth::Int=-1,
                           min_samples_leaf::Int=5,
-                          rng=Base.GLOBAL_RNG)
+                          rng=Random.GLOBAL_RNG)
 Random forest regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -236,10 +237,10 @@ mutable struct RandomForestRegressor <: BaseRegressor
     partial_sampling::Float64
     max_depth::Int
     min_samples_leaf::Int
-    rng::AbstractRNG
-    ensemble::Union{Ensemble, Void}
+    rng::Random.AbstractRNG
+    ensemble::Union{Ensemble, Nothing}
     RandomForestRegressor(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
-                            max_depth=-1, min_samples_leaf=5, rng=Base.GLOBAL_RNG, ensemble=nothing) =
+                            max_depth=-1, min_samples_leaf=5, rng=Random.GLOBAL_RNG, ensemble=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, mk_rng(rng), ensemble)
 end
 
@@ -287,11 +288,11 @@ Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
     n_iterations::Int
-    rng::AbstractRNG
-    ensemble::Union{Ensemble, Void}
-    coeffs::Union{Vector{Float64}, Void}
-    classes::Union{Vector, Void}
-    AdaBoostStumpClassifier(; n_iterations=10, rng=Base.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
+    rng::Random.AbstractRNG
+    ensemble::Union{Ensemble, Nothing}
+    coeffs::Union{Vector{Float64}, Nothing}
+    classes::Union{Vector, Nothing}
+    AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
         new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
 end
 @declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng])

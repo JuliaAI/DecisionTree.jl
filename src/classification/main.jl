@@ -1,9 +1,12 @@
 # Utilities
 
+
 include("tree.jl")
+import Distributed
+import Random
 
 # Returns a dict ("Label1" => 1, "Label2" => 2, "Label3" => 3, ...)
-label_index(labels) = Dict([Pair(v => k) for (k, v) in enumerate(labels)])
+label_index(labels) = Dict(v => k for (k, v) in enumerate(labels))
 
 ## Helper function. Counts the votes.
 ## Returns a vector of probabilities (eg. [0.2, 0.6, 0.2]) which is in the same
@@ -26,7 +29,7 @@ end
 function stack_function_results(row_fun::Function, X::Matrix)
     N = size(X, 1)
     N_cols = length(row_fun(X[1, :])) # gets the number of columns
-    out = Array{Float64}(N, N_cols)
+    out = Array{Float64}(undef, N, N_cols)
     for i in 1:N
         out[i, :] = row_fun(X[i, :])
     end
@@ -53,7 +56,7 @@ function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
 end
 
 function build_stump(labels::Vector, features::Matrix, weights=[0];
-                     rng=Base.GLOBAL_RNG)
+                     rng=Random.GLOBAL_RNG)
     if weights == [0]
         return build_tree(labels, features, 0, 1)
     end
@@ -72,8 +75,8 @@ end
 
 function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,
                     min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0; 
-                    rng=Base.GLOBAL_RNG)
-    rng = mk_rng(rng)::AbstractRNG
+                    rng=Random.GLOBAL_RNG)
+    rng = mk_rng(rng)::Random.AbstractRNG
     if max_depth < -1
         error("Unexpected value for max_depth: $(max_depth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
     end
@@ -121,7 +124,7 @@ function prune_tree(tree::LeafOrNode, purity_thresh=1.0)
         elseif N == 2    ## a stump
             all_labels = [tree.left.values; tree.right.values]
             majority = majority_vote(all_labels)
-            matches = find(all_labels .== majority)
+            matches = findall(all_labels .== majority)
             purity = length(matches) / length(all_labels)
             if purity >= purity_thresh
                 return Leaf(majority, all_labels)
@@ -156,7 +159,7 @@ end
 
 function apply_tree(tree::LeafOrNode, features::Matrix)
     N = size(features,1)
-    predictions = Array{Any}(N)
+    predictions = Array{Any}(undef, N)
     for i in 1:N
         predictions[i] = apply_tree(tree, features[i, :])
     end
@@ -191,12 +194,13 @@ end
 apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
-function build_forest(labels::Vector, features::Matrix, n_subfeatures=0, n_trees=10, partial_sampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
-    rng = mk_rng(rng)::AbstractRNG
+function build_forest(labels::Vector, features::Matrix, n_subfeatures=0, n_trees=10, partial_sampling=0.7, max_depth=-1; rng=Random.GLOBAL_RNG)
+    rng = mk_rng(rng)::Random.AbstractRNG
     partial_sampling = partial_sampling > 1.0 ? 1.0 : partial_sampling
     Nlabels = length(labels)
     Nsamples = _int(partial_sampling * Nlabels)
-    forest = @parallel (vcat) for i in 1:n_trees
+
+    forest = @Distributed.distributed (vcat) for i in 1:n_trees
         inds = rand(rng, 1:Nlabels, Nsamples)
         build_tree(labels[inds], features[inds,:], n_subfeatures, max_depth;
                    rng=rng)
@@ -206,7 +210,7 @@ end
 
 function apply_forest(forest::Ensemble, features::Vector)
     n_trees = length(forest)
-    votes = Array{Any}(n_trees)
+    votes = Array{Any}(undef, n_trees)
     for i in 1:n_trees
         votes[i] = apply_tree(forest.trees[i], features)
     end
@@ -219,7 +223,7 @@ end
 
 function apply_forest(forest::Ensemble, features::Matrix)
     N = size(features,1)
-    predictions = Array{Any}(N)
+    predictions = Array{Any}(undef, N)
     for i in 1:N
         predictions[i] = apply_forest(forest, features[i, :])
     end
@@ -247,7 +251,7 @@ apply_forest_proba(forest::Ensemble, features::Matrix, labels) =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 
-function build_adaboost_stumps(labels::Vector, features::Matrix, n_iterations::Integer; rng=Base.GLOBAL_RNG)
+function build_adaboost_stumps(labels::Vector, features::Matrix, n_iterations::Integer; rng=Random.GLOBAL_RNG)
     N = length(labels)
     weights = ones(N) / N
     stumps = Node[]
@@ -290,7 +294,7 @@ end
 
 function apply_adaboost_stumps(stumps::Ensemble, coeffs::Vector{Float64}, features::Matrix)
     N = size(features,1)
-    predictions = Array{Any}(N)
+    predictions = Array{Any}(undef, N)
     for i in 1:N
         predictions[i] = apply_adaboost_stumps(stumps, coeffs, features[i,:])
     end

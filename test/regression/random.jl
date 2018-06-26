@@ -1,9 +1,9 @@
 @testset "random.jl" begin
 
-srand(5)
+Random.srand(5)
 
 n, m = 10^3, 5 ;
-features = Array{Any}(n, m);
+features = Array{Any}(undef, n, m);
 features[:,:] = randn(n, m);
 features[:,1] = round.(Integer, features[:,1]); # convert a column of integers
 weights = rand(-2:2,m);
@@ -29,7 +29,7 @@ min_samples_leaf = 5; max_depth = 3; n_subfeatures = 0;
 model = build_tree(labels, features, min_samples_leaf, n_subfeatures, max_depth)
 @test depth(model) == max_depth
 
-min_samples_leaf = 1; n_subfeatures = 0; max_depth = -1; min_samples_split = 100;
+min_samples_leaf = 1; n_subfeatures = 0; max_depth = -1; min_samples_split = 300;
 model = build_tree(labels, features, min_samples_leaf, n_subfeatures, max_depth, min_samples_split)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8

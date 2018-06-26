@@ -1,6 +1,6 @@
 @testset "scikitlearn.jl" begin
 
-srand(2)
+Random.srand(2)
 n,m = 10^3, 5 ;
 features = rand(n,m);
 weights = rand(-1:1,m);
@@ -18,7 +18,7 @@ model = fit!(AdaBoostStumpClassifier(), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
 mean(predict(model, features) .== labels)
 
-srand(2)
+Random.srand(2)
 N = 3000
 X = randn(N, 10)
 # TODO: we should probably support fit!(::DecisionTreeClassifier, ::BitArray)
@@ -29,7 +29,7 @@ model = fit!(DecisionTreeClassifier(max_depth=max_depth), X, y)
 
 
 ## Test that the RNG arguments work as expected
-srand(2)
+Random.srand(2)
 X = randn(100, 10)
 y = rand(Bool, 100);
 

@@ -2,12 +2,12 @@
 
 @testset "parallel.jl" begin
 
-addprocs(1)
-@test nprocs() > 1
+Distributed.addprocs(1)
+@test Distributed.nprocs() > 1
 
-@everywhere using DecisionTree
+@Distributed.everywhere using DecisionTree
 
-srand(16)
+Random.srand(16)
 
 # Classification
 n,m = 10^3, 5;

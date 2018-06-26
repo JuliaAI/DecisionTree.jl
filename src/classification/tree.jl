@@ -6,6 +6,7 @@
 
 module treeclassifier
     include("../util.jl")
+    import Random
 
     export fit
 
@@ -57,7 +58,7 @@ module treeclassifier
                      ncr                 :: Array{Int64}, # ncr maintains the counts of labels on the right
                      Xf                  :: Array{T},
                      Yf                  :: Array{Int64},
-                     rng                 :: AbstractRNG) where T <: Any
+                     rng                 :: Random.AbstractRNG) where T <: Any
         region = node.region
         n_samples = length(region)
         r_start = region.start - 1
@@ -69,7 +70,7 @@ module treeclassifier
             @inbounds nc[Y[indX[i]]] += 1
         end
 
-        node.label = indmax(nc)
+        node.label = argmax(nc)
 
         if (min_samples_leaf * 2  >  n_samples
          || min_samples_split     >  n_samples
@@ -96,7 +97,6 @@ module treeclassifier
         # only sample n_features used features
         # is a hypergeometric random variable
         total_features = size(X, 2)
-
         # this is the total number of features that we expect to not
         # be one of the known constant features. since we know exactly
         # what the non constant features are, we can sample at 'non_constants_used'
@@ -127,6 +127,7 @@ module treeclassifier
             nl, nr = 0, n_samples
             lo, hi = 0, 0
             is_constant = true
+            last_f = Xf[1]
             while hi < n_samples
                 lo = hi + 1
                 curr_f = Xf[lo]
@@ -279,7 +280,7 @@ module treeclassifier
             label_dict[label_list[i]] = i
         end
 
-        _Y = Array{Int64}(length(Y))
+        _Y = Array{Int64}(undef, length(Y))
         @inbounds for i in 1:length(Y)
             _Y[i] = label_dict[Y[i]]
         end
@@ -294,7 +295,7 @@ module treeclassifier
                  min_samples_leaf    :: Int64,
                  min_samples_split   :: Int64,
                  min_purity_increase :: Float64;
-                 rng=Base.GLOBAL_RNG :: AbstractRNG) where T <: Any
+                 rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where T <: Any
         n_samples, n_features = size(X)
         label_list, _Y = assign(Y)
         n_classes = Int64(length(label_list))
@@ -312,11 +313,11 @@ module treeclassifier
         end
         stack = NodeMeta[ tree.root ]
 
-        nc  = Array{Int64}(n_classes)
-        ncl = Array{Int64}(n_classes)
-        ncr = Array{Int64}(n_classes)
-        Xf  = Array{T}(n_samples)
-        Yf  = Array{Int64}(n_samples)
+        nc  = Array{Int64}(undef, n_classes)
+        ncl = Array{Int64}(undef, n_classes)
+        ncr = Array{Int64}(undef, n_classes)
+        Xf  = Array{T}(undef, n_samples)
+        Yf  = Array{Int64}(undef, n_samples)
         @inbounds while length(stack) > 0
             node = pop!(stack)
             _split!(
