@@ -3,7 +3,6 @@ os:
   - linux
 julia:
   - 0.6
-  - nightly
 notifications:
   email: false
 sudo: false
