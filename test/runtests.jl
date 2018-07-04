@@ -41,9 +41,6 @@ test_suites = [
     ("Miscellaneous", miscellaneous),
 ]
 
-include("bench/trees.jl")
-
-
 @testset "Test Suites" begin
     for ts in 1:length(test_suites)
         name = test_suites[ts][1]
