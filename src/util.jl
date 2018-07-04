@@ -147,12 +147,12 @@ module util
 
 
     # The code function below is a small port from numpy's library
-    # library which is distributed under the 3-Clause BSD license. 
-    # The rest of DecisionTree.jl is released under the MIT license. 
+    # library which is distributed under the 3-Clause BSD license.
+    # The rest of DecisionTree.jl is released under the MIT license.
 
     # ported by Poom Chiarawongse <eight1911@gmail.com>
 
-    # this is the code for efficient generation 
+    # this is the code for efficient generation
     # of hypergeometric random variables ported from numpy.random
     function hypergeometric(good, bad, sample, rng)
 
@@ -174,7 +174,7 @@ module util
             gl0 = gl0 * x2 - 1.917526917526918e-03
             gl0 = gl0 * x2 + 8.417508417508418e-04
             gl0 = gl0 * x2 - 5.952380952380952e-04
-            gl0 = gl0 * x2 + 7.936507936507937e-04 
+            gl0 = gl0 * x2 + 7.936507936507937e-04
             gl0 = gl0 * x2 - 2.777777777777778e-03
             gl0 = gl0 * x2 + 8.333333333333333e-02
             gl = gl0/x0 + 0.5*log(xp) + (x0-0.5)*log(x0) - x0
@@ -206,7 +206,7 @@ module util
             else
                 Z
             end
-        end 
+        end
 
         @inline function hypergeometric_hrua(good, bad, sample)
             mingoodbad = min(good, bad)

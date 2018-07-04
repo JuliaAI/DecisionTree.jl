@@ -35,7 +35,7 @@ function build_tree(
         min_samples_split   = Int64(min_samples_split),
         min_purity_increase = Float64(min_purity_increase),
         rng                 = rng)
-    
+
     function _convert(node::treeregressor.NodeMeta, labels::Array)
         if node.is_leaf
             return Leaf(node.label, labels[node.region])

@@ -1,5 +1,6 @@
+include("../src/DecisionTree.jl")
 using ScikitLearnBase
-using DecisionTree
+using Main.DecisionTree
 using Test
 
 import Distributed
@@ -34,15 +35,21 @@ miscellaneous =  [
 test_suites = [
     ("Classification", classification),
     ("Regression", regression),
-    ("Miscellaneous", miscellaneous)
+    ("Miscellaneous", miscellaneous),
 ]
+
+include("bench/trees.jl")
+
 
 @testset "Test Suites" begin
     for ts in 1:length(test_suites)
         name = test_suites[ts][1]
         list = test_suites[ts][2]
-        @testset "$name" begin
-            run_tests(list)
+        let
+            @testset "$name" begin
+                run_tests(list)
+            end
         end
     end
 end
+

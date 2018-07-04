@@ -192,7 +192,7 @@ function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
     rf
 end
 
-predict_proba(rf::RandomForestClassifier, X) = 
+predict_proba(rf::RandomForestClassifier, X) =
     apply_forest_proba(rf.ensemble, X, rf.classes)
 
 predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)

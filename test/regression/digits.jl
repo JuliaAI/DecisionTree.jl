@@ -3,7 +3,7 @@
 function loaddata()
     f = open("data/digits.csv")
     data = readlines(f)[2:end]
-    data = [[parse(Float32, i) 
+    data = [[parse(Float32, i)
         for i in split(row, ",")]
         for row in data]
     data = hcat(data...)

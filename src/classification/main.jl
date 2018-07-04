@@ -71,7 +71,7 @@ end
 function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,
                     min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0;
                     rng=Random.GLOBAL_RNG)
-    
+
     if max_depth == -1
         max_depth = typemax(Int64)
     end
