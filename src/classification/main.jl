@@ -57,6 +57,7 @@ end
 
 function build_stump(labels::Vector, features::Matrix, weights=[0];
                      rng=Random.GLOBAL_RNG)
+    #=
     if weights == [0]
         return build_tree(labels, features, 0, 1)
     end
@@ -71,6 +72,32 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
     return Node(id, thresh,
                 Leaf(majority_vote(l_labels), l_labels),
                 Leaf(majority_vote(r_labels), r_labels))
+    =#
+    if weights == [0]
+        weights = nothing
+    end
+
+    t = treeclassifier.fit_zero_one(
+        X                   = features,
+        Y                   = labels,
+        W                   = weights,
+        max_features        = size(features, 2),
+        max_depth           = 1,
+        min_samples_leaf    = 1,
+        min_samples_split   = 2,
+        min_purity_increase = 0.0,
+        rng                 = rng)
+    test = []
+    function _convert(node::treeclassifier.NodeMeta, labels::Array)
+        if node.is_leaf
+            return Leaf(labels[node.label], test)
+        else
+            left = _convert(node.l, labels)
+            right = _convert(node.r, labels)
+            return Node(node.feature, node.threshold, left, right)
+        end
+    end
+    return _convert(t.root, t.list)
 end
 
 function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,

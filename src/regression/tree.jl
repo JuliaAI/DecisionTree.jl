@@ -6,6 +6,7 @@
 
 # TODO: Test weights support
 # TODO: Add min_weights_leaf prepruning
+# TODO: Add tests for build_stumps
 
 module treeregressor
     include("../util.jl")

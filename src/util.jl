@@ -3,12 +3,12 @@
 
 module util
 
-    export gini, entropy, loss01, q_bi_sort!, hypergeometric
+    export gini, entropy, zero_one, q_bi_sort!, hypergeometric
 
     # returns the gini purity of ns/n
 
-    @inline function loss01(ns, n)
-        return 1.0 - max(ns) / n
+    @inline function zero_one(ns, n)
+        return 1.0 - maximum(ns) / n
     end
 
     @inline function gini(ns, n)

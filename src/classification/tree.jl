@@ -6,13 +6,13 @@
 
 # TODO: Test weights support
 # TODO: Add min_weights_leaf prepruning
-# Add options for different purity criterion
+# TODO: add options for different purity criterions
 
 module treeclassifier
     include("../util.jl")
     import Random
 
-    export fit
+    export fit, fit_zero_one
 
     mutable struct NodeMeta{S}
         l           :: NodeMeta{S} # right child
@@ -380,6 +380,46 @@ module treeclassifier
             Y                   = Y_,
             W                   = W,
             loss                = util.entropy,
+            n_classes           = length(label_list),
+            max_features        = max_features,
+            max_depth           = max_depth,
+            min_samples_leaf    = min_samples_leaf,
+            min_samples_split   = min_samples_split,
+            min_purity_increase = min_purity_increase,
+            rng                 = rng)
+        return Tree{S, T}(root, label_list, indX)
+
+    end
+
+    function fit_zero_one(;
+            X                     :: Matrix{S},
+            Y                     :: Vector{T},
+            W                     :: Union{Nothing, Vector{U}},
+            max_features          :: Int64,
+            max_depth             :: Int64,
+            min_samples_leaf      :: Int64,
+            min_samples_split     :: Int64,
+            min_purity_increase   :: Float64,
+            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
+        n_samples, n_features = size(X)
+        label_list, Y_ = assign(Y)
+        if W == nothing
+            W = fill(1.0, n_samples)
+        end
+
+        check_input(
+            X, Y, W,
+            max_features,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase)
+
+        root, indX = _fit(
+            X                   = X,
+            Y                   = Y_,
+            W                   = W,
+            loss                = util.zero_one,
             n_classes           = length(label_list),
             max_features        = max_features,
             max_depth           = max_depth,
