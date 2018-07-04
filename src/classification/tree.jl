@@ -84,8 +84,7 @@ module treeclassifier
         if (min_samples_leaf * 2 >  n_samples
          || min_samples_split    >  n_samples
          || max_depth            <= node.depth
-         || nt - nc[node.label]  == 0)
-            #node.labels = nc[:]
+         || nc[node.label]       == nt)
             node.is_leaf = true
             return
         end
@@ -198,7 +197,6 @@ module treeclassifier
         # no splits honor min_samples_leaf
         @inbounds if (unsplittable
             || (best_purity / nt + util.entropy(nc, nt) < min_purity_increase))
-            # node.labels = nc[:]
             node.is_leaf = true
             return
         else
@@ -233,14 +231,15 @@ module treeclassifier
         node.r = NodeMeta{S}(features, region[ind+1:end], node.depth + 1)
     end
 
-    function check_input(X                   :: Matrix{S},
-                         Y                   :: Vector{T},
-                         W                   :: Vector{U},
-                         max_features        :: Int64,
-                         max_depth           :: Int64,
-                         min_samples_leaf    :: Int64,
-                         min_samples_split   :: Int64,
-                         min_purity_increase :: Float64) where {S, T, U}
+    function check_input(
+            X                   :: Matrix{S},
+            Y                   :: Vector{T},
+            W                   :: Vector{U},
+            max_features        :: Int64,
+            max_depth           :: Int64,
+            min_samples_leaf    :: Int64,
+            min_samples_split   :: Int64,
+            min_purity_increase :: Float64) where {S, T, U}
         n_samples, n_features = size(X)
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
@@ -296,7 +295,7 @@ module treeclassifier
         return label_list, _Y
     end
 
-    function _fit(;
+    function _fit(
             X                     :: Matrix{S},
             Y                     :: Vector{Int64},
             W                     :: Vector{U},
@@ -310,6 +309,7 @@ module treeclassifier
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
         n_samples, n_features = size(X)
+
         nc  = Array{U}(undef, n_classes)
         ncl = Array{U}(undef, n_classes)
         ncr = Array{U}(undef, n_classes)
@@ -323,24 +323,15 @@ module treeclassifier
         @inbounds while length(stack) > 0
             node = pop!(stack)
             _split!(
-                X,
-                Y,
-                W,
-                loss,
-                node,
+                X, Y, W,
+                loss, node,
                 max_features,
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
                 min_purity_increase,
                 indX,
-                nc, 
-                ncl,
-                ncr,
-                Xf,
-                Yf,
-                Wf,
-                rng)
+                nc, ncl, ncr, Xf, Yf, Wf, rng)
             if !node.is_leaf
                 fork!(node)
                 push!(stack, node.r)
@@ -361,6 +352,7 @@ module treeclassifier
             min_samples_split     :: Int64,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
+
         n_samples, n_features = size(X)
         label_list, Y_ = assign(Y)
         if W == nothing
@@ -376,17 +368,16 @@ module treeclassifier
             min_purity_increase)
 
         root, indX = _fit(
-            X                   = X,
-            Y                   = Y_,
-            W                   = W,
-            loss                = util.entropy,
-            n_classes           = length(label_list),
-            max_features        = max_features,
-            max_depth           = max_depth,
-            min_samples_leaf    = min_samples_leaf,
-            min_samples_split   = min_samples_split,
-            min_purity_increase = min_purity_increase,
-            rng                 = rng)
+            X, Y_, W,
+            util.entropy,
+            length(label_list),
+            max_features,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            rng)
+
         return Tree{S, T}(root, label_list, indX)
 
     end
@@ -416,17 +407,16 @@ module treeclassifier
             min_purity_increase)
 
         root, indX = _fit(
-            X                   = X,
-            Y                   = Y_,
-            W                   = W,
-            loss                = util.zero_one,
-            n_classes           = length(label_list),
-            max_features        = max_features,
-            max_depth           = max_depth,
-            min_samples_leaf    = min_samples_leaf,
-            min_samples_split   = min_samples_split,
-            min_purity_increase = min_purity_increase,
-            rng                 = rng)
+            X, Y_, W,
+            util.zero_one,
+            length(label_list),
+            max_features,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            rng)
+
         return Tree{S, T}(root, label_list, indX)
 
     end

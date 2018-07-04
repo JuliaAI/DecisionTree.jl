@@ -17,7 +17,6 @@ module treeregressor
     mutable struct NodeMeta{S}
         l           :: NodeMeta{S} # right child
         r           :: NodeMeta{S} # left child
-        # labels    :: Array{Float64}
         label       :: Float64  # most likely label
         feature     :: Int64    # feature used for splitting
         threshold   :: Any      # threshold value
@@ -85,7 +84,7 @@ module treeregressor
         if (min_samples_leaf * 2 >  n_samples
          || min_samples_split    >  n_samples
          || max_depth            <= node.depth
-         # equivalent to old_purity > -1e-7
+          # equivalent to old_purity > -1e-7
          || tsum * node.label    > -1e-7 * wsum + tssq)
             # node.labels = Yf[1:n_samples] # TODO : Add Wf[1:n_samples] to this thing
             node.is_leaf = true
@@ -263,7 +262,7 @@ module treeregressor
         end
     end
 
-    function _fit(;
+    function _fit(
             X                     :: Matrix{S},
             Y                     :: Vector{Float64},
             W                     :: Vector{U},
@@ -323,7 +322,9 @@ module treeregressor
         end
 
         check_input(
-            X, Y, W,
+            X,
+            Y,
+            W,
             max_features,
             max_depth,
             min_samples_leaf,
@@ -331,15 +332,15 @@ module treeregressor
             min_purity_increase)
 
         root, indX = _fit(
-            X                   = X,
-            Y                   = Y,
-            W                   = W,
-            max_features        = max_features,
-            max_depth           = max_depth,
-            min_samples_leaf    = min_samples_leaf,
-            min_samples_split   = min_samples_split,
-            min_purity_increase = min_purity_increase,
-            rng                 = rng)
+            X,
+            Y,
+            W,
+            max_features,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            rng)
 
         return Tree{S}(root, indX)
 

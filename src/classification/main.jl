@@ -38,41 +38,8 @@ end
 
 ################################################################################
 
-function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
-    best = NO_BEST
-    best_val = -Inf
-    for i in 1:size(features,2)
-        domain_i = sort(unique(features[:,i]))
-        for thresh in domain_i[2:end]
-            cur_split = features[:,i] .< thresh
-            value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[(!).(cur_split)], weights[(!).(cur_split)])
-            if value > best_val
-                best_val = value
-                best = (i, thresh)
-            end
-        end
-    end
-    return best
-end
-
 function build_stump(labels::Vector, features::Matrix, weights=[0];
                      rng=Random.GLOBAL_RNG)
-    #=
-    if weights == [0]
-        return build_tree(labels, features, 0, 1)
-    end
-    S = _split_neg_z1_loss(labels, features, weights)
-    if S == NO_BEST
-        return Leaf(majority_vote(labels), labels)
-    end
-    id, thresh = S
-    left = features[:,id] .< thresh
-    l_labels = labels[left]
-    r_labels = labels[(!).(left)]
-    return Node(id, thresh,
-                Leaf(majority_vote(l_labels), l_labels),
-                Leaf(majority_vote(r_labels), r_labels))
-    =#
     if weights == [0]
         weights = nothing
     end
