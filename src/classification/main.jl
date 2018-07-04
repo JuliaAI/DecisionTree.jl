@@ -54,17 +54,18 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
         min_samples_split   = 2,
         min_purity_increase = 0.0,
         rng                 = rng)
-    test = []
-    function _convert(node::treeclassifier.NodeMeta, labels::Array)
+
+    function _convert(node::treeclassifier.NodeMeta, labels_list::Array, labels::Array)
         if node.is_leaf
-            return Leaf(labels[node.label], test)
+            return Leaf(labels_list[node.label], labels[node.region])
         else
-            left = _convert(node.l, labels)
-            right = _convert(node.r, labels)
+            left = _convert(node.l, labels_list, labels)
+            right = _convert(node.r, labels_list, labels)
             return Node(node.feature, node.threshold, left, right)
         end
     end
-    return _convert(t.root, t.list)
+
+    return _convert(t.root, t.list, labels[t.labels])
 end
 
 function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,
@@ -91,17 +92,17 @@ function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth
         min_purity_increase = Float64(min_purity_increase),
         rng                 = rng)
 
-    test = []
-    function _convert(node::treeclassifier.NodeMeta, labels::Array)
+    function _convert(node::treeclassifier.NodeMeta, labels_list::Array, labels::Array)
         if node.is_leaf
-            return Leaf(labels[node.label], test)
+            return Leaf(labels_list[node.label], labels[node.region])
         else
-            left = _convert(node.l, labels)
-            right = _convert(node.r, labels)
+            left = _convert(node.l, labels_list, labels)
+            right = _convert(node.r, labels_list, labels)
             return Node(node.feature, node.threshold, left, right)
         end
     end
-    return _convert(t.root, t.list)
+
+    return _convert(t.root, t.list, labels[t.labels])
 end
 
 function prune_tree(tree::LeafOrNode, purity_thresh=1.0)

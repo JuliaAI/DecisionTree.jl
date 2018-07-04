@@ -35,17 +35,17 @@ function build_tree(
         min_samples_split   = Int64(min_samples_split),
         min_purity_increase = Float64(min_purity_increase),
         rng                 = rng)
-    test = []
-    function _convert(node :: treeregressor.NodeMeta)
+    
+    function _convert(node::treeregressor.NodeMeta, labels::Array)
         if node.is_leaf
-            return Leaf(node.label, test)
+            return Leaf(node.label, labels[node.region])
         else
-            left = _convert(node.l)
-            right = _convert(node.r)
+            left = _convert(node.l, labels)
+            right = _convert(node.r, labels)
             return Node(node.feature, node.threshold, left, right)
         end
     end
-    return _convert(t.root)
+    return _convert(t.root, labels[t.labels])
 end
 
 function build_forest(
