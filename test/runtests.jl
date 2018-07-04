@@ -1,10 +1,13 @@
-include("../src/DecisionTree.jl")
 using ScikitLearnBase
-using Main.DecisionTree
+using DecisionTree
 using Test
 
 import Distributed
 import Random
+
+function mean(xs)
+    return sum(xs) / length(xs)
+end
 
 function run_tests(list)
     for test in list
