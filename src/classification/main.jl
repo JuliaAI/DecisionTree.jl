@@ -74,36 +74,33 @@ function build_stump(labels::Vector, features::Matrix, weights=[0];
 end
 
 function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,
-                    min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0; 
+                    min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0;
                     rng=Random.GLOBAL_RNG)
-    rng = mk_rng(rng)::Random.AbstractRNG
-    if max_depth < -1
-        error("Unexpected value for max_depth: $(max_depth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
-    end
+    
     if max_depth == -1
         max_depth = typemax(Int64)
     end
+
     if n_subfeatures == 0
         n_subfeatures = size(features, 2)
     end
-    min_samples_leaf = Int64(min_samples_leaf)
-    min_samples_split = Int64(min_samples_split)
-    min_purity_increase = Float64(min_purity_increase)
-    t = treeclassifier.fit(
-        features, labels, n_subfeatures, max_depth,
-        min_samples_leaf, min_samples_split, min_purity_increase, 
-        rng=rng)
 
-    function _convert(node :: treeclassifier.NodeMeta, labels :: Array)
+    rng = mk_rng(rng)::Random.AbstractRNG
+    t = treeclassifier.fit(
+        X                   = features,
+        Y                   = labels,
+        W                   = nothing,
+        max_features        = n_subfeatures,
+        max_depth           = max_depth,
+        min_samples_leaf    = Int64(min_samples_leaf),
+        min_samples_split   = Int64(min_samples_split),
+        min_purity_increase = Float64(min_purity_increase),
+        rng                 = rng)
+
+    test = []
+    function _convert(node::treeclassifier.NodeMeta, labels::Array)
         if node.is_leaf
-            distribution = []
-            for i in 1:length(node.labels)
-                counts = node.labels[i]
-                for _ in 1:counts
-                    push!(distribution, labels[i])
-                end
-            end
-            return Leaf(labels[node.label], distribution)
+            return Leaf(labels[node.label], test)
         else
             left = _convert(node.l, labels)
             right = _convert(node.r, labels)
