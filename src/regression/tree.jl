@@ -74,7 +74,7 @@ module treeregressor
         tssq = 0.0
         tsum = 0.0
         wsum = 0.0
-        @simd for i in 1:n_samples
+        @inbounds @simd for i in 1:n_samples
             tssq += Wf[i]*Yf[i]*Yf[i]
             tsum += Wf[i]*Yf[i]
             wsum += Wf[i]

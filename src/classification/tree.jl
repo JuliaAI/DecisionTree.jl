@@ -73,7 +73,7 @@ module treeclassifier
         n_classes = length(nc)
 
 
-        nc[:] .= 0
+        nc[:] .= zero(U)
         @simd for i in region
             @inbounds nc[Y[indX[i]]] += W[indX[i]]
         end
@@ -119,7 +119,7 @@ module treeclassifier
 
             # in the begining, every node is
             # on right of the threshold
-            ncl[:] .= 0
+            ncl[:] .= zero(U)
             ncr[:] = nc
 
             @simd for i in 1:n_samples
@@ -135,7 +135,7 @@ module treeclassifier
             end
 
             hi = 0
-            nl, nr = 0, nt
+            nl, nr = zero(U), nt
             is_constant = true
             last_f = Xf[1]
             while hi < n_samples
@@ -170,12 +170,12 @@ module treeclassifier
                         ncr[Yf[i]] -= Wf[i]
                     end
                 else
-                    ncr[:] .= 0
+                    ncr[:] .= zero(U)
                     @simd for i in (hi+1):n_samples
                         ncr[Yf[i]] += Wf[i]
                     end
                 end
-                nr = 0
+                nr = zero(U)
                 @simd for lab in 1:n_classes
                     nr += ncr[lab]
                     ncl[lab] = nc[lab] - ncr[lab]
@@ -391,7 +391,7 @@ module treeclassifier
             min_samples_leaf      :: Int64,
             min_samples_split     :: Int64,
             min_purity_increase   :: Float64,
-            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
+            rng=Random.GLOBAL_RNG :: Random.AbstractRNG)::Tree{S, T} where {S, T, U}
         n_samples, n_features = size(X)
         label_list, Y_ = assign(Y)
         if W == nothing
