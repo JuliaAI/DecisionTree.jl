@@ -26,6 +26,11 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
 
+model, coeffs = build_adaboost_stumps(labels, features, 15);
+preds = apply_adaboost_stumps(model, coeffs, features);
+cm = confusion_matrix(labels, preds)
+@test cm.accuracy > 0.7
+
 println("\n##### nfoldCV Classification Tree #####")
 accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 @test mean(accuracy) > 0.7
@@ -35,7 +40,7 @@ accuracy = nfoldCV_forest(labels, features, 2, 10, 3)
 @test mean(accuracy) > 0.7
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
-accuracy = nfoldCV_stumps(labels, features, 7, 3)
-@test mean(accuracy) > 0.5
+accuracy = nfoldCV_stumps(labels, features, 15, 3)
+@test mean(accuracy) > 0.7
 
 end # @testset

@@ -46,12 +46,14 @@ accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5);
 @test mean(accuracy) > 0.8
 
 # train adaptive-boosted decision stumps, using 7 iterations
-model, coeffs = build_adaboost_stumps(labels, features, 7);
+model, coeffs = build_adaboost_stumps(labels, features, 15);
 preds = apply_adaboost_stumps(model, coeffs, features);
+cm = confusion_matrix(labels, preds);
+@test cm.accuracy > 0.9
 
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
-accuracy = nfoldCV_stumps(labels, features, 7, 3);
-@test mean(accuracy) > 0.7
+accuracy = nfoldCV_stumps(labels, features, 15, 3);
+@test mean(accuracy) > 0.9
 
 end # @testset
