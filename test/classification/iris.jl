@@ -3,8 +3,10 @@
 
 @testset "iris.jl" begin
 
+import DelimitedFiles
+
 download("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data", "iris.csv")
-iris = readcsv("iris.csv");
+iris = DelimitedFiles.readdlm("iris.csv", ',');
 
 features = iris[:, 1:4];
 labels = iris[:, 5];
