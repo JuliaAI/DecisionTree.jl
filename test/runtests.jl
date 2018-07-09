@@ -5,6 +5,10 @@ using Test
 import Distributed
 import Random
 
+function mean(xs)
+    return sum(xs) / length(xs)
+end
+
 function run_tests(list)
     for test in list
         println("TEST: $test \n")
@@ -34,15 +38,18 @@ miscellaneous =  [
 test_suites = [
     ("Classification", classification),
     ("Regression", regression),
-    ("Miscellaneous", miscellaneous)
+    ("Miscellaneous", miscellaneous),
 ]
 
 @testset "Test Suites" begin
     for ts in 1:length(test_suites)
         name = test_suites[ts][1]
         list = test_suites[ts][2]
-        @testset "$name" begin
-            run_tests(list)
+        let
+            @testset "$name" begin
+                run_tests(list)
+            end
         end
     end
 end
+

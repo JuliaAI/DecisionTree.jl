@@ -38,79 +38,71 @@ end
 
 ################################################################################
 
-function _split_neg_z1_loss(labels::Vector, features::Matrix, weights::Vector)
-    best = NO_BEST
-    best_val = -Inf
-    for i in 1:size(features,2)
-        domain_i = sort(unique(features[:,i]))
-        for thresh in domain_i[2:end]
-            cur_split = features[:,i] .< thresh
-            value = _neg_z1_loss(labels[cur_split], weights[cur_split]) + _neg_z1_loss(labels[(!).(cur_split)], weights[(!).(cur_split)])
-            if value > best_val
-                best_val = value
-                best = (i, thresh)
-            end
-        end
-    end
-    return best
-end
-
 function build_stump(labels::Vector, features::Matrix, weights=[0];
                      rng=Random.GLOBAL_RNG)
     if weights == [0]
-        return build_tree(labels, features, 0, 1)
+        weights = nothing
     end
-    S = _split_neg_z1_loss(labels, features, weights)
-    if S == NO_BEST
-        return Leaf(majority_vote(labels), labels)
-    end
-    id, thresh = S
-    left = features[:,id] .< thresh
-    l_labels = labels[left]
-    r_labels = labels[(!).(left)]
-    return Node(id, thresh,
-                Leaf(majority_vote(l_labels), l_labels),
-                Leaf(majority_vote(r_labels), r_labels))
-end
 
-function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,
-                    min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0; 
-                    rng=Random.GLOBAL_RNG)
-    rng = mk_rng(rng)::Random.AbstractRNG
-    if max_depth < -1
-        error("Unexpected value for max_depth: $(max_depth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
-    end
-    if max_depth == -1
-        max_depth = typemax(Int64)
-    end
-    if n_subfeatures == 0
-        n_subfeatures = size(features, 2)
-    end
-    min_samples_leaf = Int64(min_samples_leaf)
-    min_samples_split = Int64(min_samples_split)
-    min_purity_increase = Float64(min_purity_increase)
-    t = treeclassifier.fit(
-        features, labels, n_subfeatures, max_depth,
-        min_samples_leaf, min_samples_split, min_purity_increase, 
-        rng=rng)
+    t = treeclassifier.fit_zero_one(
+        X                   = features,
+        Y                   = labels,
+        W                   = weights,
+        max_features        = size(features, 2),
+        max_depth           = 1,
+        min_samples_leaf    = 1,
+        min_samples_split   = 2,
+        min_purity_increase = 0.0,
+        rng                 = rng)
 
-    function _convert(node :: treeclassifier.NodeMeta, labels :: Array)
+    function _convert(node::treeclassifier.NodeMeta, labels_list::Array, labels::Array)
         if node.is_leaf
-            distribution = []
-            for i in 1:length(node.labels)
-                counts = node.labels[i]
-                for _ in 1:counts
-                    push!(distribution, labels[i])
-                end
-            end
-            return Leaf(labels[node.label], distribution)
+            return Leaf(labels_list[node.label], labels[node.region])
         else
-            left = _convert(node.l, labels)
-            right = _convert(node.r, labels)
+            left = _convert(node.l, labels_list, labels)
+            right = _convert(node.r, labels_list, labels)
             return Node(node.feature, node.threshold, left, right)
         end
     end
-    return _convert(t.root, t.list)
+
+    return _convert(t.root, t.list, labels[t.labels])
+end
+
+function build_tree(labels::Vector, features::Matrix, n_subfeatures=0, max_depth=-1,
+                    min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0;
+                    rng=Random.GLOBAL_RNG)
+
+    if max_depth == -1
+        max_depth = typemax(Int64)
+    end
+
+    if n_subfeatures == 0
+        n_subfeatures = size(features, 2)
+    end
+
+    rng = mk_rng(rng)::Random.AbstractRNG
+    t = treeclassifier.fit(
+        X                   = features,
+        Y                   = labels,
+        W                   = nothing,
+        max_features        = n_subfeatures,
+        max_depth           = max_depth,
+        min_samples_leaf    = Int64(min_samples_leaf),
+        min_samples_split   = Int64(min_samples_split),
+        min_purity_increase = Float64(min_purity_increase),
+        rng                 = rng)
+
+    function _convert(node::treeclassifier.NodeMeta, labels_list::Array, labels::Array)
+        if node.is_leaf
+            return Leaf(labels_list[node.label], labels[node.region])
+        else
+            left = _convert(node.l, labels_list, labels)
+            right = _convert(node.r, labels_list, labels)
+            return Node(node.feature, node.threshold, left, right)
+        end
+    end
+
+    return _convert(t.root, t.list, labels[t.labels])
 end
 
 function prune_tree(tree::LeafOrNode, purity_thresh=1.0)

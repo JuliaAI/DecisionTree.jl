@@ -6,7 +6,7 @@ features = rand(n,m);
 weights = rand(-1:1,m);
 labels = _int(features * weights);
 
-# I wish we could use ScikitLearn.jl's cross-validation, but that'd require 
+# I wish we could use ScikitLearn.jl's cross-validation, but that'd require
 # installing it on Travis
 model = fit!(DecisionTreeClassifier(pruning_purity_threshold=0.9), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8

@@ -27,7 +27,7 @@ function _hist_add!(counts::Dict{T, Int}, labels::Vector{T}, region::UnitRange{I
     return counts
 end
 
-_hist(labels::Vector{T}, region::UnitRange{Int} = 1:lastindex(labels)) where T = 
+_hist(labels::Vector{T}, region::UnitRange{Int} = 1:lastindex(labels)) where T =
     _hist_add!(Dict{T,Int}(), labels, region)
 
 function _neg_z1_loss(labels::Vector, weights::Vector{T}) where T <: Real
@@ -217,7 +217,7 @@ end
 nfoldCV_tree(labels::Vector{T}, features::Matrix, nfolds::Integer, maxlabels::Integer = 5) where T <: Float64 =
     _nfoldCV(:tree, labels, features, maxlabels, nfolds)
 
-nfoldCV_forest(labels::Vector{T}, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, maxlabels::Integer = 5, partial_sampling = 0.7) where T <: Float64 = 
+nfoldCV_forest(labels::Vector{T}, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, maxlabels::Integer = 5, partial_sampling = 0.7) where T <: Float64 =
     _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, maxlabels, partial_sampling, nfolds)
 
 

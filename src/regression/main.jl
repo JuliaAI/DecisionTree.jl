@@ -24,24 +24,28 @@ function build_tree(
     if n_subfeatures == 0
         n_subfeatures = size(features, 2)
     end
-    min_samples_leaf = Int64(min_samples_leaf)
-    min_samples_split = Int64(min_samples_split)
-    min_purity_increase = Float64(min_purity_increase)
-    t = treeregressor.fit(
-        features, labels, n_subfeatures, max_depth,
-        min_samples_leaf, min_samples_split, min_purity_increase, 
-        rng=rng)
 
-    function _convert(node :: treeregressor.NodeMeta)
+    t = treeregressor.fit(
+        X                   = features,
+        Y                   = labels,
+        W                   = nothing,
+        max_features        = n_subfeatures,
+        max_depth           = max_depth,
+        min_samples_leaf    = Int64(min_samples_leaf),
+        min_samples_split   = Int64(min_samples_split),
+        min_purity_increase = Float64(min_purity_increase),
+        rng                 = rng)
+
+    function _convert(node::treeregressor.NodeMeta, labels::Array)
         if node.is_leaf
-            return Leaf(node.label, node.labels)
+            return Leaf(node.label, labels[node.region])
         else
-            left = _convert(node.l)
-            right = _convert(node.r)
+            left = _convert(node.l, labels)
+            right = _convert(node.r, labels)
             return Node(node.feature, node.threshold, left, right)
         end
     end
-    return _convert(t)
+    return _convert(t.root, labels[t.labels])
 end
 
 function build_forest(

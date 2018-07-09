@@ -51,6 +51,10 @@ convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
+function mean(l)
+  return sum(l) / length(l)
+end
+
 ##############################
 ########## Includes ##########
 
