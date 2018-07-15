@@ -84,7 +84,7 @@ module treeregressor
             node.is_leaf = true
             return
         end
-    
+
         features = node.features
         n_features = length(features)
         best_purity = typemin(U)

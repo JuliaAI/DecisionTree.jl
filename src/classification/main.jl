@@ -39,15 +39,15 @@ end
 
 
 function _convert(
-        node        :: treeclassifier.NodeMeta{S},
-        labels_list :: Vector{T},
-        labels      :: Vector{T}) where {S, T}
+        node   :: treeclassifier.NodeMeta{S},
+        list   :: Vector{T},
+        labels :: Vector{T}) where {S, T}
 
     if node.is_leaf
-        return Leaf{T}(labels_list[node.label], labels[node.region])
+        return Leaf{T}(list[node.label], labels[node.region])
     else
-        left = _convert(node.l, labels_list, labels)
-        right = _convert(node.r, labels_list, labels)
+        left = _convert(node.l, list, labels)
+        right = _convert(node.r, list, labels)
         return Node{S, T}(node.feature, node.threshold, left, right)
     end
 end

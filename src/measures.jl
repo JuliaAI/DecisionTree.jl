@@ -223,7 +223,7 @@ function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args..
         elseif regressor == :forest
             max_depth = -1
             model = build_forest(
-                train_labels, 
+                train_labels,
                 train_features,
                 n_subfeatures,
                 n_trees,

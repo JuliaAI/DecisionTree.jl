@@ -5,6 +5,8 @@ using Test
 import Distributed
 import Random
 
+println("Julia version: ", VERSION)
+
 function mean(xs)
     return sum(xs) / length(xs)
 end
