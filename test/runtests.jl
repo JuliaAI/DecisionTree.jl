@@ -36,9 +36,9 @@ miscellaneous =  [
 ]
 
 test_suites = [
-    # ("Classification", classification),
+    ("Classification", classification),
     ("Regression", regression),
-    # ("Miscellaneous", miscellaneous),
+    ("Miscellaneous", miscellaneous),
 ]
 
 @testset "Test Suites" begin
