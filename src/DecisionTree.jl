@@ -3,7 +3,6 @@
 # TODO: test weights support for both regression and classification trees
 # TODO: add min_weights_leaf prepruning
 # TODO: add stricter typing for leaf and node api
-# TODO: fix prune_tree and add support for regression trees
 # TODO: add new options for user input purity criterions
 # TODO: optimize vectorization, e.g, changing `nc[:] .= 0` to loops
 # TODO: add postpruning option with comparison with validation data

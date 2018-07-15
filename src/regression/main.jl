@@ -58,6 +58,43 @@ function build_tree(
     return _convert(t.root, labels[t.labels])
 end
 
+function build_forest(
+        labels              :: Vector{T},
+        features            :: Matrix{S},
+        n_subfeatures       = 0,
+        n_trees             = 10,
+        partial_sampling    = 0.7,
+        max_depth           = -1,
+        min_samples_leaf    = 1,
+        min_samples_split   = 2,
+        min_purity_increase = 0.0;
+        rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
+
+    rng = mk_rng(rng)::Random.AbstractRNG
+    partial_sampling = max(1.0, partial_sampling)
+    rngs = Vector{Random.AbstractRNG}(undef, n_trees)
+    for i in 1:n_trees
+        rngs[i] = mk_rng(rand(rng, UInt))
+    end
+
+    t_samples = length(labels)
+    n_samples = _int(partial_sampling * t_samples)
+
+    forest = Distributed.@distributed (vcat) for i in 1:n_trees
+        inds = rand(rngs[i], 1:t_samples, n_samples)
+        build_tree(
+            labels[inds],
+            features[inds,:],
+            min_samples_leaf,
+            n_subfeatures,
+            max_depth,
+            min_samples_split,
+            min_purity_increase,
+            rng = rngs[i])
+    end
+
+    return Ensemble{S, T}(forest)
+end
 
 
 function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=0.0) where {S, T <: Float64}
@@ -96,43 +133,4 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=0.0) where {S, T <: Fl
 
     _, _, node = recurse(tree, purity_thresh)
     return node
-end
-
-
-function build_forest(
-        labels              :: Vector{T},
-        features            :: Matrix{S},
-        n_subfeatures       = 0,
-        n_trees             = 10,
-        partial_sampling    = 0.7,
-        max_depth           = -1,
-        min_samples_leaf    = 1,
-        min_samples_split   = 2,
-        min_purity_increase = 0.0;
-        rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
-
-    rng = mk_rng(rng)::Random.AbstractRNG
-    partial_sampling = max(1.0, partial_sampling)
-    rngs = Vector{Random.AbstractRNG}(undef, n_trees)
-    for i in 1:n_trees
-        rngs[i] = mk_rng(rand(rng, UInt))
-    end
-
-    t_samples = length(labels)
-    n_samples = _int(partial_sampling * t_samples)
-
-    forest = Distributed.@distributed (vcat) for i in 1:n_trees
-        inds = rand(rngs[i], 1:t_samples, n_samples)
-        build_tree(
-            labels[inds],
-            features[inds,:],
-            min_samples_leaf,
-            n_subfeatures,
-            max_depth,
-            min_samples_split,
-            min_purity_increase,
-            rng = rngs[i])
-    end
-
-    return Ensemble{S, T}(forest)
 end

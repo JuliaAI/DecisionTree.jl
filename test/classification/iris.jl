@@ -28,7 +28,7 @@ cm = confusion_matrix(labels, preds)
 print_tree(model)
 
 # prune tree: merge leaves having >= 90% combined purity (default: 100%)
-model = prune_tree(model, 0.9)
+model = prune_tree(model, -0.1)
 @test length(model) == 8
 
 # run n-fold cross validation for pruned tree
