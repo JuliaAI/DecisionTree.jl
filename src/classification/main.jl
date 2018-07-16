@@ -182,9 +182,7 @@ end
 apply_tree(leaf::Leaf, feature::Vector) = leaf.majority
 
 function apply_tree(tree::Node, features::Vector)
-    if tree.featval == nothing
-        return apply_tree(tree.left, features)
-    elseif features[tree.featid] < tree.featval
+    if features[tree.featid] < tree.featval
         return apply_tree(tree.left, features)
     else
         return apply_tree(tree.right, features)

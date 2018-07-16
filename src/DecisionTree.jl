@@ -1,4 +1,4 @@
-# TODO: add more tests, especially for weights
+# TODO: add more tests
 # TODO: implement gradient boost and adaboost for regression
 # TODO: test weights support for both regression and classification trees
 # TODO: add min_weights_leaf prepruning
