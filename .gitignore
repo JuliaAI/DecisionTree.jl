@@ -1,3 +1,4 @@
 
-
+*.csv
+styleguide.txt
 makefile

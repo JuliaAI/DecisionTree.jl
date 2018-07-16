@@ -5,7 +5,28 @@ module util
 
     export gini, entropy, zero_one, q_bi_sort!, hypergeometric
 
-    # returns the gini purity of ns/n
+    function assign(Y :: Vector{T}, list :: Vector{T}) where T
+        dict = Dict{T, Int}()
+        @simd for i in 1:length(list)
+            @inbounds dict[list[i]] = i
+        end
+
+        _Y = Array{Int}(undef, length(Y))
+        @simd for i in 1:length(Y)
+            @inbounds _Y[i] = dict[Y[i]]
+        end
+
+        return list, _Y
+    end
+
+    function assign(Y :: Vector{T}) where T
+        set = Set{T}()
+        for y in Y
+            push!(set, y)
+        end
+        list = collect(set)
+        return assign(Y, list)
+    end
 
     @inline function zero_one(ns, n)
         return 1.0 - maximum(ns) / n
@@ -193,7 +214,7 @@ module util
             Y = d2
             K = sample
             while Y > 0
-                Y -= floor(UInt64, rand(rng) + Y/(d1 + K))
+                Y -= floor(UInt, rand(rng) + Y/(d1 + K))
                 K -= 1
                 if K == 0
                     break
@@ -219,10 +240,10 @@ module util
             d7 = sqrt((popsize - m) * sample * d4 * d5 / (popsize - 1) + 0.5)
             # d8 = 2*sqrt(2/e) * d7 + (3 - 2*sqrt(3/e))
             d8 = 1.7155277699214135*d7 + 0.8989161620588988
-            d9 = floor(UInt64, (m + 1) * (mingoodbad + 1) / (popsize + 2))
+            d9 = floor(UInt, (m + 1) * (mingoodbad + 1) / (popsize + 2))
             d10 = (loggam(d9+1) + loggam(mingoodbad-d9+1) + loggam(m-d9+1) +
                    loggam(maxgoodbad-m+d9+1))
-            d11 = min(m+1, mingoodbad+1, floor(UInt64, d6+16*d7))
+            d11 = min(m+1, mingoodbad+1, floor(UInt, d6+16*d7))
 
             while true
                 X = rand(rng)
@@ -230,7 +251,7 @@ module util
                 W = d6 + d8*(Y - 0.5)/X
 
                 (W < 0.0 || W >= d11) && continue
-                Z = floor(Int64, W)
+                Z = floor(Int, W)
                 T = d10 - (loggam(Z+1) + loggam(mingoodbad-Z+1) + loggam(m-Z+1) +
                            loggam(maxgoodbad-m+Z+1))
                 (X*(4.0-X)-3.0) <= T && break

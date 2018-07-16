@@ -5,7 +5,7 @@ import Random
 # Classifier
 
 """
-    DecisionTreeClassifier(; pruning_purity_threshold=1.0,
+    DecisionTreeClassifier(; pruning_purity_threshold=0.0,
                            max_depth::Int=-1,
                            min_samples_leaf::Int=1,
                            min_samples_split::Int=2,
@@ -50,10 +50,17 @@ get_classes(dt::DecisionTreeClassifier) = dt.classes
                           :min_samples_split, :min_purity_increase, :rng])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
-    dt.root = build_tree(y, X, dt.n_subfeatures, dt.max_depth, dt.min_samples_leaf, dt.min_samples_split, dt.min_purity_increase; rng=dt.rng)
-    if dt.pruning_purity_threshold < 1.0
-        dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
-    end
+    n_samples, n_features = size(X)
+    dt.root = build_tree(
+        y, X,
+        dt.n_subfeatures,
+        dt.max_depth,
+        dt.min_samples_leaf,
+        dt.min_samples_split,
+        dt.min_purity_increase;
+        rng = dt.rng)
+
+    dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt.classes = sort(unique(y))
     dt
 end
@@ -82,7 +89,7 @@ end
 # Regression
 
 """
-    DecisionTreeRegressor(; pruning_purity_threshold=1.0,
+    DecisionTreeRegressor(; pruning_purity_threshold=0.0,
                           max_depth::Int-1,
                           min_samples_leaf::Int=5,
                           min_samples_split::Int=2,
@@ -115,8 +122,14 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
     root::Union{LeafOrNode, Nothing}
     DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
                           min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing) =
-        new(pruning_purity_threshold, max_depth, min_samples_leaf,
-            min_samples_split, min_purity_increase, n_subfeatures, mk_rng(rng), root)
+        new(pruning_purity_threshold,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            n_subfeatures,
+            mk_rng(rng),
+            root)
 end
 
 @declare_hyperparameters(DecisionTreeRegressor,
@@ -124,11 +137,17 @@ end
                           :max_depth, :min_samples_split, :min_purity_increase, :rng])
 
 function fit!(dt::DecisionTreeRegressor, X::Matrix, y::Vector)
-    dt.root = build_tree(float.(y), X, dt.min_samples_leaf,
-                         dt.n_subfeatures, dt.max_depth, dt.min_samples_split, dt.min_purity_increase; rng=dt.rng)
-    if dt.pruning_purity_threshold < 1.0
-        dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
-    end
+    n_samples, n_features = size(X)
+    dt.root = build_tree(
+        Float64.(y), X,
+        dt.min_samples_leaf,
+        dt.n_subfeatures,
+        dt.max_depth,
+        dt.min_samples_split,
+        dt.min_purity_increase;
+        rng = dt.rng)
+    dt.pruning_purity_threshold
+    dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt
 end
 
@@ -176,7 +195,7 @@ mutable struct RandomForestClassifier <: BaseClassifier
     ensemble::Union{Ensemble, Nothing}
     classes::Union{Vector, Nothing}
     RandomForestClassifier(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
-                           max_depth=-1, rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
+                           max_depth=typemax(Int64), rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, mk_rng(rng), ensemble, classes)
 end
 
@@ -186,8 +205,14 @@ get_classes(rf::RandomForestClassifier) = rf.classes
                           :rng])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
-    rf.ensemble = build_forest(y, X, rf.n_subfeatures, rf.n_trees,
-                               rf.partial_sampling, rf.max_depth; rng=rf.rng)
+    n_samples, n_features = size(X)
+    rf.ensemble = build_forest(
+        y, X,
+        rf.n_subfeatures,
+        rf.n_trees,
+        rf.partial_sampling,
+        rf.max_depth,
+        rng = rf.rng)
     rf.classes = sort(unique(y))
     rf
 end
@@ -240,7 +265,7 @@ mutable struct RandomForestRegressor <: BaseRegressor
     rng::Random.AbstractRNG
     ensemble::Union{Ensemble, Nothing}
     RandomForestRegressor(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
-                            max_depth=-1, min_samples_leaf=5, rng=Random.GLOBAL_RNG, ensemble=nothing) =
+                            max_depth=typemax(Int64), min_samples_leaf=5, rng=Random.GLOBAL_RNG, ensemble=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, mk_rng(rng), ensemble)
 end
 
@@ -251,9 +276,14 @@ end
                           :max_depth, :rng])
 
 function fit!(rf::RandomForestRegressor, X::Matrix, y::Vector)
-    rf.ensemble = build_forest(float.(y), X, rf.n_subfeatures,
-                               rf.n_trees, rf.min_samples_leaf, rf.partial_sampling,
-                               rf.max_depth; rng=rf.rng)
+    n_samples, n_features = size(X)
+    rf.ensemble = build_forest(
+        y, X,
+        rf.n_subfeatures,
+        rf.n_trees,
+        rf.partial_sampling,
+        rf.max_depth,
+        rng = rf.rng)
     rf
 end
 
@@ -295,6 +325,7 @@ mutable struct AdaBoostStumpClassifier <: BaseClassifier
     AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
         new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
 end
+
 @declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 

@@ -19,12 +19,15 @@ preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
 
-model = build_forest(labels, features, 2, 3)
+n_subfeatures = 2
+n_trees = 3
+model = build_forest(labels, features, n_subfeatures, n_trees)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
 
-model, coeffs = build_adaboost_stumps(labels, features, 7)
+n_subfeatures = 7
+model, coeffs = build_adaboost_stumps(labels, features, n_subfeatures)
 preds = apply_adaboost_stumps(model, coeffs, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95

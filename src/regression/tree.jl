@@ -4,10 +4,6 @@
 
 # written by Poom Chiarawongse <eight1911@gmail.com>
 
-# TODO: Test weights support
-# TODO: Add min_weights_leaf prepruning
-# TODO: Add tests for build_stumps
-
 module treeregressor
     include("../util.jl")
 
@@ -15,18 +11,16 @@ module treeregressor
     export fit
 
     mutable struct NodeMeta{S}
-        l           :: NodeMeta{S} # right child
-        r           :: NodeMeta{S} # left child
-        label       :: Float64  # most likely label
-        feature     :: Int64    # feature used for splitting
-        threshold   :: Any      # threshold value
+        l           :: NodeMeta{S}  # right child
+        r           :: NodeMeta{S}  # left child
+        label       :: Float64      # most likely label
+        feature     :: Int          # feature used for splitting
+        threshold   :: Any          # threshold value
         is_leaf     :: Bool
-
-        depth       :: Int64
-        region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
-        features    :: Array{Int64} # a list of features not known to be constant
-
-        split_at    :: Int64 # index of samples
+        depth       :: Int
+        region      :: UnitRange{Int} # a slice of the samples used to decide the split of the node
+        features    :: Vector{Int}    # a list of features not known to be constant
+        split_at    :: Int            # index of samples
         function NodeMeta{S}(features, region, depth) where S
             node = new{S}()
             node.depth = depth
@@ -39,7 +33,7 @@ module treeregressor
 
     struct Tree{S}
         root   :: NodeMeta{S}
-        labels :: Vector{Int64}
+        labels :: Vector{Int}
     end
 
     # find an optimal split that satisfy the given constraints
@@ -49,13 +43,13 @@ module treeregressor
             Y                   :: Vector{Float64}, # the label array
             W                   :: Vector{U},
             node                :: NodeMeta{S}, # the node to split
-            max_features        :: Int64, # number of features to consider
-            max_depth           :: Int64, # the maximum depth of the resultant tree
-            min_samples_leaf    :: Int64, # the minimum number of samples each leaf needs to have
-            min_samples_split   :: Int64, # the minimum number of samples in needed for a split
+            max_features        :: Int, # number of features to consider
+            max_depth           :: Int, # the maximum depth of the resultant tree
+            min_samples_leaf    :: Int, # the minimum number of samples each leaf needs to have
+            min_samples_split   :: Int, # the minimum number of samples in needed for a split
             min_purity_increase :: Float64, # minimum purity needed for a split
-            indX                :: Vector{Int64}, # an array of sample indices,
-                                               # we split using samples in indX[node.region]
+            indX                :: Vector{Int}, # an array of sample indices,
+                                                # we split using samples in indX[node.region]
             # the two arrays below are given for optimization purposes
             Xf                  :: Vector{S},
             Yf                  :: Vector{Float64},
@@ -71,9 +65,9 @@ module treeregressor
             Wf[i] = W[indX[i + r_start]]
         end
 
-        tssq = 0.0
-        tsum = 0.0
-        wsum = 0.0
+        tssq = zero(U)
+        tsum = zero(U)
+        wsum = zero(U)
         @inbounds @simd for i in 1:n_samples
             tssq += Wf[i]*Yf[i]*Yf[i]
             tsum += Wf[i]*Yf[i]
@@ -86,17 +80,17 @@ module treeregressor
          || max_depth            <= node.depth
           # equivalent to old_purity > -1e-7
          || tsum * node.label    > -1e-7 * wsum + tssq)
-            # node.labels = Yf[1:n_samples] # TODO : Add Wf[1:n_samples] to this thing
+            # TODO : Add Wf[1:n_samples] to this thing
             node.is_leaf = true
             return
         end
 
         features = node.features
         n_features = length(features)
-        best_purity = -Inf
+        best_purity = typemin(U)
         best_feature = -1
-        threshold_lo = Inf32
-        threshold_hi = Inf32
+        threshold_lo = X[1]
+        threshold_hi = X[1]
 
         indf = 1
         # the number of new constants found during this split
@@ -121,9 +115,9 @@ module treeregressor
             end
 
             rssq = tssq
-            lssq = 0.0
+            lssq = zero(U)
             rsum = tsum
-            lsum = 0.0
+            lsum = zero(U)
 
             @simd for i in 1:n_samples
                 Xf[i] = X[indX[i + r_start], feature]
@@ -135,7 +129,7 @@ module treeregressor
                 Yf[i] = Y[indX[i + r_start]]
                 Wf[i] = W[indX[i + r_start]]
             end
-            nl, nr = 0.0, wsum
+            nl, nr = zero(U), wsum
             # lo and hi are the indices of
             # the least upper bound and the greatest lower bound
             # of the left and right nodes respectively
@@ -172,7 +166,7 @@ module treeregressor
                         rssq -= Wf[i]*Yf[i]*Yf[i]
                     end
                 else
-                    nr = rsum = rssq = 0.0
+                    nr = rsum = rssq = zero(U)
                     @simd for i in (hi+1):n_samples
                         nr   += Wf[i]
                         rsum += Wf[i]*Yf[i]
@@ -198,12 +192,11 @@ module treeregressor
         # no splits honor min_samples_leaf
         @inbounds if (unsplittable
                 || best_purity - tsum * node.label < min_purity_increase * wsum)
-            # node.labels = Yf[1:n_samples] #TODO Add Wf support
             node.is_leaf = true
             return
         else
             # new_purity - old_purity < stop.min_purity_increase
-            bf = Int64(best_feature)
+            bf = Int(best_feature)
             @simd for i in 1:n_samples
                 Xf[i] = X[indX[i + r_start], best_feature]
             end
@@ -237,10 +230,10 @@ module treeregressor
             X                   :: Matrix{S},
             Y                   :: Vector{T},
             W                   :: Vector{U},
-            max_features        :: Int64,
-            max_depth           :: Int64,
-            min_samples_leaf    :: Int64,
-            min_samples_split   :: Int64,
+            max_features        :: Int,
+            max_depth           :: Int,
+            min_samples_leaf    :: Int,
+            min_samples_split   :: Int,
             min_purity_increase :: Float64) where {S, T, U}
         n_samples, n_features = size(X)
         if length(Y) != n_samples
@@ -266,20 +259,20 @@ module treeregressor
             X                     :: Matrix{S},
             Y                     :: Vector{Float64},
             W                     :: Vector{U},
-            max_features          :: Int64,
-            max_depth             :: Int64,
-            min_samples_leaf      :: Int64,
-            min_samples_split     :: Int64,
+            max_features          :: Int,
+            max_depth             :: Int,
+            min_samples_leaf      :: Int,
+            min_samples_split     :: Int,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
         n_samples, n_features = size(X)
 
-        Xf  = Array{S}(undef, n_samples)
         Yf  = Array{Float64}(undef, n_samples)
-        Wf  = Array{eltype(W)}(undef, n_samples)
+        Xf  = Array{S}(undef, n_samples)
+        Wf  = Array{U}(undef, n_samples)
 
-        indX = collect(Int64(1):Int64(n_samples))
+        indX = collect(Int(1):Int(n_samples))
         root = NodeMeta{S}(collect(1:n_features), 1:n_samples, 0)
         stack = NodeMeta{S}[root]
 
@@ -309,10 +302,10 @@ module treeregressor
             X                     :: Matrix{S},
             Y                     :: Vector{Float64},
             W                     :: Union{Nothing, Vector{U}},
-            max_features          :: Int64,
-            max_depth             :: Int64,
-            min_samples_leaf      :: Int64,
-            min_samples_split     :: Int64,
+            max_features          :: Int,
+            max_depth             :: Int,
+            min_samples_leaf      :: Int,
+            min_samples_split     :: Int,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 

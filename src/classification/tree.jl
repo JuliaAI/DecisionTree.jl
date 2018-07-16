@@ -4,10 +4,6 @@
 
 # written by Poom Chiarawongse <eight1911@gmail.com>
 
-# TODO: Test weights support
-# TODO: Add min_weights_leaf prepruning
-# TODO: add options for different purity criterions
-
 module treeclassifier
     include("../util.jl")
     import Random
@@ -15,21 +11,21 @@ module treeclassifier
     export fit, fit_zero_one
 
     mutable struct NodeMeta{S}
-        l           :: NodeMeta{S} # right child
-        r           :: NodeMeta{S} # left child
-        # labels    :: Vector{Int64}
-        label       :: Int64 # most likely label
-        feature     :: Int64 # feature used for splitting
-        threshold   :: S     # threshold value
+        l           :: NodeMeta{S}      # right child
+        r           :: NodeMeta{S}      # left child
+        label       :: Int              # most likely label
+        feature     :: Int              # feature used for splitting
+        threshold   :: S                # threshold value
         is_leaf     :: Bool
+        depth       :: Int
+        region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
+        features    :: Vector{Int}      # a list of features not known to be constant
+        split_at    :: Int              # index of samples
 
-        depth       :: Int64
-        region      :: UnitRange{Int64} # a slice of the samples used to decide the split of the node
-        features    :: Vector{Int64}    # a list of features not known to be constant
-
-        split_at    :: Int64     # index of samples
-
-        function NodeMeta{S}(features, region, depth) where S
+        function NodeMeta{S}(
+                features :: Vector{Int},
+                region   :: UnitRange{Int},
+                depth    :: Int) where S
             node = new{S}()
             node.depth = depth
             node.region = region
@@ -42,45 +38,43 @@ module treeclassifier
     struct Tree{S, T}
         root   :: NodeMeta{S}
         list   :: Vector{T}
-        labels :: Vector{Int64}
+        labels :: Vector{Int}
     end
 
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
-            X                   :: Matrix{S}, # the feature array
-            Y                   :: Vector{Int64}, # the label array
-            W                   :: Vector{U}, # the weight vector
+            X                   :: Matrix{S},   # the feature array
+            Y                   :: Vector{Int}, # the label array
+            W                   :: Vector{U},   # the weight vector
             purity_function     :: Function,
             node                :: NodeMeta{S}, # the node to split
-            max_features        :: Int64, # number of features to consider
-            max_depth           :: Int64, # the maximum depth of the resultant tree
-            min_samples_leaf    :: Int64, # the minimum number of samples each leaf needs to have
-            min_samples_split   :: Int64, # the minimum number of samples in needed for a split
-            min_purity_increase :: Float64, # minimum purity needed for a split
-            indX                :: Vector{Int64}, # an array of sample indices,
-                                               # we split using samples in indX[node.region]
+            max_features        :: Int,         # number of features to consider
+            max_depth           :: Int,         # the maximum depth of the resultant tree
+            min_samples_leaf    :: Int,         # the minimum number of samples each leaf needs to have
+            min_samples_split   :: Int,         # the minimum number of samples in needed for a split
+            min_purity_increase :: Float64,     # minimum purity needed for a split
+            indX                :: Vector{Int}, # an array of sample indices,
+                                                # we split using samples in indX[node.region]
             # the six arrays below are given for optimization purposes
-            nc                  :: Vector{U}, # nc maintains a dictionary of all labels in the samples
-            ncl                 :: Vector{U}, # ncl maintains the counts of labels on the left
-            ncr                 :: Vector{U}, # ncr maintains the counts of labels on the right
+            nc                  :: Vector{U},   # nc maintains a dictionary of all labels in the samples
+            ncl                 :: Vector{U},   # ncl maintains the counts of labels on the left
+            ncr                 :: Vector{U},   # ncr maintains the counts of labels on the right
             Xf                  :: Vector{S},
-            Yf                  :: Vector{Int64},
+            Yf                  :: Vector{Int},
             Wf                  :: Vector{U},
             rng                 :: Random.AbstractRNG) where {S, U}
+
         region = node.region
         n_samples = length(region)
         n_classes = length(nc)
-
 
         nc[:] .= zero(U)
         @simd for i in region
             @inbounds nc[Y[indX[i]]] += W[indX[i]]
         end
-
         nt = sum(nc)
         node.label = argmax(nc)
-
         if (min_samples_leaf * 2 >  n_samples
          || min_samples_split    >  n_samples
          || max_depth            <= node.depth
@@ -88,13 +82,14 @@ module treeclassifier
             node.is_leaf = true
             return
         end
+
         r_start = region.start - 1
         features = node.features
         n_features = length(features)
-        best_purity = -Inf
+        best_purity = typemin(U)
         best_feature = -1
-        threshold_lo = Inf32
-        threshold_hi = Inf32
+        threshold_lo = X[1]
+        threshold_hi = X[1]
 
         indf = 1
         # the number of new constants found during this split
@@ -121,7 +116,6 @@ module treeclassifier
             # on right of the threshold
             ncl[:] .= zero(U)
             ncr[:] = nc
-
             @simd for i in 1:n_samples
                 Xf[i] = X[indX[i + r_start], feature]
             end
@@ -158,14 +152,15 @@ module treeclassifier
                         # will take average at the end
                         threshold_lo = last_f
                         threshold_hi = curr_f
-                        best_purity = purity
+                        best_purity  = purity
                         best_feature = feature
                     end
                 end
 
                 # fill ncl and ncr in the direction
                 # that would require the smaller number of iterations
-                if (hi << 1) < n_samples + lo # i.e., hi - lo < n_samples - hi
+                # i.e., hi - lo < n_samples - hi
+                if (hi << 1) < n_samples + lo
                     @simd for i in lo:hi
                         ncr[Yf[i]] -= Wf[i]
                     end
@@ -175,13 +170,14 @@ module treeclassifier
                         ncr[Yf[i]] += Wf[i]
                     end
                 end
+
                 nr = zero(U)
                 @simd for lab in 1:n_classes
                     nr += ncr[lab]
                     ncl[lab] = nc[lab] - ncr[lab]
                 end
-                nl = nt - nr
 
+                nl = nt - nr
                 last_f = curr_f
             end
 
@@ -200,7 +196,7 @@ module treeclassifier
             node.is_leaf = true
             return
         else
-            bf = Int64(best_feature)
+            bf = Int(best_feature)
             @simd for i in 1:n_samples
                 Xf[i] = X[indX[i + r_start], bf]
             end
@@ -227,18 +223,18 @@ module treeclassifier
         region = node.region
         features = node.features
         # no need to copy because we will copy at the end
-        node.l = NodeMeta{S}(features, region[    1:ind], node.depth + 1)
-        node.r = NodeMeta{S}(features, region[ind+1:end], node.depth + 1)
+        node.l = NodeMeta{S}(features, region[    1:ind], node.depth+1)
+        node.r = NodeMeta{S}(features, region[ind+1:end], node.depth+1)
     end
 
     function check_input(
             X                   :: Matrix{S},
             Y                   :: Vector{T},
             W                   :: Vector{U},
-            max_features        :: Int64,
-            max_depth           :: Int64,
-            min_samples_leaf    :: Int64,
-            min_samples_split   :: Int64,
+            max_features        :: Int,
+            max_depth           :: Int,
+            min_samples_leaf    :: Int,
+            min_samples_split   :: Int,
             min_purity_increase :: Float64) where {S, T, U}
         n_samples, n_features = size(X)
         if length(Y) != n_samples
@@ -260,51 +256,16 @@ module treeclassifier
         end
     end
 
-    # convert an array of labels into an array of integers
-    # and a HashTable taking each integer to the original label.
-
-    # for example
-    #
-    # ['1880s', '1890s', '1760s', '1880s']
-    #
-    # becomes
-    #
-    # [0, 1, 2, 1],
-    # {
-    #   0 => '1880s',
-    #   1 => '1890s',
-    #   2 => '1760s',
-    # }
-    #
-    function assign(Y :: Vector{T}) where T
-        label_set = Set{T}()
-        for y in Y
-            push!(label_set, y)
-        end
-        label_list = collect(label_set)
-        label_dict = Dict{T, Int64}()
-        @inbounds for i in 1:length(label_list)
-            label_dict[label_list[i]] = i
-        end
-
-        _Y = Array{Int64}(undef, length(Y))
-        @inbounds for i in 1:length(Y)
-            _Y[i] = label_dict[Y[i]]
-        end
-
-        return label_list, _Y
-    end
-
     function _fit(
             X                     :: Matrix{S},
-            Y                     :: Vector{Int64},
+            Y                     :: Vector{Int},
             W                     :: Vector{U},
             loss                  :: Function,
-            n_classes             :: Int64,
-            max_features          :: Int64,
-            max_depth             :: Int64,
-            min_samples_leaf      :: Int64,
-            min_samples_split     :: Int64,
+            n_classes             :: Int,
+            max_features          :: Int,
+            max_depth             :: Int,
+            min_samples_leaf      :: Int,
+            min_samples_split     :: Int,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
@@ -315,7 +276,7 @@ module treeclassifier
         ncr = Array{U}(undef, n_classes)
         Wf  = Array{U}(undef, n_samples)
         Xf  = Array{S}(undef, n_samples)
-        Yf  = Array{Int64}(undef, n_samples)
+        Yf  = Array{Int}(undef, n_samples)
 
         indX = collect(1:n_samples)
         root = NodeMeta{S}(collect(1:n_features), 1:n_samples, 0)
@@ -346,15 +307,15 @@ module treeclassifier
             X                     :: Matrix{S},
             Y                     :: Vector{T},
             W                     :: Union{Nothing, Vector{U}},
-            max_features          :: Int64,
-            max_depth             :: Int64,
-            min_samples_leaf      :: Int64,
-            min_samples_split     :: Int64,
+            max_features          :: Int,
+            max_depth             :: Int,
+            min_samples_leaf      :: Int,
+            min_samples_split     :: Int,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
 
         n_samples, n_features = size(X)
-        label_list, Y_ = assign(Y)
+        list, Y_ = util.assign(Y)
         if W == nothing
             W = fill(1.0, n_samples)
         end
@@ -370,7 +331,7 @@ module treeclassifier
         root, indX = _fit(
             X, Y_, W,
             util.entropy,
-            length(label_list),
+            length(list),
             max_features,
             max_depth,
             min_samples_leaf,
@@ -378,22 +339,22 @@ module treeclassifier
             min_purity_increase,
             rng)
 
-        return Tree{S, T}(root, label_list, indX)
-
+        return Tree{S, T}(root, list, indX)
     end
 
     function fit_zero_one(;
             X                     :: Matrix{S},
             Y                     :: Vector{T},
             W                     :: Union{Nothing, Vector{U}},
-            max_features          :: Int64,
-            max_depth             :: Int64,
-            min_samples_leaf      :: Int64,
-            min_samples_split     :: Int64,
+            max_features          :: Int,
+            max_depth             :: Int,
+            min_samples_leaf      :: Int,
+            min_samples_split     :: Int,
             min_purity_increase   :: Float64,
-            rng=Random.GLOBAL_RNG :: Random.AbstractRNG)::Tree{S, T} where {S, T, U}
+            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
+
         n_samples, n_features = size(X)
-        label_list, Y_ = assign(Y)
+        list, Y_ = util.assign(Y)
         if W == nothing
             W = fill(1.0, n_samples)
         end
@@ -409,7 +370,7 @@ module treeclassifier
         root, indX = _fit(
             X, Y_, W,
             util.zero_one,
-            length(label_list),
+            length(list),
             max_features,
             max_depth,
             min_samples_leaf,
@@ -417,7 +378,7 @@ module treeclassifier
             min_purity_increase,
             rng)
 
-        return Tree{S, T}(root, label_list, indX)
-
+        return Tree{S, T}(root, list, indX)
     end
+
 end

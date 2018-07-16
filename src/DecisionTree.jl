@@ -1,3 +1,21 @@
+# TODO: add more tests
+# TODO: implement gradient boost and adaboost for regression
+# TODO: test weights support for both regression and classification trees
+# TODO: add min_weights_leaf prepruning
+# TODO: add stricter typing for leaf and node api
+# TODO: add new options for user input purity criterions
+# TODO: optimize vectorization, e.g, changing `nc[:] .= 0` to loops
+# TODO: add postpruning option with comparison with validation data
+# TODO: optimize decision forest
+# TODO: standardize variable names to snake case
+# TODO: trees should still split if purity change is _equal_ to min_purity_increase
+# TODO: review argument consistencies
+#   - swap position arguments in regression's build_tree
+#   - add support for passing rngs to nfoldCV
+# TODO: remove vestigial functions
+# TODO: optimize `build_forest`s
+# TODO: add benchmarks for other functions
+
 __precompile__()
 
 module DecisionTree
@@ -27,32 +45,34 @@ _int(x) = map(y->round(Integer, y), x)
 ###########################
 ########## Types ##########
 
-const NO_BEST=(0,0)
-
-struct Leaf
-    majority::Any
-    values::Vector
+struct Leaf{T}
+    majority :: T
+    values   :: Vector{T}
 end
 
-mutable struct Node
-    featid::Integer
-    featval::Any
-    left::Union{Leaf,Node}
-    right::Union{Leaf,Node}
+struct Node{S, T}
+    featid  :: Int
+    featval :: S
+    left    :: Union{Leaf{T}, Node{S, T}}
+    right   :: Union{Leaf{T}, Node{S, T}}
 end
 
-const LeafOrNode = Union{Leaf,Node}
+const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
 
-struct Ensemble
-    trees::Vector{Node}
+struct Ensemble{S, T}
+    trees :: Vector{LeafOrNode{S, T}}
 end
+
+
+is_leaf(l::Leaf) = true
+is_leaf(n::Node) = false
 
 convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
 promote_rule(::Type{Node}, ::Type{Leaf}) = Node
 promote_rule(::Type{Leaf}, ::Type{Node}) = Node
 
 function mean(l)
-  return sum(l) / length(l)
+    return sum(l) / length(l)
 end
 
 ##############################
