@@ -181,6 +181,9 @@ Hyperparameters:
 - `n_trees`: number of trees to train (default: 10)
 - `partial_sampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
+- `min_samples_leaf`: the minimum number of samples each leaf needs to have
+- `min_samples_split`: the minimum number of samples in needed for a split
+- `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
@@ -191,17 +194,23 @@ mutable struct RandomForestClassifier <: BaseClassifier
     n_trees::Int
     partial_sampling::Float64
     max_depth::Int
+    min_samples_leaf::Int
+    min_samples_split::Int
+    min_purity_increase::Float64
     rng::Random.AbstractRNG
     ensemble::Union{Ensemble, Nothing}
     classes::Union{Vector, Nothing}
     RandomForestClassifier(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
-                           max_depth=typemax(Int64), rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
-        new(n_subfeatures, n_trees, partial_sampling, max_depth, mk_rng(rng), ensemble, classes)
+                           max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
+                           rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
+        new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
+            min_purity_increase, mk_rng(rng), ensemble, classes)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
 @declare_hyperparameters(RandomForestClassifier,
                          [:n_subfeatures, :n_trees, :partial_sampling, :max_depth,
+                          :min_samples_leaf, :min_samples_split, :min_purity_increase,
                           :rng])
 
 function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
@@ -212,6 +221,8 @@ function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
         rf.n_trees,
         rf.partial_sampling,
         rf.max_depth,
+        rf.min_samples_leaf,
+        rf.min_samples_split;
         rng = rf.rng)
     rf.classes = sort(unique(y))
     rf
@@ -224,12 +235,14 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
 
 function show(io::IO, rf::RandomForestClassifier)
     println(io, "RandomForestClassifier")
-    println(io, "n_trees:          $(rf.n_trees)")
-    println(io, "n_subfeatures:    $(rf.n_subfeatures)")
-    println(io, "max_depth:        $(rf.max_depth)")
-    println(io, "partial_sampling: $(rf.partial_sampling)")
-    println(io, "classes:          $(rf.classes)")
-    println(io, "ensemble:         $(rf.ensemble)")
+    println(io, "n_trees:           $(rf.n_trees)")
+    println(io, "n_subfeatures:     $(rf.n_subfeatures)")
+    println(io, "partial_sampling:  $(rf.partial_sampling)")
+    println(io, "max_depth:         $(rf.max_depth)")
+    println(io, "min_samples_leaf:  $(rf.min_samples_leaf)")
+    println(io, "min_samples_split: $(rf.min_samples_split)")
+    println(io, "classes:           $(rf.classes)")
+    println(io, "ensemble:          $(rf.ensemble)")
 end
 
 ################################################################################
@@ -251,6 +264,8 @@ Hyperparameters:
 - `partial_sampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
 - `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 5)
+- `min_samples_split`: the minimum number of samples in needed for a split
+- `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
 
@@ -262,15 +277,20 @@ mutable struct RandomForestRegressor <: BaseRegressor
     partial_sampling::Float64
     max_depth::Int
     min_samples_leaf::Int
+    min_samples_split::Int
+    min_purity_increase::Float64
     rng::Random.AbstractRNG
     ensemble::Union{Ensemble, Nothing}
     RandomForestRegressor(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
-                            max_depth=typemax(Int64), min_samples_leaf=5, rng=Random.GLOBAL_RNG, ensemble=nothing) =
-        new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, mk_rng(rng), ensemble)
+                            max_depth=-1, min_samples_leaf=5, min_samples_split=2, min_purity_increase=0.0,
+                            rng=Random.GLOBAL_RNG, ensemble=nothing) =
+        new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
+            min_purity_increase, mk_rng(rng), ensemble)
 end
 
 @declare_hyperparameters(RandomForestRegressor,
-                         [:n_subfeatures, :n_trees, :min_samples_leaf, :partial_sampling,
+                         [:n_subfeatures, :n_trees, :partial_sampling,
+                          :min_samples_leaf, :min_samples_split, :min_purity_increase,
                           # I'm not crazy about :rng being a hyperparameter,
                           # since it'll change throughout fitting, but it works
                           :max_depth, :rng])
@@ -283,6 +303,9 @@ function fit!(rf::RandomForestRegressor, X::Matrix, y::Vector)
         rf.n_trees,
         rf.partial_sampling,
         rf.max_depth,
+        rf.min_samples_leaf,
+        rf.min_samples_split,
+        rf.min_purity_increase;
         rng = rf.rng)
     rf
 end
@@ -291,12 +314,13 @@ predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
 
 function show(io::IO, rf::RandomForestRegressor)
     println(io, "RandomForestRegressor")
-    println(io, "n_trees:          $(rf.n_trees)")
-    println(io, "n_subfeatures:    $(rf.n_subfeatures)")
-    println(io, "max_depth:        $(rf.max_depth)")
-    println(io, "min_samples_leaf: $(rf.min_samples_leaf)")
-    println(io, "partial_sampling: $(rf.partial_sampling)")
-    println(io, "ensemble:         $(rf.ensemble)")
+    println(io, "n_trees:           $(rf.n_trees)")
+    println(io, "n_subfeatures:     $(rf.n_subfeatures)")
+    println(io, "max_depth:         $(rf.max_depth)")
+    println(io, "min_samples_leaf:  $(rf.min_samples_leaf)")
+    println(io, "min_samples_split: $(rf.min_samples_split)")
+    println(io, "partial_sampling:  $(rf.partial_sampling)")
+    println(io, "ensemble:          $(rf.ensemble)")
 end
 
 ################################################################################
@@ -345,7 +369,6 @@ predict_proba(ada::AdaBoostStumpClassifier, X) =
 function show(io::IO, ada::AdaBoostStumpClassifier)
     println(io, "AdaBoostStumpClassifier")
     println(io, "n_iterations: $(ada.n_iterations)")
-    println(io, "coeffs:       $(ada.coeffs)")
     println(io, "classes:      $(ada.classes)")
     println(io, "ensemble:     $(ada.ensemble)")
 end
