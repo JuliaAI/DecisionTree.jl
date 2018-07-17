@@ -55,12 +55,18 @@ n_subfeatures       = 3
 n_trees             = 10
 partial_sampling    = 0.7
 max_depth           = -1
+min_samples_leaf    = 1
+min_samples_split   = 2
+min_purity_increase = 0.0
 model = DecisionTree.build_forest(
         Y, X,
         n_subfeatures,
         n_trees,
         partial_sampling,
-        max_depth)
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase)
 preds = apply_forest(model, X)
 cm = confusion_matrix(Y, preds)
 @test cm.accuracy > 0.95
