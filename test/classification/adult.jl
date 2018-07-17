@@ -3,10 +3,7 @@
 
 @testset "adult.jl" begin
 
-import DelimitedFiles
-
-download("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", "adult.csv");
-adult = DelimitedFiles.readdlm("adult.csv", ',');
+adult = DelimitedFiles.readdlm("data/adult.csv", ',');
 
 features = adult[:, 1:14];
 labels = adult[:, 15];
@@ -16,26 +13,37 @@ preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.99
 
-model = build_forest(labels, features, 3, 10)
+n_subfeatures = 3
+n_trees = 10
+model = build_forest(labels, features, n_subfeatures, n_trees)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 
-model, coeffs = build_adaboost_stumps(labels, features, 15);
+n_iterations = 15
+model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds);
 @test cm.accuracy > 0.8
 
 println("\n##### 3 foldCV Classification Tree #####")
-accuracy = nfoldCV_tree(labels, features, 0.9, 3);
+pruning_purity = 0.9
+nfolds = 3
+accuracy = nfoldCV_tree(labels, features, pruning_purity, nfolds);
 @test mean(accuracy) > 0.8
 
 println("\n##### 3 foldCV Classification Forest #####")
-accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5);
+n_subfeatures = 2
+n_trees = 10
+n_folds = 3
+partial_sampling = 0.5
+accuracy = nfoldCV_forest(labels, features, n_subfeatures, n_trees, nfolds, partial_sampling)
 @test mean(accuracy) > 0.8
 
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
-accuracy = nfoldCV_stumps(labels, features, 15, 3);
+n_iterations = 15
+nfolds = 3
+accuracy = nfoldCV_stumps(labels, features, n_iterations, nfolds);
 @test mean(accuracy) > 0.8
 
 end # @testset

@@ -232,10 +232,10 @@ function build_forest(
         n_subfeatures       = 0,
         n_trees             = 10,
         partial_sampling    = 0.7,
-        max_depth           = -1;
+        max_depth           = -1,
         min_samples_leaf    = 1,
         min_samples_split   = 2,
-        min_purity_increase = 0.0,
+        min_purity_increase = 0.0;
         rng                 = Random.GLOBAL_RNG) where {S, T}
 
     rng = mk_rng(rng)::Random.AbstractRNG
@@ -374,8 +374,6 @@ end
 
 function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::Vector{Float64},
                                     features::Matrix{S}, labels::Vector{T}) where {S, T}
-    stack_function_results(row->apply_adaboost_stumps_proba(stumps, coeffs, row,
-                                                           labels),
-                           features)
+    stack_function_results(row->apply_adaboost_stumps_proba(stumps, coeffs, row, labels), features)
 end
 

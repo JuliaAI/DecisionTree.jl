@@ -116,8 +116,19 @@ accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
 # n_trees: number of trees to train (default: 10)
 # partial_sampling: fraction of samples to train each tree on (default: 0.7)
 # max_depth: maximum depth of the decision trees (default: no maximum)
-n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1;
-model = build_forest(labels, features, n_subfeatures, n_trees, partial_sampling, max_depth)
+# min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
+# min_samples_split: the minimum number of samples in needed for a split (default: 2)
+# min_purity_increase: minimum purity needed for a split (default: 0.0)
+n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1; min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
+model = build_forest(
+        labels, features, 
+        n_subfeatures,
+        n_trees,
+        partial_sampling,
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase)
 ```
 Adaptive-Boosted Decision Stumps Classifier
 ```julia
@@ -177,6 +188,16 @@ r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
 # partial_sampling: fraction of samples to train each tree on (default: 0.7)
 # max_depth: maximum depth of the decision trees (default: no maximum)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
-n_subfeatures=0; n_trees=10; min_samples_leaf=5; partial_sampling=0.7; max_depth=-1;
-model = build_forest(labels, features, n_subfeatures, n_trees, min_samples_leaf, partial_sampling, max_depth)
+# min_samples_split: the minimum number of samples in needed for a split (default: 2)
+# min_purity_increase: minimum purity needed for a split (default: 0.0)
+n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1; min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
+model = build_forest(
+        labels, features, 
+        n_subfeatures,
+        n_trees,
+        partial_sampling,
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase)
 ```
