@@ -28,7 +28,6 @@ regression =     [
 ]
 
 miscellaneous =  [
-    "miscellaneous/promote.jl",
     "miscellaneous/parallel.jl"
 ]
 
