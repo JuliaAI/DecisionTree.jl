@@ -30,12 +30,6 @@ end
 _hist(labels::Vector{T}, region::UnitRange{Int} = 1:lastindex(labels)) where T =
     _hist_add!(Dict{T,Int}(), labels, region)
 
-function _neg_z1_loss(labels::Vector, weights::Vector{T}) where T <: Real
-    missmatches = labels .!= majority_vote(labels)
-    loss = sum(weights[missmatches])
-    return -loss
-end
-
 function _weighted_error(actual::Vector, predicted::Vector, weights::Vector{T}) where T <: Real
     mismatches = actual .!= predicted
     err = sum(weights[mismatches]) / sum(weights)
@@ -250,5 +244,3 @@ nfoldCV_tree(labels::Vector{T}, features::Matrix, nfolds::Integer, min_samples_l
 
 nfoldCV_forest(labels::Vector{T}, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, min_samples_leaf::Integer = 5, partial_sampling = 0.7) where T <: Float64 =
     _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, min_samples_leaf, partial_sampling, nfolds)
-
-
