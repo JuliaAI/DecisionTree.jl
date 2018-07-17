@@ -6,7 +6,9 @@ Random.srand(16)
 _int32(x) = map(y->round(Int32, y), x)
 
 n,m = 10^3, 5;
-features = rand(n,m);
+features = Array{Any}(undef, n, m);
+features[:,:] = randn(n, m);
+features[:,1] = _int32(features[:,1]); # convert a column of 32bit integers
 weights = rand(-1:1,m);
 labels = _int32(features * weights);
 
@@ -51,7 +53,7 @@ model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
 @test typeof(preds[1]) == Int32
-@test cm.accuracy > 0.7
+@test cm.accuracy > 0.4
 
 println("\n##### nfoldCV Classification Tree #####")
 pruning_purity      = 0.9

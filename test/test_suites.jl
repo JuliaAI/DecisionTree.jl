@@ -24,6 +24,7 @@ classification = [
 
 regression =     [
     "regression/random.jl",
+    "regression/int32_precision.jl",
     "regression/digits.jl",
     "regression/scikitlearn.jl"
 ]
