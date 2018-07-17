@@ -232,7 +232,7 @@ function build_forest(
         n_subfeatures       = 0,
         n_trees             = 10,
         partial_sampling    = 0.7,
-        max_depth           = -1;
+        max_depth           = -1,
         min_samples_leaf    = 1,
         min_samples_split   = 2,
         min_purity_increase = 0.0,
