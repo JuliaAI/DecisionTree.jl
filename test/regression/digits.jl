@@ -20,17 +20,30 @@ Y = float.(Y) # labels/targets to Float to enable regression
 t = DecisionTree.build_tree(Y, X, 1)
 @test length(t) in [190, 191]
 
-t = DecisionTree.build_tree(Y, X, 5)
+min_samples_leaf    = 5
+t = DecisionTree.build_tree(Y, X, min_samples_leaf)
 @test length(t) == 126
 
-t = DecisionTree.build_tree(Y, X, 5, 0, 6)
+min_samples_leaf    = 5
+n_subfeatures       = 0
+max_depth           = 6
+t = DecisionTree.build_tree(Y, X, min_samples_leaf, n_subfeatures, max_depth)
 @test length(t) == 44
 @test depth(t) == 6
 
-t = DecisionTree.build_tree(Y, X, 1, 0, -1, 20)
+min_samples_leaf    = 1
+n_subfeatures       = 0
+max_depth           = -1
+min_samples_split   = 20
+t = DecisionTree.build_tree(Y, X, min_samples_leaf, n_subfeatures, max_depth, min_samples_split)
 @test length(t) == 122
 
-t = DecisionTree.build_tree(Y, X, 1, 0, -1, 2, 0.25)
+min_samples_leaf    = 1
+n_subfeatures       = 0
+max_depth           = -1
+min_samples_split   = 2
+min_purity_increase = 0.25
+t = DecisionTree.build_tree(Y, X, min_samples_leaf, n_subfeatures, max_depth, min_samples_split, min_purity_increase)
 @test length(t) == 103
 
 end # @testset
