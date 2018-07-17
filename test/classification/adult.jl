@@ -3,10 +3,7 @@
 
 @testset "adult.jl" begin
 
-import DelimitedFiles
-
-download("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", "adult.csv");
-adult = DelimitedFiles.readdlm("adult.csv", ',');
+adult = DelimitedFiles.readdlm("data/adult.csv", ',');
 
 features = adult[:, 1:14];
 labels = adult[:, 15];
