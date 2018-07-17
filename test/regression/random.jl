@@ -72,7 +72,6 @@ preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 
 
-
 n_subfeatures       = 3
 n_trees             = 10
 partial_sampling    = 0.7
