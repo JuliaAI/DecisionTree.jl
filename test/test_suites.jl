@@ -14,6 +14,7 @@ end
 
 classification = [
     "classification/random.jl",
+    "classification/int32_precision.jl",
     "classification/heterogeneous.jl",
     "classification/digits.jl",
     "classification/iris.jl",
