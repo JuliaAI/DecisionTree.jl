@@ -298,7 +298,7 @@ end
 function fit!(rf::RandomForestRegressor, X::Matrix, y::Vector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
-        y, X,
+        Float64.(y), X,
         rf.n_subfeatures,
         rf.n_trees,
         rf.partial_sampling,
