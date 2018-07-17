@@ -51,4 +51,26 @@ t = DecisionTree.build_tree(
         min_purity_increase)
 @test length(t) == 54
 
+n_subfeatures       = 3
+n_trees             = 10
+partial_sampling    = 0.7
+max_depth           = -1
+model = DecisionTree.build_forest(
+        Y, X,
+        n_subfeatures,
+        n_trees,
+        partial_sampling,
+        max_depth)
+preds = apply_forest(model, X)
+cm = confusion_matrix(Y, preds)
+@test cm.accuracy > 0.95
+
+n_iterations        = 100
+model, coeffs = DecisionTree.build_adaboost_stumps(
+        Y, X,
+        n_iterations);
+preds = apply_adaboost_stumps(model, coeffs, X);
+cm = confusion_matrix(Y, preds)
+@test cm.accuracy > 0.8
+
 end # @testset

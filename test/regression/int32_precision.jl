@@ -22,24 +22,26 @@ model = build_tree(
         min_samples_split,
         min_purity_increase)
 preds = apply_tree(model, features)
-@test typeof(preds[1]) == Int32
 @test R2(labels, preds) < 0.95
 
 
 n_subfeatures       = Int32(3)
 n_trees             = Int32(10)
-min_samples_leaf    = Int32(5)
 partial_sampling    = 0.7
 max_depth           = Int32(-1)
+min_samples_leaf    = Int32(5)
+min_samples_split   = Int32(2)
+min_purity_increase = 0.0
 model = build_forest(
         labels, features,
         n_subfeatures,
         n_trees,
-        min_samples_leaf,
         partial_sampling,
-        max_depth)
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase)
 preds = apply_forest(model, features)
-@test typeof(preds[1]) == Int32
 @test R2(labels, preds) > 0.9
 
 println("\n##### nfoldCV Regression Tree #####")
