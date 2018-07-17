@@ -1,4 +1,4 @@
-
 *.csv
 styleguide.txt
 makefile
+.DS_Store
