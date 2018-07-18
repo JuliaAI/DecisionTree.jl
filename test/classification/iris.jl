@@ -51,7 +51,7 @@ n_trees = 10
 n_folds = 3
 partial_sampling = 0.5
 accuracy = nfoldCV_forest(labels, features, n_subfeatures, n_trees, nfolds, partial_sampling)
-@test mean(accuracy) > 0.8
+@test mean(accuracy) > 0.9
 
 # train adaptive-boosted decision stumps
 n_iterations = 15
@@ -61,9 +61,9 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
+println("\n##### nfoldCV Classification Adaboosted Stumps #####")
 n_iterations = 15
 nfolds = 3
-println("\n##### nfoldCV Classification Adaboosted Stumps #####")
 accuracy = nfoldCV_stumps(labels, features, n_iterations, nfolds)
 @test mean(accuracy) > 0.9
 

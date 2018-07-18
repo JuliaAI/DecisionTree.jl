@@ -222,7 +222,8 @@ function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
         rf.partial_sampling,
         rf.max_depth,
         rf.min_samples_leaf,
-        rf.min_samples_split;
+        rf.min_samples_split,
+        rf.min_purity_increase;
         rng = rf.rng)
     rf.classes = sort(unique(y))
     rf
@@ -235,14 +236,15 @@ predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
 
 function show(io::IO, rf::RandomForestClassifier)
     println(io, "RandomForestClassifier")
-    println(io, "n_trees:           $(rf.n_trees)")
-    println(io, "n_subfeatures:     $(rf.n_subfeatures)")
-    println(io, "partial_sampling:  $(rf.partial_sampling)")
-    println(io, "max_depth:         $(rf.max_depth)")
-    println(io, "min_samples_leaf:  $(rf.min_samples_leaf)")
-    println(io, "min_samples_split: $(rf.min_samples_split)")
-    println(io, "classes:           $(rf.classes)")
-    println(io, "ensemble:          $(rf.ensemble)")
+    println(io, "n_trees:             $(rf.n_trees)")
+    println(io, "n_subfeatures:       $(rf.n_subfeatures)")
+    println(io, "partial_sampling:    $(rf.partial_sampling)")
+    println(io, "max_depth:           $(rf.max_depth)")
+    println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
+    println(io, "min_samples_split:   $(rf.min_samples_split)")
+    println(io, "min_purity_increase: $(dt.min_purity_increase)")
+    println(io, "classes:             $(rf.classes)")
+    println(io, "ensemble:            $(rf.ensemble)")
 end
 
 ################################################################################
@@ -314,13 +316,14 @@ predict(rf::RandomForestRegressor, X) = apply_forest(rf.ensemble, X)
 
 function show(io::IO, rf::RandomForestRegressor)
     println(io, "RandomForestRegressor")
-    println(io, "n_trees:           $(rf.n_trees)")
-    println(io, "n_subfeatures:     $(rf.n_subfeatures)")
-    println(io, "max_depth:         $(rf.max_depth)")
-    println(io, "min_samples_leaf:  $(rf.min_samples_leaf)")
-    println(io, "min_samples_split: $(rf.min_samples_split)")
-    println(io, "partial_sampling:  $(rf.partial_sampling)")
-    println(io, "ensemble:          $(rf.ensemble)")
+    println(io, "n_trees:             $(rf.n_trees)")
+    println(io, "n_subfeatures:       $(rf.n_subfeatures)")
+    println(io, "partial_sampling:    $(rf.partial_sampling)")
+    println(io, "max_depth:           $(rf.max_depth)")
+    println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
+    println(io, "min_samples_split:   $(rf.min_samples_split)")
+    println(io, "min_purity_increase: $(dt.min_purity_increase)")
+    println(io, "ensemble:            $(rf.ensemble)")
 end
 
 ################################################################################
@@ -376,5 +379,8 @@ end
 ################################################################################
 # Common functions
 
-depth(dt::DecisionTreeClassifier) = depth(dt.root)
-depth(dt::DecisionTreeRegressor) = depth(dt.root)
+depth(dt::DecisionTreeClassifier)   = depth(dt.root)
+depth(dt::DecisionTreeRegressor)    = depth(dt.root)
+
+length(dt::DecisionTreeClassifier)  = length(dt.root)
+length(dt::DecisionTreeRegressor)   = length(dt.root)
