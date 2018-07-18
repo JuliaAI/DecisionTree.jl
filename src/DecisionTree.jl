@@ -20,7 +20,7 @@ __precompile__()
 
 module DecisionTree
 
-import Base: length, convert, promote_rule, show, start, next, done
+import Base: length, show
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,

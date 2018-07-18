@@ -266,7 +266,7 @@ end
 
 function apply_forest(forest::Ensemble{S, T}, features::Vector{S}) where {S, T}
     n_trees = length(forest)
-    votes = Array{S}(undef, n_trees)
+    votes = Array{T}(undef, n_trees)
     for i in 1:n_trees
         votes[i] = apply_tree(forest.trees[i], features)
     end
