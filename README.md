@@ -86,7 +86,10 @@ apply_tree(model, [5.9,3.0,5.1,1.9])
 apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for pruned tree,
 # using 90% purity threshold pruning, and 3 CV folds
-accuracy = nfoldCV_tree(labels, features, 0.9, 3)
+purity=0.9; n_folds=3
+accuracy = nfoldCV_tree(labels, features,
+                        purity,
+                        n_folds)
 
 # set of classification build_tree() parameters and respective default values
 # max_depth: maximum depth of the decision tree (default: -1, no maximum)
@@ -94,8 +97,13 @@ accuracy = nfoldCV_tree(labels, features, 0.9, 3)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 # n_subfeatures: number of features to select at random (default: 0, keep all)
-n_subfeatures=0; max_depth=-1; min_samples_leaf=1; min_samples_split=2; min_purity_increase=0.0;
-model = build_tree(labels, features, n_subfeatures, max_depth, min_samples_leaf, min_samples_split, min_purity_increase)
+n_subfeatures=0; max_depth=-1; min_samples_leaf=1; min_samples_split=2; min_purity_increase=0.0
+model = build_tree(labels, features,
+                   n_subfeatures,
+                   max_depth,
+                   min_samples_leaf,
+                   min_samples_split,
+                   min_purity_increase)
 
 ```
 Random Forest Classifier
@@ -109,7 +117,12 @@ apply_forest(model, [5.9,3.0,5.1,1.9])
 apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for forests
 # using 2 random features, 10 trees, 3 folds, and 0.5 portion of samples per tree (optional)
-accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
+n_subfeatures=2; n_trees=10; n_folds=3; partial_sampling=0.5
+accuracy = nfoldCV_forest(labels, features,
+                          n_subfeatures,
+                          n_trees,
+                          n_folds,
+                          partial_sampling)
 
 # set of classification build_forest() parameters and respective default values
 # n_subfeatures: number of features to consider at random per split (default: 0, keep all)
@@ -119,16 +132,16 @@ accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
-n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1; min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
-model = build_forest(
-        labels, features, 
-        n_subfeatures,
-        n_trees,
-        partial_sampling,
-        max_depth,
-        min_samples_leaf,
-        min_samples_split,
-        min_purity_increase)
+n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1
+min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
+model = build_forest(labels, features,
+                     n_subfeatures,
+                     n_trees,
+                     partial_sampling,
+                     max_depth,
+                     min_samples_leaf,
+                     min_samples_split,
+                     min_purity_increase)
 ```
 Adaptive-Boosted Decision Stumps Classifier
 ```julia
@@ -139,7 +152,10 @@ apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 apply_adaboost_stumps_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
-accuracy = nfoldCV_stumps(labels, features, 7, 3)
+n_iterations=7; n_folds=3
+accuracy = nfoldCV_stumps(labels, features,
+                          n_iterations,
+                          n_folds)
 ```
 
 ### Regression Example
@@ -157,7 +173,10 @@ model = build_tree(labels, features, 5)
 apply_tree(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation, using 3 folds and averaging of 5 samples per leaf (optional)
 # returns array of coefficients of determination (R^2)
-r2 = nfoldCV_tree(labels, features, 3, 5)
+n_folds=3; min_samples_leaf=5
+r2 = nfoldCV_tree(labels, features,
+                  n_folds,
+                  min_samples_leaf)
 
 # set of regression build_tree() parameters and respective default values
 # max_depth: maximum depth of the decision tree (default: -1, no maximum)
@@ -166,8 +185,12 @@ r2 = nfoldCV_tree(labels, features, 3, 5)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 # n_subfeatures: number of features to select at random (default: 0, keep all)
 min_samples_leaf = 5; n_subfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.0;
-model = build_tree(labels, features, min_samples_leaf, n_subfeatures, max_depth, min_samples_split, min_purity_increase)
-
+model = build_tree(labels, features,
+                   min_samples_leaf,
+                   n_subfeatures,
+                   max_depth,
+                   min_samples_split,
+                   min_purity_increase)
 ```
 Regression Random Forest
 ```julia
@@ -180,7 +203,13 @@ apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
 # using 2 random features, 10 trees, 3 folds, averaging of 5 samples per leaf (optional),
 # and 0.7 porition of samples per tree (optional)
 # returns array of coefficients of determination (R^2)
-r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
+n_subfeatures=2; n_trees=10; n_folds=3; min_samples_leaf=5; partial_sampling=0.7
+r2 = nfoldCV_forest(labels, features,
+                    n_subfeatures,
+                    n_trees,
+                    n_folds,
+                    min_samples_leaf,
+                    partial_sampling)
 
 # set of regression build_forest() parameters and respective default values
 # n_subfeatures: number of features to consider at random per split (default: 0, keep all)
@@ -190,14 +219,14 @@ r2 = nfoldCV_forest(labels, features, 2, 10, 3, 5, 0.7)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
-n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1; min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
-model = build_forest(
-        labels, features, 
-        n_subfeatures,
-        n_trees,
-        partial_sampling,
-        max_depth,
-        min_samples_leaf,
-        min_samples_split,
-        min_purity_increase)
+n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1
+min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
+model = build_forest(labels, features,
+                     n_subfeatures,
+                     n_trees,
+                     partial_sampling,
+                     max_depth,
+                     min_samples_leaf,
+                     min_samples_split,
+                     min_purity_increase)
 ```
