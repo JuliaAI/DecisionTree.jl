@@ -81,8 +81,8 @@ function show(io::IO, dt::DecisionTreeClassifier)
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
-    println(io, "classes:                  $(dt.classes)")
-    println(io, "root:                     $(dt.root)")
+    print(io,   "classes:                  ") ; show(dt.classes) ; println()
+    print(io,   "root:                     ") ; show(dt.root)    ; println()
 end
 
 ################################################################################
@@ -161,7 +161,7 @@ function show(io::IO, dt::DecisionTreeRegressor)
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
-    println(io, "root:                     $(dt.root)")
+    print(io,   "root:                     ") ; show(dt.root) ; println()
 end
 
 ################################################################################
@@ -242,9 +242,10 @@ function show(io::IO, rf::RandomForestClassifier)
     println(io, "max_depth:           $(rf.max_depth)")
     println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
     println(io, "min_samples_split:   $(rf.min_samples_split)")
-    println(io, "min_purity_increase: $(dt.min_purity_increase)")
-    println(io, "classes:             $(rf.classes)")
-    println(io, "ensemble:            $(rf.ensemble)")
+    println(io, "min_purity_increase: $(rf.min_purity_increase)")
+    print(io,   "classes:             ") ; show(rf.classes)  ; println()
+    print(io,   "ensemble:            ") ; show(rf.ensemble) ; println()
+
 end
 
 ################################################################################
@@ -322,8 +323,8 @@ function show(io::IO, rf::RandomForestRegressor)
     println(io, "max_depth:           $(rf.max_depth)")
     println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
     println(io, "min_samples_split:   $(rf.min_samples_split)")
-    println(io, "min_purity_increase: $(dt.min_purity_increase)")
-    println(io, "ensemble:            $(rf.ensemble)")
+    println(io, "min_purity_increase: $(rf.min_purity_increase)")
+    print(io,   "ensemble:            ") ; show(rf.ensemble) ; println()
 end
 
 ################################################################################
@@ -372,8 +373,8 @@ predict_proba(ada::AdaBoostStumpClassifier, X) =
 function show(io::IO, ada::AdaBoostStumpClassifier)
     println(io, "AdaBoostStumpClassifier")
     println(io, "n_iterations: $(ada.n_iterations)")
-    println(io, "classes:      $(ada.classes)")
-    println(io, "ensemble:     $(ada.ensemble)")
+    print(io,   "classes:      ") ; show(ada.classes)  ; println()
+    print(io,   "ensemble:     ") ; show(ada.ensemble) ; println()
 end
 
 ################################################################################
@@ -384,3 +385,7 @@ depth(dt::DecisionTreeRegressor)    = depth(dt.root)
 
 length(dt::DecisionTreeClassifier)  = length(dt.root)
 length(dt::DecisionTreeRegressor)   = length(dt.root)
+
+print_tree(dt::DecisionTreeClassifier, depth=-1) = print_tree(dt.root, depth)
+print_tree(dt::DecisionTreeRegressor,  depth=-1) = print_tree(dt.root, depth)
+print_tree(n::Nothing, depth=-1)                 = show(n)
