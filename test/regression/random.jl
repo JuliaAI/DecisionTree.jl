@@ -19,6 +19,7 @@ model = build_tree(
         min_samples_leaf)
 preds = apply_tree(model, features);
 @test R2(labels, preds) > 0.99      # R2: coeff of determination
+@test typeof(preds) <: Vector{Float64}
 ### @test length(model) == n        # can / should this be enforced ???
 
 # under-fitting
@@ -70,7 +71,7 @@ preds = apply_tree(model, features);
 model = build_forest(labels, features)
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
-
+@test typeof(preds) <: Vector{Float64}
 
 n_subfeatures       = 3
 n_trees             = 10
