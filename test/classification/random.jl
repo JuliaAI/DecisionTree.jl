@@ -20,11 +20,13 @@ model = build_tree(labels, features)
 preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
+@test typeof(preds) == Vector{Int}
 
 model = build_forest(labels, features)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
+@test typeof(preds) == Vector{Int}
 
 n_subfeatures       = 3
 n_trees             = 10
@@ -51,6 +53,7 @@ model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
+@test typeof(preds) == Vector{Int}
 
 println("\n##### nfoldCV Classification Tree #####")
 pruning_purity = 0.9

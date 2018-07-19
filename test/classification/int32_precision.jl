@@ -14,7 +14,7 @@ labels = _int32(features * weights);
 
 model = build_stump(labels, features)
 preds = apply_tree(model, features)
-@test typeof(preds[1]) == Int32
+@test typeof(preds) == Vector{Int32}
 @test depth(model) == 1
 
 n_subfeatures       = Int32(0)
@@ -30,7 +30,7 @@ model = build_tree(
         min_purity_increase)
 preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
-@test typeof(preds[1]) == Int32
+@test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.95
 
 n_subfeatures       = Int32(0)
@@ -45,14 +45,14 @@ model = build_forest(
         max_depth)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
-@test typeof(preds[1]) == Int32
+@test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.95
 
 n_iterations        = Int32(15)
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
-@test typeof(preds[1]) == Int32
+@test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.4
 
 println("\n##### nfoldCV Classification Tree #####")

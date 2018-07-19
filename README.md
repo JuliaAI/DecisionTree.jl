@@ -56,7 +56,7 @@ Pruned Tree Classifier
 model = DecisionTreeClassifier(max_depth=2)
 fit!(model, features, labels)
 # pretty print of the tree, to a depth of 5 nodes (optional)
-print_tree(model.root, 5)
+print_tree(model, 5)
 # apply learned model
 predict(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
@@ -196,7 +196,7 @@ Regression Random Forest
 ```julia
 # train regression forest, using 2 random features, 10 trees,
 # averaging of 5 samples per leaf, and 0.7 portion of samples per tree
-model = build_forest(labels, features, 2, 10, 5, 0.7)
+model = build_forest(labels, features, 2, 10, 0.7, 5)
 # apply learned model
 apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation on regression forest

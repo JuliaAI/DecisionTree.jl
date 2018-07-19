@@ -23,7 +23,7 @@ model = build_tree(
         min_purity_increase)
 preds = apply_tree(model, features)
 @test R2(labels, preds) < 0.95
-
+@test typeof(preds) <: Vector{Float64}
 
 n_subfeatures       = Int32(3)
 n_trees             = Int32(10)
@@ -43,6 +43,7 @@ model = build_forest(
         min_purity_increase)
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
+@test typeof(preds) <: Vector{Float64}
 
 println("\n##### nfoldCV Regression Tree #####")
 n_folds             = Int32(3)
