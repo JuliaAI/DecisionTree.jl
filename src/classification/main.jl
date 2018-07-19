@@ -179,9 +179,9 @@ end
 
 
 
-apply_tree(leaf::Leaf, feature::Vector) = leaf.majority
+apply_tree(leaf::Leaf{T}, feature::Vector{S}) where {S, T} = leaf.majority
 
-function apply_tree(tree::Node, features::Vector)
+function apply_tree(tree::Node{S, T}, features::Vector{S}) where {S, T}
     if features[tree.featid] < tree.featval
         return apply_tree(tree.left, features)
     else
@@ -189,13 +189,13 @@ function apply_tree(tree::Node, features::Vector)
     end
 end
 
-function apply_tree(tree::LeafOrNode, features::Matrix)
+function apply_tree(tree::LeafOrNode{S, T}, features::Matrix{S}) where {S, T}
     N = size(features,1)
-    predictions = Array{Any}(undef, N)
+    predictions = Array{T}(undef, N)
     for i in 1:N
         predictions[i] = apply_tree(tree, features[i, :])
     end
-    if typeof(predictions[1]) <: Float64
+    if T <: Float64
         return Float64.(predictions)
     else
         return predictions
@@ -210,10 +210,10 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-apply_tree_proba(leaf::Leaf, features::Vector, labels) =
+apply_tree_proba(leaf::Leaf{T}, features::Vector{S}, labels) where {S, T} =
     compute_probabilities(labels, leaf.values)
 
-function apply_tree_proba(tree::Node, features::Vector, labels)
+function apply_tree_proba(tree::Node{S, T}, features::Vector{S}, labels) where {S, T}
     if tree.featval === nothing
         return apply_tree_proba(tree.left, features, labels)
     elseif features[tree.featid] < tree.featval
@@ -223,7 +223,7 @@ function apply_tree_proba(tree::Node, features::Vector, labels)
     end
 end
 
-apply_tree_proba(tree::LeafOrNode, features::Matrix, labels) =
+apply_tree_proba(tree::LeafOrNode{S, T}, features::Matrix{S}, labels) where {S, T} =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
 function build_forest(
@@ -295,12 +295,12 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-function apply_forest_proba(forest::Ensemble, features::Vector, labels)
+function apply_forest_proba(forest::Ensemble{S, T}, features::Vector{S}, labels) where {S, T}
     votes = [apply_tree(tree, features) for tree in forest.trees]
     return compute_probabilities(labels, votes)
 end
 
-apply_forest_proba(forest::Ensemble, features::Matrix, labels) =
+apply_forest_proba(forest::Ensemble{S, T}, features::Matrix{S}, labels) where {S, T} =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 

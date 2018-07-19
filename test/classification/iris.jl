@@ -6,7 +6,7 @@
 iris = DelimitedFiles.readdlm("data/iris.csv", ',')
 
 features = iris[:, 1:4]
-labels = iris[:, 5]
+labels = String.(iris[:, 5])
 
 # train a decision stump (depth=1)
 model = build_stump(labels, features)
@@ -22,6 +22,7 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.99
 @test length(model) == 9
 @test depth(model) == 5
+@test typeof(preds) == Vector{String}
 print_tree(model)
 
 # prune tree: merge leaves having >= 90% combined purity (default: 100%)
@@ -43,6 +44,7 @@ model = build_forest(labels, features, n_subfeatures, n_trees, partial_sampling)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
+@test typeof(preds) == Vector{String}
 
 # run n-fold cross validation for forests
 println("\n##### nfoldCV Classification Forest #####")
@@ -59,6 +61,7 @@ model, coeffs = build_adaboost_stumps(labels, features, n_iterations)
 preds = apply_adaboost_stumps(model, coeffs, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
+@test typeof(preds) == Vector{String}
 
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
