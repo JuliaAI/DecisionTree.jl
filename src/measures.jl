@@ -127,8 +127,8 @@ function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, ar
 end
 
 function nfoldCV_tree(
-        labels         :: Vector{S},
-        features       :: Matrix{T},
+        labels         :: Vector{T},
+        features       :: Matrix{S},
         pruning_purity :: Float64,
         nfolds         :: Integer) where {S, T}
     _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
