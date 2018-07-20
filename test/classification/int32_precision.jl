@@ -3,14 +3,12 @@
 
 Random.srand(16)
 
-_int32(x) = map(y->round(Int32, y), x)
-
 n,m = 10^3, 5;
 features = Array{Any}(undef, n, m);
 features[:,:] = randn(n, m);
-features[:,1] = _int32(features[:,1]); # convert a column of 32bit integers
+features[:,1] = round.(Int32, features[:,1]); # convert a column of 32bit integers
 weights = rand(-1:1,m);
-labels = _int32(features * weights);
+labels = round.(Int32, features * weights);
 
 model = build_stump(labels, features)
 preds = apply_tree(model, features)

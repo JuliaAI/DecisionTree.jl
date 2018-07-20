@@ -26,8 +26,7 @@ export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error,
-       R2, _int
+       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
@@ -37,10 +36,6 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
        # `using ScikitLearnBase`.
        predict, predict_proba, fit!, get_classes
 
-#####################################
-##### Compatilibity Corrections #####
-
-_int(x) = map(y->round(Integer, y), x)
 
 ###########################
 ########## Types ##########

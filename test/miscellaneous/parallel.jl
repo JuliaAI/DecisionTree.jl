@@ -13,7 +13,7 @@ Random.srand(16)
 n,m = 10^3, 5;
 features = rand(n,m);
 weights = rand(-1:1,m);
-labels = _int(features * weights);
+labels = round.(Int, features * weights);
 
 model = build_forest(labels, features, 2, 10);
 preds = apply_forest(model, features);

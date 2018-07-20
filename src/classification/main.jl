@@ -246,7 +246,7 @@ function build_forest(
     end
 
     t_samples = length(labels)
-    n_samples = _int(partial_sampling * t_samples)
+    n_samples = floor(Int, partial_sampling * t_samples)
 
     forest = Distributed.@distributed (vcat) for i in 1:n_trees
         inds = rand(rngs[i], 1:t_samples, n_samples)
