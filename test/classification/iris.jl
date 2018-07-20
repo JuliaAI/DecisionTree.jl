@@ -19,15 +19,36 @@ cm = confusion_matrix(labels, preds)
 model = build_tree(labels, features)
 preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
-@test cm.accuracy > 0.99
+@test cm.accuracy == 1.0
 @test length(model) == 9
 @test depth(model) == 5
 @test typeof(preds) == Vector{String}
 print_tree(model)
 
-# prune tree: merge leaves having >= 90% combined purity (default: 100%)
-model = prune_tree(model, -0.1)
-@test length(model) == 8
+# prune tree to 8 leaves
+pruning_purity = -0.1       # TODO: change value
+pt = prune_tree(model, pruning_purity)
+@test length(pt) == 8
+preds = apply_tree(pt, features)
+cm = confusion_matrix(labels, preds)
+@test 0.99 < cm.accuracy < 1.0
+
+# prune tree to 3 leaves
+pruning_purity = -0.1       # TODO: change value
+pt = prune_tree(model, pruning_purity)
+@test length(pt) == 3
+preds = apply_tree(pt, features)
+cm = confusion_matrix(labels, preds)
+@test 0.95 < cm.accuracy < 1.0
+
+# prune tree to a stump, 2 leaves
+pruning_purity = -0.1       # TODO: change value
+pt = prune_tree(model, pruning_purity)
+@test length(pt) == 2
+preds = apply_tree(pt, features)
+cm = confusion_matrix(labels, preds)
+@test 0.66 < cm.accuracy < 1.0
+
 
 # run n-fold cross validation for pruned tree
 println("\n##### nfoldCV Classification Tree #####")

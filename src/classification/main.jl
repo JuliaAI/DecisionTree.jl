@@ -101,8 +101,8 @@ function build_tree(
         X                   = features,
         Y                   = labels,
         W                   = nothing,
-        max_features        = n_subfeatures,
-        max_depth           = max_depth,
+        max_features        = Int(n_subfeatures),
+        max_depth           = Int(max_depth),
         min_samples_leaf    = Int(min_samples_leaf),
         min_samples_split   = Int(min_samples_split),
         min_purity_increase = Float64(min_purity_increase),
@@ -246,7 +246,7 @@ function build_forest(
     end
 
     t_samples = length(labels)
-    n_samples = _int(partial_sampling * t_samples)
+    n_samples = floor(Int, partial_sampling * t_samples)
 
     forest = Distributed.@distributed (vcat) for i in 1:n_trees
         inds = rand(rngs[i], 1:t_samples, n_samples)

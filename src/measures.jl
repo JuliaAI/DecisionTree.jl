@@ -90,7 +90,7 @@ function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, ar
         n_iterations = args[1]
     end
     N = length(labels)
-    ntest = _int(floor(N / nfolds))
+    ntest = floor(Int, N / nfolds)
     inds = Random.randperm(N)
     accuracy = zeros(nfolds)
     for i in 1:nfolds
@@ -127,8 +127,8 @@ function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, ar
 end
 
 function nfoldCV_tree(
-        labels         :: Vector{S},
-        features       :: Matrix{T},
+        labels         :: Vector{T},
+        features       :: Matrix{S},
         pruning_purity :: Float64,
         nfolds         :: Integer) where {S, T}
     _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
@@ -200,7 +200,7 @@ function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args..
         partial_sampling = args[4]
     end
     N = length(labels)
-    ntest = _int(floor(N / nfolds))
+    ntest = floor(Int, N / nfolds)
     inds = Random.randperm(N)
     R2s = zeros(nfolds)
     for i in 1:nfolds

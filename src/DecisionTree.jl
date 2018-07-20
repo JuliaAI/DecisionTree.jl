@@ -1,21 +1,3 @@
-# TODO: add more tests
-# TODO: implement gradient boost and adaboost for regression
-# TODO: test weights support for both regression and classification trees
-# TODO: add min_weights_leaf prepruning
-# TODO: add stricter typing for leaf and node api
-# TODO: add new options for user input purity criterions
-# TODO: optimize vectorization, e.g, changing `nc[:] .= 0` to loops
-# TODO: add postpruning option with comparison with validation data
-# TODO: optimize decision forest
-# TODO: standardize variable names to snake case
-# TODO: trees should still split if purity change is _equal_ to min_purity_increase
-# TODO: review argument consistencies
-#   - swap position arguments in regression's build_tree
-#   - add support for passing rngs to nfoldCV
-# TODO: remove vestigial functions
-# TODO: optimize `build_forest`s
-# TODO: add benchmarks for other functions
-
 __precompile__()
 
 module DecisionTree
@@ -26,8 +8,7 @@ export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error,
-       R2, _int
+       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
@@ -37,10 +18,6 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
        # `using ScikitLearnBase`.
        predict, predict_proba, fit!, get_classes
 
-#####################################
-##### Compatilibity Corrections #####
-
-_int(x) = map(y->round(Integer, y), x)
 
 ###########################
 ########## Types ##########
