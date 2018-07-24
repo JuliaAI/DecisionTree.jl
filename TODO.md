@@ -14,5 +14,4 @@
 * review argument consistencies
     * swap position arguments in regression's build_tree
     * add support for passing rngs to nfoldCV
-* optimize `build_forest`s
 * add benchmarks for other functions

@@ -111,6 +111,25 @@ partial = build_forest(
             min_purity_increase)
 @test typeof(partial.trees[1]) <: Leaf
 
+# test RNG parameter
+n_subfeatures       = 2
+n_trees             = 5
+m1 = build_forest(labels, features,
+        n_subfeatures,
+        n_trees;
+        rng=10)
+m2 = build_forest(labels, features,
+        n_subfeatures,
+        n_trees;
+        rng=10)
+m3 = build_forest(labels, features,
+        n_subfeatures,
+        n_trees;
+        rng=5)
+@test [length(t) for t in m1.trees] == [length(t) for t in m2.trees]
+@test [depth(t)  for t in m1.trees] == [depth(t)  for t in m2.trees]
+@test [length(t) for t in m1.trees] != [length(t) for t in m3.trees]
+
 
 println("\n##### nfoldCV Regression Tree #####")
 n_folds             = 3

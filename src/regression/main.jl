@@ -71,18 +71,13 @@ function build_forest(
         throw("partial_sampling must be in the range (0,1]")
     end
 
-    rng = mk_rng(rng)::Random.AbstractRNG
-    partial_sampling = min(1.0, partial_sampling)
-    rngs = Vector{Random.AbstractRNG}(undef, n_trees)
-    for i in 1:n_trees
-        rngs[i] = mk_rng(rand(rng, UInt))
-    end
-
     t_samples = length(labels)
     n_samples = floor(Int, partial_sampling * t_samples)
 
+    rng = mk_rng(rng)::Random.AbstractRNG
     forest = Distributed.@distributed (vcat) for i in 1:n_trees
-        inds = rand(rngs[i], 1:t_samples, n_samples)
+        rngs = mk_rng(rand(rng, UInt))
+        inds = rand(rngs, 1:t_samples, n_samples)
         build_tree(
             labels[inds],
             features[inds,:],
@@ -91,7 +86,7 @@ function build_forest(
             max_depth,
             min_samples_split,
             min_purity_increase,
-            rng = rngs[i])
+            rng = rngs)
     end
 
     if n_trees == 1
