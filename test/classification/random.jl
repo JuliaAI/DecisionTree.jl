@@ -48,6 +48,25 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
 
+# test partial_sampling parameter, train on single sample
+partial_sampling    = 1 / n
+n_subfeatures       = 0
+n_trees             = 1         # single tree test
+max_depth           = -1
+min_samples_leaf    = 1
+min_samples_split   = 2
+min_purity_increase = 0.0
+partial = build_forest(
+            labels, features,
+            n_subfeatures,
+            n_trees,
+            partial_sampling,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase)
+@test typeof(partial.trees[1]) <: Leaf
+
 n_iterations = 15
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
