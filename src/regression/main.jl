@@ -74,9 +74,8 @@ function build_forest(
     t_samples = length(labels)
     n_samples = floor(Int, partial_sampling * t_samples)
 
-    rng = mk_rng(rng)::Random.AbstractRNG
+    rngs = mk_rng(rng)::Random.AbstractRNG
     forest = Distributed.@distributed (vcat) for i in 1:n_trees
-        rngs = mk_rng(rand(rng, UInt))
         inds = rand(rngs, 1:t_samples, n_samples)
         build_tree(
             labels[inds],
