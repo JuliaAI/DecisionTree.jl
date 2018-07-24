@@ -91,7 +91,27 @@ model = build_forest(
         min_purity_increase)
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
-        
+
+# test partial_sampling parameter, train on single sample
+partial_sampling    = 1 / n
+n_subfeatures       = 0
+n_trees             = 1         # single tree test
+max_depth           = -1
+min_samples_leaf    = 1
+min_samples_split   = 2
+min_purity_increase = 0.0
+partial = build_forest(
+            labels, features,
+            n_subfeatures,
+            n_trees,
+            partial_sampling,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase)
+@test typeof(partial.trees[1]) <: Leaf
+
+
 println("\n##### nfoldCV Regression Tree #####")
 n_folds             = 3
 r2 = nfoldCV_tree(labels, features, n_folds)
