@@ -239,7 +239,7 @@ function build_forest(
         rng                 = Random.GLOBAL_RNG) where {S, T}
 
     rng = mk_rng(rng)::Random.AbstractRNG
-    partial_sampling = max(1.0, partial_sampling)
+    partial_sampling = min(1.0, partial_sampling)
     rngs = Vector{Random.AbstractRNG}(undef, n_trees)
     for i in 1:n_trees
         rngs[i] = mk_rng(rand(rng, UInt))
@@ -261,7 +261,11 @@ function build_forest(
             rng = rngs[i])
     end
 
-    return Ensemble{S, T}(forest)
+    if n_trees == 1
+        return Ensemble{S, T}([forest])
+    else
+        return Ensemble{S, T}(forest)
+    end
 end
 
 function apply_forest(forest::Ensemble{S, T}, features::Vector{S}) where {S, T}
