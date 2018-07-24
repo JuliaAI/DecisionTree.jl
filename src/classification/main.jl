@@ -84,18 +84,13 @@ function build_tree(
         min_purity_increase  = 0.0;
         rng                  = Random.GLOBAL_RNG) where {S, T}
 
-    if max_depth < -1
-        error("Unexpected value for max_depth: $(max_depth)"
-          * " (expected: max_depth >= 0 or max_depth = -1 for infinite depth)")
-    end
-
     if max_depth == -1
         max_depth = typemax(Int)
     end
-
     if n_subfeatures == 0
         n_subfeatures = size(features, 2)
     end
+
     rng = mk_rng(rng)::Random.AbstractRNG
     t = treeclassifier.fit(
         X                   = features,
@@ -237,6 +232,13 @@ function build_forest(
         min_samples_split   = 2,
         min_purity_increase = 0.0;
         rng                 = Random.GLOBAL_RNG) where {S, T}
+
+    if n_trees < 1
+        throw("the number of trees must be >= 1")
+    end
+    if !(0.0 < partial_sampling <= 1.0)
+        throw("partial_sampling must be in the range (0,1]")
+    end
 
     rng = mk_rng(rng)::Random.AbstractRNG
     partial_sampling = min(1.0, partial_sampling)
