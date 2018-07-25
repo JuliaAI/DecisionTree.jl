@@ -16,9 +16,9 @@ min_samples_split   = Int32(2)
 min_purity_increase = 0.5
 model = build_tree(
         labels, features,
-        min_samples_leaf,
         n_subfeatures,
         max_depth,
+        min_samples_leaf,
         min_samples_split,
         min_purity_increase)
 preds = apply_tree(model, features)
