@@ -52,9 +52,8 @@ cm = confusion_matrix(labels, preds)
 
 # run n-fold cross validation for pruned tree
 println("\n##### nfoldCV Classification Tree #####")
-pruning_purity = 0.9
 nfolds = 3
-accuracy = nfoldCV_tree(labels, features, pruning_purity, nfolds)
+accuracy = nfoldCV_tree(labels, features, nfolds)
 @test mean(accuracy) > 0.8
 
 # train random forest classifier
@@ -73,7 +72,7 @@ n_subfeatures = 2
 n_trees = 10
 n_folds = 3
 partial_sampling = 0.5
-accuracy = nfoldCV_forest(labels, features, n_subfeatures, n_trees, nfolds, partial_sampling)
+accuracy = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees, partial_sampling)
 @test mean(accuracy) > 0.9
 
 # train adaptive-boosted decision stumps
@@ -88,7 +87,7 @@ cm = confusion_matrix(labels, preds)
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
 n_iterations = 15
 nfolds = 3
-accuracy = nfoldCV_stumps(labels, features, n_iterations, nfolds)
+accuracy = nfoldCV_stumps(labels, features, nfolds, n_iterations)
 @test mean(accuracy) > 0.9
 
 end # @testset

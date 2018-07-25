@@ -54,20 +54,45 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.3
 
 println("\n##### nfoldCV Classification Tree #####")
-pruning_purity      = 0.9
 n_folds             = Int32(3)
-accuracy = nfoldCV_tree(labels, features, pruning_purity, n_folds)
+pruning_purity      = 1.0
+max_depth           = Int32(-1)
+min_samples_leaf    = Int32(1)
+min_samples_split   = Int32(2)
+min_purity_increase = 0.0
+accuracy = nfoldCV_tree(
+                labels, features,
+                n_folds,
+                pruning_purity,
+                max_depth,
+                min_samples_leaf,
+                min_samples_split,
+                min_purity_increase)
 @test mean(accuracy) > 0.7
 
 println("\n##### nfoldCV Classification Forest #####")
-n_subfeatures       = Int32(2)
 n_trees             = Int32(10)
-accuracy = nfoldCV_forest(labels, features, n_subfeatures, n_trees, n_folds)
+n_subfeatures       = Int32(2)
+n_folds             = Int32(3)
+max_depth           = Int32(-1)
+min_samples_leaf    = Int32(5)
+min_samples_split   = Int32(2)
+min_purity_increase = 0.0
+accuracy = nfoldCV_forest(
+        labels, features,
+        n_folds,
+        n_subfeatures,
+        n_trees,
+        partial_sampling,
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase)
 @test mean(accuracy) > 0.7
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations        = Int32(15)
-accuracy = nfoldCV_stumps(labels, features, n_iterations, n_folds)
+accuracy = nfoldCV_stumps(labels, features, n_folds, n_iterations)
 @test mean(accuracy) > 0.3
 
 end # @testset

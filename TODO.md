@@ -11,6 +11,4 @@
 * use range [0,1] for purity_thresh in `prune_tree` 
 * standardize variable names to snake case
 * trees should still split if purity change is _equal_ to min_purity_increase
-* review argument consistencies
-    * add support for passing rngs to nfoldCV
 * add benchmarks for other functions
