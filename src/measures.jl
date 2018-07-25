@@ -212,7 +212,13 @@ function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args..
         train_features = features[inds[train_inds],:]
         train_labels = labels[inds[train_inds]]
         if regressor == :tree
-            model = build_tree(train_labels, train_features, min_samples_leaf)
+            n_subfeatures = 0
+            max_depth = -1
+            model = build_tree(
+                    labels, features,
+                    n_subfeatures,
+                    max_depth,
+                    min_samples_leaf)
             predictions = apply_tree(model, test_features)
         elseif regressor == :forest
             max_depth = -1
