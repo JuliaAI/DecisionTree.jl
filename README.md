@@ -46,9 +46,9 @@ using DecisionTree
 ```
 Separate Fisher's Iris dataset features and labels
 ```julia
-iris = dataset("datasets", "iris")
-features = convert(Array, iris[:, 1:4]);
-labels = convert(Array, iris[:, 5]);
+iris     = dataset("datasets", "iris")
+features = convert(Array, iris[:, 1:4])
+labels   = convert(Array, iris[:, 5])
 ```
 Pruned Tree Classifier
 ```julia
@@ -84,27 +84,34 @@ print_tree(model, 5)
 apply_tree(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
-# run n-fold cross validation for pruned tree,
-# using 90% purity threshold pruning, and 3 CV folds
-purity=0.9; n_folds=3
-accuracy = nfoldCV_tree(labels, features,
-                        purity,
-                        n_folds)
+# run 3-fold cross validation of pruned tree,
+n_folds=3
+accuracy = nfoldCV_tree(labels, features, n_folds)
 
-# set of classification build_tree() parameters and respective default values
+# set of classification parameters and respective default values
+# pruning_purity: purity threshold used for post-pruning (default: 1.0, no pruning)
 # max_depth: maximum depth of the decision tree (default: -1, no maximum)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 1)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 # n_subfeatures: number of features to select at random (default: 0, keep all)
-n_subfeatures=0; max_depth=-1; min_samples_leaf=1; min_samples_split=2; min_purity_increase=0.0
-model = build_tree(labels, features,
-                   n_subfeatures,
-                   max_depth,
-                   min_samples_leaf,
-                   min_samples_split,
-                   min_purity_increase)
+n_subfeatures=0; max_depth=-1; min_samples_leaf=1; min_samples_split=2
+min_purity_increase=0.0; pruning_purity = 1.0
 
+model    =   build_tree(labels, features,
+                        n_subfeatures,
+                        max_depth,
+                        min_samples_leaf,
+                        min_samples_split,
+                        min_purity_increase)
+
+accuracy = nfoldCV_tree(labels, features,
+                        n_folds,
+                        pruning_purity,
+                        max_depth,
+                        min_samples_leaf,
+                        min_samples_split,
+                        min_purity_increase)
 ```
 Random Forest Classifier
 ```julia
@@ -115,16 +122,11 @@ model = build_forest(labels, features, 2, 10, 0.5, 6)
 apply_forest(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
-# run n-fold cross validation for forests
-# using 2 random features, 10 trees, 3 folds, and 0.5 portion of samples per tree (optional)
-n_subfeatures=2; n_trees=10; n_folds=3; partial_sampling=0.5
-accuracy = nfoldCV_forest(labels, features,
-                          n_subfeatures,
-                          n_trees,
-                          n_folds,
-                          partial_sampling)
+# run 3-fold cross validation for forests, using 2 random features per split
+n_folds=3; n_subfeatures=2
+accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 
-# set of classification build_forest() parameters and respective default values
+# set of classification parameters and respective default values
 # n_subfeatures: number of features to consider at random per split (default: 0, keep all)
 # n_trees: number of trees to train (default: 10)
 # partial_sampling: fraction of samples to train each tree on (default: 0.7)
@@ -134,14 +136,25 @@ accuracy = nfoldCV_forest(labels, features,
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1
 min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
-model = build_forest(labels, features,
-                     n_subfeatures,
-                     n_trees,
-                     partial_sampling,
-                     max_depth,
-                     min_samples_leaf,
-                     min_samples_split,
-                     min_purity_increase)
+
+model    =   build_forest(labels, features,
+                          n_subfeatures,
+                          n_trees,
+                          partial_sampling,
+                          max_depth,
+                          min_samples_leaf,
+                          min_samples_split,
+                          min_purity_increase)
+
+accuracy = nfoldCV_forest(labels, features,
+                          n_folds,
+                          n_subfeatures,
+                          n_trees,
+                          partial_sampling,
+                          max_depth,
+                          min_samples_leaf,
+                          min_samples_split,
+                          min_purity_increase)
 ```
 Adaptive-Boosted Decision Stumps Classifier
 ```julia
@@ -151,19 +164,19 @@ model, coeffs = build_adaboost_stumps(labels, features, 7);
 apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 apply_adaboost_stumps_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
-# run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
+# run 3-fold cross validation for boosted stumps, using 7 iterations
 n_iterations=7; n_folds=3
 accuracy = nfoldCV_stumps(labels, features,
-                          n_iterations,
-                          n_folds)
+                          n_folds,
+                          n_iterations)
 ```
 
 ### Regression Example
 ```julia
-n, m = 10^3, 5 ;
-features = randn(n, m);
-weights = rand(-2:2, m);
-labels = features * weights;
+n, m = 10^3, 5
+features = randn(n, m)
+weights = rand(-2:2, m)
+labels = features * weights
 ```
 Regression Tree
 ```julia
@@ -171,23 +184,30 @@ Regression Tree
 model = build_tree(labels, features)
 # apply learned model
 apply_tree(model, [-0.9,3.0,5.1,1.9,0.0])
-# run n-fold cross validation, using 3 folds and averaging of 5 samples per leaf (optional)
-# returns array of coefficients of determination (R^2)
-n_folds=3; min_samples_leaf=5
-r2 = nfoldCV_tree(labels, features,
-                  n_folds,
-                  min_samples_leaf)
+# run 3-fold cross validation, returns array of coefficients of determination (R^2)
+n_folds = 3
+r2 = nfoldCV_tree(labels, features, n_folds)
 
-# set of regression build_tree() parameters and respective default values
+# set of regression parameters and respective default values
+# pruning_purity: purity threshold used for post-pruning (default: 1.0, no pruning)
 # max_depth: maximum depth of the decision tree (default: -1, no maximum)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 # n_subfeatures: number of features to select at random (default: 0, keep all)
 n_subfeatures = 0; max_depth = -1; min_samples_leaf = 5
-min_samples_split = 2; min_purity_increase = 0.0
+min_samples_split = 2; min_purity_increase = 0.0; pruning_purity = 1.0
+
 model = build_tree(labels, features,
                    n_subfeatures,
+                   max_depth,
+                   min_samples_leaf,
+                   min_samples_split,
+                   min_purity_increase)
+
+r2 =  nfoldCV_tree(labels, features,
+                   n_folds,
+                   pruning_purity,
                    max_depth,
                    min_samples_leaf,
                    min_samples_split,
@@ -200,17 +220,9 @@ Regression Random Forest
 model = build_forest(labels, features, 2, 10, 0.7, 5)
 # apply learned model
 apply_forest(model, [-0.9,3.0,5.1,1.9,0.0])
-# run n-fold cross validation on regression forest
-# using 2 random features, 10 trees, 3 folds, averaging of 5 samples per leaf (optional),
-# and 0.7 porition of samples per tree (optional)
-# returns array of coefficients of determination (R^2)
-n_subfeatures=2; n_trees=10; n_folds=3; min_samples_leaf=5; partial_sampling=0.7
-r2 = nfoldCV_forest(labels, features,
-                    n_subfeatures,
-                    n_trees,
-                    n_folds,
-                    min_samples_leaf,
-                    partial_sampling)
+# run 3-fold cross validation on regression forest, using 2 random features per split
+n_subfeatures=2; n_folds=3
+r2 = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 
 # set of regression build_forest() parameters and respective default values
 # n_subfeatures: number of features to consider at random per split (default: 0, keep all)
@@ -222,7 +234,18 @@ r2 = nfoldCV_forest(labels, features,
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1
 min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
+
 model = build_forest(labels, features,
+                     n_subfeatures,
+                     n_trees,
+                     partial_sampling,
+                     max_depth,
+                     min_samples_leaf,
+                     min_samples_split,
+                     min_purity_increase)
+
+r2 =  nfoldCV_forest(labels, features,
+                     n_folds,
                      n_subfeatures,
                      n_trees,
                      partial_sampling,

@@ -10,8 +10,14 @@ features = energy[2:end, 3:end];
 labels = float.(energy[2:end, 2]);
 
 # over-fitting
-min_samples_leaf = 1;
-model = build_tree(labels, features, min_samples_leaf)
+n_subfeatures       = 0
+max_depth           = -1
+min_samples_leaf    = 1
+model = build_tree(
+        labels, features,
+        n_subfeatures,
+        max_depth,
+        min_samples_leaf)
 preds = apply_tree(model, features);
 @test R2(labels, preds) > 0.99
 

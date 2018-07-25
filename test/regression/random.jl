@@ -59,9 +59,9 @@ model = build_tree(
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8
 
-min_samples_leaf    = 1
 n_subfeatures       = 0
 max_depth           = -1
+min_samples_leaf    = 1
 min_samples_split   = 2
 min_purity_increase = 0.5
 model = build_tree(
@@ -151,15 +151,26 @@ m3 = build_forest(labels, features,
 @test [length(t) for t in m1.trees] != [length(t) for t in m3.trees]
 
 
-println("\n##### nfoldCV Regression Tree #####")
-n_folds             = 3
-r2 = nfoldCV_tree(labels, features, n_folds)
-@test mean(r2) > 0.6
+println("\n##### nfoldCV Classification Tree #####")
+nfolds          = 3
+pruning_purity  = 1.0
+max_depth       = 4
+r2_1 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
+r2_2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
+r2_3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
+@test mean(r2_1) > 0.6
+@test r2_1 == r2_2
+@test r2_1 != r2_3
 
 println("\n##### nfoldCV Regression Forest #####")
-n_trees             = 10
-n_subfeatures       = 2
-r2 = nfoldCV_forest(labels, features, n_subfeatures, n_trees, n_folds)
-@test mean(r2) > 0.8
+nfolds          = 3
+n_subfeatures   = 2
+n_trees         = 10
+r2_1  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
+r2_2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
+r2_3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=5)
+@test mean(r2_1) > 0.8
+@test r2_1 == r2_2
+@test r2_1 != r2_3
 
 end # @testset

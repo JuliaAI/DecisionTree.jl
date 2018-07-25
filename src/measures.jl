@@ -75,23 +75,32 @@ function confusion_matrix(actual::Vector, predicted::Vector)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
-function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, args...) where {S, T}
-    nfolds = args[end]
+function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, args...; rng) where {S, T}
+    rng = mk_rng(rng)::Random.AbstractRNG
+    nfolds = args[1]
     if nfolds < 2
-        return nothing
+        throw("number of folds must be greater than 1")
     end
     if classifier == :tree
-        pruning_purity = args[1]
+        pruning_purity      = args[2]
+        max_depth           = args[3]
+        min_samples_leaf    = args[4]
+        min_samples_split   = args[5]
+        min_purity_increase = args[6]
     elseif classifier == :forest
-        n_subfeatures = args[1]
-        n_trees = args[2]
-        partial_sampling = args[3]
+        n_subfeatures       = args[2]
+        n_trees             = args[3]
+        partial_sampling    = args[4]
+        max_depth           = args[5]
+        min_samples_leaf    = args[6]
+        min_samples_split   = args[7]
+        min_purity_increase = args[8]
     elseif classifier == :stumps
-        n_iterations = args[1]
+        n_iterations        = args[2]
     end
     N = length(labels)
     ntest = floor(Int, N / nfolds)
-    inds = Random.randperm(N)
+    inds = Random.randperm(rng, N)
     accuracy = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
@@ -103,14 +112,29 @@ function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, ar
         train_labels = labels[inds[train_inds]]
 
         if classifier == :tree
-            model = build_tree(train_labels, train_features)
+            n_subfeatures = 0
+            model = build_tree(labels, features,
+                   n_subfeatures,
+                   max_depth,
+                   min_samples_leaf,
+                   min_samples_split,
+                   min_purity_increase;
+                   rng = rng)
             if pruning_purity < 1.0
                 model = prune_tree(model, pruning_purity)
             end
             predictions = apply_tree(model, test_features)
         elseif classifier == :forest
             model = build_forest(
-                train_labels, train_features, n_subfeatures, n_trees, partial_sampling)
+                        labels, features,
+                        n_subfeatures,
+                        n_trees,
+                        partial_sampling,
+                        max_depth,
+                        min_samples_leaf,
+                        min_samples_split,
+                        min_purity_increase;
+                        rng = rng)
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
             model, coeffs = build_adaboost_stumps(
@@ -127,27 +151,40 @@ function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, ar
 end
 
 function nfoldCV_tree(
-        labels         :: Vector{T},
-        features       :: Matrix{S},
-        pruning_purity :: Float64,
-        nfolds         :: Integer) where {S, T}
-    _nfoldCV(:tree, labels, features, pruning_purity, nfolds)
+        labels              :: Vector{T},
+        features            :: Matrix{S},
+        n_folds             :: Integer,
+        pruning_purity      :: Float64 = 1.0,
+        max_depth           :: Integer = -1,
+        min_samples_leaf    :: Integer = 1,
+        min_samples_split   :: Integer = 2,
+        min_purity_increase :: Float64 = 0.0;
+        rng                 = Random.GLOBAL_RNG) where {S, T}
+    _nfoldCV(:tree, labels, features, n_folds, pruning_purity, max_depth,
+                min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
 end
 function nfoldCV_forest(
-        labels           :: Vector{T},
-        features         :: Matrix{S},
-        n_subfeatures    :: Integer,
-        n_trees          :: Integer,
-        nfolds           :: Integer,
-        partial_sampling  = 0.7) where {S, T}
-    _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, partial_sampling, nfolds)
+        labels              :: Vector{T},
+        features            :: Matrix{S},
+        n_folds             :: Integer,
+        n_subfeatures       :: Integer = 0,
+        n_trees             :: Integer = 10,
+        partial_sampling    :: Float64 = 0.7,
+        max_depth           :: Integer = -1,
+        min_samples_leaf    :: Integer = 1,
+        min_samples_split   :: Integer = 2,
+        min_purity_increase :: Float64 = 0.0;
+        rng                 = Random.GLOBAL_RNG) where {S, T}
+    _nfoldCV(:forest, labels, features, n_folds, n_subfeatures, n_trees, partial_sampling,
+                max_depth, min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
 end
 function nfoldCV_stumps(
         labels       ::Vector{T},
         features     ::Matrix{S},
-        n_iterations ::Integer,
-        nfolds       ::Integer) where {S, T}
-    _nfoldCV(:stumps, labels, features, n_iterations, nfolds)
+        n_folds      ::Integer,
+        n_iterations ::Integer = 10;
+        rng          = Random.GLOBAL_RNG) where {S, T}
+    _nfoldCV(:stumps, labels, features, n_folds, n_iterations; rng=rng)
 end
 
 ### Regression ###
@@ -186,22 +223,30 @@ function cor(x, y)
 
 end
 
-function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args...) where T <: Float64
-    nfolds = args[end]
+function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args...; rng) where T <: Float64
+    rng = mk_rng(rng)::Random.AbstractRNG
+    nfolds = args[1]
     if nfolds < 2
-        return nothing
+        throw("number of folds must be greater than 1")
     end
     if regressor == :tree
-        min_samples_leaf = args[1]
+        pruning_purity      = args[2]
+        max_depth           = args[3]
+        min_samples_leaf    = args[4]
+        min_samples_split   = args[5]
+        min_purity_increase = args[6]
     elseif regressor == :forest
-        n_subfeatures = args[1]
-        n_trees = args[2]
-        min_samples_leaf = args[3]
-        partial_sampling = args[4]
+        n_subfeatures       = args[2]
+        n_trees             = args[3]
+        partial_sampling    = args[4]
+        max_depth           = args[5]
+        min_samples_leaf    = args[6]
+        min_samples_split   = args[7]
+        min_purity_increase = args[8]
     end
     N = length(labels)
     ntest = floor(Int, N / nfolds)
-    inds = Random.randperm(N)
+    inds = Random.randperm(rng, N)
     R2s = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
@@ -213,23 +258,28 @@ function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args..
         train_labels = labels[inds[train_inds]]
         if regressor == :tree
             n_subfeatures = 0
-            max_depth = -1
-            model = build_tree(
-                    labels, features,
-                    n_subfeatures,
-                    max_depth,
-                    min_samples_leaf)
+            model = build_tree(labels, features,
+                   n_subfeatures,
+                   max_depth,
+                   min_samples_leaf,
+                   min_samples_split,
+                   min_purity_increase;
+                   rng = rng)
+            if pruning_purity < 1.0
+                model = prune_tree(model, pruning_purity)
+            end
             predictions = apply_tree(model, test_features)
         elseif regressor == :forest
-            max_depth = -1
             model = build_forest(
-                train_labels,
-                train_features,
-                n_subfeatures,
-                n_trees,
-                partial_sampling,
-                max_depth,
-                min_samples_leaf)
+                        labels, features,
+                        n_subfeatures,
+                        n_trees,
+                        partial_sampling,
+                        max_depth,
+                        min_samples_leaf,
+                        min_samples_split,
+                        min_purity_increase;
+                        rng = rng)
             predictions = apply_forest(model, test_features)
         end
         err = mean_squared_error(test_labels, predictions)
@@ -245,8 +295,31 @@ function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args..
     return R2s
 end
 
-nfoldCV_tree(labels::Vector{T}, features::Matrix, nfolds::Integer, min_samples_leaf::Integer = 5) where T <: Float64 =
-    _nfoldCV(:tree, labels, features, min_samples_leaf, nfolds)
-
-nfoldCV_forest(labels::Vector{T}, features::Matrix, n_subfeatures::Integer, n_trees::Integer, nfolds::Integer, min_samples_leaf::Integer = 5, partial_sampling = 0.7) where T <: Float64 =
-    _nfoldCV(:forest, labels, features, n_subfeatures, n_trees, min_samples_leaf, partial_sampling, nfolds)
+function nfoldCV_tree(
+    labels              :: Vector{T},
+    features            :: Matrix{S},
+    n_folds             :: Integer,
+    pruning_purity      :: Float64 = 1.0,
+    max_depth           :: Integer = -1,
+    min_samples_leaf    :: Integer = 5,
+    min_samples_split   :: Integer = 2,
+    min_purity_increase :: Float64 = 0.0;
+    rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
+_nfoldCV(:tree, labels, features, n_folds, pruning_purity, max_depth,
+            min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
+end
+function nfoldCV_forest(
+    labels              :: Vector{T},
+    features            :: Matrix{S},
+    n_folds             :: Integer,
+    n_subfeatures       :: Integer = 0,
+    n_trees             :: Integer = 10,
+    partial_sampling    :: Float64 = 0.7,
+    max_depth           :: Integer = -1,
+    min_samples_leaf    :: Integer = 5,
+    min_samples_split   :: Integer = 2,
+    min_purity_increase :: Float64 = 0.0;
+    rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
+_nfoldCV(:forest, labels, features, n_folds, n_subfeatures, n_trees, partial_sampling,
+            max_depth, min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
+end

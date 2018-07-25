@@ -47,13 +47,40 @@ preds = apply_forest(model, features)
 
 println("\n##### nfoldCV Regression Tree #####")
 n_folds             = Int32(3)
-r2 = nfoldCV_tree(labels, features, n_folds)
+pruning_purity      = 1.0
+max_depth           = Int32(-1)
+min_samples_leaf    = Int32(5)
+min_samples_split   = Int32(2)
+min_purity_increase = 0.0
+r2 = nfoldCV_tree(
+        labels, features,
+        n_folds,
+        pruning_purity,
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase)
 @test mean(r2) > 0.6
 
 println("\n##### nfoldCV Regression Forest #####")
 n_trees             = Int32(10)
 n_subfeatures       = Int32(2)
-r2 = nfoldCV_forest(labels, features, n_subfeatures, n_trees, n_folds)
+n_folds             = Int32(3)
+max_depth           = Int32(-1)
+min_samples_leaf    = Int32(5)
+min_samples_split   = Int32(2)
+min_purity_increase = 0.0
+r2 = nfoldCV_forest(
+        labels, features,
+        n_folds,
+        n_subfeatures,
+        n_trees,
+        partial_sampling,
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase)
 @test mean(r2) > 0.8
+
 
 end # @testset
