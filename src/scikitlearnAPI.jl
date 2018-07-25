@@ -140,9 +140,9 @@ function fit!(dt::DecisionTreeRegressor, X::Matrix, y::Vector)
     n_samples, n_features = size(X)
     dt.root = build_tree(
         Float64.(y), X,
-        dt.min_samples_leaf,
         dt.n_subfeatures,
         dt.max_depth,
+        dt.min_samples_leaf,
         dt.min_samples_split,
         dt.min_purity_increase;
         rng = dt.rng)
