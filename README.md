@@ -167,8 +167,8 @@ labels = features * weights;
 ```
 Regression Tree
 ```julia
-# train regression tree, using an averaging of 5 samples per leaf (optional)
-model = build_tree(labels, features, 5)
+# train regression tree
+model = build_tree(labels, features)
 # apply learned model
 apply_tree(model, [-0.9,3.0,5.1,1.9,0.0])
 # run n-fold cross validation, using 3 folds and averaging of 5 samples per leaf (optional)
@@ -184,11 +184,12 @@ r2 = nfoldCV_tree(labels, features,
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 # n_subfeatures: number of features to select at random (default: 0, keep all)
-min_samples_leaf = 5; n_subfeatures = 0; max_depth = -1; min_samples_split = 2; min_purity_increase = 0.0;
+n_subfeatures = 0; max_depth = -1; min_samples_leaf = 5
+min_samples_split = 2; min_purity_increase = 0.0
 model = build_tree(labels, features,
-                   min_samples_leaf,
                    n_subfeatures,
                    max_depth,
+                   min_samples_leaf,
                    min_samples_split,
                    min_purity_increase)
 ```
