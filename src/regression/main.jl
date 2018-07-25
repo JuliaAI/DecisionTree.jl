@@ -17,7 +17,7 @@ function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T
 end
 
 function build_stump(labels::Vector{T}, features::Matrix{S}; rng = Random.GLOBAL_RNG) where {S, T <: Float64}
-    return build_tree(labels, features, 1, 0, 1)
+    return build_tree(labels, features, 0, 1)
 end
 
 function build_tree(
