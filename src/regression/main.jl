@@ -23,9 +23,9 @@ end
 function build_tree(
         labels             :: Vector{T},
         features           :: Matrix{S},
-        min_samples_leaf    = 5,
         n_subfeatures       = 0,
         max_depth           = -1,
+        min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
         rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
@@ -59,7 +59,7 @@ function build_forest(
         n_trees             = 10,
         partial_sampling    = 0.7,
         max_depth           = -1,
-        min_samples_leaf    = 1,
+        min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
         rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
@@ -80,9 +80,9 @@ function build_forest(
         build_tree(
             labels[inds],
             features[inds,:],
-            min_samples_leaf,
             n_subfeatures,
             max_depth,
+            min_samples_leaf,
             min_samples_split,
             min_purity_increase,
             rng = rngs)
