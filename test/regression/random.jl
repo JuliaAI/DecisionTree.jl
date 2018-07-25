@@ -68,6 +68,21 @@ model = build_tree(
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.95
 
+# test RNG param of trees
+min_samples_leaf    = 2
+n_subfeatures       = 2
+t1 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=10)
+t2 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=10)
+t3 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=5)
+@test (length(t1) == length(t2)) && (depth(t1) == depth(t2))
+@test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
+
+mt = Random.MersenneTwister(1)
+t1 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=mt)
+t3 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=mt)
+@test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
+
+
 model = build_forest(labels, features)
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9

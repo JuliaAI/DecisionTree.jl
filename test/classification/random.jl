@@ -22,6 +22,20 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
 @test typeof(preds) == Vector{Int}
 
+# test RNG param of trees
+n_subfeatures = 2
+t1 = build_tree(labels, features, n_subfeatures; rng=10)
+t2 = build_tree(labels, features, n_subfeatures; rng=10)
+t3 = build_tree(labels, features, n_subfeatures; rng=5)
+@test (length(t1) == length(t2)) && (depth(t1) == depth(t2))
+@test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
+
+mt = Random.MersenneTwister(1)
+t1 = build_tree(labels, features, n_subfeatures; rng=mt)
+t3 = build_tree(labels, features, n_subfeatures; rng=mt)
+@test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
+
+
 model = build_forest(labels, features)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
@@ -67,7 +81,7 @@ partial = build_forest(
             min_purity_increase)
 @test typeof(partial.trees[1]) <: Leaf
 
-# test RNG parameter
+# test RNG parameter for forests
 n_subfeatures       = 2
 n_trees             = 5
 m1 = build_forest(labels, features,
