@@ -14,8 +14,12 @@ model = build_stump(labels, features)
 
 # over-fitting
 min_samples_leaf    = 1
+max_depth           = -1
+n_subfeatures       = 0
 model = build_tree(
         labels, features,
+        n_subfeatures,
+        max_depth,
         min_samples_leaf)
 preds = apply_tree(model, features);
 @test R2(labels, preds) > 0.99      # R2: coeff of determination
@@ -26,6 +30,8 @@ preds = apply_tree(model, features);
 min_samples_leaf    = 100
 model = build_tree(
         labels, features,
+        n_subfeatures,
+        max_depth,
         min_samples_leaf)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8
@@ -35,9 +41,9 @@ max_depth           = 3
 n_subfeatures       = 0
 model = build_tree(
         labels, features,
-        min_samples_leaf,
         n_subfeatures,
-        max_depth)
+        max_depth,
+        min_samples_leaf)
 @test depth(model) == max_depth
 
 min_samples_leaf    = 1
@@ -46,9 +52,9 @@ max_depth           = -1
 min_samples_split   = 300
 model = build_tree(
         labels, features,
-        min_samples_leaf,
         n_subfeatures,
         max_depth,
+        min_samples_leaf,
         min_samples_split)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8
@@ -60,26 +66,25 @@ min_samples_split   = 2
 min_purity_increase = 0.5
 model = build_tree(
         labels, features,
-        min_samples_leaf,
         n_subfeatures,
         max_depth,
+        min_samples_leaf,
         min_samples_split,
         min_purity_increase)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.95
 
 # test RNG param of trees
-min_samples_leaf    = 2
 n_subfeatures       = 2
-t1 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=10)
-t2 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=10)
-t3 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=5)
+t1 = build_tree(labels, features, n_subfeatures; rng=10)
+t2 = build_tree(labels, features, n_subfeatures; rng=10)
+t3 = build_tree(labels, features, n_subfeatures; rng=5)
 @test (length(t1) == length(t2)) && (depth(t1) == depth(t2))
 @test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
 
 mt = Random.MersenneTwister(1)
-t1 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=mt)
-t3 = build_tree(labels, features, min_samples_leaf, n_subfeatures; rng=mt)
+t1 = build_tree(labels, features, n_subfeatures; rng=mt)
+t3 = build_tree(labels, features, n_subfeatures; rng=mt)
 @test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
 
 

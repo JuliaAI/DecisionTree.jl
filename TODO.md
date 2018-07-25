@@ -12,6 +12,5 @@
 * standardize variable names to snake case
 * trees should still split if purity change is _equal_ to min_purity_increase
 * review argument consistencies
-    * swap position arguments in regression's build_tree
     * add support for passing rngs to nfoldCV
 * add benchmarks for other functions
