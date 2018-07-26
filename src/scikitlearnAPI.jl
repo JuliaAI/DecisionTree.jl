@@ -82,7 +82,7 @@ function show(io::IO, dt::DecisionTreeClassifier)
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
     print(io,   "classes:                  ") ; show(dt.classes) ; println()
-    print(io,   "root:                     ") ; show(dt.root)    ; println()
+    print(io,   "root:                     ") ; show(dt.root)
 end
 
 ################################################################################
@@ -161,14 +161,14 @@ function show(io::IO, dt::DecisionTreeRegressor)
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
-    print(io,   "root:                     ") ; show(dt.root) ; println()
+    print(io,   "root:                     ") ; show(dt.root)
 end
 
 ################################################################################
 # Random Forest Classification
 
 """
-    RandomForestClassifier(; n_subfeatures::Int=0,
+    RandomForestClassifier(; n_subfeatures::Int=-1,
                            n_trees::Int=10,
                            partial_sampling::Float=0.7,
                            max_depth::Int=-1,
@@ -177,7 +177,7 @@ Random forest classification. See [DecisionTree.jl's documentation](https://gith
 
 Hyperparameters:
 
-- `n_subfeatures`: number of features to consider at random per split (default: keep all)
+- `n_subfeatures`: number of features to consider at random per split (default: -1, sqrt(# features))
 - `n_trees`: number of trees to train (default: 10)
 - `partial_sampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
@@ -200,7 +200,7 @@ mutable struct RandomForestClassifier <: BaseClassifier
     rng::Random.AbstractRNG
     ensemble::Union{Ensemble, Nothing}
     classes::Union{Vector, Nothing}
-    RandomForestClassifier(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
+    RandomForestClassifier(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                            max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
                            rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
@@ -244,15 +244,14 @@ function show(io::IO, rf::RandomForestClassifier)
     println(io, "min_samples_split:   $(rf.min_samples_split)")
     println(io, "min_purity_increase: $(rf.min_purity_increase)")
     print(io,   "classes:             ") ; show(rf.classes)  ; println()
-    print(io,   "ensemble:            ") ; show(rf.ensemble) ; println()
-
+    print(io,   "ensemble:            ") ; show(rf.ensemble)
 end
 
 ################################################################################
 # Random Forest Regression
 
 """
-    RandomForestRegressor(; n_subfeatures::Int=0,
+    RandomForestRegressor(; n_subfeatures::Int=-1,
                           n_trees::Int=10,
                           partial_sampling::Float=0.7,
                           max_depth::Int=-1,
@@ -262,7 +261,7 @@ Random forest regression. See [DecisionTree.jl's documentation](https://github.c
 
 Hyperparameters:
 
-- `n_subfeatures`: number of features to consider at random per split (default: keep all)
+- `n_subfeatures`: number of features to consider at random per split (default: -1, sqrt(# features))
 - `n_trees`: number of trees to train (default: 10)
 - `partial_sampling`: fraction of samples to train each tree on (default: 0.7)
 - `max_depth`: maximum depth of the decision trees (default: no maximum)
@@ -284,7 +283,7 @@ mutable struct RandomForestRegressor <: BaseRegressor
     min_purity_increase::Float64
     rng::Random.AbstractRNG
     ensemble::Union{Ensemble, Nothing}
-    RandomForestRegressor(; n_subfeatures=0, n_trees=10, partial_sampling=0.7,
+    RandomForestRegressor(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                             max_depth=-1, min_samples_leaf=5, min_samples_split=2, min_purity_increase=0.0,
                             rng=Random.GLOBAL_RNG, ensemble=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
@@ -324,7 +323,7 @@ function show(io::IO, rf::RandomForestRegressor)
     println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
     println(io, "min_samples_split:   $(rf.min_samples_split)")
     println(io, "min_purity_increase: $(rf.min_purity_increase)")
-    print(io,   "ensemble:            ") ; show(rf.ensemble) ; println()
+    print(io,   "ensemble:            ") ; show(rf.ensemble)
 end
 
 ################################################################################
@@ -374,7 +373,7 @@ function show(io::IO, ada::AdaBoostStumpClassifier)
     println(io, "AdaBoostStumpClassifier")
     println(io, "n_iterations: $(ada.n_iterations)")
     print(io,   "classes:      ") ; show(ada.classes)  ; println()
-    print(io,   "ensemble:     ") ; show(ada.ensemble) ; println()
+    print(io,   "ensemble:     ") ; show(ada.ensemble)
 end
 
 ################################################################################

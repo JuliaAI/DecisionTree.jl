@@ -247,6 +247,8 @@ module treeclassifier
         elseif n_features < max_features
             throw("number of features $(n_features) is less than the number "
                 * "of max features $(max_features)")
+        elseif max_features < 0
+            throw("number of features $(max_features) must be >= zero ")
         elseif min_samples_leaf < 1
             throw("min_samples_leaf must be a positive integer "
                 * "(given $(min_samples_leaf))")
