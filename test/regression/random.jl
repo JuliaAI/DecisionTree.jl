@@ -94,7 +94,7 @@ preds = apply_forest(model, features)
 @test typeof(preds) <: Vector{Float64}
 
 n_subfeatures       = 3
-n_trees             = 10
+n_trees             = 9
 partial_sampling    = 0.7
 max_depth           = -1
 min_samples_leaf    = 5
@@ -111,6 +111,30 @@ model = build_forest(
         min_purity_increase)
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
+@test length(model) == n_trees
+
+# test n_subfeatures
+n_trees             = 10
+partial_sampling    = 1.0
+max_depth           = -1
+min_samples_leaf    = 10
+n_subfeatures       = 1
+m_partial = build_forest(
+        labels, features,
+        n_subfeatures,
+        n_trees,
+        partial_sampling,
+        max_depth,
+        min_samples_leaf)
+n_subfeatures       = 0
+m_full = build_forest(
+        labels, features,
+        n_subfeatures,
+        n_trees,
+        partial_sampling,
+        max_depth,
+        min_samples_leaf)
+@test mean(depth.(m_full.trees)) < mean(depth.(m_partial.trees))
 
 # test partial_sampling parameter, train on single sample
 partial_sampling    = 1 / n
@@ -146,9 +170,9 @@ m3 = build_forest(labels, features,
         n_subfeatures,
         n_trees;
         rng=5)
-@test [length(t) for t in m1.trees] == [length(t) for t in m2.trees]
-@test [depth(t)  for t in m1.trees] == [depth(t)  for t in m2.trees]
-@test [length(t) for t in m1.trees] != [length(t) for t in m3.trees]
+@test length.(m1.trees) == length.(m2.trees)
+@test depth.(m1.trees)  == depth.(m2.trees)
+@test length.(m1.trees) != length.(m3.trees)
 
 
 println("\n##### nfoldCV Classification Tree #####")
