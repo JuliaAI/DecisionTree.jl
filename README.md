@@ -127,7 +127,7 @@ n_folds=3; n_subfeatures=2
 accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 
 # set of classification parameters and respective default values
-# n_subfeatures: number of features to consider at random per split (default: 0, keep all)
+# n_subfeatures: number of features to consider at random per split (default: -1, sqrt(# features))
 # n_trees: number of trees to train (default: 10)
 # partial_sampling: fraction of samples to train each tree on (default: 0.7)
 # max_depth: maximum depth of the decision trees (default: no maximum)
@@ -225,7 +225,7 @@ n_subfeatures=2; n_folds=3
 r2 = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 
 # set of regression build_forest() parameters and respective default values
-# n_subfeatures: number of features to consider at random per split (default: 0, keep all)
+# n_subfeatures: number of features to consider at random per split (default: -1, sqrt(# features))
 # n_trees: number of trees to train (default: 10)
 # partial_sampling: fraction of samples to train each tree on (default: 0.7)
 # max_depth: maximum depth of the decision trees (default: no maximum)
