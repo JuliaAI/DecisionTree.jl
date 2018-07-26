@@ -43,7 +43,7 @@ cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int}
 
 n_subfeatures       = 3
-n_trees             = 10
+n_trees             = 9
 partial_sampling    = 0.7
 max_depth           = -1
 min_samples_leaf    = 5
@@ -61,6 +61,13 @@ model = build_forest(
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
+@test length(model) == n_trees
+
+# test n_subfeatures
+n_subfeatures       = 0
+m_partial = build_forest(labels, features) # default sqrt(n_features)
+m_full    = build_forest(labels, features, n_subfeatures)
+@test all( length.(m_full.trees) .< length.(m_partial.trees) )
 
 # test partial_sampling parameter, train on single sample
 partial_sampling    = 1 / n
@@ -96,9 +103,9 @@ m3 = build_forest(labels, features,
         n_subfeatures,
         n_trees;
         rng=5)
-@test [length(t) for t in m1.trees] == [length(t) for t in m2.trees]
-@test [depth(t)  for t in m1.trees] == [depth(t)  for t in m2.trees]
-@test [length(t) for t in m1.trees] != [length(t) for t in m3.trees]
+@test length.(m1.trees) == length.(m2.trees)
+@test depth.(m1.trees)  == depth.(m2.trees)
+@test length.(m1.trees) != length.(m3.trees)
 
 
 n_iterations = 15
@@ -107,6 +114,7 @@ preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.7
 @test typeof(preds) == Vector{Int}
+@test length(model) == n_iterations
 
 println("\n##### nfoldCV Classification Tree #####")
 nfolds          = 3

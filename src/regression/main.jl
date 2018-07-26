@@ -55,7 +55,7 @@ end
 function build_forest(
         labels              :: Vector{T},
         features            :: Matrix{S},
-        n_subfeatures       = 0,
+        n_subfeatures       = -1,
         n_trees             = 10,
         partial_sampling    = 0.7,
         max_depth           = -1,
@@ -69,6 +69,11 @@ function build_forest(
     end
     if !(0.0 < partial_sampling <= 1.0)
         throw("partial_sampling must be in the range (0,1]")
+    end
+
+    if n_subfeatures == -1
+        n_features = size(features)[2]
+        n_subfeatures = round(Int, sqrt(n_features))
     end
 
     t_samples = length(labels)
