@@ -134,7 +134,7 @@ accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
-n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1
+n_subfeatures=-1; n_trees=10; partial_sampling=0.7; max_depth=-1
 min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
 
 model    =   build_forest(labels, features,
@@ -232,7 +232,7 @@ r2 = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
-n_subfeatures=0; n_trees=10; partial_sampling=0.7; max_depth=-1
+n_subfeatures=-1; n_trees=10; partial_sampling=0.7; max_depth=-1
 min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
 
 model = build_forest(labels, features,
