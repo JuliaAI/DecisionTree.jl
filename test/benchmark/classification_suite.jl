@@ -105,15 +105,3 @@ function benchmark_classification(build::Function, apply::Function)
     results = run(suite, verbose = true)
     return results
 end
-
-
-
-function build_adaboost(labels, features)
-    n_iterations = 10
-    model, coeffs = build_adaboost_stumps(labels, features, n_iterations)
-    return model
-end
-function apply_adaboost(model, features)
-    n = length(model)
-    return apply_adaboost_stumps(model, ones(n), features)
-end
