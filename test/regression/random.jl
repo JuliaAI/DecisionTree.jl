@@ -29,11 +29,11 @@ preds = apply_tree(model, features);
 # under-fitting
 min_samples_leaf    = 100
 model = build_tree(
-        labels, features,
+        labels, round.(Int, features),
         n_subfeatures,
         max_depth,
         min_samples_leaf)
-preds = apply_tree(model, features);
+preds = apply_tree(model, round.(Int, features));
 @test R2(labels, preds) < 0.8
 
 min_samples_leaf    = 5

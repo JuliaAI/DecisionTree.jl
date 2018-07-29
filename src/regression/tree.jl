@@ -15,7 +15,7 @@ module treeregressor
         r           :: NodeMeta{S}  # left child
         label       :: Float64      # most likely label
         feature     :: Int          # feature used for splitting
-        threshold   :: Any          # threshold value
+        threshold   :: S            # threshold value
         is_leaf     :: Bool
         depth       :: Int
         region      :: UnitRange{Int} # a slice of the samples used to decide the split of the node

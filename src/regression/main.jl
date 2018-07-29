@@ -1,10 +1,4 @@
 include("tree.jl")
-import Random
-import Distributed
-
-# Convenience functions - make a Random Number Generator object
-mk_rng(rng::Random.AbstractRNG) = rng
-mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
 
 function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T <: Float64}
     if node.is_leaf
@@ -72,7 +66,7 @@ function build_forest(
     end
 
     if n_subfeatures == -1
-        n_features = size(features)[2]
+        n_features = size(features, 2)
         n_subfeatures = round(Int, sqrt(n_features))
     end
 
