@@ -8,7 +8,8 @@ features = rand(n,m);
 weights = rand(-1:1,m);
 labels = round.(Int, features * weights);
 
-model = build_stump(labels, features)
+model = build_stump(labels, round.(Int, features))
+preds = apply_tree(model, round.(Int, features))
 @test depth(model) == 1
 
 max_depth = 3

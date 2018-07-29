@@ -1,10 +1,6 @@
 # Utilities
 
-
 include("tree.jl")
-include("../util.jl")
-import Distributed
-import Random
 
 # Returns a dict ("Label1" => 1, "Label2" => 2, "Label3" => 3, ...)
 label_index(labels) = Dict(v => k for (k, v) in enumerate(labels))
@@ -241,7 +237,7 @@ function build_forest(
     end
 
     if n_subfeatures == -1
-        n_features = size(features)[2]
+        n_features = size(features, 2)
         n_subfeatures = round(Int, sqrt(n_features))
     end
 

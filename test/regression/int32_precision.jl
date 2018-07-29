@@ -15,13 +15,13 @@ max_depth           = Int32(-1)
 min_samples_split   = Int32(2)
 min_purity_increase = 0.5
 model = build_tree(
-        labels, features,
+        labels, round.(Int32, features),
         n_subfeatures,
         max_depth,
         min_samples_leaf,
         min_samples_split,
         min_purity_increase)
-preds = apply_tree(model, features)
+preds = apply_tree(model, round.(Int32, features))
 @test R2(labels, preds) < 0.95
 @test typeof(preds) <: Vector{Float64}
 

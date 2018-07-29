@@ -10,8 +10,8 @@ features[:,1] = round.(Int32, features[:,1]); # convert a column of 32bit intege
 weights = rand(-1:1,m);
 labels = round.(Int32, features * weights);
 
-model = build_stump(labels, features)
-preds = apply_tree(model, features)
+model = build_stump(labels, round.(Int32, features))
+preds = apply_tree(model, round.(Int32, features))
 @test typeof(preds) == Vector{Int32}
 @test depth(model) == 1
 

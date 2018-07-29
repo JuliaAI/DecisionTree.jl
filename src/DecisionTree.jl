@@ -3,6 +3,8 @@ __precompile__()
 module DecisionTree
 
 import Base: length, show
+import Distributed
+import Random
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
@@ -48,10 +50,15 @@ function mean(l)
     return sum(l) / length(l)
 end
 
+# make a Random Number Generator object
+mk_rng(rng::Random.AbstractRNG) = rng
+mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
+
 ##############################
 ########## Includes ##########
 
 include("measures.jl")
+include("util.jl")
 include("classification/main.jl")
 include("regression/main.jl")
 include("scikitlearnAPI.jl")
