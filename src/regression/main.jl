@@ -95,6 +95,7 @@ function build_forest(
 end
 
 
+#= temporarily commenting out new prune_tree implementation
 function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=0.0) where {S, T <: Float64}
 
     function recurse(leaf :: Leaf{T}, purity_thresh :: Float64)
@@ -128,7 +129,7 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=0.0) where {S, T <: Fl
         return 0.0, 0.0, Node{S, T}(node.featid, node.featval, l, r)
     end
 
-
     _, _, node = recurse(tree, purity_thresh)
     return node
 end
+=#
