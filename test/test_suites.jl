@@ -14,7 +14,7 @@ end
 
 classification = [
     "classification/random.jl",
-    "classification/int32_precision.jl",
+    "classification/low_precision.jl",
     "classification/heterogeneous.jl",
     "classification/digits.jl",
     "classification/iris.jl",
@@ -24,7 +24,7 @@ classification = [
 
 regression =     [
     "regression/random.jl",
-    "regression/int32_precision.jl",
+    "regression/low_precision.jl",
     "regression/digits.jl",
     "regression/scikitlearn.jl"
 ]
