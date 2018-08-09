@@ -116,7 +116,7 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=1.0) where {S, T}
             matches = findall(all_labels .== majority)
             purity = length(matches) / length(all_labels)
             if purity >= purity_thresh
-                return Leaf(majority, all_labels)
+                return Leaf{T}(majority, all_labels)
             else
                 return tree
             end

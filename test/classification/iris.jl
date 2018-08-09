@@ -26,7 +26,7 @@ cm = confusion_matrix(labels, preds)
 print_tree(model)
 
 # prune tree to 8 leaves
-pruning_purity = -0.1       # TODO: change value
+pruning_purity = 0.9
 pt = prune_tree(model, pruning_purity)
 @test length(pt) == 8
 preds = apply_tree(pt, features)
@@ -34,7 +34,7 @@ cm = confusion_matrix(labels, preds)
 @test 0.99 < cm.accuracy < 1.0
 
 # prune tree to 3 leaves
-pruning_purity = -0.1       # TODO: change value
+pruning_purity = 0.6
 pt = prune_tree(model, pruning_purity)
 @test length(pt) == 3
 preds = apply_tree(pt, features)
@@ -42,7 +42,7 @@ cm = confusion_matrix(labels, preds)
 @test 0.95 < cm.accuracy < 1.0
 
 # prune tree to a stump, 2 leaves
-pruning_purity = -0.1       # TODO: change value
+pruning_purity = 0.5
 pt = prune_tree(model, pruning_purity)
 @test length(pt) == 2
 preds = apply_tree(pt, features)
