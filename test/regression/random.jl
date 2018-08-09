@@ -1,6 +1,6 @@
 @testset "random.jl" begin
 
-Random.srand(5)
+Random.seed!(5)
 
 n, m = 10^3, 5 ;
 features = Array{Any}(undef, n, m);

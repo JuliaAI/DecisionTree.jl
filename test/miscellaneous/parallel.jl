@@ -7,7 +7,7 @@ Distributed.addprocs(1)
 
 @Distributed.everywhere using DecisionTree
 
-Random.srand(16)
+Random.seed!(16)
 
 # Classification
 n,m = 10^3, 5;
