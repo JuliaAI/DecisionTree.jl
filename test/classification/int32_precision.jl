@@ -1,7 +1,7 @@
 
 @testset "int32_precision.jl" begin
 
-Random.srand(16)
+Random.seed!(16)
 
 n,m = 10^3, 5;
 features = Array{Any}(undef, n, m);

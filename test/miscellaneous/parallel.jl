@@ -5,9 +5,9 @@
 Distributed.addprocs(1)
 @test Distributed.nprocs() > 1
 
-@Distributed.everywhere using DecisionTree
+Distributed.@everywhere using DecisionTree
 
-Random.srand(16)
+Random.seed!(16)
 
 # Classification
 n,m = 10^3, 5;

@@ -8,7 +8,7 @@ include("benchmark/classification_suite.jl")
 include("benchmark/regression_suite.jl")
 include("benchmark/utils.jl")
 
-Random.srand(1)
+Random.seed!(1)
 
 
 # Classification Benchmarks

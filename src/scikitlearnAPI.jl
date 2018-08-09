@@ -1,6 +1,6 @@
 import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
                         fit!, get_classes, @declare_hyperparameters
-import Random
+
 ################################################################################
 # Classifier
 
