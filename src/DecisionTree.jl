@@ -2,14 +2,16 @@ __precompile__()
 
 module DecisionTree
 
-import Base: length, convert, promote_rule, show, start, next, done
+import Base: length, show
+using Distributed
+using LinearAlgebra
+using Random
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error,
-       R2, _int
+       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
@@ -19,42 +21,40 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
        # `using ScikitLearnBase`.
        predict, predict_proba, fit!, get_classes
 
-#####################################
-##### Compatilibity Corrections #####
-
-_int(x) = map(y->round(Integer, y), x)
 
 ###########################
 ########## Types ##########
 
-const NO_BEST=(0,0)
-
-struct Leaf
-    majority::Any
-    values::Vector
+struct Leaf{T}
+    majority :: T
+    values   :: Vector{T}
 end
 
-mutable struct Node
-    featid::Integer
-    featval::Any
-    left::Union{Leaf,Node}
-    right::Union{Leaf,Node}
+struct Node{S, T}
+    featid  :: Int
+    featval :: S
+    left    :: Union{Leaf{T}, Node{S, T}}
+    right   :: Union{Leaf{T}, Node{S, T}}
 end
 
-const LeafOrNode = Union{Leaf,Node}
+const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
 
-struct Ensemble
-    trees::Vector{Node}
+struct Ensemble{S, T}
+    trees :: Vector{LeafOrNode{S, T}}
 end
 
-convert(::Type{Node}, x::Leaf) = Node(0, nothing, x, Leaf(nothing,[nothing]))
-promote_rule(::Type{Node}, ::Type{Leaf}) = Node
-promote_rule(::Type{Leaf}, ::Type{Node}) = Node
+is_leaf(l::Leaf) = true
+is_leaf(n::Node) = false
+
+# make a Random Number Generator object
+mk_rng(rng::Random.AbstractRNG) = rng
+mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
 
 ##############################
 ########## Includes ##########
 
 include("measures.jl")
+include("util.jl")
 include("classification/main.jl")
 include("regression/main.jl")
 include("scikitlearnAPI.jl")
@@ -71,7 +71,7 @@ depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
 function print_tree(leaf::Leaf, depth=-1, indent=0)
-    matches = find(leaf.values .== leaf.majority)
+    matches = findall(leaf.values .== leaf.majority)
     ratio = string(length(matches)) * "/" * string(length(leaf.values))
     println("$(leaf.majority) : $(ratio)")
 end

@@ -1,55 +1,135 @@
 include("tree.jl")
 
-# Convenience functions - make a Random Number Generator object
-mk_rng(rng::AbstractRNG) = rng
-mk_rng(seed::Int) = MersenneTwister(seed)
-
-function build_stump{T<:Float64}(labels::Vector{T}, features::Matrix; rng=Base.GLOBAL_RNG)
-    return build_tree(labels, features, 1, 0, 1)
+function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T <: Float64}
+    if node.is_leaf
+        return Leaf{T}(node.label, labels[node.region])
+    else
+        left = _convert(node.l, labels)
+        right = _convert(node.r, labels)
+        return Node{S, T}(node.feature, node.threshold, left, right)
+    end
 end
 
-function build_tree{T<:Float64}(
-        labels::Vector{T}, features::Matrix, min_samples_leaf=5, n_subfeatures=0,
-        max_depth=-1, min_samples_split=2, min_purity_increase=0.0;
-        rng=Base.GLOBAL_RNG)
-    rng = mk_rng(rng)::AbstractRNG
-    if max_depth < -1
-        error("Unexpected value for max_depth: $(max_depth) (expected: max_depth >= 0, or max_depth = -1 for infinite depth)")
-    end
+function build_stump(labels::Vector{T}, features::Matrix{S}; rng = Random.GLOBAL_RNG) where {S, T <: Float64}
+    return build_tree(labels, features, 0, 1)
+end
+
+function build_tree(
+        labels             :: Vector{T},
+        features           :: Matrix{S},
+        n_subfeatures       = 0,
+        max_depth           = -1,
+        min_samples_leaf    = 5,
+        min_samples_split   = 2,
+        min_purity_increase = 0.0;
+        rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
+
     if max_depth == -1
-        max_depth = typemax(Int64)
+        max_depth = typemax(Int)
     end
     if n_subfeatures == 0
         n_subfeatures = size(features, 2)
     end
-    min_samples_leaf = Int64(min_samples_leaf)
-    min_samples_split = Int64(min_samples_split)
-    min_purity_increase = Float64(min_purity_increase)
+
+    rng = mk_rng(rng)::Random.AbstractRNG
     t = treeregressor.fit(
-        features, labels, n_subfeatures, max_depth,
-        min_samples_leaf, min_samples_split, min_purity_increase, 
-        rng=rng)
+        X                   = features,
+        Y                   = labels,
+        W                   = nothing,
+        max_features        = Int(n_subfeatures),
+        max_depth           = Int(max_depth),
+        min_samples_leaf    = Int(min_samples_leaf),
+        min_samples_split   = Int(min_samples_split),
+        min_purity_increase = Float64(min_purity_increase),
+        rng                 = rng)
 
-    function _convert(node :: treeregressor.NodeMeta)
-        if node.is_leaf
-            return Leaf(node.label, node.labels)
-        else
-            left = _convert(node.l)
-            right = _convert(node.r)
-            return Node(node.feature, node.threshold, left, right)
+    return _convert(t.root, labels[t.labels])
+end
+
+function build_forest(
+        labels              :: Vector{T},
+        features            :: Matrix{S},
+        n_subfeatures       = -1,
+        n_trees             = 10,
+        partial_sampling    = 0.7,
+        max_depth           = -1,
+        min_samples_leaf    = 5,
+        min_samples_split   = 2,
+        min_purity_increase = 0.0;
+        rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
+
+    if n_trees < 1
+        throw("the number of trees must be >= 1")
+    end
+    if !(0.0 < partial_sampling <= 1.0)
+        throw("partial_sampling must be in the range (0,1]")
+    end
+
+    if n_subfeatures == -1
+        n_features = size(features, 2)
+        n_subfeatures = round(Int, sqrt(n_features))
+    end
+
+    t_samples = length(labels)
+    n_samples = floor(Int, partial_sampling * t_samples)
+
+    rngs = mk_rng(rng)::Random.AbstractRNG
+    forest = Distributed.@distributed (vcat) for i in 1:n_trees
+        inds = rand(rngs, 1:t_samples, n_samples)
+        build_tree(
+            labels[inds],
+            features[inds,:],
+            n_subfeatures,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            rng = rngs)
+    end
+
+    if n_trees == 1
+        return Ensemble{S, T}([forest])
+    else
+        return Ensemble{S, T}(forest)
+    end
+end
+
+
+#= temporarily commenting out new prune_tree implementation
+function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=0.0) where {S, T <: Float64}
+
+    function recurse(leaf :: Leaf{T}, purity_thresh :: Float64)
+        tssq = 0.0
+        tsum = 0.0
+        for v in leaf.values
+            tssq += v*v
+            tsum += v
         end
-    end
-    return _convert(t)
-end
 
-function build_forest{T<:Float64}(labels::Vector{T}, features::Matrix, n_subfeatures=0, n_trees=10, min_samples_leaf=5, partial_sampling=0.7, max_depth=-1; rng=Base.GLOBAL_RNG)
-    rng = mk_rng(rng)::AbstractRNG
-    partial_sampling = partial_sampling > 1.0 ? 1.0 : partial_sampling
-    Nlabels = length(labels)
-    Nsamples = _int(partial_sampling * Nlabels)
-    forest = @parallel (vcat) for i in 1:n_trees
-        inds = rand(rng, 1:Nlabels, Nsamples)
-        build_tree(labels[inds], features[inds,:], min_samples_leaf, n_subfeatures, max_depth; rng=rng)
+        return tssq, tsum, leaf
     end
-    return Ensemble([forest;])
+
+    function recurse(node :: Node{S, T}, purity_thresh :: Float64)
+
+        lssq, lsum, l = recurse(node.left, purity_thresh)
+        rssq, rsum, r = recurse(node.right, purity_thresh)
+
+        if is_leaf(l) && is_leaf(r)
+            n_samples = length(l.values) + length(r.values)
+            tsum = lsum + rsum
+            tssq = lssq + rssq
+            tavg = tsum / n_samples
+            purity = tavg * tavg - tssq / n_samples
+            if purity > purity_thresh
+                return tsum, tssq, Leaf{T}(tavg, [l.values; r.values])
+            end
+
+        end
+
+        return 0.0, 0.0, Node{S, T}(node.featid, node.featval, l, r)
+    end
+
+    _, _, node = recurse(tree, purity_thresh)
+    return node
 end
+=#

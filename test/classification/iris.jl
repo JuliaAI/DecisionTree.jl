@@ -3,55 +3,91 @@
 
 @testset "iris.jl" begin
 
-download("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data", "iris.csv")
-iris = readcsv("iris.csv");
+iris = DelimitedFiles.readdlm("data/iris.csv", ',')
 
-features = iris[:, 1:4];
-labels = iris[:, 5];
+features = iris[:, 1:4]
+labels = String.(iris[:, 5])
 
 # train a decision stump (depth=1)
 model = build_stump(labels, features)
-preds = apply_tree(model, features);
-cm = confusion_matrix(labels, preds);
+preds = apply_tree(model, features)
+cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 @test depth(model) == 1
 
 # train full-tree classifier (over-fit)
-model = build_tree(labels, features);
-preds = apply_tree(model, features);
-cm = confusion_matrix(labels, preds);
-@test cm.accuracy > 0.99
+model = build_tree(labels, features)
+preds = apply_tree(model, features)
+cm = confusion_matrix(labels, preds)
+@test cm.accuracy == 1.0
 @test length(model) == 9
 @test depth(model) == 5
+@test typeof(preds) == Vector{String}
 print_tree(model)
 
-# prune tree: merge leaves having >= 90% combined purity (default: 100%)
-model = prune_tree(model, 0.9);
-@test length(model) == 8
+# prune tree to 8 leaves
+pruning_purity = 0.9
+pt = prune_tree(model, pruning_purity)
+@test length(pt) == 8
+preds = apply_tree(pt, features)
+cm = confusion_matrix(labels, preds)
+@test 0.99 < cm.accuracy < 1.0
 
-# run n-fold cross validation for pruned tree, using 90% purity threshold purning, and 3 CV folds
+# prune tree to 3 leaves
+pruning_purity = 0.6
+pt = prune_tree(model, pruning_purity)
+@test length(pt) == 3
+preds = apply_tree(pt, features)
+cm = confusion_matrix(labels, preds)
+@test 0.95 < cm.accuracy < 1.0
+
+# prune tree to a stump, 2 leaves
+pruning_purity = 0.5
+pt = prune_tree(model, pruning_purity)
+@test length(pt) == 2
+preds = apply_tree(pt, features)
+cm = confusion_matrix(labels, preds)
+@test 0.66 < cm.accuracy < 1.0
+
+
+# run n-fold cross validation for pruned tree
 println("\n##### nfoldCV Classification Tree #####")
-accuracy = nfoldCV_tree(labels, features, 0.9, 3);
+nfolds = 3
+accuracy = nfoldCV_tree(labels, features, nfolds)
 @test mean(accuracy) > 0.8
 
-# train random forest classifier, using 2 random features, 10 trees and 0.5 of samples per tree (optional, defaults to 0.7)
-model = build_forest(labels, features, 2, 10, 0.5);
-preds = apply_forest(model, features);
-cm = confusion_matrix(labels, preds);
+# train random forest classifier
+n_trees = 10
+n_subfeatures = 2
+partial_sampling = 0.5
+model = build_forest(labels, features, n_subfeatures, n_trees, partial_sampling)
+preds = apply_forest(model, features)
+cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
+@test typeof(preds) == Vector{String}
 
-# run n-fold cross validation for forests, using 2 random features, 10 trees, 3 folds, 0.5 of samples per tree (optional, defaults to 0.7)
+# run n-fold cross validation for forests
 println("\n##### nfoldCV Classification Forest #####")
-accuracy = nfoldCV_forest(labels, features, 2, 10, 3, 0.5);
-@test mean(accuracy) > 0.8
+n_subfeatures = 2
+n_trees = 10
+n_folds = 3
+partial_sampling = 0.5
+accuracy = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees, partial_sampling)
+@test mean(accuracy) > 0.9
 
-# train adaptive-boosted decision stumps, using 7 iterations
-model, coeffs = build_adaboost_stumps(labels, features, 7);
-preds = apply_adaboost_stumps(model, coeffs, features);
+# train adaptive-boosted decision stumps
+n_iterations = 15
+model, coeffs = build_adaboost_stumps(labels, features, n_iterations)
+preds = apply_adaboost_stumps(model, coeffs, features)
+cm = confusion_matrix(labels, preds)
+@test cm.accuracy > 0.9
+@test typeof(preds) == Vector{String}
 
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
-accuracy = nfoldCV_stumps(labels, features, 7, 3);
-@test mean(accuracy) > 0.7
+n_iterations = 15
+nfolds = 3
+accuracy = nfoldCV_stumps(labels, features, nfolds, n_iterations)
+@test mean(accuracy) > 0.9
 
 end # @testset

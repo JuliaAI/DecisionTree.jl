@@ -2,18 +2,18 @@
 
 @testset "parallel.jl" begin
 
-addprocs(1)
-@test nprocs() > 1
+Distributed.addprocs(1)
+@test Distributed.nprocs() > 1
 
-@everywhere using DecisionTree
+Distributed.@everywhere using DecisionTree
 
-srand(16)
+Random.seed!(16)
 
 # Classification
 n,m = 10^3, 5;
 features = rand(n,m);
 weights = rand(-1:1,m);
-labels = _int(features * weights);
+labels = round.(Int, features * weights);
 
 model = build_forest(labels, features, 2, 10);
 preds = apply_forest(model, features);

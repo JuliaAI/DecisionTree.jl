@@ -1,5 +1,6 @@
+include("../src/DecisionTree.jl")
 using ScikitLearnBase
-using DecisionTree
+using Main.DecisionTree
 using Test
 
 import Distributed

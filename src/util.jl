@@ -3,10 +3,36 @@
 
 module util
 
-    export gini, entropy, q_bi_sort!, hypergeometric
+    export gini, entropy, zero_one, q_bi_sort!, hypergeometric
 
-    # returns the gini purity of ns/n
-    @inline function gini(ns::Array{Int64}, n::Int64)
+    function assign(Y :: Vector{T}, list :: Vector{T}) where T
+        dict = Dict{T, Int}()
+        @simd for i in 1:length(list)
+            @inbounds dict[list[i]] = i
+        end
+
+        _Y = Array{Int}(undef, length(Y))
+        @simd for i in 1:length(Y)
+            @inbounds _Y[i] = dict[Y[i]]
+        end
+
+        return list, _Y
+    end
+
+    function assign(Y :: Vector{T}) where T
+        set = Set{T}()
+        for y in Y
+            push!(set, y)
+        end
+        list = collect(set)
+        return assign(Y, list)
+    end
+
+    @inline function zero_one(ns, n)
+        return 1.0 - maximum(ns) / n
+    end
+
+    @inline function gini(ns, n)
         s = 0.0
         @simd for k in ns
             s += k * (n - k)
@@ -15,7 +41,7 @@ module util
     end
 
     # returns the entropy of ns/n
-    @inline function entropy(ns::Array{Int64}, n::Int64)
+    @inline function entropy(ns, n)
         s = 0.0
         @simd for k in ns
             if k > 0
@@ -43,28 +69,27 @@ module util
     end
 
     # adapted from the Julia Base.Sort Library
-    function insert_sort!(v, w, lo, hi)
+    function insert_sort!(v, w, lo, hi, offset)
         @inbounds for i = lo+1:hi
             j = i
             x = v[i]
-            y = w[i]
+            y = w[offset+i]
             while j > lo
                 if x < v[j-1]
                     v[j] = v[j-1]
-                    w[j] = w[j-1]
+                    w[offset+j] = w[offset+j-1]
                     j -= 1
                     continue
                 end
                 break
             end
             v[j] = x
-            w[j] = y
+            w[offset+j] = y
         end
         return v
     end
 
-    # adapted from the Julia Base.Sort Library
-    @inline function _selectpivot!(v, w, lo, hi)
+    @inline function _selectpivot!(v, w, lo, hi, offset)
         @inbounds begin
             mi = (lo+hi)>>>1
 
@@ -72,32 +97,32 @@ module util
 
             if v[mi] < v[lo]
                 v[mi], v[lo] = v[lo], v[mi]
-                w[mi], w[lo] = w[lo], w[mi]
+                w[offset+mi], w[offset+lo] = w[offset+lo], w[offset+mi]
             end
             if v[hi] < v[mi]
                 if v[hi] < v[lo]
                     v[lo], v[mi], v[hi] = v[hi], v[lo], v[mi]
-                    w[lo], w[mi], w[hi] = w[hi], w[lo], w[mi]
+                    w[offset+lo], w[offset+mi], w[offset+hi] = w[offset+hi], w[offset+lo], w[offset+mi]
                 else
                     v[hi], v[mi] = v[mi], v[hi]
-                    w[hi], w[mi] = w[mi], w[hi]
+                    w[offset+hi], w[offset+mi] = w[offset+mi], w[offset+hi]
                 end
             end
 
             # move v[mi] to v[lo] and use it as the pivot
             v[lo], v[mi] = v[mi], v[lo]
-            w[lo], w[mi] = w[mi], w[lo]
-            pivot = v[lo]
-            w_piv = w[lo]
+            w[offset+lo], w[offset+mi] = w[offset+mi], w[offset+lo]
+            v_piv = v[lo]
+            w_piv = w[offset+lo]
         end
 
         # return the pivot
-        return pivot, w_piv
+        return v_piv, w_piv
     end
 
     # adapted from the Julia Base.Sort Library
-    @inline function _bi_partition!(v, w, lo, hi)
-        pivot, w_piv = _selectpivot!(v, w, lo, hi)
+    @inline function _bi_partition!(v, w, lo, hi, offset)
+        pivot, w_piv = _selectpivot!(v, w, lo, hi, offset)
         # pivot == v[lo], v[hi] > pivot
         i, j = lo, hi
         @inbounds while true
@@ -106,10 +131,10 @@ module util
             while pivot < v[j]; j -= 1; end;
             i >= j && break
             v[i], v[j] = v[j], v[i]
-            w[i], w[j] = w[j], w[i]
+            w[offset+i], w[offset+j] = w[offset+j], w[offset+i]
         end
         v[j], v[lo] = pivot, v[j]
-        w[j], w[lo] = w_piv, w[j]
+        w[offset+j], w[offset+lo] = w_piv, w[offset+j]
 
         # v[j] == pivot
         # v[k] >= pivot for k > j
@@ -119,19 +144,22 @@ module util
 
 
     # adapted from the Julia Base.Sort Library
+    # adapted from the Julia Base.Sort Library
+    # this sorts v[lo:hi] and w[offset+lo, offset+hi]
+    # simultaneously by the values in v[lo:hi]
     const SMALL_THRESHOLD  = 20
-    function q_bi_sort!(v, w, lo, hi)
+    function q_bi_sort!(v, w, lo, hi, offset)
         @inbounds while lo < hi
-            hi-lo <= SMALL_THRESHOLD && return insert_sort!(v, w, lo, hi)
-            j = _bi_partition!(v, w, lo, hi)
+            hi-lo <= SMALL_THRESHOLD && return insert_sort!(v, w, lo, hi, offset)
+            j = _bi_partition!(v, w, lo, hi, offset)
             if j-lo < hi-j
                 # recurse on the smaller chunk
                 # this is necessary to preserve O(log(n))
                 # stack space in the worst case (rather than O(n))
-                lo < (j-1) && q_bi_sort!(v, w, lo, j-1)
+                lo < (j-1) && q_bi_sort!(v, w, lo, j-1, offset)
                 lo = j+1
             else
-                j+1 < hi && q_bi_sort!(v, w, j+1, hi)
+                j+1 < hi && q_bi_sort!(v, w, j+1, hi, offset)
                 hi = j-1
             end
         end
@@ -140,12 +168,12 @@ module util
 
 
     # The code function below is a small port from numpy's library
-    # library which is distributed under the 3-Clause BSD license. 
-    # The rest of DecisionTree.jl is released under the MIT license. 
+    # library which is distributed under the 3-Clause BSD license.
+    # The rest of DecisionTree.jl is released under the MIT license.
 
     # ported by Poom Chiarawongse <eight1911@gmail.com>
 
-    # this is the code for efficient generation 
+    # this is the code for efficient generation
     # of hypergeometric random variables ported from numpy.random
     function hypergeometric(good, bad, sample, rng)
 
@@ -167,7 +195,7 @@ module util
             gl0 = gl0 * x2 - 1.917526917526918e-03
             gl0 = gl0 * x2 + 8.417508417508418e-04
             gl0 = gl0 * x2 - 5.952380952380952e-04
-            gl0 = gl0 * x2 + 7.936507936507937e-04 
+            gl0 = gl0 * x2 + 7.936507936507937e-04
             gl0 = gl0 * x2 - 2.777777777777778e-03
             gl0 = gl0 * x2 + 8.333333333333333e-02
             gl = gl0/x0 + 0.5*log(xp) + (x0-0.5)*log(x0) - x0
@@ -186,7 +214,7 @@ module util
             Y = d2
             K = sample
             while Y > 0
-                Y -= floor(UInt64, rand(rng) + Y/(d1 + K))
+                Y -= floor(UInt, rand(rng) + Y/(d1 + K))
                 K -= 1
                 if K == 0
                     break
@@ -199,7 +227,7 @@ module util
             else
                 Z
             end
-        end 
+        end
 
         @inline function hypergeometric_hrua(good, bad, sample)
             mingoodbad = min(good, bad)
@@ -212,10 +240,10 @@ module util
             d7 = sqrt((popsize - m) * sample * d4 * d5 / (popsize - 1) + 0.5)
             # d8 = 2*sqrt(2/e) * d7 + (3 - 2*sqrt(3/e))
             d8 = 1.7155277699214135*d7 + 0.8989161620588988
-            d9 = floor(UInt64, (m + 1) * (mingoodbad + 1) / (popsize + 2))
+            d9 = floor(UInt, (m + 1) * (mingoodbad + 1) / (popsize + 2))
             d10 = (loggam(d9+1) + loggam(mingoodbad-d9+1) + loggam(m-d9+1) +
                    loggam(maxgoodbad-m+d9+1))
-            d11 = min(m+1, mingoodbad+1, floor(UInt64, d6+16*d7))
+            d11 = min(m+1, mingoodbad+1, floor(UInt, d6+16*d7))
 
             while true
                 X = rand(rng)
@@ -223,7 +251,7 @@ module util
                 W = d6 + d8*(Y - 0.5)/X
 
                 (W < 0.0 || W >= d11) && continue
-                Z = floor(Int64, W)
+                Z = floor(Int, W)
                 T = d10 - (loggam(Z+1) + loggam(mingoodbad-Z+1) + loggam(m-Z+1) +
                            loggam(maxgoodbad-m+Z+1))
                 (X*(4.0-X)-3.0) <= T && break
