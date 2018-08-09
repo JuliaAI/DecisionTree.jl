@@ -5,7 +5,7 @@
 Distributed.addprocs(1)
 @test Distributed.nprocs() > 1
 
-@Distributed.everywhere using DecisionTree
+Distributed.@everywhere using DecisionTree
 
 Random.seed!(16)
 

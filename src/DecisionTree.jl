@@ -3,8 +3,9 @@ __precompile__()
 module DecisionTree
 
 import Base: length, show
-import Distributed
-import Random
+using Distributed
+using LinearAlgebra
+using Random
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
@@ -42,13 +43,8 @@ struct Ensemble{S, T}
     trees :: Vector{LeafOrNode{S, T}}
 end
 
-
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
-
-function mean(l)
-    return sum(l) / length(l)
-end
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng

@@ -1,6 +1,3 @@
-using LinearAlgebra
-using Random
-
 struct ConfusionMatrix
     classes::Vector
     matrix::Matrix{Int}
@@ -199,6 +196,10 @@ function R2(actual, predicted)
     ss_residual = sum((actual - predicted).^2)
     ss_total = sum((actual .- mean(actual)).^2)
     return 1.0 - ss_residual/ss_total
+end
+
+function mean(l)
+    return sum(l) / length(l)
 end
 
 # Pearson's Correlation Coefficient
