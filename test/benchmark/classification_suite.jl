@@ -10,7 +10,7 @@ function benchmark_classification(build::Function, apply::Function)
     suite["APPLY"]["ADULT"]     = BenchmarkGroup()
 
     # using DIGITS dataset
-    X, Y = load_digits()
+    X, Y = load_data("digits")
 
     m, n = size(X)
     X_Any = Array{Any}(undef, m, n)
@@ -38,13 +38,12 @@ function benchmark_classification(build::Function, apply::Function)
     suite["BUILD"]["DIGITS"][pad("Y::Any X::Int64")] = @benchmarkable $build($Y_Any, $X)
     suite["APPLY"]["DIGITS"][pad("Y::Any X::Int64")] = @benchmarkable $apply($model, $X)
 
-
-    Y = Int32.(Y)
-    X = Float32.(X)
+    Y = Int8.(Y)
+    X = Float16.(X)
     model = build(Y, X)
     preds = apply(model, X)
-    suite["BUILD"]["DIGITS"][pad("Y::Int32 X::Float32")] = @benchmarkable $build($Y, $X)
-    suite["APPLY"]["DIGITS"][pad("Y::Int32 X::Float32")] = @benchmarkable $apply($model, $X)
+    suite["BUILD"]["DIGITS"][pad("Y::Int8 X::Float16")] = @benchmarkable $build($Y, $X)
+    suite["APPLY"]["DIGITS"][pad("Y::Int8 X::Float16")] = @benchmarkable $apply($model, $X)
 
     Y = Int64.(Y)
     X = Float64.(X)
@@ -52,13 +51,6 @@ function benchmark_classification(build::Function, apply::Function)
     preds = apply(model, X)
     suite["BUILD"]["DIGITS"][pad("Y::Int64 X::Float64")] = @benchmarkable $build($Y, $X)
     suite["APPLY"]["DIGITS"][pad("Y::Int64 X::Float64")] = @benchmarkable $apply($model, $X)
-
-    Y = Int64.(Y)
-    X = Int64.(X)
-    model = build(Y, X)
-    preds = apply(model, X)
-    suite["BUILD"]["DIGITS"][pad("Y::Int64 X::Int64")] = @benchmarkable $build($Y, $X)
-    suite["APPLY"]["DIGITS"][pad("Y::Int64 X::Int64")] = @benchmarkable $apply($model, $X)
 
     Y = string.(Y) :: Vector{String}
     X = Float64.(X)
@@ -69,10 +61,11 @@ function benchmark_classification(build::Function, apply::Function)
 
 
     # using ADULT dataset
-    X_Any, Y_Any = load_adult()
+    X_Any, Y_Any = load_data("adult")
+    n = round(Int, size(X_Any, 1))
 
-    Y_Any :: Vector{Any}
-    X_Any :: Matrix{Any}
+    Y_Any = Y_Any[1:n]   :: Vector{Any}
+    X_Any = X_Any[1:n, :]:: Matrix{Any}
     model = build(Y_Any, X_Any)
     preds = apply(model, X_Any)
     suite["BUILD"]["ADULT"][pad("Y::Any X::Any")] = @benchmarkable $build($Y_Any, $X_Any)
@@ -86,11 +79,11 @@ function benchmark_classification(build::Function, apply::Function)
     suite["APPLY"]["ADULT"][pad("Y::String X::Any")] = @benchmarkable $apply($model, $X_Any)
 
     Y_Any              :: Vector{Any}
-    X = string.(X_Any) :: Matrix{AbstractString}
+    X = string.(X_Any) :: Matrix{String}
     model = build(Y_Any, X)
     preds = apply(model, X)
-    suite["BUILD"]["ADULT"][pad("Y::Any X::AbsString")] = @benchmarkable $build($Y_Any, $X)
-    suite["APPLY"]["ADULT"][pad("Y::Any X::AbsString")] = @benchmarkable $apply($model, $X)
+    suite["BUILD"]["ADULT"][pad("Y::Any X::String")] = @benchmarkable $build($Y_Any, $X)
+    suite["APPLY"]["ADULT"][pad("Y::Any X::String")] = @benchmarkable $apply($model, $X)
 
     Y = String.(Y) :: Vector{String}
     X = String.(X) :: Matrix{String}

@@ -8,7 +8,7 @@ function benchmark_regression(build::Function, apply::Function)
     suite["APPLY"]["DIGITS"]    = BenchmarkGroup()
     
     # using DIGITS dataset
-    X, Y = load_digits()
+    X, Y = load_data("digits")
 
     m, n = size(X)
     X_Any = Array{Any}(undef, m, n)
@@ -27,12 +27,12 @@ function benchmark_regression(build::Function, apply::Function)
     suite["BUILD"]["DIGITS"][pad("Y::Float64 X::Int64")] = @benchmarkable $build($Y, $X)
     suite["APPLY"]["DIGITS"][pad("Y::Float64 X::Int64")] = @benchmarkable $apply($model, $X)
 
-    X = Int32.(X)   :: Matrix{Int32}
-    Y = Float64.(Y) :: Vector{Float64}
+    X = Int8.(X)   :: Matrix{Int8}
+    Y = Float16.(Y) :: Vector{Float16}
     model = build(Y, X)
     preds = apply(model, X)
-    suite["BUILD"]["DIGITS"][pad("Y::Float64 X::Int32")] = @benchmarkable $build($Y, $X)
-    suite["APPLY"]["DIGITS"][pad("Y::Float64 X::Int32")] = @benchmarkable $apply($model, $X)
+    suite["BUILD"]["DIGITS"][pad("Y::Float16 X::Int8")] = @benchmarkable $build($Y, $X)
+    suite["APPLY"]["DIGITS"][pad("Y::Float16 X::Int8")] = @benchmarkable $apply($model, $X)
 
     X = Float64.(X) :: Matrix{Float64}
     Y = Float64.(Y) :: Vector{Float64}
@@ -41,12 +41,6 @@ function benchmark_regression(build::Function, apply::Function)
     suite["BUILD"]["DIGITS"][pad("Y::Float64 X::Float64")] = @benchmarkable $build($Y, $X)
     suite["APPLY"]["DIGITS"][pad("Y::Float64 X::Float64")] = @benchmarkable $apply($model, $X)
 
-    X = Float32.(X) :: Matrix{Float32}
-    Y = Float64.(Y) :: Vector{Float64}
-    model = build(Y, X)
-    preds = apply(model, X)
-    suite["BUILD"]["DIGITS"][pad("Y::Float64 X::Float32")] = @benchmarkable $build($Y, $X)
-    suite["APPLY"]["DIGITS"][pad("Y::Float64 X::Float32")] = @benchmarkable $apply($model, $X)
 
     ########## run suite ##########
     tune!(suite)
