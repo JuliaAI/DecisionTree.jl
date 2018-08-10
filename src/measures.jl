@@ -198,32 +198,6 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function mean(l)
-    return sum(l) / length(l)
-end
-
-# Pearson's Correlation Coefficient
-function cor(x, y)
-    @assert(length(x) == length(y))
-    @assert(length(x) > 1)
-
-    n = length(x)
-
-    x_mean = sum(x) / n
-    y_mean = sum(y) / n
-
-    x_centered = x .- x_mean
-    y_centered = y .- y_mean
-
-    x_var = sum(x_centered .^ 2)
-    y_var = sum(y_centered .^ 2)
-
-    xy_cov = sum(x_centered .* y_centered)
-
-    return xy_cov / sqrt(x_var * y_var)
-
-end
-
 function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args...; rng) where T <: Float64
     rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]

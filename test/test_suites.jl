@@ -1,9 +1,5 @@
 println("Julia version: ", VERSION)
 
-function mean(xs)
-    return sum(xs) / length(xs)
-end
-
 function run_tests(list)
     for test in list
         println("TEST: $test \n")
