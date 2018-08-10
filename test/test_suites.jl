@@ -1,3 +1,10 @@
+using DelimitedFiles
+using Distributed
+using Random
+using ScikitLearnBase
+using Statistics
+using Test
+
 println("Julia version: ", VERSION)
 
 function run_tests(list)
