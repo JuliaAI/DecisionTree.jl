@@ -19,12 +19,11 @@ Julia implementation of Decision Tree and Random Forest algorithms
 
 ## Regression
 * pre-pruning (max depth, min leaf size)
-* post-pruning (pessimistic pruning)
 * parallelized bagging (random forests)
 * cross validation (n-fold)
 * support for numerical features
 
-**Note that regression is implied if labels/targets are of type float**
+**Note that regression is implied if labels/targets are of type Array{Float}**
 
 ## Installation
 You can install DecisionTree.jl using Julia's package manager
@@ -39,16 +38,18 @@ Available models: `DecisionTreeClassifier, DecisionTreeRegressor, RandomForestCl
 See each model's help (eg. `?DecisionTreeRegressor` at the REPL) for more information
 
 ### Classification Example
-Load RDatasets and DecisionTree packages
+Load DecisionTree package
 ```julia
-using RDatasets: dataset
 using DecisionTree
 ```
 Separate Fisher's Iris dataset features and labels
 ```julia
-iris     = dataset("datasets", "iris")
-features = convert(Array, iris[:, 1:4])
-labels   = convert(Array, iris[:, 5])
+features, labels = load_data("iris")    # also see "adult" and "digits" datasets
+
+# the data loaded are of type Array{Any}
+# cast them to concrete types for better performance
+features = Float64.(features)
+labels   = String.(labels)
 ```
 Pruned Tree Classifier
 ```julia
@@ -83,7 +84,7 @@ print_tree(model, 5)
 # apply learned model
 apply_tree(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
-apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
+apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["Iris-setosa", "Iris-versicolor", "Iris-virginica"])
 # run 3-fold cross validation of pruned tree,
 n_folds=3
 accuracy = nfoldCV_tree(labels, features, n_folds)
@@ -121,7 +122,7 @@ model = build_forest(labels, features, 2, 10, 0.5, 6)
 # apply learned model
 apply_forest(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
-apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
+apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["Iris-setosa", "Iris-versicolor", "Iris-virginica"])
 # run 3-fold cross validation for forests, using 2 random features per split
 n_folds=3; n_subfeatures=2
 accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
@@ -163,7 +164,7 @@ model, coeffs = build_adaboost_stumps(labels, features, 7);
 # apply learned model
 apply_adaboost_stumps(model, coeffs, [5.9,3.0,5.1,1.9])
 # get the probability of each label
-apply_adaboost_stumps_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["setosa", "versicolor", "virginica"])
+apply_adaboost_stumps_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["Iris-setosa", "Iris-versicolor", "Iris-virginica"])
 # run 3-fold cross validation for boosted stumps, using 7 iterations
 n_iterations=7; n_folds=3
 accuracy = nfoldCV_stumps(labels, features,

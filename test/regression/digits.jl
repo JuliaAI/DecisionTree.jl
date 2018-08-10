@@ -1,19 +1,6 @@
 @testset "digits.jl" begin
 
-function loaddata()
-    f = open("data/digits.csv")
-    data = readlines(f)[2:end]
-    data = [[parse(Float32, i)
-        for i in split(row, ",")]
-        for row in data]
-    data = hcat(data...)
-    Y = Int.(data[1, 1:end]) .+ 1
-    X = convert(Matrix, transpose(data[2:end, 1:end]))
-    return X, Y
-end
-
-
-X, Y = loaddata()
+X, Y = load_data("digits")
 
 Y = float.(Y) # labels/targets to Float to enable regression
 

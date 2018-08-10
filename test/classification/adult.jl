@@ -3,10 +3,7 @@
 
 @testset "adult.jl" begin
 
-adult = DelimitedFiles.readdlm("data/adult.csv", ',');
-
-features = adult[:, 1:14];
-labels = adult[:, 15];
+features, labels = load_data("adult")
 
 model = build_tree(labels, features)
 preds = apply_tree(model, features)
