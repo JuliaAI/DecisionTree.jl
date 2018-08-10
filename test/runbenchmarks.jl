@@ -1,8 +1,6 @@
 using DecisionTree
 using BenchmarkTools
-
-import Random
-import DelimitedFiles
+using Random
 
 include("benchmark/classification_suite.jl")
 include("benchmark/regression_suite.jl")

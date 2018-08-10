@@ -3,15 +3,17 @@ __precompile__()
 module DecisionTree
 
 import Base: length, show
+using DelimitedFiles
 using Distributed
 using LinearAlgebra
 using Random
+using Statistics
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2
+       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
@@ -54,6 +56,7 @@ mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
 ########## Includes ##########
 
 include("measures.jl")
+include("load_data.jl")
 include("util.jl")
 include("classification/main.jl")
 include("regression/main.jl")

@@ -1,4 +1,4 @@
-@testset "int32_precision.jl" begin
+@testset "low_precision.jl" begin
 
 Random.seed!(5)
 
@@ -82,5 +82,25 @@ r2 = nfoldCV_forest(
         min_purity_increase)
 @test mean(r2) > 0.8
 
+
+# Test Float16 labels, and Float16 features
+features  = Float16.(features)
+labels = Float16.(labels)
+
+model = build_stump(labels, features)
+preds = apply_tree(model, features)
+@test typeof(preds) == Vector{Float16}
+
+model = build_tree(labels, features)
+preds = apply_tree(model, features)
+@test typeof(preds) == Vector{Float16}
+
+model = build_forest(labels, features)
+preds = apply_forest(model, features)
+@test typeof(preds) == Vector{Float16}
+
+model = build_tree(labels, features)
+preds = apply_tree(model, features)
+@test typeof(preds) == Vector{Float16}
 
 end # @testset

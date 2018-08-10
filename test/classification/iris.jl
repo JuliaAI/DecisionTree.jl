@@ -3,10 +3,8 @@
 
 @testset "iris.jl" begin
 
-iris = DelimitedFiles.readdlm("data/iris.csv", ',')
-
-features = iris[:, 1:4]
-labels = String.(iris[:, 5])
+features, labels = load_data("iris")
+labels = String.(labels)
 
 # train a decision stump (depth=1)
 model = build_stump(labels, features)

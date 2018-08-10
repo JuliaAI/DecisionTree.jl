@@ -1,5 +1,5 @@
 
-@testset "int32_precision.jl" begin
+@testset "low_precision.jl" begin
 
 Random.seed!(16)
 
@@ -10,8 +10,8 @@ features[:,1] = round.(Int32, features[:,1]); # convert a column of 32bit intege
 weights = rand(-1:1,m);
 labels = round.(Int32, features * weights);
 
-model = build_stump(labels, round.(Int32, features))
-preds = apply_tree(model, round.(Int32, features))
+model = build_stump(labels, features)
+preds = apply_tree(model, features)
 @test typeof(preds) == Vector{Int32}
 @test depth(model) == 1
 
@@ -94,5 +94,30 @@ println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations        = Int32(15)
 accuracy = nfoldCV_stumps(labels, features, n_folds, n_iterations)
 @test mean(accuracy) > 0.3
+
+
+# Test Int8 labels, and Float16 features
+features  = Float16.(features)
+labels = Int8.(labels)
+
+model = build_stump(labels, features)
+preds = apply_tree(model, features)
+@test typeof(preds) == Vector{Int8}
+
+model = build_tree(labels, features)
+preds = apply_tree(model, features)
+@test typeof(preds) == Vector{Int8}
+
+model = build_forest(labels, features)
+preds = apply_forest(model, features)
+@test typeof(preds) == Vector{Int8}
+
+model = build_tree(labels, features)
+preds = apply_tree(model, features)
+@test typeof(preds) == Vector{Int8}
+
+model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
+preds = apply_adaboost_stumps(model, coeffs, features);
+@test typeof(preds) == Vector{Int8}
 
 end # @testset
