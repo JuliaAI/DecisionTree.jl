@@ -139,7 +139,7 @@ end
 function fit!(dt::DecisionTreeRegressor, X::Matrix, y::Vector)
     n_samples, n_features = size(X)
     dt.root = build_tree(
-        Float64.(y), X,
+        float.(y), X,
         dt.n_subfeatures,
         dt.max_depth,
         dt.min_samples_leaf,
@@ -300,7 +300,7 @@ end
 function fit!(rf::RandomForestRegressor, X::Matrix, y::Vector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
-        Float64.(y), X,
+        float.(y), X,
         rf.n_subfeatures,
         rf.n_trees,
         rf.partial_sampling,
