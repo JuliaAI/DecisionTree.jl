@@ -1,4 +1,3 @@
-* support efficient writing of models to disk: via BSON.jl, JLD.jl or custom serialization
 * add more tests
 * implement gradient boost and adaboost for regression
 * test weights support for both regression and classification trees
