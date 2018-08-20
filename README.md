@@ -48,8 +48,8 @@ features, labels = load_data("iris")    # also see "adult" and "digits" datasets
 
 # the data loaded are of type Array{Any}
 # cast them to concrete types for better performance
-features = Float64.(features)
-labels   = String.(labels)
+features = float.(features)
+labels   = string.(labels)
 ```
 Pruned Tree Classifier
 ```julia
@@ -255,3 +255,11 @@ r2 =  nfoldCV_forest(labels, features,
                      min_samples_split,
                      min_purity_increase)
 ```
+
+## Saving Models
+Models can be saved to disk and loaded back with the use of the [JLD2.jl](https://github.com/simonster/JLD2.jl) package.
+```julia
+using JLD2
+@save "model_file.jld2" model
+```
+Note that even though features and labels of type `Array{Any}` are supported, it is highly recommended that data be cast to explicit types (ie with `float.(), string.()`, etc). This significantly improves model training and prediction execution times, and also drastically reduces the size of saved models.
