@@ -240,7 +240,7 @@ module treeclassifier
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
         elseif length(W) != n_samples
-            throw("dimension mismatch between X and W ($(size(X)) vs $(size(Y))")
+            throw("dimension mismatch between X and W ($(size(X)) vs $(size(W))")
         elseif max_depth < -1
             throw("unexpected value for max_depth: $(max_depth) (expected:"
                 * " max_depth >= 0, or max_depth = -1 for infinite depth)")
