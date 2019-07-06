@@ -18,4 +18,4 @@ notifications:
 sudo: false
 
 after_success:
-  - julia -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())';
+  - julia -e 'if VERSION >= v"0.7.0-" using Pkg end; cd(Pkg.dir("DecisionTree")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())';
