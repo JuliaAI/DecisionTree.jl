@@ -254,7 +254,7 @@ r2 =  nfoldCV_forest(labels, features,
 ```
 
 ## Saving Models
-Models can be saved to disk and loaded back with the use of the [JLD2.jl](https://github.com/simonster/JLD2.jl) package.
+Models can be saved to disk and loaded back with the use of the [JLD2.jl](https://github.com/JuliaIO/JLD2.jl) package.
 ```julia
 using JLD2
 @save "model_file.jld2" model

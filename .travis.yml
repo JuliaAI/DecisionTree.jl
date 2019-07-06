@@ -17,9 +17,5 @@ notifications:
 
 sudo: false
 
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'import Pkg; Pkg.clone(pwd()); Pkg.build("DecisionTree"); Pkg.test("DecisionTree"; coverage=true)'
-
 after_success:
-  - julia -e 'import Pkg; cd(Pkg.dir("DecisionTree")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - julia -e 'if VERSION >= v"0.7.0-" using Pkg end; cd(Pkg.dir("DecisionTree")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())';
