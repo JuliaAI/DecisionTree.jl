@@ -81,8 +81,8 @@ function show(io::IO, dt::DecisionTreeClassifier)
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
-    print(io,   "classes:                  ") ; show(dt.classes) ; println()
-    print(io,   "root:                     ") ; show(dt.root)
+    print(io,   "classes:                  ") ; show(io, dt.classes) ; println(io, "")
+    print(io,   "root:                     ") ; show(io, dt.root)
 end
 
 ################################################################################
@@ -161,7 +161,7 @@ function show(io::IO, dt::DecisionTreeRegressor)
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
-    print(io,   "root:                     ") ; show(dt.root)
+    print(io,   "root:                     ") ; show(io, dt.root)
 end
 
 ################################################################################
@@ -243,8 +243,8 @@ function show(io::IO, rf::RandomForestClassifier)
     println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
     println(io, "min_samples_split:   $(rf.min_samples_split)")
     println(io, "min_purity_increase: $(rf.min_purity_increase)")
-    print(io,   "classes:             ") ; show(rf.classes)  ; println()
-    print(io,   "ensemble:            ") ; show(rf.ensemble)
+    print(io,   "classes:             ") ; show(io, rf.classes)  ; println(io, "")
+    print(io,   "ensemble:            ") ; show(io, rf.ensemble)
 end
 
 ################################################################################
@@ -323,7 +323,7 @@ function show(io::IO, rf::RandomForestRegressor)
     println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
     println(io, "min_samples_split:   $(rf.min_samples_split)")
     println(io, "min_purity_increase: $(rf.min_purity_increase)")
-    print(io,   "ensemble:            ") ; show(rf.ensemble)
+    print(io,   "ensemble:            ") ; show(io, rf.ensemble)
 end
 
 ################################################################################
@@ -372,8 +372,8 @@ predict_proba(ada::AdaBoostStumpClassifier, X) =
 function show(io::IO, ada::AdaBoostStumpClassifier)
     println(io, "AdaBoostStumpClassifier")
     println(io, "n_iterations: $(ada.n_iterations)")
-    print(io,   "classes:      ") ; show(ada.classes)  ; println()
-    print(io,   "ensemble:     ") ; show(ada.ensemble)
+    print(io,   "classes:      ") ; show(io, ada.classes)  ; println(io, "")
+    print(io,   "ensemble:     ") ; show(io, ada.ensemble)
 end
 
 ################################################################################
