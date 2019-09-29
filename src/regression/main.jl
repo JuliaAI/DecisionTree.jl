@@ -74,9 +74,11 @@ function build_forest(
     n_samples = floor(Int, partial_sampling * t_samples)
 
     rngs = mk_rng(rng)::Random.AbstractRNG
-    forest = Distributed.@distributed (vcat) for i in 1:n_trees
+
+    forest = Vector{LeafOrNode{S, T}}(undef, n_trees)
+    Threads.@threads for i in 1:n_trees
         inds = rand(rngs, 1:t_samples, n_samples)
-        build_tree(
+        forest[i] = build_tree(
             labels[inds],
             features[inds,:],
             n_subfeatures,
@@ -87,9 +89,5 @@ function build_forest(
             rng = rngs)
     end
 
-    if n_trees == 1
-        return Ensemble{S, T}([forest])
-    else
-        return Ensemble{S, T}(forest)
-    end
+    return Ensemble{S, T}(forest)
 end
