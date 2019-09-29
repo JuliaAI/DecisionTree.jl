@@ -73,6 +73,7 @@ end
 function build_tree(
         labels              :: Vector{T},
         features            :: Matrix{S},
+        loss                :: Function,
         n_subfeatures        = 0,
         max_depth            = -1,
         min_samples_leaf     = 1,
@@ -92,6 +93,7 @@ function build_tree(
         X                   = features,
         Y                   = labels,
         W                   = nothing,
+        loss                = loss,
         max_features        = Int(n_subfeatures),
         max_depth           = Int(max_depth),
         min_samples_leaf    = Int(min_samples_leaf),
@@ -212,11 +214,16 @@ function build_forest(
     rngs = mk_rng(rng)::Random.AbstractRNG
 
     forest = Vector{LeafOrNode{S, T}}(undef, n_trees)
+
+    entropy_terms = util.compute_entropy_terms(n_samples)
+    loss = (ns, n) -> util.entropy(ns, n, entropy_terms)
+
     Threads.@threads for i in 1:n_trees
         inds = rand(rngs, 1:t_samples, n_samples)
         forest[i] = build_tree(
             labels[inds],
             features[inds,:],
+            loss,
             n_subfeatures,
             max_depth,
             min_samples_leaf,

@@ -309,6 +309,7 @@ module treeclassifier
             X                     :: Matrix{S},
             Y                     :: Vector{T},
             W                     :: Union{Nothing, Vector{U}},
+            loss=util.entropy     :: Function,
             max_features          :: Int,
             max_depth             :: Int,
             min_samples_leaf      :: Int,
@@ -319,7 +320,7 @@ module treeclassifier
         n_samples, n_features = size(X)
         list, Y_ = util.assign(Y)
         if W == nothing
-            W = fill(1.0, n_samples)
+            W = fill(1, n_samples)
         end
 
         check_input(
@@ -330,9 +331,10 @@ module treeclassifier
             min_samples_split,
             min_purity_increase)
 
+
         root, indX = _fit(
             X, Y_, W,
-            util.entropy,
+            loss,
             length(list),
             max_features,
             max_depth,
