@@ -34,7 +34,7 @@ regression =     [
 ]
 
 miscellaneous =  [
-    "miscellaneous/parallel.jl"
+#    "miscellaneous/parallel.jl"
 ]
 
 test_suites = [
