@@ -73,12 +73,12 @@ end
 function build_tree(
         labels              :: Vector{T},
         features            :: Matrix{S},
-        loss                :: Function,
         n_subfeatures        = 0,
         max_depth            = -1,
         min_samples_leaf     = 1,
         min_samples_split    = 2,
         min_purity_increase  = 0.0;
+        loss                 = util.entropy :: Function,
         rng                  = Random.GLOBAL_RNG) where {S, T}
 
     if max_depth == -1
@@ -223,12 +223,12 @@ function build_forest(
         forest[i] = build_tree(
             labels[inds],
             features[inds,:],
-            loss,
             n_subfeatures,
             max_depth,
             min_samples_leaf,
             min_samples_split,
             min_purity_increase,
+            loss = loss,
             rng = rngs)
     end
 
