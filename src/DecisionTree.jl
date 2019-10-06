@@ -4,7 +4,6 @@ module DecisionTree
 
 import Base: length, show
 using DelimitedFiles
-using Distributed
 using LinearAlgebra
 using Random
 using Statistics

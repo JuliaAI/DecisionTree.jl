@@ -40,7 +40,27 @@ module util
         return s / (n * n)
     end
 
-    # returns the entropy of ns/n
+    # compute table of values i*log(i) for integers in 0 <= i <= maxvalue
+    # where tables[i+1] = i * log(i)
+    # (0*log(0) is set to 0 for convenience when computing entropy)
+    function compute_entropy_terms(maxvalue)
+        entropy_terms = zeros(Float64, maxvalue+1)
+        for i in 1:maxvalue
+            entropy_terms[i+1] = i * log(i)
+        end
+        return entropy_terms
+    end
+
+    # returns the entropy of ns/n, ns is an array of integers
+    # and entropy_terms are precomputed entropy terms
+    @inline function entropy(ns::Vector{U}, n, entropy_terms) where {U <: Integer}
+        s = 0.0
+        for k in ns
+            s += entropy_terms[k+1]
+        end
+        return log(n) - s / n
+    end
+
     @inline function entropy(ns, n)
         s = 0.0
         @simd for k in ns
