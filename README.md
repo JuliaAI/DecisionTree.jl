@@ -9,14 +9,14 @@ Julia implementation of Decision Tree and Random Forest algorithms
 ## Classification
 * pre-pruning (max depth, min leaf size)
 * post-pruning (pessimistic pruning)
-* parallelized bagging (random forests)
+* multi-threaded bagging (random forests)
 * adaptive boosting (decision stumps)
 * cross validation (n-fold)
 * support for mixed categorical and numerical data
 
 ## Regression
 * pre-pruning (max depth, min leaf size)
-* parallelized bagging (random forests)
+* multi-threaded bagging (random forests)
 * cross validation (n-fold)
 * support for numerical features
 
