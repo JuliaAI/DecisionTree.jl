@@ -1,6 +1,5 @@
 using DecisionTree
 using DelimitedFiles
-using Distributed
 using Random
 using ScikitLearnBase
 using Statistics
