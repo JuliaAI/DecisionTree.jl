@@ -27,8 +27,8 @@ function stack_function_results(row_fun::Function, X::Matrix)
     N = size(X, 1)
     N_cols = length(row_fun(X[1, :])) # gets the number of columns
     out = Array{Float64}(undef, N, N_cols)
-    Threads.@threads for i in 1:N
-        out[i, :] = row_fun(@view X[i, :])
+    for i in 1:N
+        out[i, :] = row_fun(X[i, :])
     end
     return out
 end
@@ -137,9 +137,9 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=1.0) where {S, T}
 end
 
 
-apply_tree(leaf::Leaf{T}, feature::AbstractVector{S}) where {S, T} = leaf.majority
+apply_tree(leaf::Leaf{T}, feature::Vector{S}) where {S, T} = leaf.majority
 
-function apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
+function apply_tree(tree::Node{S, T}, features::Vector{S}) where {S, T}
     if features[tree.featid] < tree.featval
         return apply_tree(tree.left, features)
     else
@@ -266,7 +266,7 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-function apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVector{S}, labels) where {S, T}
+function apply_forest_proba(forest::Ensemble{S, T}, features::Vector{S}, labels) where {S, T}
     votes = [apply_tree(tree, features) for tree in forest.trees]
     return compute_probabilities(labels, votes)
 end
