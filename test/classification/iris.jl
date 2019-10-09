@@ -5,6 +5,8 @@
 
 features, labels = load_data("iris")
 labels = String.(labels)
+classes = sort(unique(labels))
+n = length(labels)
 
 # train a decision stump (depth=1)
 model = build_stump(labels, features)
@@ -12,6 +14,8 @@ preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 @test depth(model) == 1
+probs = apply_tree_proba(model, features, classes)
+@test reshape(sum(probs, dims=2), n) ≈ ones(n)
 
 # train full-tree classifier (over-fit)
 model = build_tree(labels, features)
@@ -22,6 +26,8 @@ cm = confusion_matrix(labels, preds)
 @test depth(model) == 5
 @test typeof(preds) == Vector{String}
 print_tree(model)
+probs = apply_tree_proba(model, features, classes)
+@test reshape(sum(probs, dims=2), n) ≈ ones(n)
 
 # prune tree to 8 leaves
 pruning_purity = 0.9
@@ -38,6 +44,8 @@ pt = prune_tree(model, pruning_purity)
 preds = apply_tree(pt, features)
 cm = confusion_matrix(labels, preds)
 @test 0.95 < cm.accuracy < 1.0
+probs = apply_tree_proba(model, features, classes)
+@test reshape(sum(probs, dims=2), n) ≈ ones(n)
 
 # prune tree to a stump, 2 leaves
 pruning_purity = 0.5
@@ -63,6 +71,8 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.95
 @test typeof(preds) == Vector{String}
+probs = apply_forest_proba(model, features, classes)
+@test reshape(sum(probs, dims=2), n) ≈ ones(n)
 
 # run n-fold cross validation for forests
 println("\n##### nfoldCV Classification Forest #####")
@@ -80,6 +90,8 @@ preds = apply_adaboost_stumps(model, coeffs, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 @test typeof(preds) == Vector{String}
+probs = apply_adaboost_stumps_proba(model, coeffs, features, classes)
+@test reshape(sum(probs, dims=2), n) ≈ ones(n)
 
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
