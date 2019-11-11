@@ -4,7 +4,9 @@
 [![Coverage Status](https://coveralls.io/repos/bensadeghi/DecisionTree.jl/badge.svg?branch=master)](https://coveralls.io/r/bensadeghi/DecisionTree.jl?branch=master)
 [![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://pkg.julialang.org/docs/DecisionTree/pEDeB/0.8.1/)
 
-Julia implementation of Decision Tree and Random Forest algorithms
+Julia implementation of Decision Tree (CART) and Random Forest algorithms
+
+Available via [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl), a pure Julia machine learning framework
 
 ## Classification
 * pre-pruning (max depth, min leaf size)
@@ -66,7 +68,7 @@ using ScikitLearn.CrossValidation: cross_val_score
 accuracy = cross_val_score(model, features, labels, cv=3)
 ```
 
-Also have a look at these [classification](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Classifier_Comparison_Julia.ipynb), and [regression](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Decision_Tree_Regression_Julia.ipynb) notebooks.
+Also, have a look at these [classification](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Classifier_Comparison_Julia.ipynb) and [regression](https://github.com/cstjean/ScikitLearn.jl/blob/master/examples/Decision_Tree_Regression_Julia.ipynb) notebooks.
 
 ## Native API
 ### Classification Example
