@@ -6,7 +6,10 @@
 
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
 
-Available via [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl), a pure Julia machine learning framework
+Available via:
+* [CombineML.jl](https://github.com/ppalmes/CombineML.jl) - a heterogeneous ensemble learning package
+* [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl) - a pure Julia machine learning framework
+* [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) - Julia implementation of the scikit-learn API
 
 ## Classification
 * pre-pruning (max depth, min leaf size)
