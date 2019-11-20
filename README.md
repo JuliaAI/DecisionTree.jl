@@ -17,7 +17,7 @@ Available via:
 * multi-threaded bagging (random forests)
 * adaptive boosting (decision stumps)
 * cross validation (n-fold)
-* support for mixed categorical and numerical data
+* support for ordered features (encoded as `Real`s or `String`s)
 
 ## Regression
 * pre-pruning (max depth, min leaf size)
