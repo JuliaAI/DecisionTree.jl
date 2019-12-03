@@ -196,7 +196,6 @@ module treeregressor
             return
         else
             # new_purity - old_purity < stop.min_purity_increase
-            bf = Int(best_feature)
             @simd for i in 1:n_samples
                 Xf[i] = X[indX[i + r_start], best_feature]
             end
