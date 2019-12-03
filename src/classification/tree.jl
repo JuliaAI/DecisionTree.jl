@@ -196,9 +196,8 @@ module treeclassifier
             node.is_leaf = true
             return
         else
-            bf = Int(best_feature)
             @simd for i in 1:n_samples
-                Xf[i] = X[indX[i + r_start], bf]
+                Xf[i] = X[indX[i + r_start], best_feature]
             end
 
             try
