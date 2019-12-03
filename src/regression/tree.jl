@@ -273,7 +273,7 @@ module treeregressor
         Xf  = Array{S}(undef, n_samples)
         Wf  = Array{U}(undef, n_samples)
 
-        indX = collect(Int(1):Int(n_samples))
+        indX = collect(1:n_samples)
         root = NodeMeta{S}(collect(1:n_features), 1:n_samples, 0)
         stack = NodeMeta{S}[root]
 
