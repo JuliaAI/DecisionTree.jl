@@ -8,7 +8,7 @@ module treeclassifier
     include("../util.jl")
     import Random
 
-    export fit, fit_zero_one
+    export fit
 
     mutable struct NodeMeta{S}
         l           :: NodeMeta{S}      # right child
@@ -344,44 +344,4 @@ module treeclassifier
 
         return Tree{S, T}(root, list, indX)
     end
-
-    function fit_zero_one(;
-            X                     :: Matrix{S},
-            Y                     :: Vector{T},
-            W                     :: Union{Nothing, Vector{U}},
-            max_features          :: Int,
-            max_depth             :: Int,
-            min_samples_leaf      :: Int,
-            min_samples_split     :: Int,
-            min_purity_increase   :: Float64,
-            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
-
-        n_samples, n_features = size(X)
-        list, Y_ = util.assign(Y)
-        if W == nothing
-            W = fill(1.0, n_samples)
-        end
-
-        check_input(
-            X, Y, W,
-            max_features,
-            max_depth,
-            min_samples_leaf,
-            min_samples_split,
-            min_purity_increase)
-
-        root, indX = _fit(
-            X, Y_, W,
-            util.zero_one,
-            length(list),
-            max_features,
-            max_depth,
-            min_samples_leaf,
-            min_samples_split,
-            min_purity_increase,
-            rng)
-
-        return Tree{S, T}(root, list, indX)
-    end
-
 end

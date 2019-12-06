@@ -56,10 +56,11 @@ function build_stump(
         weights      = nothing;
         rng          = Random.GLOBAL_RNG) where {S, T}
 
-    t = treeclassifier.fit_zero_one(
+    t = treeclassifier.fit(
         X                   = features,
         Y                   = labels,
         W                   = weights,
+        loss                = treeclassifier.util.zero_one,
         max_features        = size(features, 2),
         max_depth           = 1,
         min_samples_leaf    = 1,
