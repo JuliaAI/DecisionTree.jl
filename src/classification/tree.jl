@@ -192,7 +192,7 @@ module treeclassifier
 
         # no splits honor min_samples_leaf
         @inbounds if (unsplittable
-            || (best_purity / nt + util.entropy(nc, nt) < min_purity_increase))
+            || (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
             node.is_leaf = true
             return
         else
