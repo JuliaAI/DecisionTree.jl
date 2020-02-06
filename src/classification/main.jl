@@ -79,8 +79,9 @@ function build_tree(
         min_samples_leaf     = 1,
         min_samples_split    = 2,
         min_purity_increase  = 0.0;
+        weights::Union{Nothing,AbstractVector{U}} = nothing,
         loss                 = util.entropy :: Function,
-        rng                  = Random.GLOBAL_RNG) where {S, T}
+        rng                  = Random.GLOBAL_RNG) where {S, T, U <: Integer}
 
     if max_depth == -1
         max_depth = typemax(Int)
@@ -93,7 +94,7 @@ function build_tree(
     t = treeclassifier.fit(
         X                   = features,
         Y                   = labels,
-        W                   = nothing,
+        W                   = weights,
         loss                = loss,
         max_features        = Int(n_subfeatures),
         max_depth           = Int(max_depth),
@@ -195,6 +196,7 @@ function build_forest(
         min_samples_leaf    = 1,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
+        weights             = nothing,
         rng                 = Random.GLOBAL_RNG) where {S, T}
 
     if n_trees < 1
@@ -229,6 +231,7 @@ function build_forest(
             min_samples_leaf,
             min_samples_split,
             min_purity_increase,
+            weights = (weights === nothing ? nothing : weights[inds]),
             loss = loss,
             rng = rngs)
     end

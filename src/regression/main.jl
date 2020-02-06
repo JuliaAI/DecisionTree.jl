@@ -22,6 +22,7 @@ function build_tree(
         min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
+        weights             = nothing,
         rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
 
     if max_depth == -1
@@ -35,7 +36,7 @@ function build_tree(
     t = treeregressor.fit(
         X                   = features,
         Y                   = labels,
-        W                   = nothing,
+        W                   = weights,
         max_features        = Int(n_subfeatures),
         max_depth           = Int(max_depth),
         min_samples_leaf    = Int(min_samples_leaf),
@@ -56,6 +57,7 @@ function build_forest(
         min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
+        weights             = nothing,
         rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
 
     if n_trees < 1
@@ -86,6 +88,7 @@ function build_forest(
             min_samples_leaf,
             min_samples_split,
             min_purity_increase,
+            weights = (weights === nothing ? nothing : weights[inds]),
             rng = rngs)
     end
 
