@@ -148,7 +148,7 @@ module treeclassifier
                     unsplittable = false
                     purity = -(nl * purity_function(ncl, nl)
                              + nr * purity_function(ncr, nr))
-                    if purity > best_purity
+                    if purity > best_purity + 1e-12
                         # will take average at the end
                         threshold_lo = last_f
                         threshold_hi = curr_f
