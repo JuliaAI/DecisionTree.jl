@@ -61,7 +61,7 @@ model = build_forest(
         min_purity_increase)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
-@test cm.accuracy > 0.95
+@test cm.accuracy > 0.9
 @test length(model) == n_trees
 
 # test n_subfeatures
@@ -124,7 +124,7 @@ max_depth       = 3
 accuracy  = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
 accuracy2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
 accuracy3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
-@test mean(accuracy) > 0.7
+@test mean(accuracy) > 0.6
 @test accuracy == accuracy2
 @test accuracy != accuracy3
 

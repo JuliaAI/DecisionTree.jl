@@ -44,14 +44,14 @@ model = build_forest(
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
-@test cm.accuracy > 0.95
+@test cm.accuracy > 0.9
 
 n_iterations        = Int32(15)
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
-@test cm.accuracy > 0.3
+@test cm.accuracy > 0.2
 
 println("\n##### nfoldCV Classification Tree #####")
 n_folds             = Int32(3)
@@ -88,12 +88,12 @@ accuracy = nfoldCV_forest(
         min_samples_leaf,
         min_samples_split,
         min_purity_increase)
-@test mean(accuracy) > 0.7
+@test mean(accuracy) > 0.6
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations        = Int32(15)
 accuracy = nfoldCV_stumps(labels, features, n_folds, n_iterations)
-@test mean(accuracy) > 0.3
+@test mean(accuracy) > 0.1
 
 
 # Test Int8 labels, and Float16 features
