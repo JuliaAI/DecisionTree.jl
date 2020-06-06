@@ -20,7 +20,7 @@ print_tree(model, 3)
 model = build_tree(labels, features)
 preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
-@test cm.accuracy > 0.95
+@test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
 
 # test RNG param of trees
@@ -40,7 +40,7 @@ t3 = build_tree(labels, features, n_subfeatures; rng=mt)
 model = build_forest(labels, features)
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
-@test cm.accuracy > 0.95
+@test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
 
 n_subfeatures       = 3

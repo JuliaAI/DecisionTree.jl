@@ -29,7 +29,7 @@ model = build_tree(
 preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
-@test cm.accuracy > 0.95
+@test cm.accuracy > 0.9
 
 n_subfeatures       = Int32(0)
 n_trees             = Int32(10)
