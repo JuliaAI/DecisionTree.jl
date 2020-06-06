@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/bensadeghi/DecisionTree.jl.svg?branch=master)](https://travis-ci.org/bensadeghi/DecisionTree.jl)
 [![Coverage Status](https://coveralls.io/repos/bensadeghi/DecisionTree.jl/badge.svg?branch=master)](https://coveralls.io/r/bensadeghi/DecisionTree.jl?branch=master)
-[![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://pkg.julialang.org/docs/DecisionTree/pEDeB/0.8.1/)
+[![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.1/)
 
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
 
@@ -85,6 +85,10 @@ model = prune_tree(model, 0.9)
 print_tree(model, 5)
 # apply learned model
 apply_tree(model, [5.9,3.0,5.1,1.9])
+# apply model to all the sames
+preds = apply_tree(model, features)
+# generate confusion matrix, along with accuracy and kappa scores
+confusion_matrix(labels, preds)
 # get the probability of each label
 apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["Iris-setosa", "Iris-versicolor", "Iris-virginica"])
 # run 3-fold cross validation of pruned tree,
