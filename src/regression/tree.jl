@@ -148,7 +148,7 @@ module treeregressor
                 if lo-1 >= min_samples_leaf && n_samples - (lo-1) >= min_samples_leaf
                     unsplittable = false
                     purity = (rsum * rsum / nr) + (lsum * lsum / nl)
-                    if purity > best_purity + 1e-12
+                    if purity > best_purity && !isapprox(purity, best_purity)
                         # will take average at the end, if possible
                         threshold_lo = last_f
                         threshold_hi = curr_f
