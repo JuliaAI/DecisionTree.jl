@@ -33,6 +33,7 @@ regression =     [
 ]
 
 miscellaneous =  [
+    "miscellaneous/convert.jl"
 #    "miscellaneous/parallel.jl"
 ]
 
