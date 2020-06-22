@@ -2,7 +2,7 @@ __precompile__()
 
 module DecisionTree
 
-import Base: length, show
+import Base: length, show, convert, promote_rule
 using DelimitedFiles
 using LinearAlgebra
 using Random
@@ -46,6 +46,10 @@ end
 
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
+
+convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, zero(S), lf, Leaf(zero(T), [zero(T)]))
+promote_rule(::Type{Node{S, T}}, ::Type{Leaf{T}}) where {S, T} = Node{S, T}
+promote_rule(::Type{Leaf{T}}, ::Type{Node{S, T}}) where {S, T} = Node{S, T}
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
