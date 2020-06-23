@@ -307,7 +307,7 @@ module treeclassifier
     function fit(;
             X                     :: Matrix{S},
             Y                     :: Vector{T},
-            W                     :: Union{Nothing, Vector{U}},
+            W                     :: Union{Nothing, AbstractVector{U}},
             loss=util.entropy     :: Function,
             max_features          :: Int,
             max_depth             :: Int,
@@ -318,7 +318,7 @@ module treeclassifier
 
         n_samples, n_features = size(X)
         list, Y_ = util.assign(Y)
-        if W == nothing
+        if W === nothing
             W = fill(1, n_samples)
         end
 
