@@ -179,7 +179,7 @@ println("\n##### nfoldCV Classification Tree #####")
 nfolds          = 3
 pruning_purity  = 1.0
 max_depth       = 4
-r2_1 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
+r2_1 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10, verbose=false)
 r2_2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
 r2_3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
 @test mean(r2_1) > 0.6
@@ -190,7 +190,7 @@ println("\n##### nfoldCV Regression Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
-r2_1  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
+r2_1  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10, verbose=false)
 r2_2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
 r2_3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=5)
 @test mean(r2_1) > 0.8

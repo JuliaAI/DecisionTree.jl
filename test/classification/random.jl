@@ -121,7 +121,7 @@ println("\n##### nfoldCV Classification Tree #####")
 nfolds          = 3
 pruning_purity  = 1.0
 max_depth       = 3
-accuracy  = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
+accuracy  = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10, verbose=false)
 accuracy2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
 accuracy3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
 @test mean(accuracy) > 0.6
@@ -132,7 +132,7 @@ println("\n##### nfoldCV Classification Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
-accuracy  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
+accuracy  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10, verbose=false)
 accuracy2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
 accuracy3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=5)
 @test mean(accuracy) > 0.7
@@ -142,7 +142,7 @@ accuracy3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations = 15
 n_folds = 3
-accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10)
+accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10, verbose=false)
 accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10)
 accuracy3 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=5)
 @test mean(accuracy) > 0.7
