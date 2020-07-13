@@ -102,15 +102,17 @@ accuracy = nfoldCV_tree(labels, features, n_folds)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 # n_subfeatures: number of features to select at random (default: 0, keep all)
+# keyword rng: the random number generator or seed to use (default Random.GLOBAL_RNG)
 n_subfeatures=0; max_depth=-1; min_samples_leaf=1; min_samples_split=2
-min_purity_increase=0.0; pruning_purity = 1.0
+min_purity_increase=0.0; pruning_purity = 1.0; seed=3
 
 model    =   build_tree(labels, features,
                         n_subfeatures,
                         max_depth,
                         min_samples_leaf,
                         min_samples_split,
-                        min_purity_increase)
+                        min_purity_increase;
+                        rng = seed)
 
 accuracy = nfoldCV_tree(labels, features,
                         n_folds,
@@ -118,7 +120,8 @@ accuracy = nfoldCV_tree(labels, features,
                         max_depth,
                         min_samples_leaf,
                         min_samples_split,
-                        min_purity_increase)
+                        min_purity_increase;
+                        rng = seed)
 ```
 Random Forest Classifier
 ```julia
@@ -141,8 +144,10 @@ accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
+# keyword rng: the random number generator or seed to use (default Random.GLOBAL_RNG)
+#              multi-threaded forests must be seeded with an `Int`
 n_subfeatures=-1; n_trees=10; partial_sampling=0.7; max_depth=-1
-min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
+min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0; seed=3
 
 model    =   build_forest(labels, features,
                           n_subfeatures,
@@ -151,7 +156,8 @@ model    =   build_forest(labels, features,
                           max_depth,
                           min_samples_leaf,
                           min_samples_split,
-                          min_purity_increase)
+                          min_purity_increase;
+                          rng = seed)
 
 accuracy = nfoldCV_forest(labels, features,
                           n_folds,
@@ -161,7 +167,8 @@ accuracy = nfoldCV_forest(labels, features,
                           max_depth,
                           min_samples_leaf,
                           min_samples_split,
-                          min_purity_increase)
+                          min_purity_increase;
+                          rng = seed)
 ```
 Adaptive-Boosted Decision Stumps Classifier
 ```julia
@@ -202,15 +209,17 @@ r2 = nfoldCV_tree(labels, features, n_folds)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
 # n_subfeatures: number of features to select at random (default: 0, keep all)
+# keyword rng: the random number generator or seed to use (default Random.GLOBAL_RNG)
 n_subfeatures = 0; max_depth = -1; min_samples_leaf = 5
-min_samples_split = 2; min_purity_increase = 0.0; pruning_purity = 1.0
+min_samples_split = 2; min_purity_increase = 0.0; pruning_purity = 1.0 ; seed=3
 
 model = build_tree(labels, features,
                    n_subfeatures,
                    max_depth,
                    min_samples_leaf,
                    min_samples_split,
-                   min_purity_increase)
+                   min_purity_increase;
+                   rng = seed)
 
 r2 =  nfoldCV_tree(labels, features,
                    n_folds,
@@ -218,7 +227,8 @@ r2 =  nfoldCV_tree(labels, features,
                    max_depth,
                    min_samples_leaf,
                    min_samples_split,
-                   min_purity_increase)
+                   min_purity_increase;
+                   rng = seed)
 ```
 Regression Random Forest
 ```julia
@@ -239,8 +249,10 @@ r2 = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 # min_samples_leaf: the minimum number of samples each leaf needs to have (default: 5)
 # min_samples_split: the minimum number of samples in needed for a split (default: 2)
 # min_purity_increase: minimum purity needed for a split (default: 0.0)
+# keyword rng: the random number generator or seed to use (default Random.GLOBAL_RNG)
+#              multi-threaded forests must be seeded with an `Int`
 n_subfeatures=-1; n_trees=10; partial_sampling=0.7; max_depth=-1
-min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0
+min_samples_leaf=5; min_samples_split=2; min_purity_increase=0.0; seed=3
 
 model = build_forest(labels, features,
                      n_subfeatures,
@@ -249,7 +261,8 @@ model = build_forest(labels, features,
                      max_depth,
                      min_samples_leaf,
                      min_samples_split,
-                     min_purity_increase)
+                     min_purity_increase;
+                     rng = seed)
 
 r2 =  nfoldCV_forest(labels, features,
                      n_folds,
@@ -259,7 +272,8 @@ r2 =  nfoldCV_forest(labels, features,
                      max_depth,
                      min_samples_leaf,
                      min_samples_split,
-                     min_purity_increase)
+                     min_purity_increase;
+                     rng = seed)
 ```
 
 ## Saving Models
