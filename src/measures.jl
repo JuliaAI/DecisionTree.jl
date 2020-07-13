@@ -72,7 +72,7 @@ function confusion_matrix(actual::AbstractVector, predicted::AbstractVector)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
-function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::AbstractMatrix{S}, args...; rng) where {S, T}
+function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::AbstractMatrix{S}, args...; verbose, rng) where {S, T}
     _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
     if nfolds < 2
@@ -140,8 +140,10 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
         end
         cm = confusion_matrix(test_labels, predictions)
         accuracy[i] = cm.accuracy
-        println("\nFold ", i)
-        println(cm)
+        if verbose
+            println("\nFold ", i)
+            println(cm)
+        end
     end
     println("\nMean Accuracy: ", mean(accuracy))
     return accuracy
@@ -156,9 +158,10 @@ function nfoldCV_tree(
         min_samples_leaf    :: Integer = 1,
         min_samples_split   :: Integer = 2,
         min_purity_increase :: Float64 = 0.0;
+        verbose             :: Bool = true,
         rng                 = Random.GLOBAL_RNG) where {S, T}
     _nfoldCV(:tree, labels, features, n_folds, pruning_purity, max_depth,
-                min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
+                min_samples_leaf, min_samples_split, min_purity_increase; verbose=verbose, rng=rng)
 end
 function nfoldCV_forest(
         labels              :: AbstractVector{T},
@@ -171,17 +174,19 @@ function nfoldCV_forest(
         min_samples_leaf    :: Integer = 1,
         min_samples_split   :: Integer = 2,
         min_purity_increase :: Float64 = 0.0;
+        verbose             :: Bool = true,
         rng                 = Random.GLOBAL_RNG) where {S, T}
     _nfoldCV(:forest, labels, features, n_folds, n_subfeatures, n_trees, partial_sampling,
-                max_depth, min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
+                max_depth, min_samples_leaf, min_samples_split, min_purity_increase; verbose=verbose, rng=rng)
 end
 function nfoldCV_stumps(
         labels       ::AbstractVector{T},
         features     ::AbstractMatrix{S},
         n_folds      ::Integer,
         n_iterations ::Integer = 10;
+        verbose             :: Bool = true,
         rng          = Random.GLOBAL_RNG) where {S, T}
-    _nfoldCV(:stumps, labels, features, n_folds, n_iterations; rng=rng)
+    _nfoldCV(:stumps, labels, features, n_folds, n_iterations; verbose=verbose, rng=rng)
 end
 
 ### Regression ###
@@ -198,7 +203,7 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::AbstractMatrix, args...; rng) where T <: Float64
+function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::AbstractMatrix, args...; verbose, rng) where T <: Float64
     _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
     if nfolds < 2
@@ -261,10 +266,12 @@ function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::Abstra
         corr = cor(test_labels, predictions)
         r2 = R2(test_labels, predictions)
         R2s[i] = r2
-        println("\nFold ", i)
-        println("Mean Squared Error:     ", err)
-        println("Correlation Coeff:      ", corr)
-        println("Coeff of Determination: ", r2)
+        if verbose
+            println("\nFold ", i)
+            println("Mean Squared Error:     ", err)
+            println("Correlation Coeff:      ", corr)
+            println("Coeff of Determination: ", r2)
+        end
     end
     println("\nMean Coeff of Determination: ", mean(R2s))
     return R2s
@@ -279,9 +286,10 @@ function nfoldCV_tree(
     min_samples_leaf    :: Integer = 5,
     min_samples_split   :: Integer = 2,
     min_purity_increase :: Float64 = 0.0;
+    verbose             :: Bool = true,
     rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
 _nfoldCV(:tree, labels, features, n_folds, pruning_purity, max_depth,
-            min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
+            min_samples_leaf, min_samples_split, min_purity_increase; verbose=verbose, rng=rng)
 end
 function nfoldCV_forest(
     labels              :: AbstractVector{T},
@@ -294,7 +302,8 @@ function nfoldCV_forest(
     min_samples_leaf    :: Integer = 5,
     min_samples_split   :: Integer = 2,
     min_purity_increase :: Float64 = 0.0;
+    verbose             :: Bool = true,
     rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
 _nfoldCV(:forest, labels, features, n_folds, n_subfeatures, n_trees, partial_sampling,
-            max_depth, min_samples_leaf, min_samples_split, min_purity_increase; rng=rng)
+            max_depth, min_samples_leaf, min_samples_split, min_purity_increase; verbose=verbose, rng=rng)
 end
