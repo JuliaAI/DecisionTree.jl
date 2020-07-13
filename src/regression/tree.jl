@@ -19,7 +19,7 @@ module treeregressor
         is_leaf     :: Bool
         depth       :: Int
         region      :: UnitRange{Int} # a slice of the samples used to decide the split of the node
-        features    :: Vector{Int}    # a list of features not known to be constant
+        features    :: AbstractVector{Int}    # a list of features not known to be constant
         split_at    :: Int            # index of samples
         function NodeMeta{S}(features, region, depth) where S
             node = new{S}()
@@ -33,27 +33,27 @@ module treeregressor
 
     struct Tree{S}
         root   :: NodeMeta{S}
-        labels :: Vector{Int}
+        labels :: AbstractVector{Int}
     end
 
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
             X                   :: Matrix{S}, # the feature array
-            Y                   :: Vector{Float64}, # the label array
-            W                   :: Vector{U},
+            Y                   :: AbstractVector{Float64}, # the label array
+            W                   :: AbstractVector{U},
             node                :: NodeMeta{S}, # the node to split
             max_features        :: Int, # number of features to consider
             max_depth           :: Int, # the maximum depth of the resultant tree
             min_samples_leaf    :: Int, # the minimum number of samples each leaf needs to have
             min_samples_split   :: Int, # the minimum number of samples in needed for a split
             min_purity_increase :: Float64, # minimum purity needed for a split
-            indX                :: Vector{Int}, # an array of sample indices,
+            indX                :: AbstractVector{Int}, # an array of sample indices,
                                                 # we split using samples in indX[node.region]
             # the two arrays below are given for optimization purposes
-            Xf                  :: Vector{S},
-            Yf                  :: Vector{Float64},
-            Wf                  :: Vector{U},
+            Xf                  :: AbstractVector{S},
+            Yf                  :: AbstractVector{Float64},
+            Wf                  :: AbstractVector{U},
             rng                 :: Random.AbstractRNG) where {S, U}
 
         region = node.region
@@ -227,8 +227,8 @@ module treeregressor
 
     function check_input(
             X                   :: Matrix{S},
-            Y                   :: Vector{T},
-            W                   :: Vector{U},
+            Y                   :: AbstractVector{T},
+            W                   :: AbstractVector{U},
             max_features        :: Int,
             max_depth           :: Int,
             min_samples_leaf    :: Int,
@@ -258,8 +258,8 @@ module treeregressor
 
     function _fit(
             X                     :: Matrix{S},
-            Y                     :: Vector{Float64},
-            W                     :: Vector{U},
+            Y                     :: AbstractVector{Float64},
+            W                     :: AbstractVector{U},
             max_features          :: Int,
             max_depth             :: Int,
             min_samples_leaf      :: Int,
@@ -301,8 +301,8 @@ module treeregressor
 
     function fit(;
             X                     :: Matrix{S},
-            Y                     :: Vector{Float64},
-            W                     :: Union{Nothing, Vector{U}},
+            Y                     :: AbstractVector{Float64},
+            W                     :: Union{Nothing, AbstractVector{U}},
             max_features          :: Int,
             max_depth             :: Int,
             min_samples_leaf      :: Int,

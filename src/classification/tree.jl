@@ -19,11 +19,11 @@ module treeclassifier
         is_leaf     :: Bool
         depth       :: Int
         region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
-        features    :: Vector{Int}      # a list of features not known to be constant
+        features    :: AbstractVector{Int}      # a list of features not known to be constant
         split_at    :: Int              # index of samples
 
         function NodeMeta{S}(
-                features :: Vector{Int},
+                features :: AbstractVector{Int},
                 region   :: UnitRange{Int},
                 depth    :: Int) where S
             node = new{S}()
@@ -37,16 +37,16 @@ module treeclassifier
 
     struct Tree{S, T}
         root   :: NodeMeta{S}
-        list   :: Vector{T}
-        labels :: Vector{Int}
+        list   :: AbstractVector{T}
+        labels :: AbstractVector{Int}
     end
 
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
             X                   :: Matrix{S},   # the feature array
-            Y                   :: Vector{Int}, # the label array
-            W                   :: Vector{U},   # the weight vector
+            Y                   :: AbstractVector{Int}, # the label array
+            W                   :: AbstractVector{U},   # the weight vector
             purity_function     :: Function,
             node                :: NodeMeta{S}, # the node to split
             max_features        :: Int,         # number of features to consider
@@ -54,15 +54,15 @@ module treeclassifier
             min_samples_leaf    :: Int,         # the minimum number of samples each leaf needs to have
             min_samples_split   :: Int,         # the minimum number of samples in needed for a split
             min_purity_increase :: Float64,     # minimum purity needed for a split
-            indX                :: Vector{Int}, # an array of sample indices,
+            indX                :: AbstractVector{Int}, # an array of sample indices,
                                                 # we split using samples in indX[node.region]
             # the six arrays below are given for optimization purposes
-            nc                  :: Vector{U},   # nc maintains a dictionary of all labels in the samples
-            ncl                 :: Vector{U},   # ncl maintains the counts of labels on the left
-            ncr                 :: Vector{U},   # ncr maintains the counts of labels on the right
-            Xf                  :: Vector{S},
-            Yf                  :: Vector{Int},
-            Wf                  :: Vector{U},
+            nc                  :: AbstractVector{U},   # nc maintains a dictionary of all labels in the samples
+            ncl                 :: AbstractVector{U},   # ncl maintains the counts of labels on the left
+            ncr                 :: AbstractVector{U},   # ncr maintains the counts of labels on the right
+            Xf                  :: AbstractVector{S},
+            Yf                  :: AbstractVector{Int},
+            Wf                  :: AbstractVector{U},
             rng                 :: Random.AbstractRNG) where {S, U}
 
         region = node.region
@@ -228,8 +228,8 @@ module treeclassifier
 
     function check_input(
             X                   :: Matrix{S},
-            Y                   :: Vector{T},
-            W                   :: Vector{U},
+            Y                   :: AbstractVector{T},
+            W                   :: AbstractVector{U},
             max_features        :: Int,
             max_depth           :: Int,
             min_samples_leaf    :: Int,
@@ -259,8 +259,8 @@ module treeclassifier
 
     function _fit(
             X                     :: Matrix{S},
-            Y                     :: Vector{Int},
-            W                     :: Vector{U},
+            Y                     :: AbstractVector{Int},
+            W                     :: AbstractVector{U},
             loss                  :: Function,
             n_classes             :: Int,
             max_features          :: Int,
@@ -306,8 +306,8 @@ module treeclassifier
 
     function fit(;
             X                     :: Matrix{S},
-            Y                     :: Vector{T},
-            W                     :: Union{Nothing, Vector{U}},
+            Y                     :: AbstractVector{T},
+            W                     :: Union{Nothing, AbstractVector{U}},
             loss=util.entropy     :: Function,
             max_features          :: Int,
             max_depth             :: Int,

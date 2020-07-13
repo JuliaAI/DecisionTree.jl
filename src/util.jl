@@ -5,7 +5,7 @@ module util
 
     export gini, entropy, zero_one, q_bi_sort!, hypergeometric
 
-    function assign(Y :: Vector{T}, list :: Vector{T}) where T
+    function assign(Y :: AbstractVector{T}, list :: AbstractVector{T}) where T
         dict = Dict{T, Int}()
         @simd for i in 1:length(list)
             @inbounds dict[list[i]] = i
@@ -19,7 +19,7 @@ module util
         return list, _Y
     end
 
-    function assign(Y :: Vector{T}) where T
+    function assign(Y :: AbstractVector{T}) where T
         set = Set{T}()
         for y in Y
             push!(set, y)
@@ -53,7 +53,7 @@ module util
 
     # returns the entropy of ns/n, ns is an array of integers
     # and entropy_terms are precomputed entropy terms
-    @inline function entropy(ns::Vector{U}, n, entropy_terms) where {U <: Integer}
+    @inline function entropy(ns::AbstractVector{U}, n, entropy_terms) where {U <: Integer}
         s = 0.0
         for k in ns
             s += entropy_terms[k+1]
