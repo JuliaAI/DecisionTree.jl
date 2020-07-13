@@ -37,7 +37,7 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     n_subfeatures::Int
     rng::Random.Random.AbstractRNG
     root::Union{LeafOrNode, Nothing}
-    classes::Union{Vector, Nothing}
+    classes::Union{AbstractVector, Nothing}
     DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
                            min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing, classes=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
@@ -136,7 +136,7 @@ end
                          [:pruning_purity_threshold, :min_samples_leaf, :n_subfeatures,
                           :max_depth, :min_samples_split, :min_purity_increase, :rng])
 
-function fit!(dt::DecisionTreeRegressor, X::Matrix, y::Vector)
+function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
     dt.root = build_tree(
         float.(y), X,
@@ -199,7 +199,7 @@ mutable struct RandomForestClassifier <: BaseClassifier
     min_purity_increase::Float64
     rng::Union{Random.AbstractRNG, Int}
     ensemble::Union{Ensemble, Nothing}
-    classes::Union{Vector, Nothing}
+    classes::Union{AbstractVector, Nothing}
     RandomForestClassifier(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                            max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
                            rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
@@ -213,7 +213,7 @@ get_classes(rf::RandomForestClassifier) = rf.classes
                           :min_samples_leaf, :min_samples_split, :min_purity_increase,
                           :rng])
 
-function fit!(rf::RandomForestClassifier, X::Matrix, y::Vector)
+function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
         y, X,
@@ -297,7 +297,7 @@ end
                           # since it'll change throughout fitting, but it works
                           :max_depth, :rng])
 
-function fit!(rf::RandomForestRegressor, X::Matrix, y::Vector)
+function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
         float.(y), X,
@@ -347,8 +347,8 @@ mutable struct AdaBoostStumpClassifier <: BaseClassifier
     n_iterations::Int
     rng::Random.AbstractRNG
     ensemble::Union{Ensemble, Nothing}
-    coeffs::Union{Vector{Float64}, Nothing}
-    classes::Union{Vector, Nothing}
+    coeffs::Union{AbstractVector{Float64}, Nothing}
+    classes::Union{AbstractVector, Nothing}
     AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
         new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
 end
