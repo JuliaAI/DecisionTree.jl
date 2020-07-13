@@ -185,7 +185,7 @@ Hyperparameters:
 - `min_samples_split`: the minimum number of samples in needed for a split
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
-  to seed and create a new random number generator.
+  to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -197,14 +197,14 @@ mutable struct RandomForestClassifier <: BaseClassifier
     min_samples_leaf::Int
     min_samples_split::Int
     min_purity_increase::Float64
-    rng::Random.AbstractRNG
+    rng::Union{Random.AbstractRNG, Int}
     ensemble::Union{Ensemble, Nothing}
     classes::Union{Vector, Nothing}
     RandomForestClassifier(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                            max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
                            rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, mk_rng(rng), ensemble, classes)
+            min_purity_increase, rng, ensemble, classes)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
@@ -269,7 +269,7 @@ Hyperparameters:
 - `min_samples_split`: the minimum number of samples in needed for a split
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
-  to seed and create a new random number generator.
+  to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
 
 Implements `fit!`, `predict`, `get_classes`
 """
@@ -281,13 +281,13 @@ mutable struct RandomForestRegressor <: BaseRegressor
     min_samples_leaf::Int
     min_samples_split::Int
     min_purity_increase::Float64
-    rng::Random.AbstractRNG
+    rng::Union{Random.AbstractRNG, Int}
     ensemble::Union{Ensemble, Nothing}
     RandomForestRegressor(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                             max_depth=-1, min_samples_leaf=5, min_samples_split=2, min_purity_increase=0.0,
                             rng=Random.GLOBAL_RNG, ensemble=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, mk_rng(rng), ensemble)
+            min_purity_increase, rng, ensemble)
 end
 
 @declare_hyperparameters(RandomForestRegressor,

@@ -73,20 +73,36 @@ function build_forest(
     t_samples = length(labels)
     n_samples = floor(Int, partial_sampling * t_samples)
 
-    rngs = mk_rng(rng)::Random.AbstractRNG
-
     forest = Vector{LeafOrNode{S, T}}(undef, n_trees)
-    Threads.@threads for i in 1:n_trees
-        inds = rand(rngs, 1:t_samples, n_samples)
-        forest[i] = build_tree(
-            labels[inds],
-            features[inds,:],
-            n_subfeatures,
-            max_depth,
-            min_samples_leaf,
-            min_samples_split,
-            min_purity_increase,
-            rng = rngs)
+
+    if rng isa Random.AbstractRNG
+        Threads.@threads for i in 1:n_trees
+            inds = rand(rng, 1:t_samples, n_samples)
+            forest[i] = build_tree(
+                labels[inds],
+                features[inds,:],
+                n_subfeatures,
+                max_depth,
+                min_samples_leaf,
+                min_samples_split,
+                min_purity_increase,
+                rng = rng)
+        end
+    elseif rng isa Integer # each thread gets its own seeded rng
+        Threads.@threads for i in 1:n_trees
+            Random.seed!(rng + i)
+            inds = rand(1:t_samples, n_samples)
+            forest[i] = build_tree(
+                labels[inds],
+                features[inds,:],
+                n_subfeatures,
+                max_depth,
+                min_samples_leaf,
+                min_samples_split,
+                min_purity_increase)
+        end
+    else
+        throw("rng must of be type Integer or Random.AbstractRNG")
     end
 
     return Ensemble{S, T}(forest)

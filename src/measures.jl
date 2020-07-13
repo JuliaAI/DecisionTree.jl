@@ -73,7 +73,7 @@ function confusion_matrix(actual::Vector, predicted::Vector)
 end
 
 function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, args...; rng) where {S, T}
-    rng = mk_rng(rng)::Random.AbstractRNG
+    _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
     if nfolds < 2
         throw("number of folds must be greater than 1")
@@ -97,7 +97,7 @@ function _nfoldCV(classifier::Symbol, labels::Vector{T}, features::Matrix{S}, ar
     end
     N = length(labels)
     ntest = floor(Int, N / nfolds)
-    inds = Random.randperm(rng, N)
+    inds = Random.randperm(_rng, N)
     accuracy = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
@@ -199,7 +199,7 @@ function R2(actual, predicted)
 end
 
 function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args...; rng) where T <: Float64
-    rng = mk_rng(rng)::Random.AbstractRNG
+    _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
     if nfolds < 2
         throw("number of folds must be greater than 1")
@@ -221,7 +221,7 @@ function _nfoldCV(regressor::Symbol, labels::Vector{T}, features::Matrix, args..
     end
     N = length(labels)
     ntest = floor(Int, N / nfolds)
-    inds = Random.randperm(rng, N)
+    inds = Random.randperm(_rng, N)
     R2s = zeros(nfolds)
     for i in 1:nfolds
         test_inds = falses(N)
