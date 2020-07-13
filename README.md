@@ -121,6 +121,7 @@ accuracy = nfoldCV_tree(labels, features,
                         min_samples_leaf,
                         min_samples_split,
                         min_purity_increase;
+                        verbose = true,
                         rng = seed)
 ```
 Random Forest Classifier
@@ -168,6 +169,7 @@ accuracy = nfoldCV_forest(labels, features,
                           min_samples_leaf,
                           min_samples_split,
                           min_purity_increase;
+                          verbose = true,
                           rng = seed)
 ```
 Adaptive-Boosted Decision Stumps Classifier
@@ -182,7 +184,8 @@ apply_adaboost_stumps_proba(model, coeffs, [5.9,3.0,5.1,1.9], ["Iris-setosa", "I
 n_iterations=7; n_folds=3
 accuracy = nfoldCV_stumps(labels, features,
                           n_folds,
-                          n_iterations)
+                          n_iterations;
+                          verbose = true)
 ```
 
 ### Regression Example
@@ -228,6 +231,7 @@ r2 =  nfoldCV_tree(labels, features,
                    min_samples_leaf,
                    min_samples_split,
                    min_purity_increase;
+                   verbose = true,
                    rng = seed)
 ```
 Regression Random Forest
@@ -273,6 +277,7 @@ r2 =  nfoldCV_forest(labels, features,
                      min_samples_leaf,
                      min_samples_split,
                      min_purity_increase;
+                     verbose = true,
                      rng = seed)
 ```
 
