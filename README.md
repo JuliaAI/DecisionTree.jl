@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/bensadeghi/DecisionTree.jl.svg?branch=master)](https://travis-ci.org/bensadeghi/DecisionTree.jl)
 [![Coverage Status](https://coveralls.io/repos/bensadeghi/DecisionTree.jl/badge.svg?branch=master)](https://coveralls.io/r/bensadeghi/DecisionTree.jl?branch=master)
-[![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.2/)
+[![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.6/)
 
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
 
 Available via:
 * [CombineML.jl](https://github.com/ppalmes/CombineML.jl) - a heterogeneous ensemble learning package
-* [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl) - a pure Julia machine learning framework
+* [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl) - a machine learning framework for Julia
 * [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) - Julia implementation of the scikit-learn API
 
 ## Classification
