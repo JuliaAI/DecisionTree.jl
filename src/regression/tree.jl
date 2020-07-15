@@ -19,21 +19,24 @@ module treeregressor
         is_leaf     :: Bool
         depth       :: Int
         region      :: UnitRange{Int} # a slice of the samples used to decide the split of the node
-        features    :: AbstractVector{Int}    # a list of features not known to be constant
+        features    :: Vector{Int}    # a list of features not known to be constant
         split_at    :: Int            # index of samples
-        function NodeMeta{S}(features, region, depth) where S
-            node = new{S}()
-            node.depth = depth
-            node.region = region
-            node.features = features
-            node.is_leaf = false
-            node
-        end
+        function NodeMeta{S}(
+            features :: Vector{Int},
+            region   :: UnitRange{Int},
+            depth    :: Int) where S
+        node = new{S}()
+        node.depth = depth
+        node.region = region
+        node.features = features
+        node.is_leaf = false
+        node
+    end
     end
 
     struct Tree{S}
         root   :: NodeMeta{S}
-        labels :: AbstractVector{Int}
+        labels :: Vector{Int}
     end
 
     # find an optimal split that satisfy the given constraints

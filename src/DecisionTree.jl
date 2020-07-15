@@ -28,7 +28,7 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
 
 struct Leaf{T}
     majority :: T
-    values   :: AbstractVector{T}
+    values   :: Vector{T}
 end
 
 struct Node{S, T}
@@ -41,7 +41,7 @@ end
 const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
 
 struct Ensemble{S, T}
-    trees :: AbstractVector{LeafOrNode{S, T}}
+    trees :: Vector{LeafOrNode{S, T}}
 end
 
 is_leaf(l::Leaf) = true

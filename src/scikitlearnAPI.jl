@@ -37,7 +37,7 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     n_subfeatures::Int
     rng::Random.Random.AbstractRNG
     root::Union{LeafOrNode, Nothing}
-    classes::Union{AbstractVector, Nothing}
+    classes::Union{Vector, Nothing}
     DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
                            min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing, classes=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
@@ -199,7 +199,7 @@ mutable struct RandomForestClassifier <: BaseClassifier
     min_purity_increase::Float64
     rng::Union{Random.AbstractRNG, Int}
     ensemble::Union{Ensemble, Nothing}
-    classes::Union{AbstractVector, Nothing}
+    classes::Union{Vector, Nothing}
     RandomForestClassifier(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                            max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
                            rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
@@ -347,8 +347,8 @@ mutable struct AdaBoostStumpClassifier <: BaseClassifier
     n_iterations::Int
     rng::Random.AbstractRNG
     ensemble::Union{Ensemble, Nothing}
-    coeffs::Union{AbstractVector{Float64}, Nothing}
-    classes::Union{AbstractVector, Nothing}
+    coeffs::Union{Vector{Float64}, Nothing}
+    classes::Union{Vector, Nothing}
     AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
         new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
 end
