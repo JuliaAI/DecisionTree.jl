@@ -1,6 +1,6 @@
 struct ConfusionMatrix
-    classes::AbstractVector
-    matrix::AbstractMatrix{Int}
+    classes::Vector
+    matrix::Matrix{Int}
     accuracy::Float64
     kappa::Float64
 end
