@@ -7,6 +7,7 @@
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
 
 Available via:
+* [AutoMLPipeline.jl](https://github.com/IBM/AutoMLPipeline.jl) - create complex ML pipeline structures using simple expressions
 * [CombineML.jl](https://github.com/ppalmes/CombineML.jl) - a heterogeneous ensemble learning package
 * [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl) - a machine learning framework for Julia
 * [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) - Julia implementation of the scikit-learn API
