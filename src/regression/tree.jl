@@ -260,7 +260,7 @@ module treeregressor
     end
 
     function _fit(
-            X                     :: Matrix{S},
+            X                     :: AbstractMatrix{S},
             Y                     :: AbstractVector{Float64},
             W                     :: AbstractVector{U},
             max_features          :: Int,
@@ -303,7 +303,7 @@ module treeregressor
     end
 
     function fit(;
-            X                     :: Matrix{S},
+            X                     :: AbstractMatrix{S},
             Y                     :: AbstractVector{Float64},
             W                     :: Union{Nothing, AbstractVector{U}},
             max_features          :: Int,
