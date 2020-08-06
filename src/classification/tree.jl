@@ -257,7 +257,7 @@ module treeclassifier
     end
 
     function _fit(
-            X                     :: Matrix{S},
+            X                     :: AbstractMatrix{S},
             Y                     :: AbstractVector{Int},
             W                     :: AbstractVector{U},
             loss                  :: Function,
@@ -304,7 +304,7 @@ module treeclassifier
     end
 
     function fit(;
-            X                     :: Matrix{S},
+            X                     :: AbstractMatrix{S},
             Y                     :: AbstractVector{T},
             W                     :: Union{Nothing, AbstractVector{U}},
             loss=util.entropy     :: Function,
