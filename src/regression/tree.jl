@@ -42,7 +42,7 @@ module treeregressor
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
-            X                   :: Matrix{S}, # the feature array
+            X                   :: AbstractMatrix{S}, # the feature array
             Y                   :: AbstractVector{Float64}, # the label array
             W                   :: AbstractVector{U},
             node                :: NodeMeta{S}, # the node to split
@@ -229,7 +229,7 @@ module treeregressor
     end
 
     function check_input(
-            X                   :: Matrix{S},
+            X                   :: AbstractMatrix{S},
             Y                   :: AbstractVector{T},
             W                   :: AbstractVector{U},
             max_features        :: Int,
