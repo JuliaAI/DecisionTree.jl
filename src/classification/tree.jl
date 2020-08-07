@@ -226,7 +226,7 @@ module treeclassifier
     end
 
     function check_input(
-            X                   :: Matrix{S},
+            X                   :: AbstractMatrix{S},
             Y                   :: AbstractVector{T},
             W                   :: AbstractVector{U},
             max_features        :: Int,
