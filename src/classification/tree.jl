@@ -43,7 +43,7 @@ module treeclassifier
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
-            X                   :: Matrix{S},   # the feature array
+            X                   :: AbstractMatrix{S},   # the feature array
             Y                   :: AbstractVector{Int}, # the label array
             W                   :: AbstractVector{U},   # the weight vector
             purity_function     :: Function,
