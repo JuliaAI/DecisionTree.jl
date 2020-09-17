@@ -109,7 +109,7 @@ m3 = build_forest(labels, features,
 @test length.(m1.trees) != length.(m3.trees)
 
 
-n_iterations = 15
+n_iterations = 25
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
@@ -140,7 +140,7 @@ accuracy3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng
 @test accuracy != accuracy3
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
-n_iterations = 15
+n_iterations = 25
 n_folds = 3
 accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10, verbose=false)
 accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10)
