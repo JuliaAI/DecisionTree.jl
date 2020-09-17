@@ -120,11 +120,11 @@ cm = confusion_matrix(labels, preds)
 println("\n##### nfoldCV Classification Tree #####")
 nfolds          = 3
 pruning_purity  = 1.0
-max_depth       = 3
+max_depth       = 5
 accuracy  = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10, verbose=false)
 accuracy2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
 accuracy3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
-@test mean(accuracy) > 0.6
+@test mean(accuracy) > 0.7
 @test accuracy == accuracy2
 @test accuracy != accuracy3
 
