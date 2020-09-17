@@ -110,7 +110,7 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
 
         if classifier == :tree
             n_subfeatures = 0
-            model = build_tree(labels, features,
+            model = build_tree(train_labels, train_features,
                    n_subfeatures,
                    max_depth,
                    min_samples_leaf,
@@ -123,7 +123,7 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
             predictions = apply_tree(model, test_features)
         elseif classifier == :forest
             model = build_forest(
-                        labels, features,
+                        train_labels, train_features,
                         n_subfeatures,
                         n_trees,
                         partial_sampling,
@@ -238,7 +238,7 @@ function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::Abstra
         train_labels = labels[inds[train_inds]]
         if regressor == :tree
             n_subfeatures = 0
-            model = build_tree(labels, features,
+            model = build_tree(train_labels, train_features,
                    n_subfeatures,
                    max_depth,
                    min_samples_leaf,
@@ -251,7 +251,7 @@ function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::Abstra
             predictions = apply_tree(model, test_features)
         elseif regressor == :forest
             model = build_forest(
-                        labels, features,
+                        train_labels, train_features,
                         n_subfeatures,
                         n_trees,
                         partial_sampling,
