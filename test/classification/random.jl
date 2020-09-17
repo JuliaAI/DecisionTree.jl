@@ -113,7 +113,7 @@ n_iterations = 25
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
-@test cm.accuracy > 0.7
+@test cm.accuracy > 0.6
 @test typeof(preds) == Vector{Int}
 @test length(model) == n_iterations
 
@@ -145,7 +145,7 @@ n_folds = 3
 accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10, verbose=false)
 accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10)
 accuracy3 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=5)
-@test mean(accuracy) > 0.7
+@test mean(accuracy) > 0.6
 @test accuracy == accuracy2
 @test accuracy != accuracy3
 
