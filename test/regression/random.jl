@@ -182,7 +182,7 @@ max_depth       = 4
 r2_1 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10, verbose=false)
 r2_2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
 r2_3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
-@test mean(r2_1) > 0.6
+@test mean(r2_1) > 0.5
 @test r2_1 == r2_2
 @test r2_1 != r2_3
 
