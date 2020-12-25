@@ -235,7 +235,7 @@ module treeclassifier
             max_depth           :: Int,
             min_samples_leaf    :: Int,
             min_samples_split   :: Int,
-            min_purity_increase :: Float64) where {S, Label, U}
+            min_purity_increase :: Float64) where {S, U}
         n_samples, n_features = size(X)
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
@@ -315,7 +315,7 @@ module treeclassifier
             min_samples_leaf      :: Int,
             min_samples_split     :: Int,
             min_purity_increase   :: Float64,
-            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, Label, U}
+            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
         n_samples, n_features = size(X)
         list, Y_ = util.assign(Y)
