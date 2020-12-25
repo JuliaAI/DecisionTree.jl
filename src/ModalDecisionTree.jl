@@ -19,11 +19,8 @@ export DTLeaf, DTInternal
 ###########################
 ########## Types ##########
 
-# Decision node
-abstract type DTNode{S<:Number, T<:Number} end
-
 # Leaf node, holding the output decision
-struct DTLeaf{S, T} <: DTNode{S, T}
+struct DTLeaf{T}
 	# Majority class/value (output)
 	majority :: T
 	# Training support
@@ -31,7 +28,7 @@ struct DTLeaf{S, T} <: DTNode{S, T}
 end
 
 # Inner node, holding the output decision
-struct DTInternal{S, T} <: DTNode{S, T}
+struct DTInternal{S, T}
 
 	# Feature
 	featid   :: Int
@@ -41,10 +38,13 @@ struct DTInternal{S, T} <: DTNode{S, T}
 	modality :: Union{AbstractString,Nothing}
 
 	# Child nodes
-	left     :: DTNode{S, T}
-	right    :: DTNode{S, T}
+	left     :: Union{DTLeaf{T}, DTInternal{S, T}}
+	right    :: Union{DTLeaf{T}, DTInternal{S, T}}
 
 end
+
+# Decision node/tree
+const DTNode{S<:Number, T<:Number} = Union{DTLeaf{T}, DTInternal{S, T}}
 
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
