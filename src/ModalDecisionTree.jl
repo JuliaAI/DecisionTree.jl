@@ -38,8 +38,8 @@ struct DTInternal{S<:Real, T}
 	modality :: Union{AbstractString,Nothing}
 
 	# Child nodes
-	left     :: Union{DTLeaf{T}, DTInternal{S, T}}
-	right    :: Union{DTLeaf{T}, DTInternal{S, T}}
+	left     :: Union{DTLeaf{T}, DTInternal{<:S, T}}
+	right    :: Union{DTLeaf{T}, DTInternal{<:S, T}}
 
 end
 

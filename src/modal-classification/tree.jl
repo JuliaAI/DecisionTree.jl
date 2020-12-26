@@ -55,7 +55,7 @@ module treeclassifier
             max_depth           :: Int,         # the maximum depth of the resultant tree
             min_samples_leaf    :: Int,         # the minimum number of samples each leaf needs to have
             min_samples_split   :: Int,         # the minimum number of samples in needed for a split
-            min_purity_increase :: Float64,     # minimum purity needed for a split
+            min_purity_increase :: AbstractFloat,     # minimum purity needed for a split
             indX                :: AbstractVector{Int}, # an array of sample indices,
                                                 # we split using samples in indX[node.region]
             # the six arrays below are given for optimization purposes
@@ -236,7 +236,7 @@ module treeclassifier
             max_depth           :: Int,
             min_samples_leaf    :: Int,
             min_samples_split   :: Int,
-            min_purity_increase :: Float64) where {S, U}
+            min_purity_increase :: AbstractFloat) where {S, U}
         n_samples, n_features = size(X)
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
@@ -260,17 +260,17 @@ module treeclassifier
     end
 
     function _fit(
-            X                     :: AbstractMatrix{S},
-            Y                     :: AbstractVector{Label},
-            W                     :: AbstractVector{U},
-            loss                  :: Function,
-            n_classes             :: Int,
-            max_features          :: Int,
-            max_depth             :: Int,
-            min_samples_leaf      :: Int,
-            min_samples_split     :: Int,
-            min_purity_increase   :: Float64,
-            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
+            X                       :: AbstractMatrix{S},
+            Y                       :: AbstractVector{Label},
+            W                       :: AbstractVector{U},
+            loss                    :: Function,
+            n_classes               :: Int,
+            max_features            :: Int,
+            max_depth               :: Int,
+            min_samples_leaf        :: Int,
+            min_samples_split       :: Int,
+            min_purity_increase     :: AbstractFloat,
+            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
         n_samples, n_features = size(X)
 
@@ -307,16 +307,16 @@ module treeclassifier
     end
 
     function fit(;
-            X                     :: AbstractMatrix{S},
-            Y                     :: AbstractVector{Label},
-            W                     :: Union{Nothing, AbstractVector{U}},
-            loss=util.entropy     :: Function,
-            max_features          :: Int,
-            max_depth             :: Int,
-            min_samples_leaf      :: Int,
-            min_samples_split     :: Int,
-            min_purity_increase   :: Float64,
-            rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
+            X                       :: AbstractMatrix{S},
+            Y                       :: AbstractVector{Label},
+            W                       :: Union{Nothing, AbstractVector{U}},
+            loss = util.entropy     :: Function,
+            max_features            :: Int,
+            max_depth               :: Int,
+            min_samples_leaf        :: Int,
+            min_samples_split       :: Int,
+            min_purity_increase     :: AbstractFloat,
+            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
         n_samples, n_features = size(X)
         list, Y_ = util.assign(Y)
