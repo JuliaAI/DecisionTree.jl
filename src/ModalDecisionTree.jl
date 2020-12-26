@@ -20,7 +20,7 @@ export DTLeaf, DTInternal
 ########## Types ##########
 
 # Leaf node, holding the output decision
-struct DTLeaf{T}
+struct DTLeaf{T} # TODO specify output type...
 	# Majority class/value (output)
 	majority :: T
 	# Training support
@@ -28,7 +28,7 @@ struct DTLeaf{T}
 end
 
 # Inner node, holding the output decision
-struct DTInternal{S, T}
+struct DTInternal{S<:Real, T}
 
 	# Feature
 	featid   :: Int
@@ -44,7 +44,7 @@ struct DTInternal{S, T}
 end
 
 # Decision node/tree
-const DTNode{S<:Number, T<:Number} = Union{DTLeaf{T}, DTInternal{S, T}}
+const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
 
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
@@ -65,6 +65,7 @@ mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
 include("measures.jl")
 include("load_data.jl")
 include("util.jl")
+# TODO include("ModalLogic.jl") define KripkeFrame, KripkeModel
 include("modal-classification/main.jl")
 # TODO: include("ModalscikitlearnAPI.jl")
 
@@ -96,18 +97,18 @@ function print_tree(tree::DTInternal, depth=-1, indent=0)
 				return
 		end
 
-		test = "Feature $(tree.featid) < $(tree.featval)"
-		if ! ( is_modal_node(tree) )
-			if tree.modality == "♢"
-				modString = "$(tree.modality)"
+		test = "Feature $(tree.featid) $(tree.testsign) $(tree.featval)"
+		println(
+			if ! ( is_modal_node(tree) )
+				if tree.modality == "♢"
+					modString = "$(tree.modality)"
+				else
+					modString = "<$(tree.modality)>"
+				end
+				"$modString ( $test )"
 			else
-				modString = "<$(tree.modality)>"
-			end
-			println("$modString ( $test )")
-		else
-			println("$test")
-		end
-# Height
+				"$test"
+			end)
 		print("  " ^ indent * "Y-> ")
 		print_tree(tree.left, depth, indent + 1)
 		print("  " ^ indent * "N-> ")

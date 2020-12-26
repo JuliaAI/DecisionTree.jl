@@ -18,6 +18,7 @@ module treeclassifier
         label       :: Label            # most likely label
         feature     :: Int              # feature used for splitting
         threshold   :: S                # threshold value
+        # TODO: testsign modality
         is_leaf     :: Bool
         depth       :: Int
         region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
