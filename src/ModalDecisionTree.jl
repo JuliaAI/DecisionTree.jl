@@ -8,19 +8,19 @@ using LinearAlgebra
 using Random
 using Statistics
 
-export DTLeaf, DTInternal
-		   # TODO: , print_tree, depth, build_stump, build_tree,
-			 # prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
-			 # apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
-			 # apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-			 # majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data
+export DTNode, DTLeaf, DTInternal,
+			 is_leaf, is_modal_node,
+			 height, modalHeight,
+			 build_stump, build_tree,
+       print_tree, prune_tree, apply_tree,
+			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data
 
 
 ###########################
 ########## Types ##########
 
 # Leaf node, holding the output decision
-struct DTLeaf{T} # TODO specify output type...
+struct DTLeaf{T} # TODO specify output type: Number, Label, String, Union{Number,Label,String}?
 	# Majority class/value (output)
 	majority :: T
 	# Training support
@@ -43,7 +43,7 @@ struct DTInternal{S<:Real, T}
 
 end
 
-# Decision node/tree
+# Decision node/tree # TODO figure out, maybe this has to be abstract and to supertype DTLeaf and DTInternal
 const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
 
 is_leaf(l::DTLeaf) = true
@@ -65,7 +65,7 @@ mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
 include("measures.jl")
 include("load_data.jl")
 include("util.jl")
-# TODO include("ModalLogic.jl") define KripkeFrame, KripkeModel
+include("ModalLogic.jl")
 include("modal-classification/main.jl")
 # TODO: include("ModalscikitlearnAPI.jl")
 

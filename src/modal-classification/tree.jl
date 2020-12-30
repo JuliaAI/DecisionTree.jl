@@ -43,7 +43,7 @@ module treeclassifier
         labels :: Vector{Label}
     end
 
-    # find an optimal split that satisfy the given constraints
+    # find an optimal split satisfying the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
             X                   :: AbstractMatrix{S},     # the feature array
