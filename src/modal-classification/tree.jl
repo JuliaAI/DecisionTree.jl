@@ -10,8 +10,7 @@ module treeclassifier
 
     export fit
 
-    const Label = Int
-
+    
     mutable struct NodeMeta{S}
         l           :: NodeMeta{S}      # left child
         r           :: NodeMeta{S}      # right child
@@ -219,6 +218,7 @@ module treeclassifier
         return _split!
 
     end
+    # Split node at a previously-set node.split_at value.
     @inline function fork!(node::NodeMeta{S}) where S
         ind = node.split_at
         region = node.region
@@ -229,15 +229,15 @@ module treeclassifier
     end
 
     function check_input(
-            X                   :: AbstractMatrix{S},
+            X                   :: OntologicalKripkeDataset{S, N},
             Y                   :: AbstractVector{Label},
             W                   :: AbstractVector{U},
             max_features        :: Int,
             max_depth           :: Int,
             min_samples_leaf    :: Int,
             min_samples_split   :: Int,
-            min_purity_increase :: AbstractFloat) where {S, U}
-        n_samples, n_features = size(X)
+            min_purity_increase :: AbstractFloat) where {S, U, N}
+        n_samples, n_features = n_samples(X), n_features(X)
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
         elseif length(W) != n_samples
@@ -260,7 +260,7 @@ module treeclassifier
     end
 
     function _fit(
-            X                       :: AbstractMatrix{S},
+            X                       :: OntologicalKripkeDataset{S, N},
             Y                       :: AbstractVector{Label},
             W                       :: AbstractVector{U},
             loss                    :: Function,
@@ -270,9 +270,10 @@ module treeclassifier
             min_samples_leaf        :: Int,
             min_samples_split       :: Int,
             min_purity_increase     :: AbstractFloat,
-            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
+            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U, N}
 
-        n_samples, n_features = size(X)
+    	# Dataset sizes
+        n_samples, n_features = n_samples(X), n_features(X)
 
         nc  = Array{U}(undef, n_classes)
         ncl = Array{U}(undef, n_classes)
@@ -281,10 +282,14 @@ module treeclassifier
         Xf  = Array{S}(undef, n_samples)
         Yf  = Array{Label}(undef, n_samples)
 
+        # Sample indices (array of indices that will be sorted and partitioned across the leaves)
         indX = collect(1:n_samples)
+        # Create root node
         root = NodeMeta{S}(collect(1:n_features), 1:n_samples, 0)
+        # Stack of nodes to process
         stack = NodeMeta{S}[root]
         @inbounds while length(stack) > 0
+            # Pop node and process it
             node = pop!(stack)
             _split!(
                 X, Y, W,
@@ -296,6 +301,8 @@ module treeclassifier
                 min_purity_increase,
                 indX,
                 nc, ncl, ncr, Xf, Yf, Wf, rng)
+           	# After processing, if needed, perform the split and push the two children for a later processing step
+            # TODO: this step could be parallelized
             if !node.is_leaf
                 fork!(node)
                 push!(stack, node.r)
@@ -311,9 +318,8 @@ module treeclassifier
     		# In this implementation, we don't accept a generic Kripke model in the explicit form of
     		#  a graph; instead, an instance is a dimensional domain (e.g. a matrix or a 3D matrix) onto which
     		#  worlds and relations are determined by a given Ontology.
-    		
-    	    X                       :: OntologicalKripkeFrame{S,N},
-            Y                       :: AbstractVector{Label},
+    		X                       :: OntologicalKripkeDataset{S, N},
+            Y                       :: AbstractVector{T},
             W                       :: Union{Nothing, AbstractVector{U}},
             loss = util.entropy     :: Function,
             max_features            :: Int,
@@ -321,14 +327,20 @@ module treeclassifier
             min_samples_leaf        :: Int,
             min_samples_split       :: Int,
             min_purity_increase     :: AbstractFloat,
-            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U, N}
+            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U, N}
 
-        n_samples, n_features = size(X.domain...TODO)
-        list, Y_ = util.assign(Y)
+    	# Obtain the dataset's "outer size": number of samples and number of features
+    	n_samples, n_features = n_samples(X), n_features(X)
+
+    	# Translate labels to categorical form
+        labels, Y_ = util.assign(Y)
+
+        # Use unary weights if no weight is supplied
         if W == nothing
             W = fill(1, n_samples)
         end
 
+        # Check validity of the input
         check_input(
             X, Y, W,
             max_features,
@@ -338,10 +350,11 @@ module treeclassifier
             min_purity_increase)
 
 
+        # Call core learning function
         root, indX = _fit(
             X, Y_, W,
             loss,
-            length(list),
+            length(labels),
             max_features,
             max_depth,
             min_samples_leaf,
@@ -349,6 +362,6 @@ module treeclassifier
             min_purity_increase,
             rng)
 
-        return Tree{S, T}(root, list, indX)
+        return Tree{S, T}(root, labels, indX)
     end
 end

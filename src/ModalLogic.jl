@@ -1,6 +1,8 @@
 using IterTools
 import Base.argmax
 import Base.argmin
+
+# Fix
 Base.keys(g::Base.Generator) = g.iter
 
 # # Generic Kripke frame: worlds & relations
@@ -24,10 +26,20 @@ end
 
 # An ontology interpreted over an N-dimensional domain gives rise to a Kripke model/frame.
 # const MatricialDomain{T,N} = AbstractArray{T,N} end
-struct OntologicalKripkeFrame{T,N}
+# struct OntologicalKripkeFrame{T,N}
+# 	ontology  :: Ontology
+# 	domain    :: AbstractArray{T,N}
+# end
+
+# A dataset, given by a set of N-dimensional matrices/instances, and an Ontology to be interpreted on each of them
+struct OntologicalKripkeDataset{T,N}
 	ontology  :: Ontology
 	domain    :: AbstractArray{T,N}
 end
+
+size(X::OntologicalKripkeDataset) = size(X.domain)
+n_samples(X::OntologicalKripkeDataset) = size(X)[1]
+n_features(X::OntologicalKripkeDataset) = size(X)[2]
 
 # In the most generic case, a Kripke model/frame can be reprented in graph form.
 # Thus, an "AbstractKripkeFrame" should also supertype some other representation.

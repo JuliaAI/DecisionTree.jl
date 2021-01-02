@@ -3,23 +3,26 @@
 
 module util
 
-    export gini, entropy, zero_one, q_bi_sort!, hypergeometric
+    export Label, gini, entropy, zero_one, q_bi_sort!, hypergeometric
 
-    function assign(Y :: AbstractVector{T}, list :: AbstractVector{T}) where T
-        dict = Dict{T, Int}()
-        @simd for i in 1:length(list)
-            @inbounds dict[list[i]] = i
-        end
-
-        _Y = Array{Int}(undef, length(Y))
-        @simd for i in 1:length(Y)
-            @inbounds _Y[i] = dict[Y[i]]
-        end
-
-        return list, _Y
-    end
-
+	const Label = Int
+	
+	# This function translates a list of labels into categorical form
     function assign(Y :: AbstractVector{T}) where T
+        function assign(Y :: AbstractVector{T}, list :: AbstractVector{T}) where T
+            dict = Dict{T, Label}()
+            @simd for i in 1:length(list)
+                @inbounds dict[list[i]] = i
+            end
+
+            _Y = Array{Label}(undef, length(Y))
+            @simd for i in 1:length(Y)
+                @inbounds _Y[i] = dict[Y[i]]
+            end
+
+            return list, _Y
+        end
+
         set = Set{T}()
         for y in Y
             push!(set, y)
