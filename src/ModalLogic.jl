@@ -32,14 +32,14 @@ end
 # end
 
 # A dataset, given by a set of N-dimensional matrices/instances, and an Ontology to be interpreted on each of them
-struct OntologicalKripkeDataset{T,N}
+struct OntologicalDataset{T,N}
 	ontology  :: Ontology
 	domain    :: AbstractArray{T,N}
 end
 
-size(X::OntologicalKripkeDataset) = size(X.domain)
-n_samples(X::OntologicalKripkeDataset) = size(X)[1]
-n_features(X::OntologicalKripkeDataset) = size(X)[2]
+size(X::OntologicalDataset) = size(X.domain)
+n_samples(X::OntologicalDataset) = size(X)[1]
+n_features(X::OntologicalDataset) = size(X)[2]
 
 # In the most generic case, a Kripke model/frame can be reprented in graph form.
 # Thus, an "AbstractKripkeFrame" should also supertype some other representation.

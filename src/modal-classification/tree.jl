@@ -45,22 +45,26 @@ module treeclassifier
     # find an optimal split satisfying the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
-            X                   :: AbstractMatrix{S},     # the feature array
-            Y                   :: AbstractVector{Label}, # the label array
-            W                   :: AbstractVector{U},     # the weight vector
+            X                   :: OntologicalDataset{S, N}, # the ontological dataset
+            Y                   :: AbstractVector{Label},    # the label array
+            W                   :: AbstractVector{U},        # the weight vector
+            
             purity_function     :: Function,
-            node                :: NodeMeta{S}, # the node to split
-            max_features        :: Int,         # number of features to consider
-            max_depth           :: Int,         # the maximum depth of the resultant tree
-            min_samples_leaf    :: Int,         # the minimum number of samples each leaf needs to have
-            min_samples_split   :: Int,         # the minimum number of samples in needed for a split
-            min_purity_increase :: AbstractFloat,     # minimum purity needed for a split
-            indX                :: AbstractVector{Int}, # an array of sample indices,
-                                                # we split using samples in indX[node.region]
-            # the six arrays below are given for optimization purposes
+            node                :: NodeMeta{S},              # the node to split
+            max_features        :: Int,                      # number of features to consider
+            max_depth           :: Int,                      # the maximum depth of the resultant tree
+            min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
+            min_samples_split   :: Int,                      # the minimum number of samples in needed for a split
+            min_purity_increase :: AbstractFloat,            # minimum purity needed for a split
+            
+            indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
+            
+            # The six arrays below are given for optimization purposes
+            
             nc                  :: AbstractVector{U},   # nc maintains a dictionary of all labels in the samples
             ncl                 :: AbstractVector{U},   # ncl maintains the counts of labels on the left
             ncr                 :: AbstractVector{U},   # ncr maintains the counts of labels on the right
+            
             Xf                  :: AbstractVector{S},
             Yf                  :: AbstractVector{Label},
             Wf                  :: AbstractVector{U},
@@ -70,10 +74,12 @@ module treeclassifier
         n_samples = length(region)
         n_classes = length(nc)
 
+        # Class count
         nc[:] .= zero(U)
         @simd for i in region
             @inbounds nc[Y[indX[i]]] += W[indX[i]]
         end
+
         nt = sum(nc)
         node.label = argmax(nc)
         if (min_samples_leaf * 2 >  n_samples
@@ -229,7 +235,7 @@ module treeclassifier
     end
 
     function check_input(
-            X                   :: OntologicalKripkeDataset{S, N},
+            X                   :: OntologicalDataset{S, N},
             Y                   :: AbstractVector{Label},
             W                   :: AbstractVector{U},
             max_features        :: Int,
@@ -260,7 +266,7 @@ module treeclassifier
     end
 
     function _fit(
-            X                       :: OntologicalKripkeDataset{S, N},
+            X                       :: OntologicalDataset{S, N},
             Y                       :: AbstractVector{Label},
             W                       :: AbstractVector{U},
             loss                    :: Function,
@@ -275,9 +281,11 @@ module treeclassifier
     	# Dataset sizes
         n_samples, n_features = n_samples(X), n_features(X)
 
+        # Array memory for class counts
         nc  = Array{U}(undef, n_classes)
         ncl = Array{U}(undef, n_classes)
         ncr = Array{U}(undef, n_classes)
+
         Wf  = Array{U}(undef, n_samples)
         Xf  = Array{S}(undef, n_samples)
         Yf  = Array{Label}(undef, n_samples)
@@ -318,7 +326,7 @@ module treeclassifier
     		# In this implementation, we don't accept a generic Kripke model in the explicit form of
     		#  a graph; instead, an instance is a dimensional domain (e.g. a matrix or a 3D matrix) onto which
     		#  worlds and relations are determined by a given Ontology.
-    		X                       :: OntologicalKripkeDataset{S, N},
+    		X                       :: OntologicalDataset{S, N},
             Y                       :: AbstractVector{T},
             W                       :: Union{Nothing, AbstractVector{U}},
             loss = util.entropy     :: Function,
