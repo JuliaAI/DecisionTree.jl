@@ -307,7 +307,12 @@ module treeclassifier
     end
 
     function fit(;
-            X                       :: AbstractMatrix{S},
+    		# In the modal case, dataset instances are Kripke models.
+    		# In this implementation, we don't accept a generic Kripke model in the explicit form of
+    		#  a graph; instead, an instance is a dimensional domain (e.g. a matrix or a 3D matrix) onto which
+    		#  worlds and relations are determined by a given Ontology.
+    		
+    	    X                       :: OntologicalKripkeFrame{S,N},
             Y                       :: AbstractVector{Label},
             W                       :: Union{Nothing, AbstractVector{U}},
             loss = util.entropy     :: Function,
@@ -316,9 +321,9 @@ module treeclassifier
             min_samples_leaf        :: Int,
             min_samples_split       :: Int,
             min_purity_increase     :: AbstractFloat,
-            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
+            rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U, N}
 
-        n_samples, n_features = size(X)
+        n_samples, n_features = size(X.domain...TODO)
         list, Y_ = util.assign(Y)
         if W == nothing
             W = fill(1, n_samples)
