@@ -1,6 +1,8 @@
 using IterTools
 import Base.argmax
 import Base.argmin
+import Base.size
+using ComputedFieldTypes
 
 # Fix
 Base.keys(g::Base.Generator) = g.iter
@@ -31,15 +33,37 @@ end
 # 	domain    :: AbstractArray{T,N}
 # end
 
-# A dataset, given by a set of N-dimensional matrices/instances, and an Ontology to be interpreted on each of them
-struct OntologicalDataset{T,N}
+# A dataset, given by a set of N-dimensional (multi-variate) matrices/instances,
+#  and an Ontology to be interpreted on each of them
+# Note that N is the dimension of the dimensional domain itself (e.g. 0 for the adimensional case, 1 for the temporal case)
+#  https://discourse.julialang.org/t/addition-to-parameter-of-parametric-type/20059/5
+@computed struct OntologicalDataset{T,N}
 	ontology  :: Ontology
-	domain    :: AbstractArray{T,N}
+	domain    :: AbstractArray{T,2+N}
 end
 
-size(X::OntologicalDataset) = size(X.domain)
-n_samples(X::OntologicalDataset) = size(X)[1]
-n_features(X::OntologicalDataset) = size(X)[2]
+size(X::OntologicalDataset) = Base.size(X.domain)
+n_samples(X::OntologicalDataset) = Base.size(X, 1)
+n_features(X::OntologicalDataset) = Base.size(X, 2)
+
+@inline getfeature(X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::T = X.domain[idxs, feature]
+@inline getfeature(X::OntologicalDataset{T where T,3}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = X.domain[idxs, feature, :]
+@inline getfeature(X::OntologicalDataset{T where T,4}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = X.domain[idxs, feature, :, :]
+
+@inline setfeature!(Xf::AbstractArray{S, 1}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
+	Xf[i] = getfeature(X, indX[i + r_start], feature)
+end
+@inline setfeature!(Xf::AbstractArray{S, 2}, X::OntologicalDataset{T where T,3}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
+	Xf[i,:] = getfeature(X, indX[i + r_start], feature)
+end
+@inline setfeature!(Xf::AbstractArray{S, 3}, X::OntologicalDataset{T where T,4}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
+	Xf[i,:,:] = getfeature(X, indX[i + r_start], feature)
+end
+
+# TODO maybe using views can improve performances
+# featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = X.domain[idxs, feature]
+# featureview(X::OntologicalDataset{T,3}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :)
+# featureview(X::OntologicalDataset{T,4}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
 
 # In the most generic case, a Kripke model/frame can be reprented in graph form.
 # Thus, an "AbstractKripkeFrame" should also supertype some other representation.
@@ -50,6 +74,7 @@ n_features(X::OntologicalDataset) = size(X)[2]
 struct Interval <: AbstractWorld
 	x :: Integer
 	y :: Integer
+	# TODO Interval(x,y) = x > y ? error("...out of order") : new(x,y)
 end
 
 Interval(params::Tuple{Integer,Integer}) = Interval(params...)
@@ -78,7 +103,7 @@ struct IA_Oi <: IARelation end # inverse(Overlaps)
 #  Nel frattempo preparo il codice sia per generatori che per arrays
 
 # Enumerate intervals in a given range
-enumIntervalsInRange(a::Int, b::Int) =
+enumIntervalsInRange(a::Integer, b::Integer) =
 	Iterators.filter((a)->a[1]<a[2], Iterators.product(a:b-1, a+1:b))
 
 ## Enumerate accessible worlds from a single world
