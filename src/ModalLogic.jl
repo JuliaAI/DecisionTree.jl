@@ -46,24 +46,24 @@ size(X::OntologicalDataset) = Base.size(X.domain)
 n_samples(X::OntologicalDataset) = Base.size(X, 1)
 n_features(X::OntologicalDataset) = Base.size(X, 2)
 
-@inline getfeature(X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::T = X.domain[idxs, feature]
-@inline getfeature(X::OntologicalDataset{T where T,3}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = X.domain[idxs, feature, :]
-@inline getfeature(X::OntologicalDataset{T where T,4}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = X.domain[idxs, feature, :, :]
+@inline getfeature(X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = X.domain[idxs, feature]
+@inline getfeature(X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = X.domain[idxs, feature, :]
+@inline getfeature(X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = X.domain[idxs, feature, :, :]
 
-@inline setfeature!(Xf::AbstractArray{S, 1}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
+@inline setfeature!(Xf::AbstractArray{S, 1}, X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
 	Xf[i] = getfeature(X, indX[i + r_start], feature)
 end
-@inline setfeature!(Xf::AbstractArray{S, 2}, X::OntologicalDataset{T where T,3}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
+@inline setfeature!(Xf::AbstractArray{S, 2}, X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
 	Xf[i,:] = getfeature(X, indX[i + r_start], feature)
 end
-@inline setfeature!(Xf::AbstractArray{S, 3}, X::OntologicalDataset{T where T,4}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
+@inline setfeature!(Xf::AbstractArray{S, 3}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
 	Xf[i,:,:] = getfeature(X, indX[i + r_start], feature)
 end
 
 # TODO maybe using views can improve performances
-# featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = X.domain[idxs, feature]
-# featureview(X::OntologicalDataset{T,3}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :)
-# featureview(X::OntologicalDataset{T,4}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
+# featureview(X::OntologicalDataset{T,0}, idxs::AbstractVector{Integer}, feature::Integer) = X.domain[idxs, feature]
+# featureview(X::OntologicalDataset{T,1}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :)
+# featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
 
 # In the most generic case, a Kripke model/frame can be reprented in graph form.
 # Thus, an "AbstractKripkeFrame" should also supertype some other representation.
