@@ -39,26 +39,50 @@ end
 #  https://discourse.julialang.org/t/addition-to-parameter-of-parametric-type/20059/5
 @computed struct OntologicalDataset{T,N}
 	ontology  :: Ontology
-	domain    :: AbstractArray{T,2+N}
+	domain    :: AbstractArray{T,N+2}
 end
+
+# TODO use staticArrays for small images https://github.com/JuliaArrays/StaticArrays.jl
+#  X = OntologicalDataset(IntervalAlgebra,Array{SMatrix{3,3,Int},2}(undef, 20, 10))
 
 size(X::OntologicalDataset) = Base.size(X.domain)
 n_samples(X::OntologicalDataset) = Base.size(X, 1)
 n_features(X::OntologicalDataset) = Base.size(X, 2)
+dimension(X::OntologicalDataset) = size(X)-2
 
 @inline getfeature(X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = X.domain[idxs, feature]
 @inline getfeature(X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = X.domain[idxs, feature, :]
 @inline getfeature(X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = X.domain[idxs, feature, :, :]
+# @computed @inline getfeature(X::OntologicalDataset{T where T,N}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,N-1} = X.domain[idxs, feature, fill(:, N)...]
+# @computed @inline getfeature(X::OntologicalDataset{T where T,N}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,N-1} = X.domain[idxs, feature, fill(:, dimension(X))...]
 
-@inline setfeature!(Xf::AbstractArray{S, 1}, X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
+@inline setfeature!(Xf::AbstractArray{S where S, 1}, X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
 	Xf[i] = getfeature(X, indX[i + r_start], feature)
 end
-@inline setfeature!(Xf::AbstractArray{S, 2}, X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
+@inline setfeature!(Xf::AbstractArray{S where S, 2}, X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
 	Xf[i,:] = getfeature(X, indX[i + r_start], feature)
 end
-@inline setfeature!(Xf::AbstractArray{S, 3}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
+@inline setfeature!(Xf::AbstractArray{S where S, 3}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
 	Xf[i,:,:] = getfeature(X, indX[i + r_start], feature)
 end
+
+const WorldGenerator = Union{Base.Generator,IterTools.Distinct}
+
+
+# Equality relation, that exists for every Ontology
+
+struct Relation_Eq <: AbstractRelation end
+
+# enumAcc1_1(S::Union{WorldGenerator,AbstractArray{AbstractWorld,1}}, ::Type{Relation_Eq}, N::Integer) = TODO
+enumAcc2_2_2(S::Union{WorldGenerator,AbstractArray{AbstractWorld,1}}, ::Type{Relation_Eq}, N::Integer) = begin
+	IterTools.imap(identity, S) # TODO check if [w] is better
+	end
+enumAcc(S::WorldGenerator,            ::Type{Relation_Eq}, N::Integer) = enumAcc2_2_2(S, Relation_Eq, N)
+enumAcc(S::AbstractArray{AbstractWorld,1}, ::Type{Relation_Eq}, N::Integer) = enumAcc2_2_2(S, Relation_Eq, N)
+# enumAccW1(w::AbstractWorld, ::Type{Relation_Eq},   N::Integer) =
+	# IterTools.imap(identity, [w]) # TODO check if [w] is better
+
+
 
 # TODO maybe using views can improve performances
 # featureview(X::OntologicalDataset{T,0}, idxs::AbstractVector{Integer}, feature::Integer) = X.domain[idxs, feature]
@@ -83,6 +107,8 @@ y(w::Interval) = w.y
 
 # 6+6 Interval relations
 abstract type IARelation <: AbstractRelation end
+# TODO figure out what's the gain in using constant instances of these relations,
+#  compared to using the type itself. Note: one should define the constant vector of instances IARelations here
 struct IA_A  <: IARelation end # After
 struct IA_L  <: IARelation end # Later
 struct IA_B  <: IARelation end # Begins
@@ -107,54 +133,50 @@ enumIntervalsInRange(a::Integer, b::Integer) =
 	Iterators.filter((a)->a[1]<a[2], Iterators.product(a:b-1, a+1:b))
 
 ## Enumerate accessible worlds from a single world
-enumAccW1(w::Interval, ::Type{IA_A},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_A},    N::Integer) =
 	IterTools.imap((y)->Interval(w.y, y), w.y+1:N)
-enumAccW1(w::Interval, ::Type{IA_Ai},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_Ai},   N::Integer) =
 	IterTools.imap((x)->Interval(x, w.x), 1:w.x-1)
-enumAccW1(w::Interval, ::Type{IA_L},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_L},    N::Integer) =
 	IterTools.imap(Interval, enumIntervalsInRange(w.y+1, N))
-enumAccW1(w::Interval, ::Type{IA_Li},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_Li},   N::Integer) =
 	IterTools.imap(Interval, enumIntervalsInRange(1, w.x-1))
-enumAccW1(w::Interval, ::Type{IA_B},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_B},    N::Integer) =
 	IterTools.imap((y)->Interval(w.x, y), w.x+1:w.y-1)
-enumAccW1(w::Interval, ::Type{IA_Bi},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_Bi},   N::Integer) =
 	IterTools.imap((y)->Interval(w.x, y), w.y+1:N)
-enumAccW1(w::Interval, ::Type{IA_E},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_E},    N::Integer) =
 	IterTools.imap((x)->Interval(x, w.y), w.x+1:w.y-1)
-enumAccW1(w::Interval, ::Type{IA_Ei},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_Ei},   N::Integer) =
 	IterTools.imap((x)->Interval(x, w.y), 1:w.x-1)
-enumAccW1(w::Interval, ::Type{IA_D},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_D},    N::Integer) =
 	IterTools.imap(Interval, enumIntervalsInRange(w.x+1, w.y-1))
-enumAccW1(w::Interval, ::Type{IA_Di},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_Di},   N::Integer) =
 	IterTools.imap(Interval, Iterators.product(1:w.x-1, w.y+1:N))
-enumAccW1(w::Interval, ::Type{IA_O},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_O},    N::Integer) =
 	IterTools.imap(Interval, Iterators.product(w.x+1:w.y-1, w.y+1:N))
-enumAccW1(w::Interval, ::Type{IA_Oi},        N::Integer) =
+enumAccW1(w::Interval, ::Type{IA_Oi},   N::Integer) =
 	IterTools.imap(Interval, Iterators.product(1:w.x-1, w.x+1:w.y-1))
 
 ## Enumerate accessible worlds from a set of worlds
-enumAcc1(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, r::Type{<:IARelation}, N::Integer) = begin
+enumAcc1(S::Union{WorldGenerator,AbstractArray{Interval,1}}, r::Type{<:IARelation}, N::Integer) = begin
 	IterTools.distinct(Iterators.flatten((enumAccW1(w, r, N) for w in S)))
 end
 
 # More efficient implementations for edge cases
-enumAcc1_1(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
+
+enumAcc1_1(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
 	# @show Base.argmin((w.y for w in S))
 	enumAccW1(Base.argmin((w.y for w in S)), IA_L, N)
 end
-enumAcc1_1(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
+enumAcc1_1(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
 	# @show Base.argmax((w.x for w in S))
 	enumAccW1(Base.argmax((w.x for w in S)), IA_Li, N)
 end
-
-# More efficient implementations for edge cases
-enumAcc1_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = 
+enumAcc1_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = 
 	enumAccW1(S[argmin(y.(S))], IA_L, N)
-enumAcc1_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = 
+enumAcc1_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = 
 	enumAccW1(S[argmax(x.(S))], IA_Li, N)
-
-const IntervalAlgebra = Ontology(Interval,IARelation)
-
 
 #####
 
@@ -176,7 +198,7 @@ enumAccW2(w::Interval, ::Type{IA_O},  N::Integer) = Iterators.product(w.x+1:w.y-
 enumAccW2(w::Interval, ::Type{IA_Oi}, N::Integer) = Iterators.product(1:w.x-1, w.x+1:w.y-1)
 
 ## Enumerate accessible worlds from a set of worlds
-enumAcc2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, r::Type{<:IARelation}, N::Integer) = begin
+enumAcc2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, r::Type{<:IARelation}, N::Integer) = begin
 	# println("Fallback")
 	IterTools.imap((params)->Interval(params...),
 		IterTools.distinct(Iterators.flatten((enumAccW2(w, r, N) for w in S))))
@@ -187,23 +209,23 @@ end
 # This makes sense if we have 2-Tuples instead of intervals
 # function snd((a,b)::Tuple) b end
 # function fst((a,b)::Tuple) a end
-# enumAcc2_1(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = 
+# enumAcc2_1(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = 
 # 	IterTools.imap((params)->Interval(params...),
 # 		enumAccW2(S[argmin(map(snd, S))], IA_L, N)
 # 	)
-# enumAcc2_1(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = 
+# enumAcc2_1(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = 
 # 	IterTools.imap((params)->Interval(params...),
 # 		enumAccW2(S[argmax(map(fst, S))], IA_Li, N)
 # 	)
 
 # More efficient implementations for edge cases
-enumAcc2_1_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
+enumAcc2_1_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
 	# @show Base.argmin((w.y for w in S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(Base.argmin((w.y for w in S)), IA_L, N)
 	)
 end
-enumAcc2_1_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
+enumAcc2_1_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
 	# @show Base.argmax((w.x for w in S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(Base.argmax((w.x for w in S)), IA_Li, N)
@@ -211,13 +233,13 @@ enumAcc2_1_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1
 end
 
 # More efficient implementations for edge cases
-enumAcc2_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
+enumAcc2_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
 	m = argmin(y.(S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2([w for (i,w) in enumerate(S) if i == m][1], IA_L, N)
 	)
 	end
-enumAcc2_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
+enumAcc2_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
 	m = argmax(x.(S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2([w for (i,w) in enumerate(S) if i == m][1], IA_Li, N)
@@ -225,12 +247,12 @@ enumAcc2_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}
 	end
 
 # More efficient implementations for edge cases
-enumAcc2_2_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
+enumAcc2_2_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_L}, N::Integer) = begin
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(nth(S, argmin(y.(S))), IA_L, N)
 	)
 	end
-enumAcc2_2_2(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
+enumAcc2_2_2(S::Union{WorldGenerator,AbstractArray{Interval,1}}, ::Type{IA_Li}, N::Integer) = begin
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(nth(S, argmax(x.(S))), IA_Li, N)
 	)
@@ -309,18 +331,48 @@ Results (date 02/02/2020):
 -> enumAcc1 and enumAcc2 are best for arrays and iterators, respectively
 =#
 enumAcc(S::AbstractArray{Interval,1}, r::Type{<:IARelation}, N::Integer) = enumAcc1(S, r, N)
-enumAcc(S::Union{Base.Generator,IterTools.Distinct}, r::Type{<:IARelation}, N::Integer) = enumAcc2(S, r, N)
+enumAcc(S::WorldGenerator, r::Type{<:IARelation}, N::Integer) = enumAcc2(S, r, N)
 #=
 -> enumAcc1_1 is never better than enumAcc2_1
 =#
 #=
 -> For iterators and arrays, enumAcc2_2_2 is probably the best IA_L/IA_Li enumerator
 =#
-enumAcc(S::Union{Base.Generator,IterTools.Distinct,AbstractArray{Interval,1}}, r::Type{IA_Li}, N::Integer) = enumAcc2_2_2(S, Type{IA_Li}, N)
+enumAcc(S::WorldGenerator,            ::Type{IA_L}, N::Integer) = enumAcc2_2_2(S, IA_L, N)
+enumAcc(S::AbstractArray{Interval,1}, ::Type{IA_L}, N::Integer) = enumAcc2_2_2(S, IA_L, N)
+enumAcc(S::WorldGenerator,            ::Type{IA_Li}, N::Integer) = enumAcc2_2_2(S, IA_Li, N)
+enumAcc(S::AbstractArray{Interval,1}, ::Type{IA_Li}, N::Integer) = enumAcc2_2_2(S, IA_Li, N)
+
+const IntervalAlgebra = Ontology(Interval,IARelation)
+
 #=
 ############################################
 END Performance tuning
 ############################################
+
+
+using Revise
+using BenchmarkTools
+include("DecisionTree.jl/src/ModalLogic.jl")
+
+
+N = 40
+S = [Interval(15, 25)]
+S1 = enumAcc1(S, IA_L, N)
+S2 = enumAcc2(S, IA_L, N)
+Sc = Array{Interval,1}(collect(S))
+
+
+@btime enumAcc(S1, IA_L,  N) |> collect;
+@btime enumAcc(S2, IA_L,  N) |> collect;
+@btime enumAcc(Sc, IA_L,  N) |> collect;
+@btime enumAcc(S1, IA_Di,  N) |> collect;
+@btime enumAcc(S2, IA_Di,  N) |> collect;
+@btime enumAcc(Sc, IA_Di,  N) |> collect;
+@btime enumAcc(S1, IA_Oi,  N) |> collect;
+@btime enumAcc(S2, IA_Oi,  N) |> collect;
+@btime enumAcc(Sc, IA_Oi,  N) |> collect;
+
 =#
 
 #=
@@ -331,6 +383,6 @@ TODO next
 # 	v :: Interval
 # end
 
-# const IntervalAlgebra = AbstractOntology(ParRectangle,RARelation)
+# const RectangleAlgebra = AbstractOntology(ParRectangle,RARelation)
 
 =#

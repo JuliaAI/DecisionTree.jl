@@ -3,6 +3,7 @@
 # The rest of DecisionTree.jl is released under the MIT license.
 
 # written by Poom Chiarawongse <eight1911@gmail.com>
+using ComputedFieldTypes
 
 module treeclassifier
 	include("../util.jl")
@@ -44,6 +45,7 @@ module treeclassifier
 
 	# find an optimal split satisfying the given constraints
 	# (max_depth, min_samples_split, min_purity_increase)
+	# TODO dispatch _split! on the learning parameters?
 	@computed function _split!(
 			X                   :: OntologicalDataset{S, N}, # the ontological dataset
 			Y                   :: AbstractVector{Label},    # the label array
@@ -205,8 +207,8 @@ module treeclassifier
 			indf += 1
 		end
 
-		# no splits honor min_samples_leaf
-		@inbounds if (unsplittable
+		# Partition and split according to best_purity and best_feature
+		@inbounds if (unsplittable # no splits honor min_samples_leaf
 			|| (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
 			node.is_leaf = true
 			return
