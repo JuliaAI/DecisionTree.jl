@@ -18,7 +18,9 @@ module treeclassifier
 		label       :: Label            # most likely label
 		feature     :: Int              # feature used for splitting
 		threshold   :: S                # threshold value
-		# TODO: testsign modality
+		# TODO: testsign
+		# TODO: modality
+		# TODO: S
 		is_leaf     :: Bool
 		depth       :: Int
 		region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
@@ -41,6 +43,16 @@ module treeclassifier
 		root   :: NodeMeta{S}
 		list   :: Vector{T}
 		labels :: Vector{Label}
+	end
+
+	@inline setfeature!(i::Integer, Xf::AbstractArray{S where S, 1}, X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
+		Xf[i] = getfeature(X, idxs, feature)
+	end
+	@inline setfeature!(i::Integer, Xf::AbstractArray{S where S, 2}, X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
+		Xf[i,:] = getfeature(X, idxs, feature)
+	end
+	@inline setfeature!(i::Integer, Xf::AbstractArray{S where S, 3}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
+		Xf[i,:,:] = getfeature(X, idxs, feature)
 	end
 
 	# find an optimal split satisfying the given constraints
@@ -70,19 +82,21 @@ module treeclassifier
 			Xf                  :: AbstractArray{S, N-1},
 			Yf                  :: AbstractVector{Label},
 			Wf                  :: AbstractVector{U},
+			Sf                  :: AbstractVector{Set{X.ontology.worldType}},
 			rng                 :: Random.AbstractRNG) where {S, U, N}
 
 		# Region of indx to use to perform the split
 		region = node.region
 		n_samples = length(region)
+		r_start = region.start - 1
+
 		n_classes = length(nc)
 
-		# Class count
+		# Class counts
 		nc[:] .= zero(U)
 		@simd for i in region
 			@inbounds nc[Y[indX[i]]] += W[indX[i]]
 		end
-
 		nt = sum(nc)
 		node.label = argmax(nc) # Assign the most likely label before the split
 
@@ -95,9 +109,16 @@ module treeclassifier
 			return
 		end
 
-		r_start = region.start - 1
+		# Number of non-constants features. TODO only makes sense in the adimensional case?
 		features = node.features
 		n_features = length(features)
+
+		# Binary relations (= unary modal operators)
+		# Note: the equality operator is the first, and is the one representing
+		#  the propositional case.
+		relations = [ModalLogic.Relation_Eq, subtypes(X.ontology.relation)...]
+
+		# Optimization tracking variables
 		best_purity = typemin(U)
 		best_feature = -1
 		threshold_lo = X[1]
@@ -119,6 +140,8 @@ module treeclassifier
 		non_consts_used = util.hypergeometric(n_features, total_features-n_features, max_features, rng)
 
 		# Find best split (TODO for now, we only handle numerical features)
+		
+		# For each feature/channel
 		@inbounds while (unsplittable || indf <= non_consts_used) && indf <= n_features
 			feature = let
 				indr = rand(rng, indf:n_features)
@@ -133,75 +156,106 @@ module treeclassifier
 			# Gather all values for the current feature
 			@simd for i in 1:n_samples
 				# TODO make this a view? featureview?
-				setfeature!(Xf, X, indX[i + r_start], feature)
+				setfeature!(i, Xf, X, indX[i + r_start], feature)
 			end
 
-			# sort Yf and indX by Xf
+			# Sort [Xf, Yf, Wf, Sf and indX] by Xf
 			util.q_bi_sort!(Xf, indX, 1, n_samples, r_start)
-
-			# Gather weights and desired outputs
 			@simd for i in 1:n_samples
 				Yf[i] = Y[indX[i + r_start]]
 				Wf[i] = W[indX[i + r_start]]
+				Sf[i] = Sf[indX[i + r_start]]
 			end
 
-			hi = 0
-			nl, nr = zero(U), nt
-			is_constant = true
-			last_f = Xf[1]
-			while hi < n_samples
-				lo = hi + 1
-				curr_f = Xf[lo]
-				hi = (lo < n_samples && curr_f == Xf[lo+1]
-					? searchsortedlast(Xf, curr_f, lo, n_samples, Base.Order.Forward)
-					: lo)
+			for Rel in relations:
+				@info "Testing relation " Rel "..."
 
-				(lo != 1) && (is_constant = false)
-				# honor min_samples_leaf
-				# if nl >= min_samples_leaf && nr >= min_samples_leaf
-				# @assert nl == lo-1,
-				# @assert nr == n_samples - (lo-1) == n_samples - lo + 1
-				if lo-1 >= min_samples_leaf && n_samples - (lo-1) >= min_samples_leaf
-					unsplittable = false
-					purity = -(nl * purity_function(ncl, nl)
-							 + nr * purity_function(ncr, nr))
-					if purity > best_purity && !isapprox(purity, best_purity)
-						# will take average at the end
-						threshold_lo = last_f
-						threshold_hi = curr_f
-						best_purity  = purity
-						best_feature = feature
+				# TODO test this bit...
+				# Rel = IA_L
+				# S = 
+
+				# Find, for each instance, the highest value for any world,
+				#                       and the lowest value for any world
+				maxPeaks = fill(typemin(S), n_samples)
+				minPeaks = fill(typemax(S), n_samples)
+				for i in 1:n_samples
+					@info "instance " inst "/" n_samples "..."
+					# TODO this findmin/findmax can be made more efficient for intervals.
+					for w in enumAcc(Sf[i], Rel, N TODO)
+						maxPeaks[i] = max(maxPeaks[i], readMax(w, Xf))
+						minPeaks[i] = min(minPeaks[i], readMin(w, Xf))
 					end
+					@info "maxPeak " maxPeaks[i] "."
+					@info "minPeak " minPeaks[i] "."
 				end
 
-				# fill ncl and ncr in the direction
-				# that would require the smaller number of iterations
-				# i.e., hi - lo < n_samples - hi
-				if (hi << 1) < n_samples + lo
-					@simd for i in lo:hi
-						ncr[Yf[i]] -= Wf[i]
-					end
-				else
-					ncr[:] .= zero(U)
-					@simd for i in (hi+1):n_samples
-						ncr[Yf[i]] += Wf[i]
-					end
+				thresholdDomain = union(Set(maxPeaks),Set(minPeaks))
+				@info "thresholdDomain " thresholdDomain "."
+
+				for t in thresholdDomain
+					TODO
 				end
 
-				nr = zero(U)
-				@simd for lab in 1:n_classes
-					nr += ncr[lab]
-					ncl[lab] = nc[lab] - ncr[lab]
+				hi = 0
+				nl, nr = zero(U), nt
+				is_constant = true
+				last_f = Xf[1]
+				while hi < n_samples
+					lo = hi + 1
+					curr_f = Xf[lo]
+					hi = (lo < n_samples && curr_f == Xf[lo+1]
+						? searchsortedlast(Xf, curr_f, lo, n_samples, Base.Order.Forward)
+						: lo)
+
+					(lo != 1) && (is_constant = false)
+					# honor min_samples_leaf
+					# if nl >= min_samples_leaf && nr >= min_samples_leaf
+					# @assert nl == lo-1,
+					# @assert nr == n_samples - (lo-1) == n_samples - lo + 1
+					if lo-1 >= min_samples_leaf && n_samples - (lo-1) >= min_samples_leaf
+						unsplittable = false
+						purity = -(nl * purity_function(ncl, nl)
+								 + nr * purity_function(ncr, nr))
+						if purity > best_purity && !isapprox(purity, best_purity)
+							# will take average at the end
+							threshold_lo = last_f
+							threshold_hi = curr_f
+							@show threshold_lo
+							@show threshold_hi
+							best_purity  = purity
+							best_feature = feature
+						end
+					end
+
+					# fill ncl and ncr in the direction
+					# that would require the smaller number of iterations
+					# i.e., hi - lo < n_samples - hi
+					if (hi << 1) < n_samples + lo
+						@simd for i in lo:hi
+							ncr[Yf[i]] -= Wf[i]
+						end
+					else
+						ncr[:] .= zero(U)
+						@simd for i in (hi+1):n_samples
+							ncr[Yf[i]] += Wf[i]
+						end
+					end
+
+					nr = zero(U)
+					@simd for lab in 1:n_classes
+						nr += ncr[lab]
+						ncl[lab] = nc[lab] - ncr[lab]
+					end
+
+					nl = nt - nr
+					last_f = curr_f
 				end
 
-				nl = nt - nr
-				last_f = curr_f
-			end
-
-			# keep track of constant features to be used later.
-			if is_constant
-				n_const += 1
-				features[indf], features[n_const] = features[n_const], features[indf]
+				# keep track of constant features to be used later.
+				if is_constant
+					n_const += 1
+					features[indf], features[n_const] = features[n_const], features[indf]
+				end
 			end
 
 			indf += 1
@@ -302,9 +356,13 @@ module treeclassifier
 		ncl = Array{U}(undef, n_classes)
 		ncr = Array{U}(undef, n_classes)
 
+		# Array memory for dataset
 		Xf = init_Xf(X)
 		Yf = Array{Label}(undef, n_samples)
 		Wf = Array{U}(undef, n_samples)
+
+		# TODO Perhaps operating with Sets is better
+		Sf = [Set([Interval(-1, 0)]) for i in 1:n_sampless]::Array{Set{X.ontology.world},1}
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_samples)
@@ -324,7 +382,7 @@ module treeclassifier
 				min_samples_split,
 				min_purity_increase,
 				indX,
-				nc, ncl, ncr, Xf, Yf, Wf, rng)
+				nc, ncl, ncr, Xf, Yf, Wf, Sf, rng)
 			# After processing, if needed, perform the split and push the two children for a later processing step
 			# TODO: this step could be parallelized
 			if !node.is_leaf

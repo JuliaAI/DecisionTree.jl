@@ -1,8 +1,24 @@
+module ModalLogic
+
 using IterTools
 import Base.argmax
 import Base.argmin
 import Base.size
+
 using ComputedFieldTypes
+
+export AbstractWorld, AbstractRelation,
+				Ontology, OntologicalDataset,
+				size, n_samples, n_features, dimension,
+				getfeature,
+				WorldGenerator,
+				Relation_Eq,
+				enumAcc,
+				# readMax,
+				# readMin,
+				# Interval, x, y,
+				IARelation,
+				IntervalAlgebra
 
 # Fix
 Base.keys(g::Base.Generator) = g.iter
@@ -22,8 +38,8 @@ abstract type AbstractRelation end
 
 # Concrete class for ontology models
 struct Ontology
-	world    :: Type{<:AbstractWorld}
-	relation :: Type{<:AbstractRelation}
+	worldType    :: Type{<:AbstractWorld}
+	relationType :: Type{<:AbstractRelation}
 end
 
 # An ontology interpreted over an N-dimensional domain gives rise to a Kripke model/frame.
@@ -56,16 +72,6 @@ dimension(X::OntologicalDataset) = size(X)-2
 # @computed @inline getfeature(X::OntologicalDataset{T where T,N}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,N-1} = X.domain[idxs, feature, fill(:, N)...]
 # @computed @inline getfeature(X::OntologicalDataset{T where T,N}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,N-1} = X.domain[idxs, feature, fill(:, dimension(X))...]
 
-@inline setfeature!(Xf::AbstractArray{S where S, 1}, X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
-	Xf[i] = getfeature(X, indX[i + r_start], feature)
-end
-@inline setfeature!(Xf::AbstractArray{S where S, 2}, X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
-	Xf[i,:] = getfeature(X, indX[i + r_start], feature)
-end
-@inline setfeature!(Xf::AbstractArray{S where S, 3}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
-	Xf[i,:,:] = getfeature(X, indX[i + r_start], feature)
-end
-
 const WorldGenerator = Union{Base.Generator,IterTools.Distinct}
 
 
@@ -77,7 +83,7 @@ struct Relation_Eq <: AbstractRelation end
 enumAcc2_2_2(S::Union{WorldGenerator,AbstractArray{AbstractWorld,1}}, ::Type{Relation_Eq}, N::Integer) = begin
 	IterTools.imap(identity, S) # TODO check if [w] is better
 	end
-enumAcc(S::WorldGenerator,            ::Type{Relation_Eq}, N::Integer) = enumAcc2_2_2(S, Relation_Eq, N)
+enumAcc(S::WorldGenerator,                 ::Type{Relation_Eq}, N::Integer) = enumAcc2_2_2(S, Relation_Eq, N)
 enumAcc(S::AbstractArray{AbstractWorld,1}, ::Type{Relation_Eq}, N::Integer) = enumAcc2_2_2(S, Relation_Eq, N)
 # enumAccW1(w::AbstractWorld, ::Type{Relation_Eq},   N::Integer) =
 	# IterTools.imap(identity, [w]) # TODO check if [w] is better
@@ -104,6 +110,9 @@ end
 Interval(params::Tuple{Integer,Integer}) = Interval(params...)
 x(w::Interval) = w.x
 y(w::Interval) = w.y
+
+readMax(w::Interval, domain::AbstractArray{T,N}) = max(domain[w.x:w.y])
+readMin(w::Interval, domain::AbstractArray{T,N}) = min(domain[w.x:w.y])
 
 # 6+6 Interval relations
 abstract type IARelation <: AbstractRelation end
@@ -386,3 +395,5 @@ TODO next
 # const RectangleAlgebra = AbstractOntology(ParRectangle,RARelation)
 
 =#
+
+end # module
