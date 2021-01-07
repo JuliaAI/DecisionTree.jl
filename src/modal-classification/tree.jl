@@ -12,28 +12,34 @@ module treeclassifier
 	export fit
 
 	
-	mutable struct NodeMeta{S}
+	mutable struct NodeMeta{S} # {S,U}
+		features    :: Vector{Int}      # a list of features
+		region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
+		# worlds      :: AbstractVector{AbstractSet{AbstractWorld}} # current set of worlds for each training instance
+		depth       :: Int
+		modal_depth :: Int
+		is_leaf     :: Bool             # whether this is a leaf node, or a split one
+		label       :: Label            # most likely label
+		# split properties
+		split_at    :: Int              # index of samples
 		l           :: NodeMeta{S}      # left child
 		r           :: NodeMeta{S}      # right child
-		label       :: Label            # most likely label
+		# purity      :: U                # purity grade attained if this is a split
+		modality    :: AbstractRelation # modal operator (e.g. RelationEQ for the propositional case)
 		feature     :: Int              # feature used for splitting
 		threshold   :: S                # threshold value
 		# TODO: testsign
-		# TODO: modality
-		# TODO: S
-		is_leaf     :: Bool
-		depth       :: Int
-		region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
-		features    :: Vector{Int}      # a list of features not known to be constant
-		split_at    :: Int              # index of samples
 		function NodeMeta{S}(
-				features :: Vector{Int},
-				region   :: UnitRange{Int},
-				depth    :: Int) where S
+				features    :: Vector{Int},
+				region      :: UnitRange{Int},
+				depth       :: Int,
+				modal_depth :: Int
+				) where S
 			node = new{S}()
-			node.depth = depth
-			node.region = region
 			node.features = features
+			node.region = region
+			node.depth = depth
+			node.modal_depth = modal_depth
 			node.is_leaf = false
 			node
 		end
@@ -59,12 +65,13 @@ module treeclassifier
 	# (max_depth, min_samples_split, min_purity_increase)
 	# TODO dispatch _split! on the learning parameters?
 	@computed function _split!(
-			X                   :: OntologicalDataset{S, N}, # the ontological dataset
+			X                   :: OntologicalDataset{T, N}, # the ontological dataset
 			Y                   :: AbstractVector{Label},    # the label array
 			W                   :: AbstractVector{U},        # the weight vector
+			S                   :: AbstractVector{Set{X.ontology.worldType}}, # the vector of current worlds
 			
 			purity_function     :: Function,
-			node                :: NodeMeta{S},              # the node to split
+			node                :: NodeMeta{T},              # the node to split
 			max_features        :: Int,                      # number of features to consider
 			max_depth           :: Int,                      # the maximum depth of the resultant tree
 			min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
@@ -79,11 +86,11 @@ module treeclassifier
 			ncl                 :: AbstractVector{U},   # ncl maintains the counts of labels on the left
 			ncr                 :: AbstractVector{U},   # ncr maintains the counts of labels on the right
 			
-			Xf                  :: AbstractArray{S, N-1},
+			Xf                  :: AbstractArray{T, N-1},
 			Yf                  :: AbstractVector{Label},
 			Wf                  :: AbstractVector{U},
-			Sf                  :: AbstractVector{Set{X.ontology.worldType}},
-			rng                 :: Random.AbstractRNG) where {S, U, N}
+			# Sf                  :: AbstractVector{Set{X.ontology.worldType}},
+			rng                 :: Random.AbstractRNG) where {T, U, N}
 
 		# Region of indx to use to perform the split
 		region = node.region
@@ -109,193 +116,226 @@ module treeclassifier
 			return
 		end
 
-		# Number of non-constants features. TODO only makes sense in the adimensional case?
+		# Gather all values needed for the current set of instances
+		@simd for i in 1:n_samples
+			Yf[i] = Y[indX[i + r_start]]
+			Wf[i] = W[indX[i + r_start]]
+			# Sf[i] = S[indX[i + r_start]]
+		end
+
+		# Feature ids and number of features
 		features = node.features
 		n_features = length(features)
 
 		# Binary relations (= unary modal operators)
 		# Note: the equality operator is the first, and is the one representing
 		#  the propositional case.
-		relations = [ModalLogic.Relation_Eq, subtypes(X.ontology.relation)...]
+		relations = [ModalLogic.RelationEq, subtypes(X.ontology.relationType)...]
 
 		# Optimization tracking variables
 		best_purity = typemin(U)
+		best_relation = ModalLogic.RelationNone
 		best_feature = -1
-		threshold_lo = X[1]
-		threshold_hi = X[1]
+		best_threshold = T(-1)
+		# threshold_lo = X[1]
+		# threshold_hi = X[1]
 
-		indf = 1
-		# the number of new constants found during this split
-		n_const = 0
 		# true if every feature is constant
 		unsplittable = true
 		# the number of non constant features we will see if
 		# only sample n_features used features
 		# is a hypergeometric random variable
-		total_features = n_features(X)
 		# this is the total number of features that we expect to not
 		# be one of the known constant features. since we know exactly
 		# what the non constant features are, we can sample at 'non_consts_used'
 		# non constant features instead of going through every feature randomly.
-		non_consts_used = util.hypergeometric(n_features, total_features-n_features, max_features, rng)
+		non_consts_used = util.hypergeometric(n_features, n_variables(X)-n_features, max_features, rng)
 
 		# Find best split (TODO for now, we only handle numerical features)
 		
-		# For each feature/channel
+		# For each feature/variable/channel
+		indf = 1
 		@inbounds while (unsplittable || indf <= non_consts_used) && indf <= n_features
 			feature = let
 				indr = rand(rng, indf:n_features)
 				features[indf], features[indr] = features[indr], features[indf]
-				features[indf]
+				f = features[indf]
+				indf += 1
+				f
 			end
 
-			# In the begining, every node is on right of the threshold
-			ncl[:] .= zero(U)
-			ncr[:] = nc
-
-			# Gather all values for the current feature
+			# Gather all values needed for the current feature
 			@simd for i in 1:n_samples
 				# TODO make this a view? featureview?
 				setfeature!(i, Xf, X, indX[i + r_start], feature)
 			end
 
-			# Sort [Xf, Yf, Wf, Sf and indX] by Xf
-			util.q_bi_sort!(Xf, indX, 1, n_samples, r_start)
-			@simd for i in 1:n_samples
-				Yf[i] = Y[indX[i + r_start]]
-				Wf[i] = W[indX[i + r_start]]
-				Sf[i] = Sf[indX[i + r_start]]
-			end
+			## Test all conditions
+			# For each relational operator
+			for relation in relations:
+				@info "Testing relation " relation "..."
 
-			for Rel in relations:
-				@info "Testing relation " Rel "..."
-
-				# TODO test this bit...
-				# Rel = IA_L
-				# S = 
-
-				# Find, for each instance, the highest value for any world,
+				# Find, for each instance, the highest value for any world
 				#                       and the lowest value for any world
-				maxPeaks = fill(typemin(S), n_samples)
-				minPeaks = fill(typemax(S), n_samples)
+				maxPeaks = fill(typemin(T), n_samples)
+				minPeaks = fill(typemax(T), n_samples)
 				for i in 1:n_samples
-					@info "instance " inst "/" n_samples "..."
+					@info " instance " i "/" n_samples "..."
 					# TODO this findmin/findmax can be made more efficient for intervals.
-					for w in enumAcc(Sf[i], Rel, N TODO)
-						maxPeaks[i] = max(maxPeaks[i], readMax(w, Xf))
-						minPeaks[i] = min(minPeaks[i], readMin(w, Xf))
+					for w in enumAcc(S[indX[i + r_start]], relation, Xf[i]) # Sf[i]
+						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, Xf[i]))
+						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, Xf[i]))
 					end
-					@info "maxPeak " maxPeaks[i] "."
-					@info "minPeak " minPeaks[i] "."
+					@info "  maxPeak " maxPeaks[i] "."
+					@info "  minPeak " minPeaks[i] "."
 				end
 
+				# Obtain the list of reasonable thresholds
 				thresholdDomain = union(Set(maxPeaks),Set(minPeaks))
 				@info "thresholdDomain " thresholdDomain "."
 
-				for t in thresholdDomain
-					TODO
-				end
+				# Look for thresholds 'a' for the proposition "feature <= a"
+				# TODO do the same with "feature > a" (but avoid for relation = Eq because then the case is redundant)
+				for threshold in thresholdDomain
+					@info " threshold " threshold "..."
 
-				hi = 0
-				nl, nr = zero(U), nt
-				is_constant = true
-				last_f = Xf[1]
-				while hi < n_samples
-					lo = hi + 1
-					curr_f = Xf[lo]
-					hi = (lo < n_samples && curr_f == Xf[lo+1]
-						? searchsortedlast(Xf, curr_f, lo, n_samples, Base.Order.Forward)
-						: lo)
-
-					(lo != 1) && (is_constant = false)
-					# honor min_samples_leaf
-					# if nl >= min_samples_leaf && nr >= min_samples_leaf
-					# @assert nl == lo-1,
-					# @assert nr == n_samples - (lo-1) == n_samples - lo + 1
-					if lo-1 >= min_samples_leaf && n_samples - (lo-1) >= min_samples_leaf
-						unsplittable = false
-						purity = -(nl * purity_function(ncl, nl)
-								 + nr * purity_function(ncr, nr))
-						if purity > best_purity && !isapprox(purity, best_purity)
-							# will take average at the end
-							threshold_lo = last_f
-							threshold_hi = curr_f
-							@show threshold_lo
-							@show threshold_hi
-							best_purity  = purity
-							best_feature = feature
+					# Re-initialize right class counts
+					nr = zero(U)
+					ncr[:] .= zero(U)
+					for i in 1:n_samples
+						@info "  instance " i "/" n_samples
+						@info "   peaks (" minPeaks[i] "/" maxPeaks[i] ")"
+						satisfied = true
+						if maxPeaks[i] <= threshold
+							# This is definitely a nl (Sf[i] makes a modal step)
+							@info "   " "YES!!!"
+						elseif minPeaks[i] > threshold
+							# This is definitely a nr (Sf[i] stays the same)
+							@info "   " "NO!!!"
+							satisfied = false
+						else
+							@info "   must manually check worlds."
+							worlds = enumAcc(S[indX[i + r_start]], relation, Xf[i])
+							# The check makes sure that the existence of a world prevents a from being vacuously true
+							if length(collect(Iterators.take(worlds, 1))) > 1
+								satisfied = false
+								for w in worlds # Sf[i]
+									if(ModalLogic.WLeq(w, Xf[i], threshold)) # WLeq is <=
+										satisfied = true
+										break
+									end
+								end
+							end
 						end
-					end
-
-					# fill ncl and ncr in the direction
-					# that would require the smaller number of iterations
-					# i.e., hi - lo < n_samples - hi
-					if (hi << 1) < n_samples + lo
-						@simd for i in lo:hi
-							ncr[Yf[i]] -= Wf[i]
-						end
-					else
-						ncr[:] .= zero(U)
-						@simd for i in (hi+1):n_samples
+						@info "   " (satisfied ? "YES" : "NO")
+						if !satisfied
+							nr += Wf[i]
 							ncr[Yf[i]] += Wf[i]
 						end
 					end
 
-					nr = zero(U)
-					@simd for lab in 1:n_classes
-						nr += ncr[lab]
+					# Calculate left class counts
+					@simd for lab in 1:n_classes # TODO something like @simd ncl .= nc - ncr instead
 						ncl[lab] = nc[lab] - ncr[lab]
 					end
-
 					nl = nt - nr
-					last_f = curr_f
-				end
+					@info " (nl,nr) = (" nl "," nr ")\n"
 
-				# keep track of constant features to be used later.
-				if is_constant
-					n_const += 1
-					features[indf], features[n_const] = features[n_const], features[indf]
-				end
-			end
+					# Honor min_samples_leaf
+					if nl >= min_samples_leaf && n_samples - nl >= min_samples_leaf
+						unsplittable = false
+						purity = -(nl * purity_function(ncl, nl) +
+							      	 nr * purity_function(ncr, nr))
+						@info " purity = " purity
+						if purity > best_purity && !isapprox(purity, best_purity)
+							best_purity    = purity
+							best_relation  = relation
+							best_feature   = feature
+							best_threshold = threshold
+							# TODO: At the end, we should take the average between current and last.
+							#  This requires thresholds to be sorted
+							# threshold_lo, threshold_hi  = last_f, curr_f
+							@info " new optimum:"
+							@info " best_purity = " best_purity
+							@info " " best_relation ", " best_feature ", " best_threshold
+							# @info threshold_lo, threshold_hi
+						end
+					end
+				end # for threshold
+			end # for relation
+		end # while feature
 
-			indf += 1
-		end
-
-		# Partition and split according to best_purity and best_feature
+		# If the split is good, partition and split according to the optimum
 		@inbounds if (unsplittable # no splits honor min_samples_leaf
 			|| (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
 			node.is_leaf = true
 			return
 		else
+			# try
+			# 	node.threshold = (threshold_lo + threshold_hi) / 2.0
+			# catch
+			# 	node.threshold = threshold_hi
+			# end
+
+			# split the samples into two parts:
+			# - ones that are > threshold
+			# - ones that are <= threshold
+
+			# node.purity    = best_purity
+			node.modality  = best_relation
+			node.feature   = best_feature
+			node.threshold = best_threshold
+
+			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
-				Xf[i] = X[indX[i + r_start], best_feature]
+				setfeature!(i, Xf, X, indX[i + r_start], best_feature)
+			end
+			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_samples
+			satisfied_flags = Array{Int,1}(1, n_samples)
+			for i in 1:n_samples
+				worlds = enumAcc(S[indX[i + r_start]], best_relation, Xf[i])
+				if length(collect(Iterators.take(worlds, 1))) > 1
+					# TODO maybe it's better to use an array and then create a set with = Set(worlds)
+					new_worlds = Set{X.ontology.worldType,1}(undef, 0)
+					for w in worlds # Sf[i]
+						if(ModalLogic.WLeq(w, Xf[i], best_threshold)) # WLeq is <=
+							push!(new_worlds, w)
+						end
+					end
+					S[indX[i + r_start]] = new_worlds
+				else
+					satisfied_flags[i] = 0
+				end
 			end
 
-			try
-				node.threshold = (threshold_lo + threshold_hi) / 2.0
-			catch
-				node.threshold = threshold_hi
-			end
-			# split the samples into two parts: ones that are greater than
-			# the threshold and ones that are less than or equal to the threshold
-			#                                 ---------------------
-			# (so we partition at threshold_lo instead of node.threshold)
-			node.split_at = util.partition!(indX, Xf, threshold_lo, region)
-			node.feature = best_feature
-			node.features = features[(n_const+1):n_features]
+			node.split_at = partition!(indX, satisfied_flags, 0, region)
+			# For debug:
+			# indX = rand(1:10, 10)
+			# satisfied_flags = rand([1,0], 10)
+			# partition!(indX, satisfied_flags, 0, 1:10)
+			
+			# Sort [Xf, Yf, Wf, Sf and indX] by Xf
+			# util.q_bi_sort!(satisfied_flags, indX, 1, n_samples, r_start)
+			# node.split_at = searchsortedfirst(satisfied_flags, true)
+			# TODO... node.split_at = util.partition!(indX, Xf, node.threshold, region)
+			# TODO Sort indX[region], similarly to util.q_bi_sort!(Xf, indX, 1, n_samples, r_start)
+			
+			# TODO no need for a full array for each node, in the dimensional case? 
+			# if so, then the non-const thing doesn't make sense!
+			node.features = features[1:n_features]
 		end
-
-		return _split!
-
 	end
 	# Split node at a previously-set node.split_at value.
+	# The children inherits some of the data
 	@inline function fork!(node::NodeMeta{S}) where S
 		ind = node.split_at
 		region = node.region
 		features = node.features
+		depth = node.depth+1
+		mdepth = (node.modality == ModalLogic.RelationNone ? node.modal_depth : node.modal_depth+1)
 		# no need to copy because we will copy at the end
-		node.l = NodeMeta{S}(features, region[    1:ind], node.depth+1)
-		node.r = NodeMeta{S}(features, region[ind+1:end], node.depth+1)
+		node.l = NodeMeta{S}(features, region[    1:ind], depth, mdepth)
+		node.r = NodeMeta{S}(features, region[ind+1:end], depth, mdepth)
 	end
 
 	function check_input(
@@ -307,7 +347,7 @@ module treeclassifier
 			min_samples_leaf    :: Int,
 			min_samples_split   :: Int,
 			min_purity_increase :: AbstractFloat) where {S, U, N}
-		n_samples, n_features = n_samples(X), n_features(X)
+		n_samples, n_features = n_samples(X), n_variables(X)
 		if length(Y) != n_samples
 			throw("dimension mismatch between X.domain and Y ($(size(X.domain)) vs $(size(Y))")
 		elseif length(W) != n_samples
@@ -349,32 +389,39 @@ module treeclassifier
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U, N}
 
 		# Dataset sizes
-		n_samples, n_features = n_samples(X), n_features(X)
+		n_samples, n_features = n_samples(X), n_variables(X)
 
 		# Array memory for class counts
-		nc  = Array{U}(undef, n_classes)
-		ncl = Array{U}(undef, n_classes)
-		ncr = Array{U}(undef, n_classes)
+		# TODO transform all of these Array{somthing,1} into Vector's (aesthetic changeX)
+		nc  = Array{U,1}(undef, n_classes)
+		ncl = Array{U,1}(undef, n_classes)
+		ncr = Array{U,1}(undef, n_classes)
+
+		# TODO We need to write on S, thus it cannot be a static array like X Y and W;
+		# Should belong inside each meta-node and then be copied? That's a waste of space(for each instance),
+		# We only need the worlds for the currentinstance set.
+		# What if it's not fixed size? Maybe it should be like the subset of indX[region], so that indX[region.start] is parallel to node.S[1]
+		# TODO make the initial entity and initial modality a training parameter. Probably, the first modality (modal_depth=0) should be Exist... (= All worlds). Create the allWorlds enumerator
+		S = [Set([X.ontology.worldType(-1, 0)]) for i in 1:n_samples]
 
 		# Array memory for dataset
 		Xf = init_Xf(X)
-		Yf = Array{Label}(undef, n_samples)
-		Wf = Array{U}(undef, n_samples)
-
+		Yf = Array{Label,1}(undef, n_samples)
+		Wf = Array{U,1}(undef, n_samples)
 		# TODO Perhaps operating with Sets is better
-		Sf = [Set([Interval(-1, 0)]) for i in 1:n_sampless]::Array{Set{X.ontology.world},1}
+		# Sf = Array{Set{X.ontology.worldType},1}(undef, n_samples)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_samples)
 		# Create root node
-		root = NodeMeta{S}(collect(1:n_features), 1:n_samples, 0)
+		root = NodeMeta{S}(collect(1:n_features), 1:n_samples, 0, 0)
 		# Stack of nodes to process
 		stack = NodeMeta{S}[root]
 		@inbounds while length(stack) > 0
 			# Pop node and process it
 			node = pop!(stack)
 			_split!(
-				X, Y, W,
+				X, Y, W, S
 				loss, node,
 				max_features,
 				max_depth,
@@ -382,7 +429,8 @@ module treeclassifier
 				min_samples_split,
 				min_purity_increase,
 				indX,
-				nc, ncl, ncr, Xf, Yf, Wf, Sf, rng)
+				nc, ncl, ncr, Xf, Yf, Wf, # Sf, 
+				rng)
 			# After processing, if needed, perform the split and push the two children for a later processing step
 			# TODO: this step could be parallelized
 			if !node.is_leaf
@@ -412,13 +460,16 @@ module treeclassifier
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
-		n_samples, n_features = n_samples(X), n_features(X)
+		n_samples, n_features = n_samples(X), n_variables(X)
 
 		# Translate labels to categorical form
 		labels, Y_ = util.assign(Y)
 
 		# Use unary weights if no weight is supplied
 		if W == nothing
+			# TODO optimize w in the case of all-ones: write a subtype of AbstractVector:
+			#  AllOnesVector, so that getindex(W, i) = 1 and sum(W) = size(W).
+			#  This allows the compiler to optimize constants at compile-time
 			W = fill(1, n_samples)
 		end
 

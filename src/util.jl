@@ -31,11 +31,11 @@ module util
 		return assign(Y, list)
 	end
 
-	@inline function zero_one(ns, n)
+	@inline function zero_one(ns :: AbstractVector{T}, n :: T) where {T <: Real}
 		return 1.0 - maximum(ns) / n
 	end
 
-	@inline function gini(ns, n)
+	@inline function gini(ns :: AbstractVector{T}, n :: T) where {T <: Real}
 		s = 0.0
 		@simd for k in ns
 			s += k * (n - k)
@@ -64,7 +64,7 @@ module util
 		return log(n) - s / n
 	end
 
-	@inline function entropy(ns, n)
+	@inline function entropy(ns :: AbstractVector{T}, n :: T) where {T <: Real}
 		s = 0.0
 		@simd for k in ns
 			if k > 0
@@ -75,7 +75,7 @@ module util
 	end
 
 	# adapted from the Julia Base.Sort Library
-	@inline function partition!(v, w, pivot, region)
+	@inline function partition!(v::AbstractVector, w::AbstractVector{T}, pivot::T, region::AbstractVector{Integer}) :: T
 		i, j = 1, length(region)
 		r_start = region.start - 1
 		@inbounds while true
@@ -92,7 +92,7 @@ module util
 	end
 
 	# adapted from the Julia Base.Sort Library
-	function insert_sort!(v, w, lo, hi, offset)
+	function insert_sort!(v::AbstractVector, w::AbstractVector, lo::Integer, hi::Integer, offset::Integer)
 		@inbounds for i = lo+1:hi
 			j = i
 			x = v[i]
@@ -112,7 +112,7 @@ module util
 		return v
 	end
 
-	@inline function _selectpivot!(v, w, lo, hi, offset)
+	@inline function _selectpivot!(v::AbstractVector, w::AbstractVector, lo::Integer, hi::Integer, offset::Integer)
 		@inbounds begin
 			mi = (lo+hi)>>>1
 
@@ -144,7 +144,7 @@ module util
 	end
 
 	# adapted from the Julia Base.Sort Library
-	@inline function _bi_partition!(v, w, lo, hi, offset)
+	@inline function _bi_partition!(v::AbstractVector, w::AbstractVector, lo::Integer, hi::Integer, offset::Integer)
 		pivot, w_piv = _selectpivot!(v, w, lo, hi, offset)
 		# pivot == v[lo], v[hi] > pivot
 		i, j = lo, hi
@@ -171,7 +171,7 @@ module util
 	# this sorts v[lo:hi] and w[offset+lo, offset+hi]
 	# simultaneously by the values in v[lo:hi]
 	const SMALL_THRESHOLD  = 20
-	function q_bi_sort!(v, w, lo, hi, offset)
+	function q_bi_sort!(v::AbstractVector, w::AbstractVector, lo::Integer, hi::Integer, offset::Integer)
 		@inbounds while lo < hi
 			hi-lo <= SMALL_THRESHOLD && return insert_sort!(v, w, lo, hi, offset)
 			j = _bi_partition!(v, w, lo, hi, offset)

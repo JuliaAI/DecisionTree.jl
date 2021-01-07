@@ -170,7 +170,7 @@ end
 # A wrapper around DataFrame to add labels to data.
 type ClassificationDataset
 	data::DataFrame
-	labels::Array{Int}
+	labels::Array{Int,1}
 end
 
 # Inner node, holding the output decision

@@ -126,7 +126,7 @@ end
 
 function apply_tree(tree::DTNode{S, T}, features::AbstractMatrix{S}) where {S, T}
 	N = size(features,1)
-	predictions = Array{T}(undef, N)
+	predictions = Array{T,1}(undef, N)
 	for i in 1:N
 		predictions[i] = apply_tree(tree, features[i, :])
 	end
