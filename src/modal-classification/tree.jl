@@ -3,16 +3,22 @@
 # The rest of DecisionTree.jl is released under the MIT license.
 
 # written by Poom Chiarawongse <eight1911@gmail.com>
-using ComputedFieldTypes
 
 module treeclassifier
-	include("../util.jl")
-	import Random
-
+	
 	export fit
 
-	
-	mutable struct NodeMeta{S} # {S,U}
+	using InteractiveUtils # TODO this is only needed for subtypes, but that will go away once we start using constants instead of types
+	include("../util.jl")
+	using ..ModalLogic
+	using ComputedFieldTypes
+	using .util
+	using ..util: Label
+
+	import Random
+
+
+	mutable struct NodeMeta{S<:Real} # {S,U}
 		features    :: Vector{Int}      # a list of features
 		region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
 		# worlds      :: AbstractVector{AbstractSet{AbstractWorld}} # current set of worlds for each training instance
@@ -24,23 +30,24 @@ module treeclassifier
 		split_at    :: Int              # index of samples
 		l           :: NodeMeta{S}      # left child
 		r           :: NodeMeta{S}      # right child
-		# purity      :: U                # purity grade attained if this is a split
-		modality    :: AbstractRelation # modal operator (e.g. RelationEQ for the propositional case)
+		# purity      :: U              # purity grade attained if this is a split
+		modality    :: Type{<:AbstractRelation}             # TODO must be a constant, not a type modal operator (e.g. RelationEQ for the propositional case)
 		feature     :: Int              # feature used for splitting
+		testsign    :: Symbol           # testsign (e.g. <=)
 		threshold   :: S                # threshold value
-		# TODO: testsign
 		function NodeMeta{S}(
 				features    :: Vector{Int},
 				region      :: UnitRange{Int},
 				depth       :: Int,
 				modal_depth :: Int
-				) where S
+				) where S<:Real
 			node = new{S}()
 			node.features = features
 			node.region = region
 			node.depth = depth
 			node.modal_depth = modal_depth
 			node.is_leaf = false
+			node.testsign = :(<=) # TODO change
 			node
 		end
 	end
@@ -51,46 +58,60 @@ module treeclassifier
 		labels :: Vector{Label}
 	end
 
-	@inline setfeature!(i::Integer, Xf::AbstractArray{S where S, 1}, X::OntologicalDataset{T where T,0}, idxs::AbstractVector{Integer}, feature::Integer) ::T = begin
-		Xf[i] = getfeature(X, idxs, feature)
+	# Xf slices X by across the features dimension. As such, it has one dimension less than X.
+	# TODO @computed init_Xf(X::OntologicalDataset{T, N}) where S = Array{T, N-1}(undef, n_samples(X), size(X)[3:end]...)
+	init_Xf(X::OntologicalDataset{T, 0}) where T = Array{T, 1}(undef, n_samples(X), size(X)[3:end]...)
+	init_Xf(X::OntologicalDataset{T, 1}) where T = Array{T, 2}(undef, n_samples(X), size(X)[3:end]...)
+	init_Xf(X::OntologicalDataset{T, 2}) where T = Array{T, 3}(undef, n_samples(X), size(X)[3:end]...)
+
+	@inline setfeature!(i::Integer, Xf::AbstractArray{T, 1}, X::OntologicalDataset{T,0}, idx::Integer, feature::Integer) where T = begin
+		Xf[i] = getfeature(X, idx, feature) # ::T
 	end
-	@inline setfeature!(i::Integer, Xf::AbstractArray{S where S, 2}, X::OntologicalDataset{T where T,1}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,2} = begin
-		Xf[i,:] = getfeature(X, idxs, feature)
+	@inline setfeature!(i::Integer, Xf::AbstractArray{T, 2}, X::OntologicalDataset{T,1}, idx::Integer, feature::Integer) where T = begin
+		Xf[i,:] = getfeature(X, idx, feature) # ::AbstractArray{T,2}
 	end
-	@inline setfeature!(i::Integer, Xf::AbstractArray{S where S, 3}, X::OntologicalDataset{T where T,2}, idxs::AbstractVector{Integer}, feature::Integer) ::AbstractArray{T,3} = begin
-		Xf[i,:,:] = getfeature(X, idxs, feature)
+	@inline setfeature!(i::Integer, Xf::AbstractArray{T, 3}, X::OntologicalDataset{T,2}, idx::Integer, feature::Integer) where T = begin
+		Xf[i,:,:] = getfeature(X, idx, feature) # ::AbstractArray{T,3}
 	end
+	# TODO use Xf[i,[: for i in N]...]
+
+	@inline getslice(Xf::AbstractArray{T, 1}, idx::Integer) where T = Xf[idx] # TODO: the adimensional case return a value of type T, instead of an array. Mh, fix? Or we could say we don't handl the adimensional case
+	@inline getslice(Xf::AbstractArray{T, 2}, idx::Integer) where T = Xf[idx,:]
+	@inline getslice(Xf::AbstractArray{T, 3}, idx::Integer) where T = Xf[idx,:,:]
+	# TODO use Xf[i,[: for i in N]...]
 
 	# find an optimal split satisfying the given constraints
 	# (max_depth, min_samples_split, min_purity_increase)
 	# TODO dispatch _split! on the learning parameters?
-	@computed function _split!(
-			X                   :: OntologicalDataset{T, N}, # the ontological dataset
-			Y                   :: AbstractVector{Label},    # the label array
-			W                   :: AbstractVector{U},        # the weight vector
-			S                   :: AbstractVector{Set{X.ontology.worldType}}, # the vector of current worlds
-			
-			purity_function     :: Function,
-			node                :: NodeMeta{T},              # the node to split
-			max_features        :: Int,                      # number of features to consider
-			max_depth           :: Int,                      # the maximum depth of the resultant tree
-			min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
-			min_samples_split   :: Int,                      # the minimum number of samples in needed for a split
-			min_purity_increase :: AbstractFloat,            # minimum purity needed for a split
-			
-			indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
-			
-			# The six arrays below are given for optimization purposes
-			
-			nc                  :: AbstractVector{U},   # nc maintains a dictionary of all labels in the samples
-			ncl                 :: AbstractVector{U},   # ncl maintains the counts of labels on the left
-			ncr                 :: AbstractVector{U},   # ncr maintains the counts of labels on the right
-			
-			Xf                  :: AbstractArray{T, N-1},
-			Yf                  :: AbstractVector{Label},
-			Wf                  :: AbstractVector{U},
-			# Sf                  :: AbstractVector{Set{X.ontology.worldType}},
-			rng                 :: Random.AbstractRNG) where {T, U, N}
+	# TODO M=N-1, so this should be @computed X                   :: OntologicalDataset{T, N}, # ... Xf                  :: AbstractArray{T, N-1},
+	function _split!(
+							X                   :: OntologicalDataset{T, N}, # the ontological dataset
+							Y                   :: AbstractVector{Label},    # the label array
+							W                   :: AbstractVector{U},        # the weight vector
+							S                   :: AbstractVector{<:AbstractSet{<:AbstractWorld}}, # the vector of current worlds (TODO AbstractVector{AbstractSet{AbstractWorld}}, TODO AbstractVector{AbstractSet{X.ontology.worldType}})
+							
+							purity_function     :: Function,
+							node                :: NodeMeta{T},              # the node to split
+							max_features        :: Int,                      # number of features to consider
+							max_depth           :: Int,                      # the maximum depth of the resultant tree
+							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
+							min_samples_split   :: Int,                      # the minimum number of samples in needed for a split
+							min_purity_increase :: AbstractFloat,            # minimum purity needed for a split
+							
+							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
+							
+							# The six arrays below are given for optimization purposes
+							
+							nc                  :: AbstractVector{U},   # nc maintains a dictionary of all labels in the samples
+							ncl                 :: AbstractVector{U},   # ncl maintains the counts of labels on the left
+							ncr                 :: AbstractVector{U},   # ncr maintains the counts of labels on the right
+							
+							Xf                  :: AbstractArray{T, M},
+							Yf                  :: AbstractVector{Label},
+							Wf                  :: AbstractVector{U},
+							# Sf                  :: AbstractVector{SW},
+							rng                 :: Random.AbstractRNG,
+							firstIteration      :: Bool) where {T, U, N, M}
 
 		# Region of indx to use to perform the split
 		region = node.region
@@ -108,6 +129,7 @@ module treeclassifier
 		node.label = argmax(nc) # Assign the most likely label before the split
 
 		# Check leaf conditions
+		# TODO min_samples_split and min_samples_leaf merge into a single parameter?
 		if (min_samples_leaf * 2 >  n_samples
 		 || min_samples_split    >  n_samples
 		 || max_depth            <= node.depth
@@ -130,12 +152,17 @@ module treeclassifier
 		# Binary relations (= unary modal operators)
 		# Note: the equality operator is the first, and is the one representing
 		#  the propositional case.
-		relations = [ModalLogic.RelationEq, subtypes(X.ontology.relationType)...]
-
+		# Note: at the first iteration, we force a modal step (the world set is null)
+		if firstIteration == true
+			relations = [ModalLogic.RelationAll]
+		else
+			relations = [ModalLogic.RelationEq, subtypes(X.ontology.relationType)...]
+		end
 		# Optimization tracking variables
 		best_purity = typemin(U)
 		best_relation = ModalLogic.RelationNone
 		best_feature = -1
+		best_testsign = :(0)
 		best_threshold = T(-1)
 		# threshold_lo = X[1]
 		# threshold_hi = X[1]
@@ -172,62 +199,72 @@ module treeclassifier
 
 			## Test all conditions
 			# For each relational operator
-			for relation in relations:
-				@info "Testing relation " relation "..."
+			for relation in relations
+				@info "Testing relation " relation
 
 				# Find, for each instance, the highest value for any world
 				#                       and the lowest value for any world
 				maxPeaks = fill(typemin(T), n_samples)
 				minPeaks = fill(typemax(T), n_samples)
 				for i in 1:n_samples
-					@info " instance " i "/" n_samples "..."
+					Xfi = getslice(Xf, i)
+					@info " instance {$i}/{$n_samples}" # Xfi
 					# TODO this findmin/findmax can be made more efficient for intervals.
-					for w in enumAcc(S[indX[i + r_start]], relation, Xf[i]) # Sf[i]
-						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, Xf[i]))
-						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, Xf[i]))
+					for w in enumAcc(S[indX[i + r_start]], relation, Xfi) # Sf[i]
+						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, Xfi))
+						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, Xfi))
 					end
-					@info "  maxPeak " maxPeaks[i] "."
-					@info "  minPeak " minPeaks[i] "."
+					# @info "  maxPeak {$(maxPeaks[i])}"
+					# @info "  minPeak {$(minPeaks[i])}"
 				end
+				@info "  maxPeak {$maxPeaks}"
+				@info "  minPeak {$minPeaks}"
 
 				# Obtain the list of reasonable thresholds
 				thresholdDomain = union(Set(maxPeaks),Set(minPeaks))
-				@info "thresholdDomain " thresholdDomain "."
+				@info "thresholdDomain " thresholdDomain
 
 				# Look for thresholds 'a' for the proposition "feature <= a"
 				# TODO do the same with "feature > a" (but avoid for relation = Eq because then the case is redundant)
 				for threshold in thresholdDomain
-					@info " threshold " threshold "..."
+					@info " threshold {$threshold}... Question: <$relation> (A$feature <= $threshold)"
 
 					# Re-initialize right class counts
 					nr = zero(U)
 					ncr[:] .= zero(U)
 					for i in 1:n_samples
-						@info "  instance " i "/" n_samples
-						@info "   peaks (" minPeaks[i] "/" maxPeaks[i] ")"
+						@info " instance {$i}/{$n_samples}   peaks ($(minPeaks[i])/$(maxPeaks[i]))"
 						satisfied = true
 						if maxPeaks[i] <= threshold
 							# This is definitely a nl (Sf[i] makes a modal step)
-							@info "   " "YES!!!"
+							@info "   YES!!!"
 						elseif minPeaks[i] > threshold
 							# This is definitely a nr (Sf[i] stays the same)
-							@info "   " "NO!!!"
+							@info "   NO!!!"
 							satisfied = false
 						else
-							@info "   must manually check worlds."
-							worlds = enumAcc(S[indX[i + r_start]], relation, Xf[i])
+							Xfi = getslice(Xf, i)
+							@info "   must manually check worlds." # Xfi
+							worlds = enumAcc(S[indX[i + r_start]], relation, Xfi)
 							# The check makes sure that the existence of a world prevents a from being vacuously true
-							if length(collect(Iterators.take(worlds, 1))) > 1
+							if length(collect(Iterators.take(worlds, 1))) > 0
 								satisfied = false
 								for w in worlds # Sf[i]
-									if(ModalLogic.WLeq(w, Xf[i], threshold)) # WLeq is <=
+									if ModalLogic.WLeq(w, Xfi, threshold) # WLeq is <=
+										# @info "   Found w: " w ModalLogic.readWorld(w,Xfi)
 										satisfied = true
 										break
 									end
 								end
+							else
+								@info "   No world found"
+							end
+							if satisfied
+								@info "   YES"
+							else
+								@info "   NO"
 							end
 						end
-						@info "   " (satisfied ? "YES" : "NO")
 						if !satisfied
 							nr += Wf[i]
 							ncr[Yf[i]] += Wf[i]
@@ -239,7 +276,7 @@ module treeclassifier
 						ncl[lab] = nc[lab] - ncr[lab]
 					end
 					nl = nt - nr
-					@info " (nl,nr) = (" nl "," nr ")\n"
+					@info " (nl,nr) = ($nl,$nr)\n"
 
 					# Honor min_samples_leaf
 					if nl >= min_samples_leaf && n_samples - nl >= min_samples_leaf
@@ -251,13 +288,17 @@ module treeclassifier
 							best_purity    = purity
 							best_relation  = relation
 							best_feature   = feature
+							best_testsign  = (:<=) # TODO expand
 							best_threshold = threshold
 							# TODO: At the end, we should take the average between current and last.
 							#  This requires thresholds to be sorted
 							# threshold_lo, threshold_hi  = last_f, curr_f
 							@info " new optimum:"
 							@info " best_purity = " best_purity
-							@info " " best_relation ", " best_feature ", " best_threshold
+							@info " " best_relation
+							@info ", " best_feature
+							@info ", " best_testsign
+							@info ", " best_threshold
 							# @info threshold_lo, threshold_hi
 						end
 					end
@@ -268,9 +309,11 @@ module treeclassifier
 		# If the split is good, partition and split according to the optimum
 		@inbounds if (unsplittable # no splits honor min_samples_leaf
 			|| (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
+			@info " LEAF" (best_purity / nt)
 			node.is_leaf = true
 			return
 		else
+			@info " BRANCH" (best_purity / nt)
 			# try
 			# 	node.threshold = (threshold_lo + threshold_hi) / 2.0
 			# catch
@@ -284,31 +327,46 @@ module treeclassifier
 			# node.purity    = best_purity
 			node.modality  = best_relation
 			node.feature   = best_feature
+			node.testsign  = best_testsign
 			node.threshold = best_threshold
+
+			@info " Split condition: <$best_relation> (A$best_feature $best_testsign $best_threshold)" # TODO <= becomes generic <=, >.
 
 			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
 				setfeature!(i, Xf, X, indX[i + r_start], best_feature)
 			end
 			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_samples
-			satisfied_flags = Array{Int,1}(1, n_samples)
+			satisfied_flags = fill(1, n_samples)
 			for i in 1:n_samples
-				worlds = enumAcc(S[indX[i + r_start]], best_relation, Xf[i])
-				if length(collect(Iterators.take(worlds, 1))) > 1
+				@info " instance {$i}/{$n_samples}"
+				satisfied = true
+				Xfi = getslice(Xf, i)
+				worlds = enumAcc(S[indX[i + r_start]], best_relation, Xfi)
+				if length(collect(Iterators.take(worlds, 1))) > 0
+					satisfied = false
 					# TODO maybe it's better to use an array and then create a set with = Set(worlds)
-					new_worlds = Set{X.ontology.worldType,1}(undef, 0)
+					new_worlds = Set{X.ontology.worldType}()
 					for w in worlds # Sf[i]
-						if(ModalLogic.WLeq(w, Xf[i], best_threshold)) # WLeq is <=
+						if ModalLogic.WLeq(w, Xfi, best_threshold) # WLeq is <= TODO expand on testsign
+							satisfied = true
 							push!(new_worlds, w)
 						end
 					end
 					S[indX[i + r_start]] = new_worlds
-				else
-					satisfied_flags[i] = 0
 				end
+				if satisfied
+					@info "   YES"
+				else
+					@info "   NO" 
+				end
+				satisfied_flags[i] = Bool(satisfied)
 			end
 
-			node.split_at = partition!(indX, satisfied_flags, 0, region)
+			@info "pre-partition" indX
+			node.split_at = util.partition!(indX, satisfied_flags, 0, region)
+			@info "post-partition" indX node.split_at
+
 			# For debug:
 			# indX = rand(1:10, 10)
 			# satisfied_flags = rand([1,0], 10)
@@ -339,18 +397,18 @@ module treeclassifier
 	end
 
 	function check_input(
-			X                   :: OntologicalDataset{S, N},
+			X                   :: OntologicalDataset{T, N},
 			Y                   :: AbstractVector{Label},
 			W                   :: AbstractVector{U},
 			max_features        :: Int,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
 			min_samples_split   :: Int,
-			min_purity_increase :: AbstractFloat) where {S, U, N}
-		n_samples, n_features = n_samples(X), n_variables(X)
-		if length(Y) != n_samples
+			min_purity_increase :: AbstractFloat) where {T, U, N}
+			n_instances, n_features = n_samples(X), n_variables(X)
+		if length(Y) != n_instances
 			throw("dimension mismatch between X.domain and Y ($(size(X.domain)) vs $(size(Y))")
-		elseif length(W) != n_samples
+		elseif length(W) != n_instances
 			throw("dimension mismatch between X.domain and W ($(size(X.domain)) vs $(size(W))")
 		elseif max_depth < -1
 			throw("unexpected value for max_depth: $(max_depth) (expected:"
@@ -369,14 +427,8 @@ module treeclassifier
 		end
 	end
 
-	# Xf slices X by across the features dimension. As such, it has one dimension less than X.
-	@computed init_Xf(X::OntologicalDataset{S, N}) where S = Array{S, N-1}(undef, n_samples, size(X)[3:end]...)
-	# init_Xf(X::OntologicalDataset{S, 2}) where S = Array{S, 1}(undef, n_samples, size(X)[3:end]...)
-	# init_Xf(X::OntologicalDataset{S, 3}) where S = Array{S, 2}(undef, n_samples, size(X)[3:end]...)
-	# init_Xf(X::OntologicalDataset{S, 4}) where S = Array{S, 3}(undef, n_samples, size(X)[3:end]...)
-
 	function _fit(
-			X                       :: OntologicalDataset{S, N},
+			X                       :: OntologicalDataset{T, N},
 			Y                       :: AbstractVector{Label},
 			W                       :: AbstractVector{U},
 			loss                    :: Function,
@@ -386,10 +438,10 @@ module treeclassifier
 			min_samples_leaf        :: Int,
 			min_samples_split       :: Int,
 			min_purity_increase     :: AbstractFloat,
-			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U, N}
+			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
 		# Dataset sizes
-		n_samples, n_features = n_samples(X), n_variables(X)
+		n_instances, n_features = n_samples(X), n_variables(X)
 
 		# Array memory for class counts
 		# TODO transform all of these Array{somthing,1} into Vector's (aesthetic changeX)
@@ -402,26 +454,28 @@ module treeclassifier
 		# We only need the worlds for the currentinstance set.
 		# What if it's not fixed size? Maybe it should be like the subset of indX[region], so that indX[region.start] is parallel to node.S[1]
 		# TODO make the initial entity and initial modality a training parameter. Probably, the first modality (modal_depth=0) should be Exist... (= All worlds). Create the allWorlds enumerator
-		S = [Set([X.ontology.worldType(-1, 0)]) for i in 1:n_samples]
+		S = [Set([X.ontology.worldType(-1, 0)]) for i in 1:n_instances]
 
 		# Array memory for dataset
 		Xf = init_Xf(X)
-		Yf = Array{Label,1}(undef, n_samples)
-		Wf = Array{U,1}(undef, n_samples)
+		Yf = Array{Label,1}(undef, n_instances)
+		Wf = Array{U,1}(undef, n_instances)
 		# TODO Perhaps operating with Sets is better
-		# Sf = Array{Set{X.ontology.worldType},1}(undef, n_samples)
+		# Sf = Array{Set{X.ontology.worldType},1}(undef, n_instances)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
-		indX = collect(1:n_samples)
+		indX = collect(1:n_instances)
 		# Create root node
-		root = NodeMeta{S}(collect(1:n_features), 1:n_samples, 0, 0)
+		root = NodeMeta{T}(collect(1:n_features), 1:n_instances, 0, 0)
 		# Stack of nodes to process
-		stack = NodeMeta{S}[root]
+		stack = NodeMeta{T}[root]
+		# The first iteration is treated sightly differently
+		firstIteration = true
 		@inbounds while length(stack) > 0
 			# Pop node and process it
 			node = pop!(stack)
 			_split!(
-				X, Y, W, S
+				X, Y, W, S,
 				loss, node,
 				max_features,
 				max_depth,
@@ -430,7 +484,9 @@ module treeclassifier
 				min_purity_increase,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, # Sf, 
-				rng)
+				rng,
+				firstIteration)
+			firstIteration = false
 			# After processing, if needed, perform the split and push the two children for a later processing step
 			# TODO: this step could be parallelized
 			if !node.is_leaf
@@ -448,8 +504,8 @@ module treeclassifier
 			# In this implementation, we don't accept a generic Kripke model in the explicit form of
 			#  a graph; instead, an instance is a dimensional domain (e.g. a matrix or a 3D matrix) onto which
 			#  worlds and relations are determined by a given Ontology.
-			X                       :: OntologicalDataset{S, N},
-			Y                       :: AbstractVector{T},
+			X                       :: OntologicalDataset{T, N},
+			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
 			loss = util.entropy     :: Function,
 			max_features            :: Int,
@@ -457,10 +513,10 @@ module treeclassifier
 			min_samples_leaf        :: Int,
 			min_samples_split       :: Int,
 			min_purity_increase     :: AbstractFloat,
-			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U, N}
+			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
-		n_samples, n_features = n_samples(X), n_variables(X)
+		n_instances, n_features = n_samples(X), n_variables(X)
 
 		# Translate labels to categorical form
 		labels, Y_ = util.assign(Y)
@@ -470,7 +526,7 @@ module treeclassifier
 			# TODO optimize w in the case of all-ones: write a subtype of AbstractVector:
 			#  AllOnesVector, so that getindex(W, i) = 1 and sum(W) = size(W).
 			#  This allows the compiler to optimize constants at compile-time
-			W = fill(1, n_samples)
+			W = fill(1, n_instances)
 		end
 
 		# Check validity of the input
@@ -495,6 +551,6 @@ module treeclassifier
 			min_purity_increase,
 			rng)
 
-		return Tree{S, T}(root, labels, indX)
+		return Tree{T, S}(root, labels, indX)
 	end
 end

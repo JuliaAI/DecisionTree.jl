@@ -1,12 +1,16 @@
 # Utilities
 
+# include("../util.jl")
+using .util: Label
+using .ModalLogic
+
 include("tree.jl")
 
 # Conversion: NodeMeta (node + training info) -> DTNode (bare decision tree model)
 function _convert(
 		node   :: treeclassifier.NodeMeta{S},
-		list   :: AbstractVector{Label},
-		labels :: AbstractVector{Label}) where {S}
+		list   :: AbstractVector{T},
+		labels :: AbstractVector{T}) where {S<:Real, T<:Label}
 
 	if node.is_leaf
 		return DTLeaf{T}(list[node.label], labels[node.region])
@@ -19,19 +23,30 @@ end
 
 ################################################################################
 
+# TODO include adimensional case? Probably not in the dataset itself
+# function buildOntologicalDataset(features :: AbstractArray{S,2}) where {S} =
+# 	OntologicalDataset{Int64,0}(IntervalAlgebra,features)
+# TODO unique definition with @computed
+buildOntologicalDataset(features :: AbstractArray{S,3}) where {S} =
+	OntologicalDataset{S,1}(IntervalAlgebra,features)
+# TODO function buildOntologicalDataset(features :: AbstractArray{S,4}) where {S} =
+	# OntologicalDataset{S,2}(RectangleAlgebra,features)
+
 # Build a stump (tree with depth 1)
 function build_stump(
 		labels      :: AbstractVector{Label},
-		features    :: AbstractMatrix{S},
+		features    :: AbstractArray{S,N},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
-		rng         :: Random.AbstractRNG                = Random.GLOBAL_RNG) where {S}
-
+		rng         :: Random.AbstractRNG                = Random.GLOBAL_RNG) where {S, U, N}
+	
+	X = buildOntologicalDataset(features)
+	
 	t = treeclassifier.fit(
-		X                   = features,
+		X                   = X,
 		Y                   = labels,
 		W                   = weights,
 		loss                = treeclassifier.util.zero_one,
-		max_features        = size(features, 2),
+		max_features        = n_variables(X),
 		max_depth           = 1,
 		min_samples_leaf    = 1,
 		min_samples_split   = 2,
@@ -43,25 +58,27 @@ end
 
 function build_tree(
 		labels              :: AbstractVector{Label},
-		features            :: AbstractMatrix{S},
+		features            :: AbstractArray{S,N},
 		n_subfeatures       :: Int                = 0,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
 		min_samples_split   :: Int                = 2,
 		min_purity_increase :: AbstractFloat      = 0.0;
 		loss                :: Function           = util.entropy,
-		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {S}
+		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {S, N}
+
+	X = buildOntologicalDataset(features)
 
 	if max_depth == -1
 		max_depth = typemax(Int)
 	end
 	if n_subfeatures == 0
-		n_subfeatures = size(features, 2)
+		n_subfeatures = n_variables(X)
 	end
 
 	rng = mk_rng(rng)::Random.AbstractRNG
 	t = treeclassifier.fit(
-		X                   = features,
+		X                   = X,
 		Y                   = labels,
 		W                   = nothing,
 		loss                = loss,
@@ -80,6 +97,7 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 		return tree
 	end
 	# Prune the tree once
+	# TODO check how the modal pruning should be performed
 	function _prune_run(tree::DTNode{S, T}) where {S, T}
 		N = length(tree)
 		if N == 1        ## a DTLeaf
@@ -95,7 +113,7 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 				return tree
 			end
 		else
-			return DTInternal{S, T}(tree.featid, tree.featval, tree.testsign, tree.modality
+			return DTInternal{S, T}(tree.featid, tree.featval, tree.testsign, tree.modality,
 						_prune_run(tree.left, purity_thresh),
 						_prune_run(tree.right, purity_thresh))
 		end
@@ -110,11 +128,15 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 	return pruned
 end
 
+#=
 
-apply_tree(leaf::DTLeaf{T}, feature::AbstractVector{S}) where {S, T} = leaf.majority
+TODO
 
-function apply_tree(tree::DTInternal{S, T}, features::AbstractVector{S}) where {S, T}
-	# TODO: use tree.modality
+apply_tree(leaf::DTLeaf{T}, X::OntologicalDataset{S,N}, S::AbstractSet{AbstractWorld}) where {S, T, N} = leaf.majority
+
+function apply_tree(tree::DTInternal{S, T}, X::OntologicalDataset{S,N}, S::AbstractSet{AbstractWorld}) where {S, T, N}
+	# TODO: complete, use tree.modality and S...
+
 	return (if tree.featid == 0
 		apply_tree(tree.left, features)
 	elseif eval(Expr(:call, tree.testsign, features[tree.featid], tree.featval))
@@ -124,11 +146,16 @@ function apply_tree(tree::DTInternal{S, T}, features::AbstractVector{S}) where {
 	end)
 end
 
-function apply_tree(tree::DTNode{S, T}, features::AbstractMatrix{S}) where {S, T}
-	N = size(features,1)
+# Apply tree to a dimensional dataset in matricial form
+function apply_tree(tree::DTNode{S, T}, features::AbstractArray{S,N}) where {S, T, N}
+	X = buildOntologicalDataset(features)
+	N = n_samples(X)
+	# n_variables(X)
 	predictions = Array{T,1}(undef, N)
 	for i in 1:N
-		predictions[i] = apply_tree(tree, features[i, :])
+		# TODO figure out: is it better to interpret the whole dataset at once, or instance-by-instance? The first one enables reusing training code
+		S = Set([X.ontology.worldType(-1, 0)])
+		predictions[i] = apply_tree(tree, X, S)
 	end
 	return (if T <: Float64
 			Float64.(predictions)
@@ -137,6 +164,7 @@ function apply_tree(tree::DTNode{S, T}, features::AbstractMatrix{S}) where {S, T
 		end)
 end
 
+=#
 #=
 TODO
 

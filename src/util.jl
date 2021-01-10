@@ -75,7 +75,7 @@ module util
 	end
 
 	# adapted from the Julia Base.Sort Library
-	@inline function partition!(v::AbstractVector, w::AbstractVector{T}, pivot::T, region::AbstractVector{Integer}) :: T
+	@inline function partition!(v::AbstractVector, w::AbstractVector{T}, pivot::T, region::Union{AbstractVector{<:Integer},UnitRange{<:Integer}}) where T
 		i, j = 1, length(region)
 		r_start = region.start - 1
 		@inbounds while true
@@ -88,7 +88,7 @@ module util
 			w[i], w[j] = w[j], w[i]
 			i += 1; j -= 1
 		end
-		return j
+		return j::T
 	end
 
 	# adapted from the Julia Base.Sort Library
