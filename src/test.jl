@@ -57,17 +57,17 @@ old_logger = global_logger(logger)
 
 # include("DecisionTree.jl/src/DecisionTree.jl")
 # using OhMyREPL
-using BenchmarkTools
-using DecisionTree.treeclassifier
-using DecisionTree.util
 import Random
+using BenchmarkTools
+using DecisionTree
 using DecisionTree.ModalLogic
 
-@btime T = treeclassifier.fit(
+# @btime
+T = DecisionTree.treeclassifier.fit(
 	X = OntologicalDataset{Int,1}(IntervalAlgebra,Xdom),
 	Y = Y,
 	W = nothing,
-	loss = util.entropy,
+	loss = DecisionTree.util.entropy,
 	max_features = 1,
 	max_depth = 2,
 	min_samples_leaf = 1,
