@@ -8,7 +8,6 @@ module treeclassifier
 	
 	export fit
 
-	using InteractiveUtils # TODO this is only needed for subtypes, but that will go away once we start using constants instead of types
 	include("../util.jl")
 	using ..ModalLogic
 	using ComputedFieldTypes
@@ -31,7 +30,7 @@ module treeclassifier
 		l           :: NodeMeta{S}      # left child
 		r           :: NodeMeta{S}      # right child
 		# purity      :: U              # purity grade attained if this is a split
-		modality    :: Type{<:AbstractRelation}             # TODO must be a constant, not a type modal operator (e.g. RelationEQ for the propositional case)
+		modality    :: R where R<:AbstractRelation # modal operator (e.g. RelationEQ for the propositional case)
 		feature     :: Int              # feature used for splitting
 		testsign    :: Symbol           # testsign (e.g. <=)
 		threshold   :: S                # threshold value
@@ -156,7 +155,7 @@ module treeclassifier
 		if firstIteration == true
 			relations = [ModalLogic.RelationAll]
 		else
-			relations = [ModalLogic.RelationEq, subtypes(X.ontology.relationType)...]
+			relations = [ModalLogic.RelationEq, (X.ontology.relationSet)...]
 		end
 		# Optimization tracking variables
 		best_purity = typemin(U)

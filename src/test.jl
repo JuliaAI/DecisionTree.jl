@@ -2,6 +2,7 @@ julia
 
 using Pkg
 
+using Revise
 Pkg.activate("DecisionTree.jl")
 
 # using StaticArrays
@@ -25,7 +26,7 @@ Pkg.activate("DecisionTree.jl")
 # end
 
 
-# using Revise
+using Revise
 # using BenchmarkTools
 
 a = 3

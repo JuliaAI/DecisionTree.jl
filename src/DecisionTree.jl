@@ -38,7 +38,7 @@ struct DTInternal{S<:Real, T}
 	featval  :: featType where featType<:S
 	testsign :: Symbol
 	# string representing an existential modality (e.g. ♢, L, LL)
-	modality :: Type{<:AbstractRelation}
+	modality :: R where R<:AbstractRelation
 
 	# Child nodes
 	left     :: Union{DTLeaf{T}, DTInternal{S, T}}
@@ -52,7 +52,7 @@ const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
 
-is_modal_node(n::DTInternal) = !is_leaf(n) && n.modality == ModalLogic.RelationEq
+is_modal_node(n::DTInternal) = !is_leaf(n) && n.modality != ModalLogic.RelationEq
 
 zero(String) = ""
 convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(0, zero(S), lf, DTLeaf(zero(T), [zero(T)]))
