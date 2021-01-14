@@ -69,6 +69,11 @@ n_samples(X::OntologicalDataset{T,N}) where {T,N} = size(X, 1)
 n_variables(X::OntologicalDataset{T,N}) where {T,N} = size(X, 2)
 dimension(X::OntologicalDataset{T,N}) where {T,N} = size(X, 1)-2
 
+@inline getslice(Xf::AbstractArray{T, 1}, idx::Integer) where T = Xf[idx] # TODO: the adimensional case return a value of type T, instead of an array. Mh, fix? Or we could say we don't handl the adimensional case
+@inline getslice(Xf::AbstractArray{T, 2}, idx::Integer) where T = Xf[idx,:]
+@inline getslice(Xf::AbstractArray{T, 3}, idx::Integer) where T = Xf[idx,:,:]
+# TODO use Xf[i,[: for i in N]...]
+
 @inline getfeature(X::OntologicalDataset{T,0}, idx::Integer, feature::Integer) where T = X.domain[idx, feature]::T
 @inline getfeature(X::OntologicalDataset{T,1}, idx::Integer, feature::Integer) where T = X.domain[idx, feature, :]::AbstractArray{T,1}
 @inline getfeature(X::OntologicalDataset{T,2}, idx::Integer, feature::Integer) where T = X.domain[idx, feature, :, :]::AbstractArray{T,2}
@@ -126,11 +131,53 @@ y(w::Interval) = w.y
 @inline WMin(w::Interval, X::AbstractArray{T,1}) where {T} = minimum(readWorld(w,X))
 @inline WLeq(w::Interval, X::AbstractArray{T,1}, val::Number) where T = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,X)  .<= val)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
-	@info "WLeq" w X val readWorld(w,X)
+	@info "WLeq" w val readWorld(w,X)
 	@inbounds for x in readWorld(w,X)
       x <= val || return false
   end
   return true
+end
+
+# TODO check that this dispatches on fastMode
+modalStep(S::AbstractSet{W}, Xfi::AbstractArray{U,N}, relation::R where R<:AbstractRelation, threshold::U, fastMode::Val{V} where V) where {U, N, W<:AbstractWorld} = begin
+	@info " modalStep"
+	satisfied = false
+	worlds = enumAcc(S, relation, Xfi)
+	if length(collect(Iterators.take(worlds, 1))) > 0
+		# TODO maybe it's better to use an array and then create a set with = Set(worlds)
+		if fastMode == Val(false)
+			new_worlds = Set{W}()
+		end
+		for w in worlds # Sf[i]
+			# @info " world" w
+			if ModalLogic.WLeq(w, Xfi, threshold) # WLeq is <= TODO expand on testsign
+				satisfied = true
+				if fastMode == Val(false)
+					push!(new_worlds, w)
+				elseif fastMode == Val(true)
+					@info "   Found w: " w ModalLogic.readWorld(w,Xfi)
+					break
+				end
+			end
+		end
+		if fastMode == Val(false)
+			if satisfied == true
+				S = new_worlds
+			else 
+				# If none of the neighboring worlds satisfies the propositional condition, then 
+				#  the new set is left unchanged
+			end
+		end
+	else
+		@info "   No world found"
+		# If there are no neighboring worlds, then the modal condition is not met
+	end
+	if satisfied
+		@info "   YES"
+	else
+		@info "   NO" 
+	end
+	return (satisfied,S)
 end
 
 # 6+6 Interval relations

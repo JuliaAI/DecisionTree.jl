@@ -128,34 +128,45 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 	return pruned
 end
 
-#=
 
-TODO
+apply_tree(leaf::DTLeaf{T}, Xi::AbstractArray{U,N}, S::AbstractSet{<:AbstractWorld}) where {U, T, N} = leaf.majority
 
-apply_tree(leaf::DTLeaf{T}, X::OntologicalDataset{S,N}, S::AbstractSet{AbstractWorld}) where {S, T, N} = leaf.majority
-
-function apply_tree(tree::DTInternal{S, T}, X::OntologicalDataset{S,N}, S::AbstractSet{AbstractWorld}) where {S, T, N}
-	# TODO: complete, use tree.modality and S...
-
-	return (if tree.featid == 0
-		apply_tree(tree.left, features)
-	elseif eval(Expr(:call, tree.testsign, features[tree.featid], tree.featval))
-		apply_tree(tree.left, features)
-	else
-		apply_tree(tree.right, features)
-	end)
+function apply_tree(tree::DTInternal{U, T}, Xi::AbstractArray{U,N}, S::AbstractSet{<:AbstractWorld}) where {U, T, N}
+	return (
+		if tree.featid == 0
+			@error " found featid == 0, TODO figure out where does this come from" tree
+			# apply_tree(tree.left, X, S)
+		# elseif tree.modality == ModalLogic.RelationEq # TODO actually, no need for this edge case, because enum would return S anyway
+		else
+			@info "applying branch..."
+			satisfied = true
+			Xfi = ModalLogic.getslice(Xi, tree.featid)
+			@info " S" S
+			(satisfied,S) = ModalLogic.modalStep(S, Xfi, tree.modality, tree.featval, Val(false))
+			@info " ->S'" S
+			if satisfied
+				apply_tree(tree.left, Xi, S)
+			else
+				apply_tree(tree.right, Xi, S)
+			end
+		end
+	)
 end
 
 # Apply tree to a dimensional dataset in matricial form
-function apply_tree(tree::DTNode{S, T}, features::AbstractArray{S,N}) where {S, T, N}
+function apply_tree(tree::DTNode{U, T}, features::AbstractArray{U,N}) where {U, T, N}
+	@info "apply_tree..."
+	# TODO don't create an ontological dataset, there is no need
 	X = buildOntologicalDataset(features)
-	N = n_samples(X)
+	n_samp = n_samples(X)
 	# n_variables(X)
-	predictions = Array{T,1}(undef, N)
-	for i in 1:N
+	predictions = Array{T,1}(undef, n_samp)
+	for i in 1:n_samp
+		@info " instance {$i}/{$n_samp}"
 		# TODO figure out: is it better to interpret the whole dataset at once, or instance-by-instance? The first one enables reusing training code
+		# attach to the tree the worldType, and use that
 		S = Set([X.ontology.worldType(-1, 0)])
-		predictions[i] = apply_tree(tree, X, S)
+		predictions[i] = apply_tree(tree, ModalLogic.getslice(X.domain, i), S)
 	end
 	return (if T <: Float64
 			Float64.(predictions)
@@ -164,7 +175,6 @@ function apply_tree(tree::DTNode{S, T}, features::AbstractArray{S,N}) where {S, 
 		end)
 end
 
-=#
 #=
 TODO
 

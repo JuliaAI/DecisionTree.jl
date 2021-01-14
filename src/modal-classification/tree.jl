@@ -74,11 +74,6 @@ module treeclassifier
 	end
 	# TODO use Xf[i,[: for i in N]...]
 
-	@inline getslice(Xf::AbstractArray{T, 1}, idx::Integer) where T = Xf[idx] # TODO: the adimensional case return a value of type T, instead of an array. Mh, fix? Or we could say we don't handl the adimensional case
-	@inline getslice(Xf::AbstractArray{T, 2}, idx::Integer) where T = Xf[idx,:]
-	@inline getslice(Xf::AbstractArray{T, 3}, idx::Integer) where T = Xf[idx,:,:]
-	# TODO use Xf[i,[: for i in N]...]
-
 	# find an optimal split satisfying the given constraints
 	# (max_depth, min_samples_split, min_purity_increase)
 	# TODO dispatch _split! on the learning parameters?
@@ -206,7 +201,7 @@ module treeclassifier
 				maxPeaks = fill(typemin(T), n_samples)
 				minPeaks = fill(typemax(T), n_samples)
 				for i in 1:n_samples
-					Xfi = getslice(Xf, i)
+					Xfi = ModalLogic.getslice(Xf, i)
 					@info " instance {$i}/{$n_samples}" # Xfi
 					# TODO this findmin/findmax can be made more efficient for intervals.
 					for w in enumAcc(S[indX[i + r_start]], relation, Xfi) # Sf[i]
@@ -237,32 +232,15 @@ module treeclassifier
 						if maxPeaks[i] <= threshold
 							# This is definitely a nl (Sf[i] makes a modal step)
 							@info "   YES!!!"
+							satisfied = true
 						elseif minPeaks[i] > threshold
 							# This is definitely a nr (Sf[i] stays the same)
 							@info "   NO!!!"
 							satisfied = false
 						else
-							Xfi = getslice(Xf, i)
 							@info "   must manually check worlds." # Xfi
-							worlds = enumAcc(S[indX[i + r_start]], relation, Xfi)
-							# The check makes sure that the existence of a world prevents a from being vacuously true
-							if length(collect(Iterators.take(worlds, 1))) > 0
-								satisfied = false
-								for w in worlds # Sf[i]
-									if ModalLogic.WLeq(w, Xfi, threshold) # WLeq is <=
-										# @info "   Found w: " w ModalLogic.readWorld(w,Xfi)
-										satisfied = true
-										break
-									end
-								end
-							else
-								@info "   No world found"
-							end
-							if satisfied
-								@info "   YES"
-							else
-								@info "   NO"
-							end
+							Xfi = ModalLogic.getslice(Xf, i)
+							(satisfied,_) = ModalLogic.modalStep(S[indX[i + r_start]], Xfi, relation, threshold, Val(true))
 						end
 						if !satisfied
 							nr += Wf[i]
@@ -336,44 +314,26 @@ module treeclassifier
 				setfeature!(i, Xf, X, indX[i + r_start], best_feature)
 			end
 			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_samples
-			satisfied_flags = fill(1, n_samples)
+			unsatisfied_flags = fill(1, n_samples)
 			for i in 1:n_samples
 				@info " instance {$i}/{$n_samples}"
-				satisfied = true
-				Xfi = getslice(Xf, i)
-				worlds = enumAcc(S[indX[i + r_start]], best_relation, Xfi)
-				if length(collect(Iterators.take(worlds, 1))) > 0
-					satisfied = false
-					# TODO maybe it's better to use an array and then create a set with = Set(worlds)
-					new_worlds = Set{X.ontology.worldType}()
-					for w in worlds # Sf[i]
-						if ModalLogic.WLeq(w, Xfi, best_threshold) # WLeq is <= TODO expand on testsign
-							satisfied = true
-							push!(new_worlds, w)
-						end
-					end
-					S[indX[i + r_start]] = new_worlds
-				end
-				if satisfied
-					@info "   YES"
-				else
-					@info "   NO" 
-				end
-				satisfied_flags[i] = Bool(satisfied)
+				Xfi = ModalLogic.getslice(Xf, i)
+				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(S[indX[i + r_start]], Xfi, best_relation, best_threshold, Val(false))
+				unsatisfied_flags[i] = !satisfied
 			end
 
 			@info "pre-partition" indX
-			node.split_at = util.partition!(indX, satisfied_flags, 0, region)
+			node.split_at = util.partition!(indX, unsatisfied_flags, 0, region)
 			@info "post-partition" indX node.split_at
 
 			# For debug:
 			# indX = rand(1:10, 10)
-			# satisfied_flags = rand([1,0], 10)
-			# partition!(indX, satisfied_flags, 0, 1:10)
+			# unsatisfied_flags = rand([1,0], 10)
+			# partition!(indX, unsatisfied_flags, 0, 1:10)
 			
 			# Sort [Xf, Yf, Wf, Sf and indX] by Xf
-			# util.q_bi_sort!(satisfied_flags, indX, 1, n_samples, r_start)
-			# node.split_at = searchsortedfirst(satisfied_flags, true)
+			# util.q_bi_sort!(unsatisfied_flags, indX, 1, n_samples, r_start)
+			# node.split_at = searchsortedfirst(unsatisfied_flags, true)
 			# TODO... node.split_at = util.partition!(indX, Xf, node.threshold, region)
 			# TODO Sort indX[region], similarly to util.q_bi_sort!(Xf, indX, 1, n_samples, r_start)
 			
@@ -452,7 +412,9 @@ module treeclassifier
 		# Should belong inside each meta-node and then be copied? That's a waste of space(for each instance),
 		# We only need the worlds for the currentinstance set.
 		# What if it's not fixed size? Maybe it should be like the subset of indX[region], so that indX[region.start] is parallel to node.S[1]
-		# TODO make the initial entity and initial modality a training parameter. Probably, the first modality (modal_depth=0) should be Exist... (= All worlds). Create the allWorlds enumerator
+		# TODO make the initial entity and initial modality a training parameter?
+		#  But then you have to know that at test time as well... So it must be part of the tree in some way
+		#  TODO Maybe it's enough to just create a default constructor for any world type.
 		S = [Set([X.ontology.worldType(-1, 0)]) for i in 1:n_instances]
 
 		# Array memory for dataset

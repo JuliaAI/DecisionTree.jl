@@ -2,40 +2,15 @@ julia
 
 using Pkg
 
-using Revise
 Pkg.activate("DecisionTree.jl")
-
-# using StaticArrays
-# X = ModalLogic.OntologicalDataset{Int64,0}(ModalLogic.IntervalAlgebra,Array{Int64,2}(undef, 20, 10))
-# X = ModalLogic.OntologicalDataset{Float32,0}(ModalLogic.IntervalAlgebra,rand(Float32, 20, 10))
-
-# TODO generate simple dataset with 0s and 1s, two classes and try different starting entity. Indeed, we can parametrize, the initial entity.
-
-# Xdom = Array{Int,3}(undef, 10, 1, 3)
-# Y = []
-# for i in 1:10
-# 	instance = fill(0, 3)
-# 	y = rand(0:1)
-# 	if y == 0
-# 		instance[3] += 1
-# 	else
-# 		instance[1] += 1
-# 	end
-# 	Xdom[i,1,:] .= instance
-# 	push!(Y,y)
-# end
-
-
 using Revise
-# using BenchmarkTools
 
-a = 3
-x = 5
-N = 15
+n_samp = 50
+N = 3
 
-AllXdom = Array{Int,3}(undef, N, 1, 3);
-AllY = Array{Int,1}(undef, N);
-for i in 1:N
+X = Array{Int,3}(undef, n_samp, 1, N);
+Y = Array{Int,1}(undef, n_samp);
+for i in 1:n_samp
 	instance = fill(2, 3)
 	y = rand(0:1)
 	if y == 0
@@ -43,37 +18,29 @@ for i in 1:N
 	else
 		instance[3] = 2
 	end
-	AllXdom[i,1,:] .= instance
-	AllY[i] = y
+	X[i,1,:] .= instance
+ Y[i] = y
 end
 
-AllXdom[1,1,:]
-
-spl = floor(Int, N*.8)
-Xdom = AllXdom[1:spl,:,:]
-Y    = AllY[1:spl]
-Xdom_test = AllXdom[spl+1:end,:,:]
-Y_test    = AllY[spl+1:end]
+spl = floor(Int, n_samp*.8)
+X_train = X[1:spl,:,:]
+Y_train = Y[1:spl]
+X_test  = X[spl+1:end,:,:]
+Y_test  = Y[spl+1:end]
 
 using Logging
-logger = SimpleLogger(stdout, Logging.Debug)
-old_logger = global_logger(logger)
 
-# include("DecisionTree.jl/src/DecisionTree.jl")
-# using OhMyREPL
 import Random
 using BenchmarkTools
 using DecisionTree
 using DecisionTree.ModalLogic
 
 global_logger(ConsoleLogger(stderr, Logging.Warn))
-
-@btime T2 = DecisionTree.build_tree(Y,Xdom) # 132.899 μs (1687 allocations: 96.00 KiB)
-
+# global_logger(ConsoleLogger(stderr, Logging.Info))
 
 # @btime T = DecisionTree.treeclassifier.fit(
-# 	X = OntologicalDataset{Int,1}(IntervalAlgebra,Xdom),
-# 	Y = Y,
+# 	X = OntologicalDataset{Int,1}(IntervalAlgebra,X_train),
+# 	Y = Y_train,
 # 	W = nothing,
 # 	loss = DecisionTree.util.entropy,
 # 	max_features = 1,
@@ -85,7 +52,13 @@ global_logger(ConsoleLogger(stderr, Logging.Warn))
 # T2 = DecisionTree._convert(T.root, T.list, Y[T.labels])
 # DecisionTree.print_tree(T2)
 
-# T = DecisionTree.build_tree(Y,Xdom)
-# DecisionTree.print_tree(T)
-# TODO
-# apply_tree(Xdom_test, Y_test
+# @btime
+T2 = build_tree(Y_train, X_train) # 122.872 μs (1472 allocations: 85.31 KiB)
+
+preds = apply_tree(T2, X_test)
+
+if Y_test == preds
+	print("Yeah!")
+else
+	@error "Predictions don't match expected values" Y_test preds
+end
