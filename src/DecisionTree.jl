@@ -126,7 +126,7 @@ end
 function show(io::IO, tree::DTInternal)
 		println(io, "Decision Tree")
 		println(io, "Leaves: $(length(tree))")
-		print(io,   "Height:  $(height(tree))")
+		println(io, "Height: $(height(tree))")
 		print(io,   "Modal height:  $(modalHeight(tree))")
 end
 

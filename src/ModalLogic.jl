@@ -124,7 +124,7 @@ y(w::Interval) = w.y
 @inline readWorld(w::Interval, X::AbstractArray{T,1}) where {T} = X[w.x:w.y-1]
 @inline WMax(w::Interval, X::AbstractArray{T,1}) where {T} = maximum(readWorld(w,X))
 @inline WMin(w::Interval, X::AbstractArray{T,1}) where {T} = minimum(readWorld(w,X))
-@inline WLeq(w::Interval, X::AbstractArray{T,1}, val::Number) where T = begin # TODO maybe this becomes SIMD, or all(readWorld(w,X) .<= val)
+@inline WLeq(w::Interval, X::AbstractArray{T,1}, val::Number) where T = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,X)  .<= val)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	@info "WLeq" w X val readWorld(w,X)
 	@inbounds for x in readWorld(w,X)

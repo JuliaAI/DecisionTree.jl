@@ -1,7 +1,10 @@
+julia
+
+using Pkg
+
+Pkg.activate("DecisionTree.jl")
 
 # using StaticArrays
-# include("DecisionTree.jl/src/ModalLogic.jl")
-# include("DecisionTree.jl/src/modal-classification/tree.jl")
 # X = ModalLogic.OntologicalDataset{Int64,0}(ModalLogic.IntervalAlgebra,Array{Int64,2}(undef, 20, 10))
 # X = ModalLogic.OntologicalDataset{Float32,0}(ModalLogic.IntervalAlgebra,rand(Float32, 20, 10))
 
