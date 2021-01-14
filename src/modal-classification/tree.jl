@@ -75,21 +75,18 @@ module treeclassifier
 	# TODO use Xf[i,[: for i in N]...]
 
 	# find an optimal split satisfying the given constraints
-	# (max_depth, min_samples_split, min_purity_increase)
-	# TODO dispatch _split! on the learning parameters?
-	# TODO M=N-1, so this should be @computed X                   :: OntologicalDataset{T, N}, # ... Xf                  :: AbstractArray{T, N-1},
+	# (max_depth, min_samples_leaf, min_purity_increase)
 	function _split!(
 							X                   :: OntologicalDataset{T, N}, # the ontological dataset
 							Y                   :: AbstractVector{Label},    # the label array
 							W                   :: AbstractVector{U},        # the weight vector
-							S                   :: AbstractVector{<:AbstractSet{<:AbstractWorld}}, # the vector of current worlds (TODO AbstractVector{AbstractSet{AbstractWorld}}, TODO AbstractVector{AbstractSet{X.ontology.worldType}})
+							S                   :: AbstractVector{<:AbstractSet{<:AbstractWorld}}, # the vector of current worlds (TODO AbstractVector{<:AbstractSet{X.ontology.worldType}})
 							
 							purity_function     :: Function,
 							node                :: NodeMeta{T},              # the node to split
 							max_features        :: Int,                      # number of features to consider
 							max_depth           :: Int,                      # the maximum depth of the resultant tree
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
-							min_samples_split   :: Int,                      # the minimum number of samples in needed for a split
 							min_purity_increase :: AbstractFloat,            # minimum purity needed for a split
 							
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
@@ -123,9 +120,7 @@ module treeclassifier
 		node.label = argmax(nc) # Assign the most likely label before the split
 
 		# Check leaf conditions
-		# TODO min_samples_split and min_samples_leaf merge into a single parameter?
 		if (min_samples_leaf * 2 >  n_samples
-		 || min_samples_split    >  n_samples
 		 || max_depth            <= node.depth
 		 || nc[node.label]       == nt)
 			node.is_leaf = true
@@ -362,7 +357,6 @@ module treeclassifier
 			max_features        :: Int,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
-			min_samples_split   :: Int,
 			min_purity_increase :: AbstractFloat) where {T, U, N}
 			n_instances, n_features = n_samples(X), n_variables(X)
 		if length(Y) != n_instances
@@ -380,9 +374,6 @@ module treeclassifier
 		elseif min_samples_leaf < 1
 			throw("min_samples_leaf must be a positive integer "
 				* "(given $(min_samples_leaf))")
-		elseif min_samples_split < 2
-			throw("min_samples_split must be at least 2 "
-				* "(given $(min_samples_split))")
 		end
 	end
 
@@ -395,7 +386,6 @@ module treeclassifier
 			max_features            :: Int,
 			max_depth               :: Int,
 			min_samples_leaf        :: Int,
-			min_samples_split       :: Int,
 			min_purity_increase     :: AbstractFloat,
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
@@ -441,7 +431,6 @@ module treeclassifier
 				max_features,
 				max_depth,
 				min_samples_leaf,
-				min_samples_split,
 				min_purity_increase,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, # Sf, 
@@ -482,6 +471,9 @@ module treeclassifier
 		# Translate labels to categorical form
 		labels, Y_ = util.assign(Y)
 
+		min_samples_leaf = min(min_samples_leaf, round(Int, min_samples_split/2))
+		
+
 		# Use unary weights if no weight is supplied
 		if W == nothing
 			# TODO optimize w in the case of all-ones: write a subtype of AbstractVector:
@@ -496,7 +488,6 @@ module treeclassifier
 			max_features,
 			max_depth,
 			min_samples_leaf,
-			min_samples_split,
 			min_purity_increase)
 
 
@@ -508,7 +499,6 @@ module treeclassifier
 			max_features,
 			max_depth,
 			min_samples_leaf,
-			min_samples_split,
 			min_purity_increase,
 			rng)
 

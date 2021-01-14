@@ -1,9 +1,8 @@
 julia
 
-using Pkg
-
-Pkg.activate("DecisionTree.jl")
 using Revise
+using Pkg
+Pkg.activate("DecisionTree.jl")
 
 n_samp = 50
 N = 3
