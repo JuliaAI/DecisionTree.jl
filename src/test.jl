@@ -33,8 +33,8 @@ a = 3
 x = 5
 N = 15
 
-AllXdom = Array{Int,3}(undef, N, 1, 3)
-AllY = Array{Int,1}(undef, N)
+AllXdom = Array{Int,3}(undef, N, 1, 3);
+AllY = Array{Int,1}(undef, N);
 for i in 1:N
 	instance = fill(2, 3)
 	y = rand(0:1)
@@ -66,21 +66,24 @@ using BenchmarkTools
 using DecisionTree
 using DecisionTree.ModalLogic
 
-# @btime
-T = DecisionTree.treeclassifier.fit(
-	X = OntologicalDataset{Int,1}(IntervalAlgebra,Xdom),
-	Y = Y,
-	W = nothing,
-	loss = DecisionTree.util.entropy,
-	max_features = 1,
-	max_depth = 2,
-	min_samples_leaf = 1,
-	min_samples_split = 2,
-	min_purity_increase = 0.0,
-	rng = Random.GLOBAL_RNG)
+global_logger(ConsoleLogger(stderr, Logging.Warn))
 
-T2 = DecisionTree._convert(T.root, T.list, Y[T.labels])
-DecisionTree.print_tree(T2)
+@btime T2 = DecisionTree.build_tree(Y,Xdom) # 132.899 μs (1687 allocations: 96.00 KiB)
+
+
+# @btime T = DecisionTree.treeclassifier.fit(
+# 	X = OntologicalDataset{Int,1}(IntervalAlgebra,Xdom),
+# 	Y = Y,
+# 	W = nothing,
+# 	loss = DecisionTree.util.entropy,
+# 	max_features = 1,
+# 	max_depth = 2,
+# 	min_samples_leaf = 1,
+# 	min_samples_split = 2,
+# 	min_purity_increase = 0.0,
+# 	rng = Random.GLOBAL_RNG)
+# T2 = DecisionTree._convert(T.root, T.list, Y[T.labels])
+# DecisionTree.print_tree(T2)
 
 # T = DecisionTree.build_tree(Y,Xdom)
 # DecisionTree.print_tree(T)

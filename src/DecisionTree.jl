@@ -120,14 +120,16 @@ end
 function show(io::IO, leaf::DTLeaf)
 		println(io, "Decision Leaf")
 		println(io, "Majority: $(leaf.majority)")
-		print(io,   "Samples:  $(length(leaf.values))")
+		println(io,   "Samples:  $(length(leaf.values))")
+		print_tree(leaf)
 end
 
 function show(io::IO, tree::DTInternal)
 		println(io, "Decision Tree")
 		println(io, "Leaves: $(length(tree))")
 		println(io, "Height: $(height(tree))")
-		print(io,   "Modal height:  $(modalHeight(tree))")
+		println(io,   "Modal height:  $(modalHeight(tree))")
+		print_tree(tree)
 end
 
 end # module
