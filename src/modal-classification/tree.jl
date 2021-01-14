@@ -35,13 +35,11 @@ module treeclassifier
 		testsign    :: Symbol           # testsign (e.g. <=)
 		threshold   :: S                # threshold value
 		function NodeMeta{S}(
-				features    :: Vector{Int},
 				region      :: UnitRange{Int},
 				depth       :: Int,
 				modal_depth :: Int
 				) where S<:Real
 			node = new{S}()
-			node.features = features
 			node.region = region
 			node.depth = depth
 			node.modal_depth = modal_depth
@@ -76,6 +74,7 @@ module treeclassifier
 
 	# find an optimal split satisfying the given constraints
 	# (max_depth, min_samples_leaf, min_purity_increase)
+	# TODO not using max_features, rng (which is still useful e.g. rand(rng, 1:10)) anymore
 	function _split!(
 							X                   :: OntologicalDataset{T, N}, # the ontological dataset
 							Y                   :: AbstractVector{Label},    # the label array
@@ -134,9 +133,8 @@ module treeclassifier
 			# Sf[i] = S[indX[i + r_start]]
 		end
 
-		# Feature ids and number of features
-		features = node.features
-		n_features = length(features)
+		# Number of features
+		n_features = n_variables(X)
 
 		# Binary relations (= unary modal operators)
 		# Note: the equality operator is the first, and is the one representing
@@ -158,28 +156,12 @@ module treeclassifier
 
 		# true if every feature is constant
 		unsplittable = true
-		# the number of non constant features we will see if
-		# only sample n_features used features
-		# is a hypergeometric random variable
-		# this is the total number of features that we expect to not
-		# be one of the known constant features. since we know exactly
-		# what the non constant features are, we can sample at 'non_consts_used'
-		# non constant features instead of going through every feature randomly.
-		non_consts_used = util.hypergeometric(n_features, n_variables(X)-n_features, max_features, rng)
-
-		# Find best split (TODO for now, we only handle numerical features)
 		
+		# Find best split
 		# For each feature/variable/channel
-		indf = 1
-		@inbounds while (unsplittable || indf <= non_consts_used) && indf <= n_features
-			feature = let
-				indr = rand(rng, indf:n_features)
-				features[indf], features[indr] = features[indr], features[indf]
-				f = features[indf]
-				indf += 1
-				f
-			end
-
+		feature = 1
+		@inbounds while unsplittable && feature <= n_features
+			
 			# Gather all values needed for the current feature
 			@simd for i in 1:n_samples
 				# TODO make this a view? featureview?
@@ -276,6 +258,7 @@ module treeclassifier
 					end
 				end # for threshold
 			end # for relation
+			feature += 1
 		end # while feature
 
 		# If the split is good, partition and split according to the optimum
@@ -314,7 +297,7 @@ module treeclassifier
 				@info " instance {$i}/{$n_samples}"
 				Xfi = ModalLogic.getslice(Xf, i)
 				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(S[indX[i + r_start]], Xfi, best_relation, best_threshold, Val(false))
-				unsatisfied_flags[i] = !satisfied
+				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 
 			@info "pre-partition" indX
@@ -329,12 +312,6 @@ module treeclassifier
 			# Sort [Xf, Yf, Wf, Sf and indX] by Xf
 			# util.q_bi_sort!(unsatisfied_flags, indX, 1, n_samples, r_start)
 			# node.split_at = searchsortedfirst(unsatisfied_flags, true)
-			# TODO... node.split_at = util.partition!(indX, Xf, node.threshold, region)
-			# TODO Sort indX[region], similarly to util.q_bi_sort!(Xf, indX, 1, n_samples, r_start)
-			
-			# TODO no need for a full array for each node, in the dimensional case? 
-			# if so, then the non-const thing doesn't make sense!
-			node.features = features[1:n_features]
 		end
 	end
 	# Split node at a previously-set node.split_at value.
@@ -342,12 +319,11 @@ module treeclassifier
 	@inline function fork!(node::NodeMeta{S}) where S
 		ind = node.split_at
 		region = node.region
-		features = node.features
 		depth = node.depth+1
 		mdepth = (node.modality == ModalLogic.RelationNone ? node.modal_depth : node.modal_depth+1)
 		# no need to copy because we will copy at the end
-		node.l = NodeMeta{S}(features, region[    1:ind], depth, mdepth)
-		node.r = NodeMeta{S}(features, region[ind+1:end], depth, mdepth)
+		node.l = NodeMeta{S}(region[    1:ind], depth, mdepth)
+		node.r = NodeMeta{S}(region[ind+1:end], depth, mdepth)
 	end
 
 	function check_input(
@@ -390,7 +366,7 @@ module treeclassifier
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
 		# Dataset sizes
-		n_instances, n_features = n_samples(X), n_variables(X)
+		n_instances = n_samples(X)
 
 		# Array memory for class counts
 		# TODO transform all of these Array{somthing,1} into Vector's (aesthetic changeX)
@@ -417,7 +393,7 @@ module treeclassifier
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)
 		# Create root node
-		root = NodeMeta{T}(collect(1:n_features), 1:n_instances, 0, 0)
+		root = NodeMeta{T}(1:n_instances, 0, 0)
 		# Stack of nodes to process
 		stack = NodeMeta{T}[root]
 		# The first iteration is treated sightly differently
@@ -466,7 +442,7 @@ module treeclassifier
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
-		n_instances, n_features = n_samples(X), n_variables(X)
+		n_instances = n_samples(X)
 
 		# Translate labels to categorical form
 		labels, Y_ = util.assign(Y)

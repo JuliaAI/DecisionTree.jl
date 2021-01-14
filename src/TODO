@@ -1,0 +1,1 @@
+- Also handle categorical features (for now, we only handle numerical features)
