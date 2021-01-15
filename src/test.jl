@@ -14,13 +14,13 @@ using BenchmarkTools
 using DecisionTree
 using DecisionTree.ModalLogic
 
-n_samp = 50
-N = 3
+n_samp = 200
+N = 50
 
 X = Array{Int,3}(undef, N, n_samp, 1);
 Y = Array{Int,1}(undef, n_samp);
 for i in 1:n_samp
-	instance = fill(2, 3)
+	instance = fill(2, N)
 	y = rand(my_rng, 0:1)
 	if y == 0
 		instance[3] = 1
@@ -44,10 +44,9 @@ global_logger(ConsoleLogger(stderr, Logging.Warn))
 # global_logger(ConsoleLogger(stderr, Logging.Info))
 
 # Timings history
-# 484.136 μs (4368 allocations: 256.34 KiB)
-# 517.471 μs (4368 allocations: 256.38 KiB)
-# -- Swap dimensions to (X,Y,Z,...) x n_samples x n_variables --
-# 210.019 μs (4205 allocations: 252.56 KiB)
+# -- Add the use of Sf
+# 133.009 ms (2253001 allocations: 194.44 MiB)
+# Boh, cambia poco. Teniamolo
 @btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng)
 
 T2 = build_tree(Y_train, X_train; rng = my_rng)

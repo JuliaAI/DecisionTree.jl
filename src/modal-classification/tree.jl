@@ -96,7 +96,8 @@ module treeclassifier
 							Xf                  :: MatricialUniDataset{T, M},
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
-							# Sf                  :: AbstractVector{SW},
+							Sf                  :: AbstractVector{<:AbstractSet{<:AbstractWorld}},
+							
 							rng                 :: Random.AbstractRNG,
 							firstIteration      :: Bool) where {T, U, N, M}
 
@@ -127,7 +128,7 @@ module treeclassifier
 		@simd for i in 1:n_samples
 			Yf[i] = Y[indX[i + r_start]]
 			Wf[i] = W[indX[i + r_start]]
-			# Sf[i] = S[indX[i + r_start]]
+			Sf[i] = S[indX[i + r_start]]
 		end
 
 		# Binary relations (= unary modal operators)
@@ -175,7 +176,7 @@ module treeclassifier
 					channel = ModalLogic.getChannel(Xf, i)
 					@info " instance {$i}/{$n_samples}" # channel
 					# TODO this findmin/findmax can be made more efficient for intervals.
-					for w in ModalLogic.enumAcc(S[indX[i + r_start]], relation, channel) # Sf[i]
+					for w in ModalLogic.enumAcc(Sf[i], relation, channel)
 						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, channel))
 						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, channel))
 					end
@@ -211,7 +212,7 @@ module treeclassifier
 						else
 							@info "   must manually check worlds." # channel
 							channel = ModalLogic.getChannel(Xf, i)
-							(satisfied,_) = ModalLogic.modalStep(S[indX[i + r_start]], channel, relation, threshold, Val(true))
+							(satisfied,_) = ModalLogic.modalStep(Sf[i], channel, relation, threshold, Val(true))
 						end
 						if !satisfied
 							nr += Wf[i]
@@ -290,7 +291,7 @@ module treeclassifier
 			for i in 1:n_samples
 				@info " instance {$i}/{$n_samples}"
 				channel = ModalLogic.getChannel(Xf, i)
-				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(S[indX[i + r_start]], channel, best_relation, best_threshold, Val(false))
+				(satisfied,Sf[i]) = ModalLogic.modalStep(Sf[i], channel, best_relation, best_threshold, Val(false))
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 
@@ -382,7 +383,7 @@ module treeclassifier
 		Yf = Vector{Label}(undef, n_instances)
 		Wf = Vector{U}(undef, n_instances)
 		# TODO Maybe it's worth to allocate this vector as well?
-		# Sf = Vector{Set{X.ontology.worldType}}(undef, n_instances)
+		Sf = Vector{Set{X.ontology.worldType}}(undef, n_instances)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)
@@ -403,7 +404,7 @@ module treeclassifier
 				min_samples_leaf,
 				min_purity_increase,
 				indX,
-				nc, ncl, ncr, Xf, Yf, Wf, # Sf, 
+				nc, ncl, ncr, Xf, Yf, Wf, Sf, 
 				rng,
 				firstIteration)
 			firstIteration = false

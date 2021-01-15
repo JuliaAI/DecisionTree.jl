@@ -14,3 +14,23 @@
 		Generic Kripke frame: worlds & relations
 		struct KripkeFrame{T} <: AbstractKripkeFrame{T}
 ☐ Also handle categorical features (for now, we only handle numerical features)
+
+
+
+# Timings history
+# n_samp = 50, N = 3
+# 484.136 μs (4368 allocations: 256.34 KiB)
+# 517.471 μs (4368 allocations: 256.38 KiB)
+# -- Swap dimensions to (X,Y,Z,...) x n_samples x n_variables --
+# 210.019 μs (4205 allocations: 252.56 KiB)
+# -- Add the use of Sf
+# 214.959 μs (4210 allocations: 253.44 KiB)
+# -- Remove the use of Sf
+# n_samp = 100, N = 50
+# 63.539 ms (1126468 allocations: 97.22 MiB)
+# -- Add the use of Sf
+# 63.749 ms (1126469 allocations: 97.22 MiB)
+# n_samp = 200, N = 50
+# 129.573 ms (2253001 allocations: 194.44 MiB)
+# -- Remove the use of Sf
+# 135.053 ms (2253000 allocations: 194.44 MiB)
