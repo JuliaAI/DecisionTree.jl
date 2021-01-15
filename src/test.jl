@@ -17,7 +17,7 @@ using DecisionTree.ModalLogic
 n_samp = 50
 N = 3
 
-X = Array{Int,3}(undef, n_samp, 1, N);
+X = Array{Int,3}(undef, N, n_samp, 1);
 Y = Array{Int,1}(undef, n_samp);
 for i in 1:n_samp
 	instance = fill(2, 3)
@@ -27,14 +27,14 @@ for i in 1:n_samp
 	else
 		instance[3] = 2
 	end
-	X[i,1,:] .= instance
+	X[:,i,1] .= instance
  Y[i] = y
 end
 
 spl = floor(Int, n_samp*.8)
-X_train = X[1:spl,:,:]
+X_train = X[:,1:spl,:]
 Y_train = Y[1:spl]
-X_test  = X[spl+1:end,:,:]
+X_test  = X[:,spl+1:end,:]
 Y_test  = Y[spl+1:end]
 
 
@@ -42,8 +42,11 @@ Y_test  = Y[spl+1:end]
 global_logger(ConsoleLogger(stderr, Logging.Warn))
 # global_logger(ConsoleLogger(stderr, Logging.Info))
 
+# Timings history
 # 484.136 μs (4368 allocations: 256.34 KiB)
 # 517.471 μs (4368 allocations: 256.38 KiB)
+# -- Swap dimensions to (X,Y,Z,...) x n_samples x n_variables --
+# 210.019 μs (4205 allocations: 252.56 KiB)
 @btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng)
 
 T2 = build_tree(Y_train, X_train; rng = my_rng)

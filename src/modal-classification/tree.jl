@@ -56,22 +56,23 @@ module treeclassifier
 	end
 
 	# Xf slices X by across the features dimension. As such, it has one dimension less than X
-	init_Xf(X::OntologicalDataset{T, 0}) where T = Array{T, 1}(undef, n_samples(X), size(X)[3:end]...)
-	init_Xf(X::OntologicalDataset{T, 1}) where T = Array{T, 2}(undef, n_samples(X), size(X)[3:end]...)
-	init_Xf(X::OntologicalDataset{T, 2}) where T = Array{T, 3}(undef, n_samples(X), size(X)[3:end]...)
+	# TODO generalize as init_Xf(X::OntologicalDataset{T, N}) where T = Array{T, N+1}(undef, size(X)[3:end]..., n_samples(X))
+	init_Xf(d::MatricialDataset{T,2}) where T = Array{T, 1}(undef, n_samples(d))::MatricialUniDataset{T, 1}
+	init_Xf(d::MatricialDataset{T,3}) where T = Array{T, 2}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 2}
+	init_Xf(d::MatricialDataset{T,4}) where T = Array{T, 3}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 3}
 
-	@inline setfeature!(i::Integer, Xf::AbstractArray{T, 1}, X::OntologicalDataset{T,0}, idx::Integer, feature::Integer) where T = begin
-		Xf[i] = getfeature(X, idx, feature) # ::T
+	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,1}, d::MatricialDataset{T,2}, idx::Integer, feature::Integer) where T = begin
+		ud[i] = ModalLogic.getFeature(d, idx, feature) # ::T
 	end
-	@inline setfeature!(i::Integer, Xf::AbstractArray{T, 2}, X::OntologicalDataset{T,1}, idx::Integer, feature::Integer) where T = begin
-		Xf[i,:] = getfeature(X, idx, feature) # ::AbstractArray{T,2}
+	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,2}, d::MatricialDataset{T,3}, idx::Integer, feature::Integer) where T = begin
+		ud[:,i] = ModalLogic.getFeature(d, idx, feature) # ::AbstractArray{T,2}
 	end
-	@inline setfeature!(i::Integer, Xf::AbstractArray{T, 3}, X::OntologicalDataset{T,2}, idx::Integer, feature::Integer) where T = begin
-		Xf[i,:,:] = getfeature(X, idx, feature) # ::AbstractArray{T,3}
+	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,3}, d::MatricialDataset{T,4}, idx::Integer, feature::Integer) where T = begin
+		ud[:,:,i] = ModalLogic.getFeature(d, idx, feature) # ::AbstractArray{T,3}
 	end
 	# TODO:
 	# @inline setfeature!(i::Integer, Xf::AbstractArray{T, M}, X::OntologicalDataset{T,N}, idx::Integer, feature::Integer) where {T,N,M} = begin
-		# Xf[i,[(:) for i in 1:N]...] = getfeature(X, idx, feature)
+		# Xf[i,[(:) for i in 1:N]...] = ModalLogic.getFeature(X, idx, feature)
 	# end
 
 	# find an optimal split satisfying the given constraints
@@ -98,7 +99,7 @@ module treeclassifier
 							ncl                 :: AbstractVector{U},   # ncl maintains the counts of labels on the left
 							ncr                 :: AbstractVector{U},   # ncr maintains the counts of labels on the right
 							
-							Xf                  :: AbstractArray{T, M},
+							Xf                  :: MatricialUniDataset{T, M},
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							# Sf                  :: AbstractVector{SW},
@@ -135,9 +136,6 @@ module treeclassifier
 			# Sf[i] = S[indX[i + r_start]]
 		end
 
-		# Number of features
-		n_features = n_variables(X)
-
 		# Binary relations (= unary modal operators)
 		# Note: the equality operator is the first, and is the one representing
 		#  the propositional case.
@@ -153,8 +151,8 @@ module treeclassifier
 		best_feature = -1
 		best_testsign = :(0)
 		best_threshold = T(-1)
-		# threshold_lo = X[1]
-		# threshold_hi = X[1]
+		# threshold_lo = ...
+		# threshold_hi = ...
 
 		# true if every feature is constant
 		unsplittable = true
@@ -162,12 +160,12 @@ module treeclassifier
 		# Find best split
 		# For each feature/variable/channel
 		feature = 1
-		@inbounds while unsplittable && feature <= n_features
+		@inbounds while unsplittable && feature <= n_variables(X)
 			
 			# Gather all values needed for the current feature
 			@simd for i in 1:n_samples
 				# TODO make this a view? featureview?
-				setfeature!(i, Xf, X, indX[i + r_start], feature)
+				setfeature!(i, Xf, X.domain, indX[i + r_start], feature)
 			end
 
 			## Test all conditions
@@ -180,12 +178,12 @@ module treeclassifier
 				maxPeaks = fill(typemin(T), n_samples)
 				minPeaks = fill(typemax(T), n_samples)
 				for i in 1:n_samples
-					Xfi = ModalLogic.getslice(Xf, i)
-					@info " instance {$i}/{$n_samples}" # Xfi
+					channel = ModalLogic.getChannel(Xf, i)
+					@info " instance {$i}/{$n_samples}" # channel
 					# TODO this findmin/findmax can be made more efficient for intervals.
-					for w in ModalLogic.enumAcc(S[indX[i + r_start]], relation, Xfi) # Sf[i]
-						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, Xfi))
-						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, Xfi))
+					for w in ModalLogic.enumAcc(S[indX[i + r_start]], relation, channel) # Sf[i]
+						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, channel))
+						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, channel))
 					end
 					# @info "  maxPeak {$(maxPeaks[i])}"
 					# @info "  minPeak {$(minPeaks[i])}"
@@ -217,9 +215,9 @@ module treeclassifier
 							@info "   NO!!!"
 							satisfied = false
 						else
-							@info "   must manually check worlds." # Xfi
-							Xfi = ModalLogic.getslice(Xf, i)
-							(satisfied,_) = ModalLogic.modalStep(S[indX[i + r_start]], Xfi, relation, threshold, Val(true))
+							@info "   must manually check worlds." # channel
+							channel = ModalLogic.getChannel(Xf, i)
+							(satisfied,_) = ModalLogic.modalStep(S[indX[i + r_start]], channel, relation, threshold, Val(true))
 						end
 						if !satisfied
 							nr += Wf[i]
@@ -291,14 +289,14 @@ module treeclassifier
 
 			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
-				setfeature!(i, Xf, X, indX[i + r_start], best_feature)
+				setfeature!(i, Xf, X.domain, indX[i + r_start], best_feature)
 			end
 			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_samples
 			unsatisfied_flags = fill(1, n_samples)
 			for i in 1:n_samples
 				@info " instance {$i}/{$n_samples}"
-				Xfi = ModalLogic.getslice(Xf, i)
-				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(S[indX[i + r_start]], Xfi, best_relation, best_threshold, Val(false))
+				channel = ModalLogic.getChannel(Xf, i)
+				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(S[indX[i + r_start]], channel, best_relation, best_threshold, Val(false))
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 
@@ -336,16 +334,16 @@ module treeclassifier
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
 			min_purity_increase :: AbstractFloat) where {T, U, N}
-			n_instances, n_features = n_samples(X), n_variables(X)
+			n_instances, n_vars = n_samples(X), n_variables(X)
 		if length(Y) != n_instances
-			throw("dimension mismatch between X.domain and Y ($(size(X.domain)) vs $(size(Y))")
+			throw("dimension mismatch between X and Y ($(size(X.domain)) vs $(size(Y))")
 		elseif length(W) != n_instances
-			throw("dimension mismatch between X.domain and W ($(size(X.domain)) vs $(size(W))")
+			throw("dimension mismatch between X and W ($(size(X.domain)) vs $(size(W))")
 		elseif max_depth < -1
 			throw("unexpected value for max_depth: $(max_depth) (expected:"
 				* " max_depth >= 0, or max_depth = -1 for infinite depth)")
-		elseif n_features < max_features
-			throw("number of features $(n_features) is less than the number "
+		elseif n_vars < max_features
+			throw("number of features $(n_vars) is less than the number "
 				* "of max features $(max_features)")
 		elseif max_features < 0
 			throw("number of features $(max_features) must be >= zero ")
@@ -382,10 +380,11 @@ module treeclassifier
 		# TODO make the initial entity and initial modality a training parameter?
 		#  But then you have to know that at test time as well... So it must be part of the tree in some way
 		#  TODO Maybe it's enough to just create a default constructor for any world type.
+
 		S = [Set([X.ontology.worldType(ModalLogic.InitialWorld)]) for i in 1:n_instances]
 
 		# Array memory for dataset
-		Xf = init_Xf(X)
+		Xf = init_Xf(X.domain)
 		Yf = Vector{Label}(undef, n_instances)
 		Wf = Vector{U}(undef, n_instances)
 		# TODO Maybe it's worth to allocate this vector as well?

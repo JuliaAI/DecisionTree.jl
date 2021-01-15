@@ -12,7 +12,8 @@ export AbstractWorld, AbstractRelation,
 				Ontology, OntologicalDataset,
 				n_samples, n_variables, dimension,
 				IntervalOntology,
-				getfeature
+				MatricialDataset,
+				MatricialUniDataset
 				# RelationAll, RelationNone, RelationId,
 				# enumAcc,
 				# IARelations,
@@ -28,6 +29,7 @@ abstract type AbstractRelation end
 struct Ontology
 	worldType   :: Type{<:AbstractWorld}
 	relationSet :: AbstractVector{<:AbstractRelation}
+	Ontology(worldType, relationSet) = new(worldType, collect(Set(relationSet)))
 end
 
 # This constant is used to create the default world for each WorldType
@@ -36,35 +38,54 @@ struct _InitialWorld end; const InitialWorld = _InitialWorld();
 
 # A dataset, given by a set of N-dimensional (multi-variate) matrices/instances,
 #  and an Ontology to be interpreted on each of them.
-# - The size of the domain is n_samples × n_variables × [Matricial domain]
-# - Note that N is the dimension of the dimensional domain itself
-#    (e.g. 1 for the temporal case, 2 for the spatialCase)
+# - The size of the domain array is {X×Y×...} × n_samples × n_variables
+# - N is the dimensionality of the domain itself (e.g. 1 for the temporal case, 2 for the spatialCase)
+#    and its dimensions are denoted as X,Y,Z,...
+# - A uni-variate dataset is of dimensionality S=N+1
+# - A multi-variate dataset is of dimensionality D=N+1+1
 #  https://discourse.julialang.org/t/addition-to-parameter-of-parametric-type/20059/5
+
+const MatricialChannel{T,N}   = AbstractArray{T,N}
+const MatricialInstance{T,MN} = AbstractArray{T,MN}
+# TODO: It'd be nice to define these as a function of N, https://github.com/JuliaLang/julia/issues/8322
+#   e.g. const MatricialUniDataset{T,N}       = AbstractArray{T,N+1}
+const MatricialUniDataset{T,UD} = AbstractArray{T,UD}
+const MatricialDataset{T,D}     = AbstractArray{T,D}
+
 @computed struct OntologicalDataset{T,N}
 	ontology  :: Ontology
-	domain    :: AbstractArray{T,N+2}
+	domain    :: MatricialDataset{T,N+1+1}
 end
 
-size(X::OntologicalDataset{T,N}) where {T,N} = size(X.domain)
-size(X::OntologicalDataset{T,N}, n::Integer) where {T,N} = size(X.domain, n)
-n_samples(X::OntologicalDataset{T,N}) where {T,N} = size(X, 1)
-n_variables(X::OntologicalDataset{T,N}) where {T,N} = size(X, 2)
-dimension(X::OntologicalDataset{T,N}) where {T,N} = size(X, 1)-2
+size(X::OntologicalDataset{T,N})             where {T,N} = size(X.domain)
+size(X::OntologicalDataset{T,N}, i::Integer) where {T,N} = size(X.domain, i)
+n_samples(X::OntologicalDataset{T,N})        where {T,N} = size(X, N+1)
+n_variables(X::OntologicalDataset{T,N})      where {T,N} = size(X, N+2)
+# dimensionality(X::OntologicalDataset{T,N})   where {T,N} = N
 
-@inline getfeature(X::OntologicalDataset{T,0}, idx::Integer, feature::Integer) where T = X.domain[idx, feature]::T
-@inline getfeature(X::OntologicalDataset{T,1}, idx::Integer, feature::Integer) where T = X.domain[idx, feature, :]::AbstractArray{T,1}
-@inline getfeature(X::OntologicalDataset{T,2}, idx::Integer, feature::Integer) where T = X.domain[idx, feature, :, :]::AbstractArray{T,2}
-# @computed @inline getfeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X.domain[idxs, feature, fill(:, N)...]::AbstractArray{T,N-1}
-# @computed @inline getfeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X.domain[idxs, feature, fill(:, dimension(X))...]::AbstractArray{T,N-1}
+# TODO: the adimensional case returns a value of type T, instead of an array. Mh, fix? Or we could say we don't handl the adimensional case
+@inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = ud[idx]           # N=0
+@inline getChannel(ud::MatricialUniDataset{T,2},  idx::Integer) where T = ud[:, idx]        # N=1
+@inline getChannel(ud::MatricialUniDataset{T,3},  idx::Integer) where T = ud[:, :, idx]     # N=2
+@inline getInstance(d::MatricialDataset{T,2},     idx::Integer) where T = d[idx, :]       # N=0
+@inline getInstance(d::MatricialDataset{T,3},     idx::Integer) where T = d[:, idx, :]    # N=1
+@inline getInstance(d::MatricialDataset{T,4},     idx::Integer) where T = d[:, :, idx, :] # N=2
+@inline getFeature(d::MatricialDataset{T,2},      idx::Integer, feature::Integer) where T = d[      idx, feature]::T                         # N=0
+@inline getFeature(d::MatricialDataset{T,3},      idx::Integer, feature::Integer) where T = d[:,    idx, feature]::MatricialChannel{T,1} # N=1
+@inline getFeature(d::MatricialDataset{T,4},      idx::Integer, feature::Integer) where T = d[:, :, idx, feature]::MatricialChannel{T,2} # N=2
+
+@inline getInstanceFeature(instance::MatricialInstance{T,1},      idx::Integer) where T = instance[      idx]::T                      # N=0
+@inline getInstanceFeature(instance::MatricialInstance{T,2},      idx::Integer) where T = instance[:,    idx]::MatricialChannel{T,1}  # N=1
+@inline getInstanceFeature(instance::MatricialInstance{T,3},      idx::Integer) where T = instance[:, :, idx]::MatricialChannel{T,2}  # N=2
+
+# @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, N)...]::AbstractArray{T,N-1}
+# @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, dimensionality(X))...]::AbstractArray{T,N-1}
 
 # TODO maybe using views can improve performances
 # featureview(X::OntologicalDataset{T,0}, idxs::AbstractVector{Integer}, feature::Integer) = X.domain[idxs, feature]
 # featureview(X::OntologicalDataset{T,1}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :)
 # featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
 
-@inline getslice(Xf::AbstractArray{T, 1}, idx::Integer) where T = Xf[idx] # TODO: the adimensional case return a value of type T, instead of an array. Mh, fix? Or we could say we don't handl the adimensional case
-@inline getslice(Xf::AbstractArray{T, 2}, idx::Integer) where T = Xf[idx,:]
-@inline getslice(Xf::AbstractArray{T, 3}, idx::Integer) where T = Xf[idx,:,:]
 # TODO use Xf[i,[(:) for i in 1:N]...]
 
 # World generators/enumerators and array/set-like structures

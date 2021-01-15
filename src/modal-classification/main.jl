@@ -138,9 +138,9 @@ function apply_tree(tree::DTInternal{U, T}, Xi::AbstractArray{U,N}, S::AbstractS
 		else
 			@info "applying branch..."
 			satisfied = true
-			Xfi = ModalLogic.getslice(Xi, tree.featid)
+			channel = ModalLogic.getInstanceFeature(Xi, tree.featid)
 			@info " S" S
-			(satisfied,S) = ModalLogic.modalStep(S, Xfi, tree.modality, tree.featval, Val(false))
+			(satisfied,S) = ModalLogic.modalStep(S, channel, tree.modality, tree.featval, Val(false))
 			@info " ->S'" S
 			if satisfied
 				apply_tree(tree.left, Xi, S)
@@ -164,7 +164,7 @@ function apply_tree(tree::DTNode{S, T}, features::AbstractArray{S,N}) where {S, 
 		@info " instance {$i}/{$n_samp}"
 		# TODO figure out: is it better to interpret the whole dataset at once, or instance-by-instance? The first one enables reusing training code
 		# attach to the tree the worldType, and use that
-		predictions[i] = apply_tree(tree, ModalLogic.getslice(X.domain, i), Set([X.ontology.worldType(ModalLogic.InitialWorld)]))
+		predictions[i] = apply_tree(tree, ModalLogic.getInstance(X.domain, i), Set([X.ontology.worldType(ModalLogic.InitialWorld)]))
 	end
 	return (if T <: Float64
 			Float64.(predictions)
