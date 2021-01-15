@@ -36,7 +36,7 @@ struct DTInternal{S<:Real, T}
 	# Feature
 	featid   :: Int
 	featval  :: featType where featType<:S
-	testsign :: Symbol
+	test_operator :: Symbol # Test operator (e.g. <=, ==)
 	# string representing an existential modality (e.g. ♢, L, LL)
 	modality :: R where R<:AbstractRelation
 
@@ -52,7 +52,7 @@ const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
 
-is_modal_node(n::DTInternal) = !is_leaf(n) && n.modality != ModalLogic.RelationId
+is_modal_node(n::DTInternal) = (!is_leaf(n) && n.modality != ModalLogic.RelationId)
 
 zero(String) = ""
 convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(0, zero(S), lf, DTLeaf(zero(T), [zero(T)]))
@@ -99,7 +99,7 @@ function print_tree(tree::DTInternal, depth=-1, indent=0)
 				return
 		end
 
-		test = "Variable $(tree.featid) $(tree.testsign) $(tree.featval)"
+		test = "Variable $(tree.featid) $(tree.test_operator) $(tree.featval)"
 		println(
 			if ! ( is_modal_node(tree) )
 				# if tree.modality == "♢"

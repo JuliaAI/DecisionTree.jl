@@ -17,7 +17,7 @@ function _convert(
 	else
 		left = _convert(node.l, list, labels)
 		right = _convert(node.r, list, labels)
-		return DTInternal{S, T}(node.feature, node.threshold, node.testsign, node.modality, left, right)
+		return DTInternal{S, T}(node.feature, node.threshold, node.test_operator, node.modality, left, right)
 	end
 end
 
@@ -111,7 +111,7 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 				return tree
 			end
 		else
-			return DTInternal{S, T}(tree.featid, tree.featval, tree.testsign, tree.modality,
+			return DTInternal{S, T}(tree.featid, tree.featval, tree.test_operator, tree.modality,
 						_prune_run(tree.left, purity_thresh),
 						_prune_run(tree.right, purity_thresh))
 		end
@@ -221,7 +221,7 @@ apply_tree_proba(leaf::DTLeaf{T}, features::AbstractVector{S}, labels) where {S,
 function apply_tree_proba(tree::DTInternal{S, T}, features::AbstractVector{S}, labels) where {S, T}
 	if tree.featval === nothing
 		return apply_tree_proba(tree.left, features, labels)
-	elseif eval(Expr(:call, tree.testsign, features[tree.featid], tree.featval))
+	elseif eval(Expr(:call, tree.test_operator, features[tree.featid], tree.featval))
 		return apply_tree_proba(tree.left, features, labels)
 	else
 		return apply_tree_proba(tree.right, features, labels)

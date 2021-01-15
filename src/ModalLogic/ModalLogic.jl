@@ -132,7 +132,7 @@ modalStep(S::WorldSetType,
 		end
 		for w in worlds # Sf[i]
 			# @info " world" w
-			if WLeq(w, Xfi, threshold) # WLeq is <= TODO expand on testsign
+			if WLeq(w, Xfi, threshold) # WLeq is <= TODO expand on test_operator
 				satisfied = true
 				if fastMode == Val(false)
 					push!(new_worlds, w)

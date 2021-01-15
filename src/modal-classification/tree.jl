@@ -31,7 +31,7 @@ module treeclassifier
 		# purity      :: U              # purity grade attained if this is a split
 		modality    :: R where R<:AbstractRelation # modal operator (e.g. RelationId for the propositional case)
 		feature     :: Int              # feature used for splitting
-		testsign    :: Symbol           # testsign (e.g. <=)
+		test_operator    :: Symbol           # test_operator (e.g. <=)
 		threshold   :: S                # threshold value
 		function NodeMeta{S}(
 				region      :: UnitRange{Int},
@@ -43,7 +43,7 @@ module treeclassifier
 			node.depth = depth
 			node.modal_depth = modal_depth
 			node.is_leaf = false
-			node.testsign = :(<=) # TODO change
+			node.test_operator = :(<=) # TODO change
 			node
 		end
 	end
@@ -143,7 +143,7 @@ module treeclassifier
 		best_purity = typemin(U)
 		best_relation = ModalLogic.RelationNone
 		best_feature = -1
-		best_testsign = :(0)
+		best_test_operator = :(0)
 		best_threshold = T(-1)
 		# threshold_lo = ...
 		# threshold_hi = ...
@@ -239,7 +239,7 @@ module treeclassifier
 							best_purity    = purity
 							best_relation  = relation
 							best_feature   = feature
-							best_testsign  = (:<=) # TODO expand
+							best_test_operator  = (:<=) # TODO expand
 							best_threshold = threshold
 							# TODO: At the end, we should take the average between current and last.
 							#  This requires thresholds to be sorted
@@ -248,7 +248,7 @@ module treeclassifier
 							@info " best_purity = " best_purity
 							@info " " best_relation
 							@info ", " best_feature
-							@info ", " best_testsign
+							@info ", " best_test_operator
 							@info ", " best_threshold
 							# @info threshold_lo, threshold_hi
 						end
@@ -279,10 +279,10 @@ module treeclassifier
 			# node.purity    = best_purity
 			node.modality  = best_relation
 			node.feature   = best_feature
-			node.testsign  = best_testsign
+			node.test_operator  = best_test_operator
 			node.threshold = best_threshold
 
-			@info " Split condition: <$best_relation> (A$best_feature $best_testsign $best_threshold)" # TODO <= becomes generic <=, >.
+			@info " Split condition: <$best_relation> (A$best_feature $best_test_operator $best_threshold)" # TODO <= becomes generic <=, >.
 
 			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
