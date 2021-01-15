@@ -24,22 +24,18 @@ end
 ################################################################################
 
 # TODO include adimensional case? Probably not in the dataset itself
-# function buildOntologicalDataset(features :: AbstractArray{S,2}) where {S} =
-# 	OntologicalDataset{Int64,0}(IntervalAlgebra,features)
-# TODO unique definition with @computed
 buildOntologicalDataset(features :: AbstractArray{S,3}) where {S} =
 	OntologicalDataset{S,1}(IntervalAlgebra,features)
-# TODO function buildOntologicalDataset(features :: AbstractArray{S,4}) where {S} =
-	# OntologicalDataset{S,2}(RectangleAlgebra,features)
 
 # Build a stump (tree with depth 1)
 function build_stump(
 		labels      :: AbstractVector{Label},
 		features    :: AbstractArray{S,N},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
-		rng         :: Random.AbstractRNG                = Random.GLOBAL_RNG) where {S, U, N}
+		ontology    :: Ontology            = ModalLogic.getParallelOntologyOfDim(Val(N-2)),
+		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {S, U, N}
 	
-	X = buildOntologicalDataset(features)
+	X = OntologicalDataset{S,N-2}(ontology,features)
 	
 	t = treeclassifier.fit(
 		X                   = X,
@@ -64,10 +60,12 @@ function build_tree(
 		min_samples_leaf    :: Int                = 1,
 		min_samples_split   :: Int                = 2,
 		min_purity_increase :: AbstractFloat      = 0.0;
+		ontology            :: Ontology           = ModalLogic.getParallelOntologyOfDim(Val(N-2)),
 		loss                :: Function           = util.entropy,
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {S, N}
-
-	X = buildOntologicalDataset(features)
+	
+	# TODO disaccoppia dataset e ontologia di riferimento.
+	X = OntologicalDataset{S,N-2}(ontology,features)
 
 	if max_depth == -1
 		max_depth = typemax(Int)
@@ -154,10 +152,11 @@ function apply_tree(tree::DTInternal{U, T}, Xi::AbstractArray{U,N}, S::AbstractS
 end
 
 # Apply tree to a dimensional dataset in matricial form
-function apply_tree(tree::DTNode{U, T}, features::AbstractArray{U,N}) where {U, T, N}
+function apply_tree(tree::DTNode{S, T}, features::AbstractArray{S,N}) where {S, T, N}
 	@info "apply_tree..."
-	# TODO don't create an ontological dataset, there is no need
-	X = buildOntologicalDataset(features)
+	# TODO don't create an ontological dataset, there is no need. Instead, attach the ontology to the tree as metadata.
+	ontology = IntervalAlgebra
+	X = OntologicalDataset{S,N-2}(ontology,features)
 	n_samp = n_samples(X)
 	# n_variables(X)
 	predictions = Array{T,1}(undef, n_samp)
@@ -165,8 +164,7 @@ function apply_tree(tree::DTNode{U, T}, features::AbstractArray{U,N}) where {U, 
 		@info " instance {$i}/{$n_samp}"
 		# TODO figure out: is it better to interpret the whole dataset at once, or instance-by-instance? The first one enables reusing training code
 		# attach to the tree the worldType, and use that
-		S = Set([X.ontology.worldType(-1, 0)])
-		predictions[i] = apply_tree(tree, ModalLogic.getslice(X.domain, i), S)
+		predictions[i] = apply_tree(tree, ModalLogic.getslice(X.domain, i), Set([X.ontology.worldType(ModalLogic.InitialWorld)]))
 	end
 	return (if T <: Float64
 			Float64.(predictions)

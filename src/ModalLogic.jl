@@ -14,7 +14,7 @@ export AbstractWorld, AbstractRelation,
 				getfeature,
 				WorldGenerator,
 				# RelationAll, RelationNone, RelationEq,
-				enumAcc,
+				# enumAcc,
 				# readMax,
 				# readMin,
 				# Interval, x, y,
@@ -42,6 +42,9 @@ struct Ontology
 	worldType   :: Type{<:AbstractWorld}
 	relationSet :: AbstractArray{<:AbstractRelation}
 end
+
+struct _InitialWorld end; const InitialWorld = _InitialWorld();
+
 
 # An ontology interpreted over an N-dimensional domain gives rise to a Kripke model/frame.
 # const MatricialDomain{T,N} = AbstractArray{T,N} end
@@ -87,20 +90,12 @@ const WorldSet{T} = Union{AbstractArray{T,1},AbstractSet{T}}
 
 # Equality relation, that exists for every Ontology
 
-struct _RelationEq    <: AbstractRelation end; RelationEq   = _RelationEq();
-struct _RelationNone  <: AbstractRelation end; RelationNone = _RelationNone();
-struct _RelationAll   <: AbstractRelation end; RelationAll  = _RelationAll();
+struct _RelationEq    <: AbstractRelation end; const RelationEq   = _RelationEq();
+struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
+struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
-# enumAcc1_1(S::Union{WorldGenerator,WorldSet{<:AbstractWorld}}, ::_RelationEq, X::AbstractArray{T,1}) where T = TODO
-enumAcc2_2_2(S::Union{WorldGenerator,WorldSet{<:AbstractWorld}}, ::_RelationEq, X::AbstractArray{T,1}) where T = begin
-	IterTools.imap(identity, S) # TODO check if [w] is better, or simply S
-	end
-enumAcc(S::WorldGenerator,          ::_RelationEq, X::AbstractArray{T,1}) where T = enumAcc2_2_2(S, RelationEq, X)
-enumAcc(S::WorldSet{<:AbstractWorld}, ::_RelationEq, X::AbstractArray{T,1}) where T = enumAcc2_2_2(S, RelationEq, X)
-# enumAccW1(w::AbstractWorld, ::_RelationEq,   X::AbstractArray{T,1}) where T =
-	# IterTools.imap(identity, [w]) # TODO check if [w] is better
-
-
+enumAcc(S::Union{WorldGenerator,WorldSet{<:AbstractWorld}}, ::_RelationEq, X::AbstractArray{T,1}) where T = S # IterTools.imap(identity, S)
+# Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationEq,   X::AbstractArray{T,1}) where T = [w] # IterTools.imap(identity, [w])
 
 # TODO maybe using views can improve performances
 # featureview(X::OntologicalDataset{T,0}, idxs::AbstractVector{Integer}, feature::Integer) = X.domain[idxs, feature]
@@ -116,16 +111,17 @@ enumAcc(S::WorldSet{<:AbstractWorld}, ::_RelationEq, X::AbstractArray{T,1}) wher
 struct Interval <: AbstractWorld
 	x :: Integer
 	y :: Integer
-	# TODO check x<y but only in debug mode
-	# Interval(x,y) = x < y ? new(x,y) : error("Can't instantiate non-positive interval (x={$x},y={$y} violates x<y)")
-	# Interval(x,y) = x>0 && y>0 ? new(x,y) : error("Interval range must be positive (x={$x},y={$y})")
+	# TODO check x<y but only in debug mode.  && x<=N, y<=N
+	# Interval(x,y) = x>0 && y>0 && x < y ? new(x,y) : error("Can't instantiate (x={$x},y={$y})")
+	Interval(x,y) = new(x,y)
+	Interval(::_InitialWorld) = new(-1,0)
 end
 
 Interval(params::Tuple{Integer,Integer}) = Interval(params...)
 x(w::Interval) = w.x
 y(w::Interval) = w.y
 
-# map((x)->readWorld(Interval(x),[1,2,3,4,5]), ModalLogic.enumIntervalsInRange(1,6) |> collect)
+# map((x)->readWorld(Interval(x),[1,2,3,4,5]), enumIntervalsInRange(1,6) |> collect)
 @inline readWorld(w::Interval, X::AbstractArray{T,1}) where {T} = X[w.x:w.y-1]
 @inline WMax(w::Interval, X::AbstractArray{T,1}) where {T} = maximum(readWorld(w,X))
 @inline WMin(w::Interval, X::AbstractArray{T,1}) where {T} = minimum(readWorld(w,X))
@@ -150,12 +146,12 @@ modalStep(S::AbstractSet{W}, Xfi::AbstractArray{U,N}, relation::R where R<:Abstr
 		end
 		for w in worlds # Sf[i]
 			# @info " world" w
-			if ModalLogic.WLeq(w, Xfi, threshold) # WLeq is <= TODO expand on testsign
+			if WLeq(w, Xfi, threshold) # WLeq is <= TODO expand on testsign
 				satisfied = true
 				if fastMode == Val(false)
 					push!(new_worlds, w)
 				elseif fastMode == Val(true)
-					@info "   Found w: " w ModalLogic.readWorld(w,Xfi)
+					@info "   Found w: " w readWorld(w,Xfi)
 					break
 				end
 			end
@@ -184,18 +180,18 @@ end
 abstract type _IARelation <: AbstractRelation end
 # TODO figure out what's the gain in using constant instances of these relations,
 #  compared to using the type itself. Note: one should define the constant vector of instances IARelations here
-struct _IA_A  <: _IARelation end; IA_A  = _IA_A(); # After
-struct _IA_L  <: _IARelation end; IA_L  = _IA_L(); # Later
-struct _IA_B  <: _IARelation end; IA_B  = _IA_B(); # Begins
-struct _IA_E  <: _IARelation end; IA_E  = _IA_E(); # Ends
-struct _IA_D  <: _IARelation end; IA_D  = _IA_D(); # During
-struct _IA_O  <: _IARelation end; IA_O  = _IA_O(); # Overlaps
-struct _IA_Ai <: _IARelation end; IA_Ai = _IA_Ai(); # inverse(After)
-struct _IA_Li <: _IARelation end; IA_Li = _IA_Li(); # inverse(Later)
-struct _IA_Bi <: _IARelation end; IA_Bi = _IA_Bi(); # inverse(Begins)
-struct _IA_Ei <: _IARelation end; IA_Ei = _IA_Ei(); # inverse(Ends)
-struct _IA_Di <: _IARelation end; IA_Di = _IA_Di(); # inverse(During)
-struct _IA_Oi <: _IARelation end; IA_Oi = _IA_Oi(); # inverse(Overlaps)
+struct _IA_A  <: _IARelation end; const IA_A  = _IA_A(); # After
+struct _IA_L  <: _IARelation end; const IA_L  = _IA_L(); # Later
+struct _IA_B  <: _IARelation end; const IA_B  = _IA_B(); # Begins
+struct _IA_E  <: _IARelation end; const IA_E  = _IA_E(); # Ends
+struct _IA_D  <: _IARelation end; const IA_D  = _IA_D(); # During
+struct _IA_O  <: _IARelation end; const IA_O  = _IA_O(); # Overlaps
+struct _IA_Ai <: _IARelation end; const IA_Ai = _IA_Ai(); # inverse(After)
+struct _IA_Li <: _IARelation end; const IA_Li = _IA_Li(); # inverse(Later)
+struct _IA_Bi <: _IARelation end; const IA_Bi = _IA_Bi(); # inverse(Begins)
+struct _IA_Ei <: _IARelation end; const IA_Ei = _IA_Ei(); # inverse(Ends)
+struct _IA_Di <: _IARelation end; const IA_Di = _IA_Di(); # inverse(During)
+struct _IA_Oi <: _IARelation end; const IA_Oi = _IA_Oi(); # inverse(Overlaps)
 
 const IARelations = [IA_A
 											IA_L
@@ -444,6 +440,9 @@ enumAcc(S::WorldSet{Interval}, ::_IA_Li, X::AbstractArray{T,1}) where T = enumAc
 
 const IntervalAlgebra = Ontology(Interval,IARelations)
 
+# TODO
+getParallelOntologyOfDim(::Val{1}) = IntervalAlgebra
+# getParallelOntologyOfDim(::Val{2}) = RectangleAlgebra
 #=
 ############################################
 END Performance tuning
@@ -482,7 +481,7 @@ TODO next
 # 	v :: Interval
 # end
 
-# const RectangleAlgebra = AbstractOntology(ParRectangle,RARelation)
+# const RectangleAlgebra = Ontology(ParRectangle,RARelation)
 
 =#
 

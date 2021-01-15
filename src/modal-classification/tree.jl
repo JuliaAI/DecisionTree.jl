@@ -55,8 +55,7 @@ module treeclassifier
 		labels :: Vector{Label}
 	end
 
-	# Xf slices X by across the features dimension. As such, it has one dimension less than X.
-	# TODO @computed init_Xf(X::OntologicalDataset{T, N}) where S = Array{T, N-1}(undef, n_samples(X), size(X)[3:end]...)
+	# Xf slices X by across the features dimension. As such, it has one dimension less than X
 	init_Xf(X::OntologicalDataset{T, 0}) where T = Array{T, 1}(undef, n_samples(X), size(X)[3:end]...)
 	init_Xf(X::OntologicalDataset{T, 1}) where T = Array{T, 2}(undef, n_samples(X), size(X)[3:end]...)
 	init_Xf(X::OntologicalDataset{T, 2}) where T = Array{T, 3}(undef, n_samples(X), size(X)[3:end]...)
@@ -70,7 +69,10 @@ module treeclassifier
 	@inline setfeature!(i::Integer, Xf::AbstractArray{T, 3}, X::OntologicalDataset{T,2}, idx::Integer, feature::Integer) where T = begin
 		Xf[i,:,:] = getfeature(X, idx, feature) # ::AbstractArray{T,3}
 	end
-	# TODO use Xf[i,[: for i in N]...]
+	# TODO:
+	# @inline setfeature!(i::Integer, Xf::AbstractArray{T, M}, X::OntologicalDataset{T,N}, idx::Integer, feature::Integer) where {T,N,M} = begin
+		# Xf[i,[(:) for i in 1:N]...] = getfeature(X, idx, feature)
+	# end
 
 	# find an optimal split satisfying the given constraints
 	# (max_depth, min_samples_leaf, min_purity_increase)
@@ -181,7 +183,7 @@ module treeclassifier
 					Xfi = ModalLogic.getslice(Xf, i)
 					@info " instance {$i}/{$n_samples}" # Xfi
 					# TODO this findmin/findmax can be made more efficient for intervals.
-					for w in enumAcc(S[indX[i + r_start]], relation, Xfi) # Sf[i]
+					for w in ModalLogic.enumAcc(S[indX[i + r_start]], relation, Xfi) # Sf[i]
 						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, Xfi))
 						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, Xfi))
 					end
@@ -369,10 +371,9 @@ module treeclassifier
 		n_instances = n_samples(X)
 
 		# Array memory for class counts
-		# TODO transform all of these Array{somthing,1} into Vector's (aesthetic changeX)
-		nc  = Array{U,1}(undef, n_classes)
-		ncl = Array{U,1}(undef, n_classes)
-		ncr = Array{U,1}(undef, n_classes)
+		nc  = Vector{U}(undef, n_classes)
+		ncl = Vector{U}(undef, n_classes)
+		ncr = Vector{U}(undef, n_classes)
 
 		# TODO We need to write on S, thus it cannot be a static array like X Y and W;
 		# Should belong inside each meta-node and then be copied? That's a waste of space(for each instance),
@@ -381,14 +382,14 @@ module treeclassifier
 		# TODO make the initial entity and initial modality a training parameter?
 		#  But then you have to know that at test time as well... So it must be part of the tree in some way
 		#  TODO Maybe it's enough to just create a default constructor for any world type.
-		S = [Set([X.ontology.worldType(-1, 0)]) for i in 1:n_instances]
+		S = [Set([X.ontology.worldType(ModalLogic.InitialWorld)]) for i in 1:n_instances]
 
 		# Array memory for dataset
 		Xf = init_Xf(X)
-		Yf = Array{Label,1}(undef, n_instances)
-		Wf = Array{U,1}(undef, n_instances)
-		# TODO Perhaps operating with Sets is better
-		# Sf = Array{Set{X.ontology.worldType},1}(undef, n_instances)
+		Yf = Vector{Label}(undef, n_instances)
+		Wf = Vector{U}(undef, n_instances)
+		# TODO Maybe it's worth to allocate this vector as well?
+		# Sf = Vector{Set{X.ontology.worldType}}(undef, n_instances)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)
@@ -414,7 +415,6 @@ module treeclassifier
 				firstIteration)
 			firstIteration = false
 			# After processing, if needed, perform the split and push the two children for a later processing step
-			# TODO: this step could be parallelized
 			if !node.is_leaf
 				fork!(node)
 				push!(stack, node.r)
