@@ -55,12 +55,6 @@ module treeclassifier
 		labels :: Vector{Label}
 	end
 
-	# Xf slices X by across the features dimension. As such, it has one dimension less than X
-	# TODO generalize as init_Xf(X::OntologicalDataset{T, N}) where T = Array{T, N+1}(undef, size(X)[3:end]..., n_samples(X))
-	init_Xf(d::MatricialDataset{T,2}) where T = Array{T, 1}(undef, n_samples(d))::MatricialUniDataset{T, 1}
-	init_Xf(d::MatricialDataset{T,3}) where T = Array{T, 2}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 2}
-	init_Xf(d::MatricialDataset{T,4}) where T = Array{T, 3}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 3}
-
 	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,1}, d::MatricialDataset{T,2}, idx::Integer, feature::Integer) where T = begin
 		ud[i] = ModalLogic.getFeature(d, idx, feature) # ::T
 	end
@@ -384,7 +378,7 @@ module treeclassifier
 		S = [Set([X.ontology.worldType(ModalLogic.InitialWorld)]) for i in 1:n_instances]
 
 		# Array memory for dataset
-		Xf = init_Xf(X.domain)
+		Xf = MatricialUniDataset(undef, X.domain)
 		Yf = Vector{Label}(undef, n_instances)
 		Wf = Vector{U}(undef, n_instances)
 		# TODO Maybe it's worth to allocate this vector as well?

@@ -37,6 +37,7 @@ Y_train = Y[1:spl]
 X_test  = X[:,spl+1:end,:]
 Y_test  = Y[spl+1:end]
 
+# XX = ModalLogic.OntologicalDataset{Int64,1}(ModalLogic.IntervalOntology,X_train)
 
 
 global_logger(ConsoleLogger(stderr, Logging.Warn))
