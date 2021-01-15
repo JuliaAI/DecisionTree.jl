@@ -43,7 +43,8 @@ global_logger(ConsoleLogger(stderr, Logging.Warn))
 # global_logger(ConsoleLogger(stderr, Logging.Info))
 
 # 484.136 μs (4368 allocations: 256.34 KiB)
-@btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalAlgebra, rng = my_rng)
+# 517.471 μs (4368 allocations: 256.38 KiB)
+@btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng)
 
 T2 = build_tree(Y_train, X_train; rng = my_rng)
 

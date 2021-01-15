@@ -16,7 +16,7 @@ export DTNode, DTLeaf, DTInternal,
 			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
 			 treeclassifier # TODO TMP
 
-include("ModalLogic.jl")
+include("ModalLogic/ModalLogic.jl")
 using .ModalLogic
 
 ###########################

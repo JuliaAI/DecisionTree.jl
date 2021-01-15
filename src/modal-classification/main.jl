@@ -25,7 +25,7 @@ end
 
 # TODO include adimensional case? Probably not in the dataset itself
 buildOntologicalDataset(features :: AbstractArray{S,3}) where {S} =
-	OntologicalDataset{S,1}(IntervalAlgebra,features)
+	OntologicalDataset{S,1}(IntervalOntology,features)
 
 # Build a stump (tree with depth 1)
 function build_stump(
@@ -155,7 +155,7 @@ end
 function apply_tree(tree::DTNode{S, T}, features::AbstractArray{S,N}) where {S, T, N}
 	@info "apply_tree..."
 	# TODO don't create an ontological dataset, there is no need. Instead, attach the ontology to the tree as metadata.
-	ontology = IntervalAlgebra
+	ontology = IntervalOntology
 	X = OntologicalDataset{S,N-2}(ontology,features)
 	n_samp = n_samples(X)
 	# n_variables(X)
