@@ -1,8 +1,8 @@
 julia
 
+Pkg.activate("DecisionTree.jl")
 using Revise
 using Pkg
-Pkg.activate("DecisionTree.jl")
 
 import Random
 # Random.GLOBAL_RNG

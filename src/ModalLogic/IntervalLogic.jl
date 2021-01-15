@@ -1,4 +1,5 @@
 export # Interval, x, y,
+				# readMax, readMin,
 				IntervalOntology
 
 # Interval

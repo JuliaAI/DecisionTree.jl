@@ -30,7 +30,7 @@ module treeclassifier
 		l           :: NodeMeta{S}      # left child
 		r           :: NodeMeta{S}      # right child
 		# purity      :: U              # purity grade attained if this is a split
-		modality    :: R where R<:AbstractRelation # modal operator (e.g. RelationEQ for the propositional case)
+		modality    :: R where R<:AbstractRelation # modal operator (e.g. RelationId for the propositional case)
 		feature     :: Int              # feature used for splitting
 		testsign    :: Symbol           # testsign (e.g. <=)
 		threshold   :: S                # threshold value
@@ -145,7 +145,7 @@ module treeclassifier
 		if firstIteration == true
 			relations = [ModalLogic.RelationAll]
 		else
-			relations = [ModalLogic.RelationEq, (X.ontology.relationSet)...]
+			relations = [ModalLogic.RelationId, (X.ontology.relationSet)...]
 		end
 		# Optimization tracking variables
 		best_purity = typemin(U)

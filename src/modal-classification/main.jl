@@ -134,7 +134,7 @@ function apply_tree(tree::DTInternal{U, T}, Xi::AbstractArray{U,N}, S::AbstractS
 		if tree.featid == 0
 			@error " found featid == 0, TODO figure out where does this come from" tree
 			# apply_tree(tree.left, X, S)
-		# elseif tree.modality == ModalLogic.RelationEq # TODO actually, no need for this edge case, because enum would return S anyway
+		# elseif tree.modality == ModalLogic.RelationId # TODO actually, no need for this edge case, because enum would return S anyway
 		else
 			@info "applying branch..."
 			satisfied = true

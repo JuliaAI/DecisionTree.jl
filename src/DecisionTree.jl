@@ -52,7 +52,7 @@ const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
 
-is_modal_node(n::DTInternal) = !is_leaf(n) && n.modality != ModalLogic.RelationEq
+is_modal_node(n::DTInternal) = !is_leaf(n) && n.modality != ModalLogic.RelationId
 
 zero(String) = ""
 convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(0, zero(S), lf, DTLeaf(zero(T), [zero(T)]))
