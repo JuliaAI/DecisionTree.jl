@@ -14,34 +14,23 @@ using BenchmarkTools
 using DecisionTree
 using DecisionTree.ModalLogic
 
-n_samp = 200
-N = 50
+include("example-datasets.jl")
 
-X = Array{Int,3}(undef, N, n_samp, 1);
-Y = Array{Int,1}(undef, n_samp);
-for i in 1:n_samp
-	instance = fill(2, N)
-	y = rand(my_rng, 0:1)
-	if y == 0
-		instance[3] = 1
-	else
-		instance[3] = 2
-	end
-	X[:,i,1] .= instance
- Y[i] = y
-end
 
-spl = floor(Int, n_samp*.8)
-X_train = X[:,1:spl,:]
-Y_train = Y[1:spl]
-X_test  = X[:,spl+1:end,:]
-Y_test  = Y[spl+1:end]
+# n_samp = 200
+# N = 50
+# (X,Y) = simpleDataset(n_samp,N)
+# (X_train,Y_train,X_test,Y_test) = traintestsplit(X,Y,0.8)
+
+# (X_train,Y_train,X_test,Y_test) = EduardDataset(5)
+(X_train,Y_train,X_test,Y_test) = EduardDataset(10)
+
 
 # XX = ModalLogic.OntologicalDataset{Int64,1}(ModalLogic.IntervalOntology,X_train)
 
 
-global_logger(ConsoleLogger(stderr, Logging.Warn))
-# global_logger(ConsoleLogger(stderr, Logging.Info))
+# global_logger(ConsoleLogger(stderr, Logging.Warn))
+global_logger(ConsoleLogger(stderr, Logging.Info))
 
 # Timings history
 # -- Add the use of Sf
@@ -49,16 +38,17 @@ global_logger(ConsoleLogger(stderr, Logging.Warn))
 # -- Switched from WorldSet to WorldVector
 # 131.344 ms (2251791 allocations: 194.32 MiB)
 # Well, the difference is subtle
-# 
 # 130.677 ms (2251632 allocations: 194.31 MiB)
-@btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng)
+# -- Actually, I've made a mistake (I was updating Sf[i] insfead of S[...])
+# 133.435 ms (2251632 allocations: 194.31 MiB)
+# @btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng)
 
 T2 = build_tree(Y_train, X_train; rng = my_rng)
 
 preds = apply_tree(T2, X_test)
 
 if Y_test == preds
-	print("Yeah!")
+	print("100% Accuracy baby!")
 else
-	@error "Predictions don't match expected values" Y_test preds
+	print("Accuracy: ", sum(Y_test .== preds)/length(preds))
 end

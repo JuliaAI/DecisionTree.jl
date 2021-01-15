@@ -137,7 +137,7 @@ modalStep(S::WorldSetType,
 				if fastMode == Val(false)
 					push!(new_worlds, w)
 				elseif fastMode == Val(true)
-					@info "   Found w: " w readWorld(w,Xfi)
+					@info "   Found w: " w # readWorld(w,Xfi)
 					break
 				end
 			end

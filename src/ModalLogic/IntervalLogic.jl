@@ -22,7 +22,7 @@ y(w::Interval) = w.y
 @inline WMin(w::Interval, channel::MatricialChannel{T,1}) where {T} = minimum(readWorld(w,channel))
 @inline WLeq(w::Interval, channel::MatricialChannel{T,1}, val::Number) where T = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
-	@info "WLeq" w val readWorld(w,channel)
+	# @info "WLeq" w val #n readWorld(w,channel)
 	@inbounds for x in readWorld(w,channel)
       x <= val || return false
   end

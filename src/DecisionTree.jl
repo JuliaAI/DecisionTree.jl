@@ -99,7 +99,7 @@ function print_tree(tree::DTInternal, depth=-1, indent=0)
 				return
 		end
 
-		test = "Feature $(tree.featid) $(tree.testsign) $(tree.featval)"
+		test = "Variable $(tree.featid) $(tree.testsign) $(tree.featval)"
 		println(
 			if ! ( is_modal_node(tree) )
 				# if tree.modality == "♢"
@@ -183,7 +183,7 @@ struct DTInternal <: DTNode
 	# Child nodes
 	children::Vector{DTNode}
 	
-	# Function of the variables involved, returning the index of the appropriate node given a value in the domain of the feature
+	# Function of the variables involved, returning the index of the appropriate node given a value in the domain of the variable
 	testFunc::TestFunction
 
 end

@@ -98,7 +98,7 @@ module treeclassifier
 							Sf                  :: AbstractVector{WorldSet{WT}},
 							
 							rng                 :: Random.AbstractRNG,
-							firstIteration      :: Bool) where {WT<:AbstractWorld, T, U, N, M}
+							onlyUseRelationAll  :: Bool) where {WT<:AbstractWorld, T, U, N, M}
 
 		# Region of indx to use to perform the split
 		region = node.region
@@ -134,7 +134,7 @@ module treeclassifier
 		# Note: the equality operator is the first, and is the one representing
 		#  the propositional case.
 		# Note: at the first iteration, we force a modal step (the world set is null)
-		if firstIteration == true
+		if onlyUseRelationAll == true
 			relations = [ModalLogic.RelationAll]
 		else
 			relations = [ModalLogic.RelationId, (X.ontology.relationSet)...]
@@ -152,7 +152,7 @@ module treeclassifier
 		unsplittable = true
 		
 		# Find best split
-		# For each feature/variable/channel
+		# For each variable
 		feature = 1
 		@inbounds while unsplittable && feature <= n_variables(X)
 			
@@ -184,9 +184,9 @@ module treeclassifier
 				end
 				@info "  maxPeak {$maxPeaks}"
 				@info "  minPeak {$minPeaks}"
-
+				
 				# Obtain the list of reasonable thresholds
-				thresholdDomain = union(Set(maxPeaks),Set(minPeaks))
+				thresholdDomain = setdiff(union(Set(maxPeaks),Set(minPeaks)),Set([typemin(T), typemax(T)]))
 				@info "thresholdDomain " thresholdDomain
 
 				# Look for thresholds 'a' for the proposition "feature <= a"
@@ -200,16 +200,19 @@ module treeclassifier
 					for i in 1:n_samples
 						@info " instance {$i}/{$n_samples}   peaks ($(minPeaks[i])/$(maxPeaks[i]))"
 						satisfied = true
-						if maxPeaks[i] <= threshold
+						if maxPeaks[i] == typemin(T) # && minPeaks[i] == typemax(T)
+							# @info "   NO!"
+							satisfied = false
+						elseif maxPeaks[i] <= threshold
 							# This is definitely a nl (Sf[i] makes a modal step)
-							@info "   YES!!!"
+							# @info "   YES!!!"
 							satisfied = true
 						elseif minPeaks[i] > threshold
 							# This is definitely a nr (Sf[i] stays the same)
-							@info "   NO!!!"
+							# @info "   NO!!!"
 							satisfied = false
 						else
-							@info "   must manually check worlds." # channel
+							# @info "   must manually check worlds." # channel
 							channel = ModalLogic.getChannel(Xf, i)
 							(satisfied,_) = ModalLogic.modalStep(Sf[i], channel, relation, threshold, Val(true))
 						end
@@ -290,7 +293,7 @@ module treeclassifier
 			for i in 1:n_samples
 				@info " instance {$i}/{$n_samples}"
 				channel = ModalLogic.getChannel(Xf, i)
-				(satisfied,Sf[i]) = ModalLogic.modalStep(Sf[i], channel, best_relation, best_threshold, Val(false))
+				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], channel, best_relation, best_threshold, Val(false))
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 
@@ -345,6 +348,7 @@ module treeclassifier
 			throw("min_samples_leaf must be a positive integer "
 				* "(given $(min_samples_leaf))")
 		end
+		# TODO check that X doesn't have nans, typemin(T), typemax(T), missings, nothing etc. ...
 	end
 
 	function _fit(
@@ -389,12 +393,11 @@ module treeclassifier
 		# Create root node
 		root = NodeMeta{T}(1:n_instances, 0, 0)
 		# Stack of nodes to process
-		stack = NodeMeta{T}[root]
+		stack = Tuple{NodeMeta{T},Bool}[(root,true)]
 		# The first iteration is treated sightly differently
-		firstIteration = true
 		@inbounds while length(stack) > 0
 			# Pop node and process it
-			node = pop!(stack)
+			(node,onlyUseRelationAll) = pop!(stack)
 			_split!(
 				X, Y, W, S,
 				loss, node,
@@ -405,13 +408,12 @@ module treeclassifier
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, 
 				rng,
-				firstIteration)
-			firstIteration = false
+				onlyUseRelationAll)
 			# After processing, if needed, perform the split and push the two children for a later processing step
 			if !node.is_leaf
 				fork!(node)
-				push!(stack, node.r)
-				push!(stack, node.l)
+				push!(stack, (node.l,false))
+				push!(stack, (node.r,true))
 			end
 		end
 
