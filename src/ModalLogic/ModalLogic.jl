@@ -114,6 +114,9 @@ struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll
 enumAcc(S::Union{WorldGenerator,AbstractWorldSet{<:AbstractWorld}}, ::_RelationId, X::AbstractArray{T,1}) where T = S # IterTools.imap(identity, S)
 # Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::AbstractArray{T,1}) where T = [w] # IterTools.imap(identity, [w])
 
+print_rel_short(::_RelationId)  = "Id"
+print_rel_short(::_RelationAll) = ""
+
 # Perform the modal step, that is, evaluate a modal formula
 #  on a domain, and eventually compute the new world set.
 # TODO check that this dispatches on fastMode

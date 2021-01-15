@@ -111,6 +111,7 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 				return tree
 			end
 		else
+			# TODO also associate an Internal node with values and majority (all_labels, majority)
 			return DTInternal{S, T}(tree.featid, tree.featval, tree.test_operator, tree.modality,
 						_prune_run(tree.left, purity_thresh),
 						_prune_run(tree.right, purity_thresh))

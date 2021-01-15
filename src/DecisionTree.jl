@@ -10,7 +10,7 @@ using Statistics
 
 export DTNode, DTLeaf, DTInternal,
 			 is_leaf, is_modal_node,
-			 height, modalHeight,
+			 num_nodes, height, modal_height,
 			 build_stump, build_tree,
        print_tree, prune_tree, apply_tree,
 			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
@@ -76,6 +76,9 @@ include("modal-classification/main.jl")
 ########## Methods ##########
 
 # Length (total # of nodes)
+num_nodes(leaf::DTLeaf) = 1
+num_nodes(tree::DTInternal) = 1 + num_nodes(tree.left) + num_nodes(tree.right)
+
 length(leaf::DTLeaf) = 1
 length(tree::DTInternal) = length(tree.left) + length(tree.right)
 
@@ -84,51 +87,51 @@ height(leaf::DTLeaf) = 0
 height(tree::DTInternal) = 1 + max(height(tree.left), height(tree.right))
 
 # Modal height
-modalHeight(leaf::DTLeaf) = 0
-modalHeight(tree::DTInternal) = (is_modal_node(tree) ? 1 : 0) + max(modalHeight(tree.left), modalHeight(tree.right))
+modal_height(leaf::DTLeaf) = 0
+modal_height(tree::DTInternal) = (is_modal_node(tree) ? 1 : 0) + max(modal_height(tree.left), modal_height(tree.right))
 
-function print_tree(leaf::DTLeaf, depth=-1, indent=0)
+function print_tree(leaf::DTLeaf, depth=-1, indent=0, indent_guides=[])
 		matches = findall(leaf.values .== leaf.majority)
 		ratio = string(length(matches)) * "/" * string(length(leaf.values))
 		println("$(leaf.majority) : $(ratio)")
 end
 
-function print_tree(tree::DTInternal, depth=-1, indent=0)
+function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
 		if depth == indent
 				println()
 				return
 		end
 
-		test = "Variable $(tree.featid) $(tree.test_operator) $(tree.featval)"
+		test = "A$(tree.featid) $(tree.test_operator) $(tree.featval)"
 		println(
-			if ! ( is_modal_node(tree) )
-				# if tree.modality == "♢"
-					# modString = "$(tree.modality)"
-				# else
-					modString = "<$(tree.modality)>"
-				# end
-				"$modString ( $test )"
+			if is_modal_node(tree)
+				"<$(ModalLogic.print_rel_short(tree.modality))> ($test)"
 			else
 				"$test"
 			end)
-		print("  " ^ indent * "Y-> ")
-		print_tree(tree.left, depth, indent + 1)
-		print("  " ^ indent * "N-> ")
-		print_tree(tree.right, depth, indent + 1)
+		# indent_str = " " ^ indent
+		indent_str = reduce(*, [i == 1 ? "│" : " " for i in indent_guides])
+		# print(indent_str * "╭✔")
+		print(indent_str * "✔ ")
+		print_tree(tree.left, depth, indent + 1, [indent_guides..., 1])
+		# print(indent_str * "╰✘")
+		print(indent_str * "✘ ")
+		print_tree(tree.right, depth, indent + 1, [indent_guides..., 0])
 end
 
 function show(io::IO, leaf::DTLeaf)
 		println(io, "Decision Leaf")
 		println(io, "Majority: $(leaf.majority)")
-		println(io,   "Samples:  $(length(leaf.values))")
+		println(io, "Samples:  $(length(leaf.values))")
 		print_tree(leaf)
 end
 
 function show(io::IO, tree::DTInternal)
 		println(io, "Decision Tree")
 		println(io, "Leaves: $(length(tree))")
+		println(io, "Tot nodes: $(num_nodes(tree))")
 		println(io, "Height: $(height(tree))")
-		println(io,   "Modal height:  $(modalHeight(tree))")
+		println(io, "Modal height:  $(modal_height(tree))")
 		print_tree(tree)
 end
 

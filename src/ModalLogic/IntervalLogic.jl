@@ -47,6 +47,19 @@ struct _IA_Ei <: _IARelation end; const IA_Ei = _IA_Ei(); # inverse(Ends)
 struct _IA_Di <: _IARelation end; const IA_Di = _IA_Di(); # inverse(During)
 struct _IA_Oi <: _IARelation end; const IA_Oi = _IA_Oi(); # inverse(Overlaps)
 
+print_rel_short(::_IA_A)  = "A"
+print_rel_short(::_IA_L)  = "L"
+print_rel_short(::_IA_B)  = "B"
+print_rel_short(::_IA_E)  = "E"
+print_rel_short(::_IA_D)  = "D"
+print_rel_short(::_IA_O)  = "O"
+print_rel_short(::_IA_Ai) = "Ai"
+print_rel_short(::_IA_Li) = "Li"
+print_rel_short(::_IA_Bi) = "Bi"
+print_rel_short(::_IA_Ei) = "Ei"
+print_rel_short(::_IA_Di) = "Di"
+print_rel_short(::_IA_Oi) = "Oi"
+
 const IARelations = [IA_A
 											IA_L
 											IA_B

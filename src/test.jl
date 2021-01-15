@@ -17,38 +17,40 @@ using DecisionTree.ModalLogic
 include("example-datasets.jl")
 
 
-function testDatasets(datasets)
-	for (name,dataset) in datasets
-		println("Testing dataset '$name'")
-		global_logger(ConsoleLogger(stderr, Logging.Warn))
-		length(dataset) == 4 || error(length(dataset))
-		X_train, Y_train, X_test, Y_test = dataset
-		@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng);
+function testDataset((name,dataset))
+	println("Testing dataset '$name'")
+	global_logger(ConsoleLogger(stderr, Logging.Warn));
+	length(dataset) == 4 || error(length(dataset))
+	X_train, Y_train, X_test, Y_test = dataset
+	@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology);
 
-		# global_logger(ConsoleLogger(stderr, Logging.Info))
-		T2 = build_tree(Y_train, X_train; rng = my_rng);
+	# global_logger(ConsoleLogger(stderr, Logging.Info))
+	T = build_tree(Y_train, X_train; rng = my_rng);
 
-		preds = apply_tree(T2, X_test);
+	preds = apply_tree(T, X_test);
 
-		if Y_test == preds
-			println("  Accuracy: 100% baby!")
-		else
-			println("  Accuracy: ", round((sum(Y_test .== preds)/length(preds))*100, digits=2), "%")
-		end;
+	if Y_test == preds
+		println("  Accuracy: 100% baby!")
+	else
+		println("  Accuracy: ", round((sum(Y_test .== preds)/length(preds))*100, digits=2), "%")
+	end;
 
-		global_logger(ConsoleLogger(stderr, Logging.Info))
-	end
+	global_logger(ConsoleLogger(stderr, Logging.Info));
+
+	T;
 end
 
 datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	("simpleDataset",traintestsplit(simpleDataset(200,50)...,0.8)),
 	("Eduard-5",EduardDataset(5)),
 	("Eduard-10",EduardDataset(10)),
-]
+];
 
-testDatasets(datasets)
+# for d in datasets
+	# testDataset(d)
+# end
 
-
+T = testDataset(datasets[2])
 #=
 
 Testing dataset 'simpleDataset'
