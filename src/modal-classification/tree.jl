@@ -16,11 +16,10 @@ module treeclassifier
 
 	import Random
 
-
 	mutable struct NodeMeta{S<:Real} # {S,U}
 		features    :: Vector{Int}      # a list of features
 		region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
-		# worlds      :: AbstractVector{AbstractSet{AbstractWorld}} # current set of worlds for each training instance
+		# worlds      :: AbstractVector{WorldSet{W}} # current set of worlds for each training instance
 		depth       :: Int
 		modal_depth :: Int
 		is_leaf     :: Bool             # whether this is a leaf node, or a split one
@@ -76,7 +75,7 @@ module treeclassifier
 							X                   :: OntologicalDataset{T, N}, # the ontological dataset
 							Y                   :: AbstractVector{Label},    # the label array
 							W                   :: AbstractVector{U},        # the weight vector
-							S                   :: AbstractVector{<:AbstractSet{<:AbstractWorld}}, # the vector of current worlds (TODO AbstractVector{<:AbstractSet{X.ontology.worldType}})
+							S                   :: AbstractVector{WorldSet{WT}}, # the vector of current worlds (TODO AbstractVector{<:AbstractSet{X.ontology.worldType}})
 							
 							purity_function     :: Function,
 							node                :: NodeMeta{T},              # the node to split
@@ -96,10 +95,10 @@ module treeclassifier
 							Xf                  :: MatricialUniDataset{T, M},
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
-							Sf                  :: AbstractVector{<:AbstractSet{<:AbstractWorld}},
+							Sf                  :: AbstractVector{WorldSet{WT}},
 							
 							rng                 :: Random.AbstractRNG,
-							firstIteration      :: Bool) where {T, U, N, M}
+							firstIteration      :: Bool) where {WT<:AbstractWorld, T, U, N, M}
 
 		# Region of indx to use to perform the split
 		region = node.region
@@ -376,14 +375,14 @@ module treeclassifier
 		#  But then you have to know that at test time as well... So it must be part of the tree in some way
 		#  TODO Maybe it's enough to just create a default constructor for any world type.
 
-		S = [Set([X.ontology.worldType(ModalLogic.InitialWorld)]) for i in 1:n_instances]
+		S = [WorldSet{X.ontology.worldType}([X.ontology.worldType(ModalLogic.InitialWorld)]) for i in 1:n_instances]
 
 		# Array memory for dataset
 		Xf = MatricialUniDataset(undef, X.domain)
 		Yf = Vector{Label}(undef, n_instances)
 		Wf = Vector{U}(undef, n_instances)
 		# TODO Maybe it's worth to allocate this vector as well?
-		Sf = Vector{Set{X.ontology.worldType}}(undef, n_instances)
+		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)

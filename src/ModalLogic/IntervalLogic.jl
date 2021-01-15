@@ -100,23 +100,23 @@ enumAccW1(w::Interval, ::_IA_Oi,   channel::MatricialChannel{T,1}) where T =
 	IterTools.imap(Interval, Iterators.product(1:w.x-1, w.x+1:w.y-1))
 
 ## Enumerate accessible worlds from a set of worlds
-enumAcc1(S::Union{WorldGenerator,WorldSet{Interval}}, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = begin
+enumAcc1(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = begin
 	IterTools.distinct(Iterators.flatten((enumAccW1(w, r, channel) for w in S)))
 end
 
 # More efficient implementations for edge cases
 
-enumAcc1_1(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
+enumAcc1_1(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
 	# @show Base.argmin((w.y for w in S))
 	enumAccW1(Base.argmin((w.y for w in S)), IA_L, channel)
 end
-enumAcc1_1(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
+enumAcc1_1(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
 	# @show Base.argmax((w.x for w in S))
 	enumAccW1(Base.argmax((w.x for w in S)), IA_Li, channel)
 end
-enumAcc1_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = 
+enumAcc1_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = 
 	enumAccW1(S[argmin(y.(S))], IA_L, channel)
-enumAcc1_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = 
+enumAcc1_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = 
 	enumAccW1(S[argmax(x.(S))], IA_Li, channel)
 
 #####
@@ -140,7 +140,7 @@ enumAccW2(w::Interval, ::_IA_O,  channel::MatricialChannel{T,1}) where T = Itera
 enumAccW2(w::Interval, ::_IA_Oi, channel::MatricialChannel{T,1}) where T = Iterators.product(1:w.x-1, w.x+1:w.y-1)
 
 ## Enumerate accessible worlds from a set of worlds
-enumAcc2(S::Union{WorldGenerator,WorldSet{Interval}}, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = begin
 	# println("Fallback")
 	IterTools.imap((params)->Interval(params...),
 		IterTools.distinct(Iterators.flatten((enumAccW2(w, r, channel) for w in S))))
@@ -151,23 +151,23 @@ end
 # This makes sense if we have 2-Tuples instead of intervals
 # function snd((a,b)::Tuple) b end
 # function fst((a,b)::Tuple) a end
-# enumAcc2_1(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = 
+# enumAcc2_1(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = 
 # 	IterTools.imap((params)->Interval(params...),
 # 		enumAccW2(S[argmin(map(snd, S))], IA_L, channel)
 # 	)
-# enumAcc2_1(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = 
+# enumAcc2_1(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = 
 # 	IterTools.imap((params)->Interval(params...),
 # 		enumAccW2(S[argmax(map(fst, S))], IA_Li, channel)
 # 	)
 
 # More efficient implementations for edge cases
-enumAcc2_1_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2_1_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
 	# @show Base.argmin((w.y for w in S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(Base.argmin((w.y for w in S)), IA_L, channel)
 	)
 end
-enumAcc2_1_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2_1_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
 	# @show Base.argmax((w.x for w in S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(Base.argmax((w.x for w in S)), IA_Li, channel)
@@ -175,13 +175,13 @@ enumAcc2_1_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::Mat
 end
 
 # More efficient implementations for edge cases
-enumAcc2_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
 	m = argmin(y.(S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2([w for (i,w) in enumerate(S) if i == m][1], IA_L, channel)
 	)
 	end
-enumAcc2_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
 	m = argmax(x.(S))
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2([w for (i,w) in enumerate(S) if i == m][1], IA_Li, channel)
@@ -189,17 +189,17 @@ enumAcc2_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::Matri
 	end
 
 # More efficient implementations for edge cases
-enumAcc2_2_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_RelationAll, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2_2_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_RelationAll, channel::MatricialChannel{T,1}) where T = begin
 	IterTools.imap((params)->Interval(params...),
 		enumIntervalsInRange(1, length(channel)+1)
 	)
 	end
-enumAcc2_2_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2_2_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_L, channel::MatricialChannel{T,1}) where T = begin
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(nth(S, argmin(y.(S))), IA_L, channel)
 	)
 	end
-enumAcc2_2_2(S::Union{WorldGenerator,WorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
+enumAcc2_2_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = begin
 	IterTools.imap((params)->Interval(params...),
 		enumAccW2(nth(S, argmax(x.(S))), IA_Li, channel)
 	)
@@ -277,7 +277,7 @@ Results (date 02/02/2020):
 
 -> enumAcc1 and enumAcc2 are best for arrays and iterators, respectively
 =#
-enumAcc(S::WorldSet{Interval}, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = enumAcc1(S, r, channel)
+enumAcc(S::AbstractWorldSet{Interval}, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = enumAcc1(S, r, channel)
 enumAcc(S::WorldGenerator, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = enumAcc2(S, r, channel)
 #=
 -> enumAcc1_1 is never better than enumAcc2_1
@@ -286,10 +286,10 @@ enumAcc(S::WorldGenerator, r::R where R<:_IARelation, channel::MatricialChannel{
 -> For iterators and arrays, enumAcc2_2_2 is probably the best IA_L/IA_Li enumerator
 =#
 enumAcc(S::WorldGenerator,     ::_RelationAll, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, RelationAll, channel)
-enumAcc(S::WorldSet{Interval}, ::_RelationAll, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, RelationAll, channel)
+enumAcc(S::AbstractWorldSet{Interval}, ::_RelationAll, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, RelationAll, channel)
 enumAcc(S::WorldGenerator,     ::_IA_L, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_L, channel)
-enumAcc(S::WorldSet{Interval}, ::_IA_L, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_L, channel)
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_L, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_L, channel)
 enumAcc(S::WorldGenerator,     ::_IA_Li, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_Li, channel)
-enumAcc(S::WorldSet{Interval}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_Li, channel)
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_Li, channel)
 
 const IntervalOntology = Ontology(Interval,IARelations)

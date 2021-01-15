@@ -46,7 +46,11 @@ global_logger(ConsoleLogger(stderr, Logging.Warn))
 # Timings history
 # -- Add the use of Sf
 # 133.009 ms (2253001 allocations: 194.44 MiB)
-# Boh, cambia poco. Teniamolo
+# -- Switched from WorldSet to WorldVector
+# 131.344 ms (2251791 allocations: 194.32 MiB)
+# Well, the difference is subtle
+# 
+# 130.677 ms (2251632 allocations: 194.31 MiB)
 @btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng)
 
 T2 = build_tree(Y_train, X_train; rng = my_rng)

@@ -13,7 +13,8 @@ export AbstractWorld, AbstractRelation,
 				n_samples, n_variables, dimension,
 				IntervalOntology,
 				MatricialDataset,
-				MatricialUniDataset
+				MatricialUniDataset,
+				WorldSet
 				# RelationAll, RelationNone, RelationId,
 				# enumAcc,
 				# IARelations,
@@ -96,7 +97,11 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 # World generators/enumerators and array/set-like structures
 # TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
 const WorldGenerator = Union{Base.Generator,IterTools.Distinct}
-const WorldSet{T} = Union{AbstractArray{T,1},AbstractSet{T}} where {T<:AbstractWorld}
+const AbstractWorldSet{W} = Union{AbstractVector{W},AbstractSet{W}} where {W<:AbstractWorld}
+# Concrete type for sets: vectors are faster than sets, so we
+# const WorldSet = AbstractSet{W} where W<:AbstractWorld
+const WorldSet{W} = Vector{W} where {W<:AbstractWorld}
+WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
 
 # Ontology-agnostic relations:
 # - Identity relation  (RelationId)    =  S -> S
@@ -106,24 +111,24 @@ struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId(
 struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
 struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
-enumAcc(S::Union{WorldGenerator,WorldSet{<:AbstractWorld}}, ::_RelationId, X::AbstractArray{T,1}) where T = S # IterTools.imap(identity, S)
+enumAcc(S::Union{WorldGenerator,AbstractWorldSet{<:AbstractWorld}}, ::_RelationId, X::AbstractArray{T,1}) where T = S # IterTools.imap(identity, S)
 # Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::AbstractArray{T,1}) where T = [w] # IterTools.imap(identity, [w])
 
 # Perform the modal step, that is, evaluate a modal formula
 #  on a domain, and eventually compute the new world set.
 # TODO check that this dispatches on fastMode
-modalStep(S::AbstractSet{W},
+modalStep(S::WorldSetType,
 					Xfi::AbstractArray{U,N},
 					relation::R,
 					threshold::U,
-					fastMode::Val{V} where V) where {W<:AbstractWorld, R<:AbstractRelation, U, N} = begin
+					fastMode::Val{V} where V) where {W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, U, N} = begin
 	@info "modalStep"
 	satisfied = false
 	worlds = enumAcc(S, relation, Xfi)
 	if length(collect(Iterators.take(worlds, 1))) > 0
 		# TODO maybe it's better to use an array and then create a set with = Set(worlds)
 		if fastMode == Val(false)
-			new_worlds = Set{W}()
+			new_worlds = WorldSetType()
 		end
 		for w in worlds # Sf[i]
 			# @info " world" w
