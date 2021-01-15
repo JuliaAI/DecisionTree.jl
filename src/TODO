@@ -34,3 +34,12 @@
 # 129.573 ms (2253001 allocations: 194.44 MiB)
 # -- Remove the use of Sf
 # 135.053 ms (2253000 allocations: 194.44 MiB)
+# -- Add the use of Sf
+# 133.009 ms (2253001 allocations: 194.44 MiB)
+# -- Switched from WorldSet to WorldVector
+# 131.344 ms (2251791 allocations: 194.32 MiB)
+# Well, the difference is subtle
+# 130.677 ms (2251632 allocations: 194.31 MiB)
+# -- Actually, I've made a mistake (I was updating Sf[i] insfead of S[...])
+# 131.131 ms (2251646 allocations: 194.31 MiB)
+# -- Add two new datasets "Eduard-5" and "Eduard-10"

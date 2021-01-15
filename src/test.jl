@@ -17,38 +17,48 @@ using DecisionTree.ModalLogic
 include("example-datasets.jl")
 
 
-# n_samp = 200
-# N = 50
-# (X,Y) = simpleDataset(n_samp,N)
-# (X_train,Y_train,X_test,Y_test) = traintestsplit(X,Y,0.8)
+function testDatasets(datasets)
+	for (name,dataset) in datasets
+		println("Testing dataset '$name'")
+		global_logger(ConsoleLogger(stderr, Logging.Warn))
+		length(dataset) == 4 || error(length(dataset))
+		X_train, Y_train, X_test, Y_test = dataset
+		@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng);
 
-# (X_train,Y_train,X_test,Y_test) = EduardDataset(5)
-(X_train,Y_train,X_test,Y_test) = EduardDataset(10)
+		# global_logger(ConsoleLogger(stderr, Logging.Info))
+		T2 = build_tree(Y_train, X_train; rng = my_rng);
 
+		preds = apply_tree(T2, X_test);
 
-# XX = ModalLogic.OntologicalDataset{Int64,1}(ModalLogic.IntervalOntology,X_train)
+		if Y_test == preds
+			println("  Accuracy: 100% baby!")
+		else
+			println("  Accuracy: ", round((sum(Y_test .== preds)/length(preds))*100, digits=2), "%")
+		end;
 
-
-# global_logger(ConsoleLogger(stderr, Logging.Warn))
-global_logger(ConsoleLogger(stderr, Logging.Info))
-
-# Timings history
-# -- Add the use of Sf
-# 133.009 ms (2253001 allocations: 194.44 MiB)
-# -- Switched from WorldSet to WorldVector
-# 131.344 ms (2251791 allocations: 194.32 MiB)
-# Well, the difference is subtle
-# 130.677 ms (2251632 allocations: 194.31 MiB)
-# -- Actually, I've made a mistake (I was updating Sf[i] insfead of S[...])
-# 133.435 ms (2251632 allocations: 194.31 MiB)
-# @btime T2 = build_tree(Y_train, X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng)
-
-T2 = build_tree(Y_train, X_train; rng = my_rng)
-
-preds = apply_tree(T2, X_test)
-
-if Y_test == preds
-	print("100% Accuracy baby!")
-else
-	print("Accuracy: ", sum(Y_test .== preds)/length(preds))
+		global_logger(ConsoleLogger(stderr, Logging.Info))
+	end
 end
+
+datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
+	("simpleDataset",traintestsplit(simpleDataset(200,50)...,0.8)),
+	("Eduard-5",EduardDataset(5)),
+	("Eduard-10",EduardDataset(10)),
+]
+
+testDatasets(datasets)
+
+
+#=
+
+Testing dataset 'simpleDataset'
+  121.186 ms (2252270 allocations: 194.33 MiB)
+	Accuracy: 100% baby!
+Testing dataset 'Eduard-5'
+	1.366 s (16365958 allocations: 642.61 MiB)
+	Accuracy: 84.44%
+Testing dataset 'Eduard-10'
+	6.415 s (69301692 allocations: 2.67 GiB)
+	Accuracy: 84.44%
+
+=#
