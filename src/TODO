@@ -1,14 +1,14 @@
 ✔	TODO const MatricialDomain{T,N} = AbstractArray{T,N} end @done (21-01-15 14:55)
 ✔ perhaps the domain should not be 20x3x3 but 3x3x20, because Julia is column-first @done (21-01-15 14:55)
-☐	Try the two-dimensional case!
 ☐	Add >
+☐	Try the two-dimensional case!
 ☐	Use pruning
-☐	Use view instead of slicing
+✔	Use view instead of slicing @done (21-01-18 20:47)
 ☐ Generalize World as a tuple of parameters ( https://stackoverflow.com/questions/40160120/generic-constructors-for-subtypes-of-an-abstract-type )
 ☐ use staticArrays for small domains (matrices/vectors) https://github.com/JuliaArrays/StaticArrays.jl
 		X = OntologicalDataset(IntervalOntology,Array{SMatrix{3,3,Int},2}(undef, 20, 10))
-☐	Add ProgressMeter?
 
+☐	Add ProgressMeter?
 ☐	Extend pruning options
 ☐	Generalize greedy step to greedy-n step.
 ☐	Generalize to beam-search and then beam-search-n?
