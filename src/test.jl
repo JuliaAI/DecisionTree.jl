@@ -16,13 +16,14 @@ using DecisionTree.ModalLogic
 
 include("example-datasets.jl")
 
-
-function testDataset((name,dataset))
+function testDataset((name,dataset), timeit::Bool = true)
 	println("Testing dataset '$name'")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	length(dataset) == 4 || error(length(dataset))
 	X_train, Y_train, X_test, Y_test = dataset
-	@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology);
+	if timeit
+		@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology);
+	end
 
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
 	T = build_tree(Y_train, X_train; rng = my_rng);
@@ -40,27 +41,32 @@ function testDataset((name,dataset))
 	T;
 end
 
+testDatasets(d, timeit::Bool = true) = map((x)->testDataset(x, timeit), d);
+
+
 datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	("simpleDataset",traintestsplit(simpleDataset(200,50)...,0.8)),
 	("Eduard-5",EduardDataset(5)),
 	("Eduard-10",EduardDataset(10)),
 ];
 
-# for d in datasets
-	# testDataset(d)
-# end
+testDatasets(datasets);
 
-T = testDataset(datasets[2])
+# T = testDataset(datasets[1])
+# T = testDataset(datasets[2])
+# T = testDataset(datasets[3])
+
 #=
 
 Testing dataset 'simpleDataset'
-  121.186 ms (2252270 allocations: 194.33 MiB)
-	Accuracy: 100% baby!
+  151.523 ms (2251644 allocations: 194.31 MiB)
+  Accuracy: 100% baby!
 Testing dataset 'Eduard-5'
-	1.366 s (16365958 allocations: 642.61 MiB)
-	Accuracy: 84.44%
+  5.356 s (39781460 allocations: 1.50 GiB)
+  Accuracy: 90.0%
 Testing dataset 'Eduard-10'
-	6.415 s (69301692 allocations: 2.67 GiB)
-	Accuracy: 84.44%
+  16.321 s (101172782 allocations: 3.90 GiB)
+  Accuracy: 85.56%
 
 =#
+ 

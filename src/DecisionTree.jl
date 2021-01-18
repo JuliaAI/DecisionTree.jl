@@ -5,7 +5,7 @@ module DecisionTree
 import Base: length, show, convert, promote_rule, zero
 using DelimitedFiles
 using LinearAlgebra
-using Random
+import Random
 using Statistics
 
 export DTNode, DTLeaf, DTInternal,

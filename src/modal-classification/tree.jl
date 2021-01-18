@@ -154,8 +154,7 @@ module treeclassifier
 		# Find best split
 		# For each variable
 		feature = 1
-		@inbounds while feature <= n_variables(X)
-										# && unsplittable # TODO Uncomment this to stop at the first valid split encountered for any feature
+		@inbounds while feature <= n_variables(X) # && unsplittable # TODO Uncomment this to stop at the first valid split encountered for any feature
 			
 			# Gather all values needed for the current feature
 			@simd for i in 1:n_samples

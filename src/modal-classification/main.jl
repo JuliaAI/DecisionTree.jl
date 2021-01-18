@@ -113,14 +113,14 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 		else
 			# TODO also associate an Internal node with values and majority (all_labels, majority)
 			return DTInternal{S, T}(tree.featid, tree.featval, tree.test_operator, tree.modality,
-						_prune_run(tree.left, purity_thresh),
-						_prune_run(tree.right, purity_thresh))
+						_prune_run(tree.left),
+						_prune_run(tree.right))
 		end
 	end
 
 	# Keep pruning until "convergence"
 	while true
-		pruned = _prune_run(tree, purity_thresh)
+		pruned = _prune_run(tree)
 		length(pruned) < length(tree) || break
 		tree = pruned
 	end
