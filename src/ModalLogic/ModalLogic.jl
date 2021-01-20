@@ -167,8 +167,6 @@ end
 
 include("IntervalLogic.jl")
 
-getParallelOntologyOfDim(::Val{1}) = IntervalOntology
-# getParallelOntologyOfDim(::Val{2}) = RectangleAlgebra
 #=
 ############################################
 END Performance tuning

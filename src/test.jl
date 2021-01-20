@@ -6,7 +6,7 @@ using Pkg
 
 import Random
 # Random.GLOBAL_RNG
-my_rng = Random.MersenneTwister(1)
+my_rng() = Random.MersenneTwister(1)
 
 using Logging
 
@@ -22,11 +22,11 @@ function testDataset((name,dataset), timeit::Bool = true)
 	length(dataset) == 4 || error(length(dataset))
 	X_train, Y_train, X_test, Y_test = dataset
 	if timeit
-		@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology);
+		@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng());
 	end
 
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
-	T = build_tree(Y_train, X_train; rng = my_rng);
+	T = build_tree(Y_train, X_train; rng = my_rng());
 
 	preds = apply_tree(T, X_test);
 
@@ -38,70 +38,55 @@ function testDataset((name,dataset), timeit::Bool = true)
 
 	global_logger(ConsoleLogger(stderr, Logging.Info));
 
-	T;
+	if timeit
+		println("  Nodes: $(num_nodes(T))")
+		println("  Height: $(height(T))")
+	else
+		print(T)
+	end
 end
 
 testDatasets(d, timeit::Bool = true) = map((x)->testDataset(x, timeit), d);
 
 datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
-	# ("simpleDataset",traintestsplit(simpleDataset(200,50)...,0.8),my_rng),
-	# ("Eduard-5",EduardDataset(5)),
-	# ("Eduard-10",EduardDataset(10)),
-	("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 3, "Pavia", my_rng)...,0.8)),
-	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(100, 3, "IndianPinesCorrected", my_rng)...,0.8)),
+	("simpleDataset",traintestsplit(simpleDataset(200,50,my_rng())...,0.8)),
+	("simpleDataset2",traintestsplit(simpleDataset2(200,5,my_rng())...,0.8)),
+	("Eduard-5",EduardDataset(5)),
+	("Eduard-10",EduardDataset(10)),
+	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 3, "Pavia", my_rng())...,0.8)),
+	# ("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(100, 3, "IndianPinesCorrected", my_rng())...,0.8)),
 ];
 
 testDatasets(datasets);
 
-# T = testDataset(datasets[1])
-# T = testDataset(datasets[2])
-# T = testDataset(datasets[3])
+# T = testDataset(datasets[1], false)
+
+# X = ModalLogic.OntologicalDataset{Int64,0}(ModalLogic.IntervalOntology,Array{Int64,2}(undef, 20, 10))
+# X = ModalLogic.OntologicalDataset{Float32,0}(ModalLogic.IntervalOntology,rand(Float32, 20, 10))
+# XX = ModalLogic.OntologicalDataset{Int64,1}(ModalLogic.IntervalOntology,X_train)
 
 #=
 
-Without Xf(... best feature)
 Testing dataset 'simpleDataset'
-	146.995 ms (2251482 allocations: 194.09 MiB)
-	Accuracy: 100% baby!
+  120.604 ms (2251653 allocations: 194.33 MiB)
+  Accuracy: 100% baby!
+  Nodes: 3
+  Height: 1
+Testing dataset 'simpleDataset2'
+  851.795 μs (20017 allocations: 1.15 MiB)
+  Accuracy: 30.0%
+  Nodes: 1
+  Height: 0
 Testing dataset 'Eduard-5'
-	6.307 s (39708278 allocations: 1.50 GiB)
-	Accuracy: 91.11%
+  4.502 s (39457913 allocations: 1.49 GiB)
+  Accuracy: 88.89%
+  Nodes: 167
+  Height: 10
 Testing dataset 'Eduard-10'
-	12.520 s (102004178 allocations: 3.93 GiB)
-	Accuracy: 84.44%
-
-using Views with smarter Xf:
-Testing dataset 'simpleDataset'
-	150.841 ms (2251328 allocations: 194.08 MiB)
-	Accuracy: 100% baby!
-Testing dataset 'Eduard-5'
-	4.617 s (39847067 allocations: 1.50 GiB)
-	Accuracy: 90.0%
-Testing dataset 'Eduard-10'
-	12.352 s (102190347 allocations: 3.94 GiB)
-	Accuracy: 84.44%
-
-using Views:
-Testing dataset 'simpleDataset'
-	129.927 ms (2251644 allocations: 194.31 MiB)
-	Accuracy: 100% baby!
-Testing dataset 'Eduard-5'
-	5.084 s (39690013 allocations: 1.50 GiB)
-	Accuracy: 91.11%
-Testing dataset 'Eduard-10'
-	11.421 s (102032965 allocations: 3.94 GiB)
-	Accuracy: 84.44%
-
-not using Views:
-Testing dataset 'simpleDataset'
-	151.523 ms (2251644 allocations: 194.31 MiB)
-	Accuracy: 100% baby!
-Testing dataset 'Eduard-5'
-	5.356 s (39781460 allocations: 1.50 GiB)
-	Accuracy: 90.0%
-Testing dataset 'Eduard-10'
-	16.321 s (101172782 allocations: 3.90 GiB)
-	Accuracy: 85.56%
+  11.129 s (102020927 allocations: 3.93 GiB)
+  Accuracy: 84.44%
+  Nodes: 221
+  Height: 10
 
 =#
  

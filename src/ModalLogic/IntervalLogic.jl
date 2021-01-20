@@ -305,4 +305,13 @@ enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Li,       channel::MatricialChannel
 const IntervalOntology = Ontology(Interval,IARelations)
 
 
-const IntervalOntology = Ontology(Interval,IARelations)
+# 2D Interval counterpart Rectangle parallel
+struct Interval2D <: AbstractWorld
+	x :: Interval
+	y :: Interval
+end
+
+# const Interval2DOntology = Ontology(Interval2D,IARelations)
+
+getIntervalOntologyOfDim(::Val{1}) = IntervalOntology
+# getIntervalOntologyOfDim(::Val{2}) = Interval2DOntology

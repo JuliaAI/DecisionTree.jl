@@ -32,7 +32,7 @@ function build_stump(
 		labels      :: AbstractVector{Label},
 		features    :: AbstractArray{S,N},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
-		ontology    :: Ontology            = ModalLogic.getParallelOntologyOfDim(Val(N-2)),
+		ontology    :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(N-2)),
 		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {S, U, N}
 	
 	X = OntologicalDataset{S,N-2}(ontology,features)
@@ -60,7 +60,7 @@ function build_tree(
 		min_samples_leaf    :: Int                = 1,
 		min_samples_split   :: Int                = 2,
 		min_purity_increase :: AbstractFloat      = 0.0;
-		ontology            :: Ontology           = ModalLogic.getParallelOntologyOfDim(Val(N-2)),
+		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(N-2)),
 		loss                :: Function           = util.entropy,
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {S, N}
 	
