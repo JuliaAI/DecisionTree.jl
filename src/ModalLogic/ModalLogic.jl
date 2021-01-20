@@ -199,16 +199,4 @@ Sc = Array{Interval,1}(collect(S))
 
 =#
 
-#=
-TODO next
-# 2D Interval counterpart Rectangle parallel
-# struct ParRectangle <: AbstractWorld
-# 	h :: Interval
-# 	v :: Interval
-# end
-
-# const RectangleAlgebra = Ontology(ParRectangle,RARelation)
-
-=#
-
 end # module

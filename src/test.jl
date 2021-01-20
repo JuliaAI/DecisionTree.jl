@@ -43,11 +43,12 @@ end
 
 testDatasets(d, timeit::Bool = true) = map((x)->testDataset(x, timeit), d);
 
-
 datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
-	("simpleDataset",traintestsplit(simpleDataset(200,50)...,0.8)),
-	("Eduard-5",EduardDataset(5)),
-	("Eduard-10",EduardDataset(10)),
+	# ("simpleDataset",traintestsplit(simpleDataset(200,50)...,0.8),my_rng),
+	# ("Eduard-5",EduardDataset(5)),
+	# ("Eduard-10",EduardDataset(10)),
+	("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 3, "Pavia", my_rng)...,0.8)),
+	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(100, 3, "IndianPinesCorrected", my_rng)...,0.8)),
 ];
 
 testDatasets(datasets);
@@ -60,47 +61,47 @@ testDatasets(datasets);
 
 Without Xf(... best feature)
 Testing dataset 'simpleDataset'
-  146.995 ms (2251482 allocations: 194.09 MiB)
-  Accuracy: 100% baby!
+	146.995 ms (2251482 allocations: 194.09 MiB)
+	Accuracy: 100% baby!
 Testing dataset 'Eduard-5'
-  6.307 s (39708278 allocations: 1.50 GiB)
-  Accuracy: 91.11%
+	6.307 s (39708278 allocations: 1.50 GiB)
+	Accuracy: 91.11%
 Testing dataset 'Eduard-10'
-  12.520 s (102004178 allocations: 3.93 GiB)
-  Accuracy: 84.44%
+	12.520 s (102004178 allocations: 3.93 GiB)
+	Accuracy: 84.44%
 
 using Views with smarter Xf:
 Testing dataset 'simpleDataset'
-  150.841 ms (2251328 allocations: 194.08 MiB)
-  Accuracy: 100% baby!
+	150.841 ms (2251328 allocations: 194.08 MiB)
+	Accuracy: 100% baby!
 Testing dataset 'Eduard-5'
-  4.617 s (39847067 allocations: 1.50 GiB)
-  Accuracy: 90.0%
+	4.617 s (39847067 allocations: 1.50 GiB)
+	Accuracy: 90.0%
 Testing dataset 'Eduard-10'
-  12.352 s (102190347 allocations: 3.94 GiB)
-  Accuracy: 84.44%
+	12.352 s (102190347 allocations: 3.94 GiB)
+	Accuracy: 84.44%
 
 using Views:
 Testing dataset 'simpleDataset'
-  129.927 ms (2251644 allocations: 194.31 MiB)
-  Accuracy: 100% baby!
+	129.927 ms (2251644 allocations: 194.31 MiB)
+	Accuracy: 100% baby!
 Testing dataset 'Eduard-5'
-  5.084 s (39690013 allocations: 1.50 GiB)
-  Accuracy: 91.11%
+	5.084 s (39690013 allocations: 1.50 GiB)
+	Accuracy: 91.11%
 Testing dataset 'Eduard-10'
-  11.421 s (102032965 allocations: 3.94 GiB)
-  Accuracy: 84.44%
+	11.421 s (102032965 allocations: 3.94 GiB)
+	Accuracy: 84.44%
 
 not using Views:
 Testing dataset 'simpleDataset'
-  151.523 ms (2251644 allocations: 194.31 MiB)
-  Accuracy: 100% baby!
+	151.523 ms (2251644 allocations: 194.31 MiB)
+	Accuracy: 100% baby!
 Testing dataset 'Eduard-5'
-  5.356 s (39781460 allocations: 1.50 GiB)
-  Accuracy: 90.0%
+	5.356 s (39781460 allocations: 1.50 GiB)
+	Accuracy: 90.0%
 Testing dataset 'Eduard-10'
-  16.321 s (101172782 allocations: 3.90 GiB)
-  Accuracy: 85.56%
+	16.321 s (101172782 allocations: 3.90 GiB)
+	Accuracy: 85.56%
 
 =#
  

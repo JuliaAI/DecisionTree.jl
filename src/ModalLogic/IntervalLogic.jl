@@ -29,11 +29,8 @@ y(w::Interval) = w.y
   return true
 end
 
-
 # 6+6 Interval relations
 abstract type _IARelation <: AbstractRelation end
-# TODO figure out what's the gain in using constant instances of these relations,
-#  compared to using the type itself. Note: one should define the constant vector of instances IARelations here
 struct _IA_A  <: _IARelation end; const IA_A  = _IA_A(); # After
 struct _IA_L  <: _IARelation end; const IA_L  = _IA_L(); # Later
 struct _IA_B  <: _IARelation end; const IA_B  = _IA_B(); # Begins
@@ -291,18 +288,21 @@ Results (date 02/02/2020):
 -> enumAcc1 and enumAcc2 are best for arrays and iterators, respectively
 =#
 enumAcc(S::AbstractWorldSet{Interval}, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = enumAcc1(S, r, channel)
-enumAcc(S::WorldGenerator, r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = enumAcc2(S, r, channel)
+enumAcc(S::WorldGenerator,             r::R where R<:_IARelation, channel::MatricialChannel{T,1}) where T = enumAcc2(S, r, channel)
 #=
 -> enumAcc1_1 is never better than enumAcc2_1
 =#
 #=
 -> For iterators and arrays, enumAcc2_2_2 is probably the best IA_L/IA_Li enumerator
 =#
-enumAcc(S::WorldGenerator,     ::_RelationAll, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, RelationAll, channel)
+enumAcc(S::WorldGenerator,             ::_RelationAll, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, RelationAll, channel)
 enumAcc(S::AbstractWorldSet{Interval}, ::_RelationAll, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, RelationAll, channel)
-enumAcc(S::WorldGenerator,     ::_IA_L, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_L, channel)
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_L, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_L, channel)
-enumAcc(S::WorldGenerator,     ::_IA_Li, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_Li, channel)
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Li, channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_Li, channel)
+enumAcc(S::WorldGenerator,             ::_IA_L,        channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_L, channel)
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_L,        channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_L, channel)
+enumAcc(S::WorldGenerator,             ::_IA_Li,       channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_Li, channel)
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Li,       channel::MatricialChannel{T,1}) where T = enumAcc2_2_2(S, IA_Li, channel)
+
+const IntervalOntology = Ontology(Interval,IARelations)
+
 
 const IntervalOntology = Ontology(Interval,IARelations)
