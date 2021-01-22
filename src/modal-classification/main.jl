@@ -44,7 +44,7 @@ function build_stump(
 		Y                   = labels,
 		W                   = weights,
 		loss                = treeclassifier.util.zero_one,
-		max_features        = n_variables(X),
+		# max_features        = n_variables(X),
 		max_depth           = 1,
 		min_samples_leaf    = 1,
 		min_samples_split   = 2,
@@ -57,7 +57,7 @@ end
 function build_tree(
 		labels              :: AbstractVector{Label},
 		features            :: MatricialDataset{T,D},
-		n_subfeatures       :: Int                = 0,
+		# n_subfeatures       :: Int                = 0,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
 		min_samples_split   :: Int                = 2,
@@ -72,9 +72,9 @@ function build_tree(
 	if max_depth == -1
 		max_depth = typemax(Int)
 	end
-	if n_subfeatures == 0
-		n_subfeatures = n_variables(X)
-	end
+	# if n_subfeatures == 0
+		# n_subfeatures = n_variables(X)
+	# end
 
 	rng = mk_rng(rng)::Random.AbstractRNG
 	t = treeclassifier.fit(
@@ -82,7 +82,7 @@ function build_tree(
 		Y                   = labels,
 		W                   = nothing,
 		loss                = loss,
-		max_features        = n_subfeatures,
+		# max_features        = n_subfeatures,
 		max_depth           = max_depth,
 		min_samples_leaf    = min_samples_leaf,
 		min_samples_split   = min_samples_split,

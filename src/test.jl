@@ -18,7 +18,7 @@ using Test
 
 include("example-datasets.jl")
 
-function testDataset((name,dataset), timeit::Bool = true; pruning_purity_thresholds = [0.7,0.8,0.9])
+function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [0.8])
 	println("Testing dataset '$name'")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	length(dataset) == 4 || error(length(dataset))
@@ -34,7 +34,7 @@ function testDataset((name,dataset), timeit::Bool = true; pruning_purity_thresho
 		print(T)
 	end
 
-	for pruning_purity_threshold in sort(unique([(Float64.(pruning_purity_thresholds))...,1.0]))
+	for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))
 		println(" Purity threshold $pruning_purity_threshold")
 		
 		global_logger(ConsoleLogger(stderr, Logging.Warn));
@@ -44,25 +44,16 @@ function testDataset((name,dataset), timeit::Bool = true; pruning_purity_thresho
 		cm = confusion_matrix(Y_test, preds)
 		# @test cm.accuracy > 0.99
 
-		if Y_test == preds
-			println("  Accuracy: 100% baby!")
-		else
-			println("  Accuracy: ", round(cm.accuracy*100, digits=2), "%")
-			println("  Kappa: ", round(cm.kappa*100, digits=2), "%")
-			println("  Matrix: ")
-			display(cm.matrix)
-		end;
+		print("  acc.", round(cm.accuracy*100, digits=2), "%, kappa: ", round(cm.kappa*100, digits=2), "%")
+		print("  Matrix: ")
+		display(cm.matrix)
 
 		global_logger(ConsoleLogger(stderr, Logging.Info));
 
 		if timeit
-			println("  (nodes,height): ($(num_nodes(T_pruned)),$(height(T_pruned)))")
+			print("nodes: ($(num_nodes(T_pruned)), heigh: $(height(T_pruned)))")
 		end
 	end
-
-	# model = fit!(DecisionTreeClassifier(pruning_purity_threshold=pruning_purity_threshold), X_train, Y_train)
-	# cm = confusion_matrix(Y_test, predict(model, X_test))
-	# @test cm.accuracy > 0.99
 
 	T
 end
@@ -84,4 +75,7 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 # T = testDataset(datasets[2], false)
 testDatasets(datasets);
 
-
+# X_train, Y_train, X_test, Y_test = traintestsplit(simpleDataset(200,50,my_rng())...,0.8)
+# model = fit!(DecisionTreeClassifier(pruning_purity_threshold=pruning_purity_threshold), X_train, Y_train)
+# cm = confusion_matrix(Y_test, predict(model, X_test))
+# @test cm.accuracy > 0.99

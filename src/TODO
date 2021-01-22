@@ -1,7 +1,7 @@
 ✔	TODO const MatricialDomain{T,N} = AbstractArray{T,N} end @done (21-01-15 14:55)
 ✔ perhaps the domain should not be 20x3x3 but 3x3x20, because Julia is column-first @done (21-01-15 14:55)
 ✔	Calculate confusion matrix @done (21-01-22 20:09)
-☐	Remove computation of the peaks.
+☐	Hide computation of the peaks.
 ☐	Add >
 ☐	Note that we need to know the speedup for using the peaks array. Maybe create a dataset with tiny worlds.
 ☐	Generate table of worlds' extremes before the whole computation. Note that in the crisp case, this leads then to constant propositional check.
@@ -33,6 +33,228 @@
 
 # Timings history
 
+
+add Confusion matrix, post-pruning, two-dimensional case and fix onlyUseRelationAll:
+	Testing dataset 'simpleDataset'
+	  357.024 ms (2865386 allocations: 216.17 MiB)
+	 Purity threshold 0.7
+	  Accuracy: 100% baby!
+	  (nodes,height): (3,1)
+	 Purity threshold 0.8
+	  Accuracy: 100% baby!
+	  (nodes,height): (3,1)
+	 Purity threshold 0.9
+	  Accuracy: 100% baby!
+	  (nodes,height): (3,1)
+	 Purity threshold 1.0
+	  Accuracy: 100% baby!
+	  (nodes,height): (3,1)
+	Testing dataset 'simpleDataset2'
+	  2.889 ms (26118 allocations: 1.37 MiB)
+	 Purity threshold 0.7
+	  Accuracy: 30.0%
+	  Kappa: 0.0%
+	  Matrix: 
+	2×2 Array{Int64,2}:
+	 0  28
+	 0  12
+	  (nodes,height): (1,0)
+	 Purity threshold 0.8
+	  Accuracy: 30.0%
+	  Kappa: 0.0%
+	  Matrix: 
+	2×2 Array{Int64,2}:
+	 0  28
+	 0  12
+	  (nodes,height): (1,0)
+	 Purity threshold 0.9
+	  Accuracy: 30.0%
+	  Kappa: 0.0%
+	  Matrix: 
+	2×2 Array{Int64,2}:
+	 0  28
+	 0  12
+	  (nodes,height): (1,0)
+	 Purity threshold 1.0
+	  Accuracy: 30.0%
+	  Kappa: 0.0%
+	  Matrix: 
+	2×2 Array{Int64,2}:
+	 0  28
+	 0  12
+	  (nodes,height): (1,0)
+	Testing dataset 'Eduard-5'
+	  6.710 s (43872595 allocations: 1.64 GiB)
+	 Purity threshold 0.7
+	  Accuracy: 87.78%
+	  Kappa: 86.9%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  6  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  5  0  0  0  0  1  0  0  0  0  0
+	 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+	 0  1  0  0  0  1  4  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  3  1  0  2  0  0  0  0
+	 0  0  0  0  0  0  0  0  5  0  1  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  6  0  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  5  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  5  0  0
+	 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  0  0  5
+	  (nodes,height): (137,10)
+	 Purity threshold 0.8
+	  Accuracy: 90.0%
+	  Kappa: 89.29%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  6  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  6  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+	 0  1  0  0  0  1  4  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  4  1  0  1  0  0  0  0
+	 0  0  0  0  0  0  0  1  5  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  6  0  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  5  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  5  0  0
+	 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  0  0  5
+	  (nodes,height): (141,10)
+	 Purity threshold 0.9
+	  Accuracy: 91.11%
+	  Kappa: 90.48%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  6  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  6  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+	 0  1  0  0  0  1  4  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  5  0  0  1  0  0  0  0
+	 0  0  0  0  0  0  0  1  5  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  6  0  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  5  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  5  0  0
+	 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  0  0  5
+	  (nodes,height): (151,10)
+	 Purity threshold 1.0
+	  Accuracy: 91.11%
+	  Kappa: 90.48%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  6  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  6  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+	 0  1  0  0  0  1  4  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  5  0  0  1  0  0  0  0
+	 0  0  0  0  0  0  0  1  5  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  6  0  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  5  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  5  0  0
+	 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0
+	 0  0  0  0  0  0  0  1  0  0  0  0  0  0  5
+	  (nodes,height): (153,10)
+	Testing dataset 'Eduard-10'
+	  17.819 s (125273330 allocations: 4.73 GiB)
+	 Purity threshold 0.7
+	  Accuracy: 84.44%
+	  Kappa: 83.33%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 5  1  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  1  0  4  0  0  1  0  0  0  0  0  0  0
+	 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  4  0  0  0  0  2  0  0  0
+	 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  5  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  1  0  5  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  1  0  5  0  0
+	 0  0  0  0  0  2  0  0  0  0  0  0  0  4  0
+	 0  0  0  0  0  0  0  0  0  1  0  0  0  0  5
+	  (nodes,height): (185,10)
+	 Purity threshold 0.8
+	  Accuracy: 85.56%
+	  Kappa: 84.52%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 5  1  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  1  0  4  0  0  1  0  0  0  0  0  0  0
+	 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  4  0  0  0  0  2  0  0  0
+	 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  5  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  1  0  5  0  0
+	 0  0  0  0  0  2  0  0  0  0  0  0  0  4  0
+	 0  0  0  0  0  0  0  0  0  1  0  0  0  0  5
+	  (nodes,height): (193,10)
+	 Purity threshold 0.9
+	  Accuracy: 84.44%
+	  Kappa: 83.33%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 5  1  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  1  0  4  0  0  1  0  0  0  0  0  0  0
+	 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  4  1  0  0  0  1  0  0  0
+	 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  5  0  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  5  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  1  0  5  0  0
+	 0  0  0  0  0  2  0  0  0  0  0  0  0  4  0
+	 0  0  0  0  0  0  0  0  0  1  0  0  0  0  5
+	  (nodes,height): (203,10)
+	 Purity threshold 1.0
+	  Accuracy: 84.44%
+	  Kappa: 83.33%
+	  Matrix: 
+	15×15 Array{Int64,2}:
+	 5  1  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+	 1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+	 0  0  1  0  4  0  0  1  0  0  0  0  0  0  0
+	 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  4  1  0  0  0  1  0  0  0
+	 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0
+	 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  5  0  0  0  0
+	 0  0  0  0  0  0  0  1  0  0  0  5  0  0  0
+	 0  0  0  0  0  0  0  0  0  0  1  0  5  0  0
+	 0  0  0  0  0  2  0  0  0  0  0  0  0  4  0
+	 0  0  0  0  0  0  0  0  0  1  0  0  0  0  5
+	  (nodes,height): (203,10)
 
 back to using Views:
 Testing dataset 'simpleDataset'

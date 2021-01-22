@@ -79,7 +79,7 @@ module treeclassifier
 							
 							purity_function     :: Function,
 							node                :: NodeMeta{T},              # the node to split
-							max_features        :: Int,                      # number of features to consider
+							# max_features        :: Int,                      # number of features to consider
 							max_depth           :: Int,                      # the maximum depth of the resultant tree
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
@@ -328,7 +328,7 @@ module treeclassifier
 			X                   :: OntologicalDataset{T, N},
 			Y                   :: AbstractVector{Label},
 			W                   :: AbstractVector{U},
-			max_features        :: Int,
+			# max_features        :: Int,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
 			min_purity_increase :: AbstractFloat,
@@ -341,11 +341,11 @@ module treeclassifier
 		elseif max_depth < -1
 			throw("unexpected value for max_depth: $(max_depth) (expected:"
 				* " max_depth >= 0, or max_depth = -1 for infinite depth)")
-		elseif n_vars < max_features
-			throw("number of features $(n_vars) is less than the number "
-				* "of max features $(max_features)")
-		elseif max_features < 0
-			throw("number of features $(max_features) must be >= zero ")
+		# elseif n_vars < max_features
+			# throw("number of features $(n_vars) is less than the number "
+				# * "of max features $(max_features)")
+		# elseif max_features < 0
+			# throw("number of features $(max_features) must be >= zero ")
 		elseif min_samples_leaf < 1
 			throw("min_samples_leaf must be a positive integer "
 				* "(given $(min_samples_leaf))")
@@ -362,7 +362,7 @@ module treeclassifier
 			W                       :: AbstractVector{U},
 			loss                    :: Function,
 			n_classes               :: Int,
-			max_features            :: Int,
+			# max_features            :: Int,
 			max_depth               :: Int,
 			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
 			min_purity_increase     :: AbstractFloat,
@@ -407,7 +407,7 @@ module treeclassifier
 			_split!(
 				X, Y, W, S,
 				loss, node,
-				max_features,
+				# max_features,
 				max_depth,
 				min_samples_leaf,
 				min_purity_increase,
@@ -437,7 +437,7 @@ module treeclassifier
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
 			loss = util.entropy     :: Function,
-			max_features            :: Int,
+			# max_features            :: Int, # TODO remove this parameter
 			max_depth               :: Int,
 			min_samples_leaf        :: Int,
 			min_samples_split       :: Int,
@@ -464,7 +464,7 @@ module treeclassifier
 		# Check validity of the input
 		check_input(
 			X, Y, W,
-			max_features,
+			# max_features,
 			max_depth,
 			min_samples_leaf,
 			min_purity_increase,
@@ -475,7 +475,7 @@ module treeclassifier
 			X, Y_, W,
 			loss,
 			length(labels),
-			max_features,
+			# max_features,
 			max_depth,
 			min_samples_leaf,
 			min_purity_increase,
