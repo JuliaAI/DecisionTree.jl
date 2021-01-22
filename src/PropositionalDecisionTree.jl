@@ -64,7 +64,7 @@ include("load_data.jl")
 include("util.jl")
 include("classification/main.jl")
 include("regression/main.jl")
-include("scikitlearnAPI.jl")
+include("PropositionalScikitlearnAPI.jl")
 
 
 #############################

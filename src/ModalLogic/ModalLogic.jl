@@ -1,10 +1,7 @@
 module ModalLogic
 
 using IterTools
-import Base.argmax
-import Base.argmin
-import Base.size
-import Base.show
+import Base: argmax, argmin, size, show, convert
 
 using ComputedFieldTypes
 
@@ -12,6 +9,7 @@ export AbstractWorld, AbstractRelation,
 				Ontology, OntologicalDataset,
 				n_samples, n_variables, dimension,
 				IntervalOntology,
+				MatricialInstance,
 				MatricialDataset,
 				MatricialUniDataset,
 				WorldSet
@@ -94,6 +92,18 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 
 # TODO use Xf[i,[(:) for i in 1:N]...]
 
+@inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
+@inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
+@inline WLeq(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
+	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
+	# @info "WLeq" w val #n readWorld(w,channel)
+	@inbounds for x in readWorld(w,channel)
+      x <= val || return false
+  end
+  return true
+end
+
+
 # World generators/enumerators and array/set-like structures
 # TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
 const WorldGenerator = Union{Base.Generator,IterTools.Distinct}
@@ -103,6 +113,11 @@ const AbstractWorldSet{W} = Union{AbstractVector{W},AbstractSet{W}} where {W<:Ab
 const WorldSet{W} = Vector{W} where {W<:AbstractWorld}
 WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
 
+const WorldOrSet{W} = Union{W,WorldGenerator,AbstractWorldSet{W}} where {W<:AbstractWorld}
+
+# Fallback: enumAcc works with domains AND their dimensions
+enumAcc(S::Any, r::AbstractRelation, X::MatricialChannel{T,N}) where {T,N} = enumAcc(S, r, size(X)...)
+
 # Ontology-agnostic relations:
 # - Identity relation  (RelationId)    =  S -> S
 # - None relation      (RelationNone)  =  Used as the "nothing" constant
@@ -111,8 +126,9 @@ struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId(
 struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
 struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
-enumAcc(S::Union{WorldGenerator,AbstractWorldSet{<:AbstractWorld}}, ::_RelationId, X::AbstractArray{T,1}) where T = S # IterTools.imap(identity, S)
-# Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::AbstractArray{T,1}) where T = [w] # IterTools.imap(identity, [w])
+enumAcc(W::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [W]
+enumAcc(S::Union{WorldGenerator,AbstractWorldSet{W}}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
+# Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
 
 print_rel_short(::_RelationId)  = "Id"
 print_rel_short(::_RelationAll) = ""

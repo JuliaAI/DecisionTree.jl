@@ -69,7 +69,7 @@ module treeclassifier
 	# end
 
 	# find an optimal split satisfying the given constraints
-	# (max_depth, min_samples_leaf, min_purity_increase)
+	# (e.g. max_depth, min_samples_leaf, min_purity_increase)
 	# TODO not using max_features, rng (which is still useful e.g. rand(rng, 1:10)) anymore
 	function _split!(
 							X                   :: OntologicalDataset{T, N}, # the ontological dataset
@@ -82,7 +82,8 @@ module treeclassifier
 							max_features        :: Int,                      # number of features to consider
 							max_depth           :: Int,                      # the maximum depth of the resultant tree
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
-							min_purity_increase :: AbstractFloat,            # minimum purity needed for a split
+							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
+							max_purity_split    :: AbstractFloat,            # maximum purity allowed on a split
 							
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
 							
@@ -105,8 +106,6 @@ module treeclassifier
 		n_samples = length(region)
 		r_start = region.start - 1
 
-		n_classes = length(nc)
-
 		# Class counts
 		nc[:] .= zero(U)
 		@simd for i in region
@@ -117,8 +116,9 @@ module treeclassifier
 
 		# Check leaf conditions
 		if (min_samples_leaf * 2 >  n_samples
-		 || max_depth            <= node.depth
-		 || nc[node.label]       == nt)
+		 || nc[node.label]       == nt
+		 || nc[node.label] / nt >= max_purity_split # TODO this purity has to be the purity function, not the number of training samples.
+		 || max_depth            <= node.depth)
 			node.is_leaf = true
 			return
 		end
@@ -223,7 +223,7 @@ module treeclassifier
 					end
 
 					# Calculate left class counts
-					@simd for lab in 1:n_classes # TODO something like @simd ncl .= nc - ncr instead
+					@simd for lab in 1:length(nc) # TODO something like @simd ncl .= nc - ncr instead
 						ncl[lab] = nc[lab] - ncr[lab]
 					end
 					nl = nt - nr
@@ -232,6 +232,7 @@ module treeclassifier
 					# Honor min_samples_leaf
 					if nl >= min_samples_leaf && n_samples - nl >= min_samples_leaf
 						unsplittable = false
+						# TODO what is this purity?
 						purity = -(nl * purity_function(ncl, nl) +
 							      	 nr * purity_function(ncr, nr))
 						@info " purity = " purity
@@ -260,7 +261,7 @@ module treeclassifier
 
 		# If the split is good, partition and split according to the optimum
 		@inbounds if (unsplittable # no splits honor min_samples_leaf
-			|| (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
+			|| (best_purity / nt + purity_function(nc, nt) < min_purity_increase)) # TODO what is this gain here? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 			@info " LEAF" (best_purity / nt)
 			node.is_leaf = true
 			return
@@ -330,7 +331,8 @@ module treeclassifier
 			max_features        :: Int,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
-			min_purity_increase :: AbstractFloat) where {T, U, N}
+			min_purity_increase :: AbstractFloat,
+			max_purity_split    :: AbstractFloat) where {T, U, N}
 			n_instances, n_vars = n_samples(X), n_variables(X)
 		if length(Y) != n_instances
 			throw("dimension mismatch between X and Y ($(size(X.domain)) vs $(size(Y))")
@@ -347,6 +349,9 @@ module treeclassifier
 		elseif min_samples_leaf < 1
 			throw("min_samples_leaf must be a positive integer "
 				* "(given $(min_samples_leaf))")
+		elseif max_purity_split > 1.0 || max_purity_split <= 0.0
+			throw("max_purity_split must be in (0,1]"
+				* "(given $(max_purity_split))")
 		end
 		# TODO check that X doesn't have nans, typemin(T), typemax(T), missings, nothing etc. ...
 	end
@@ -359,8 +364,9 @@ module treeclassifier
 			n_classes               :: Int,
 			max_features            :: Int,
 			max_depth               :: Int,
-			min_samples_leaf        :: Int,
+			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
 			min_purity_increase     :: AbstractFloat,
+			max_purity_split        :: AbstractFloat,
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
 		# Dataset sizes
@@ -405,6 +411,7 @@ module treeclassifier
 				max_depth,
 				min_samples_leaf,
 				min_purity_increase,
+				max_purity_split,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, 
 				rng,
@@ -434,6 +441,7 @@ module treeclassifier
 			min_samples_leaf        :: Int,
 			min_samples_split       :: Int,
 			min_purity_increase     :: AbstractFloat,
+			max_purity_split = 1.0  :: AbstractFloat, # TODO add this to scikit's interface.
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
@@ -459,7 +467,8 @@ module treeclassifier
 			max_features,
 			max_depth,
 			min_samples_leaf,
-			min_purity_increase)
+			min_purity_increase,
+			max_purity_split)
 
 
 		# Call core learning function
@@ -471,6 +480,7 @@ module treeclassifier
 			max_depth,
 			min_samples_leaf,
 			min_purity_increase,
+			max_purity_split,
 			rng)
 
 		return Tree{T, S}(root, labels, indX)

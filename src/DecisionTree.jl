@@ -13,8 +13,18 @@ export DTNode, DTLeaf, DTInternal,
 			 num_nodes, height, modal_height,
 			 build_stump, build_tree,
        print_tree, prune_tree, apply_tree,
-			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
-			 treeclassifier # TODO TMP
+			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data
+
+# ScikitLearn API
+export DecisionTreeClassifier,
+#        DecisionTreeRegressor, RandomForestClassifier,
+#        RandomForestRegressor, AdaBoostStumpClassifier,
+#        # Should we export these functions? They have a conflict with
+#        # DataFrames/RDataset over fit!, and users can always
+#        # `using ScikitLearnBase`.
+       predict,
+       # predict_proba,
+       fit!, get_classes
 
 include("ModalLogic/ModalLogic.jl")
 using .ModalLogic

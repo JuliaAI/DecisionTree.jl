@@ -24,18 +24,20 @@ end
 ################################################################################
 
 # TODO include adimensional case? Probably not in the dataset itself
-buildOntologicalDataset(features :: AbstractArray{S,3}) where {S} =
-	OntologicalDataset{S,1}(IntervalOntology,features)
+buildOntologicalDataset(features :: MatricialDataset{T,3}) where {T} =
+	OntologicalDataset{T,1}(ModalLogic.getIntervalOntologyOfDim(Val(1)),features)
+buildOntologicalDataset(features :: MatricialDataset{T,4}) where {T} =
+	OntologicalDataset{T,2}(ModalLogic.getIntervalOntologyOfDim(Val(2)),features)
 
 # Build a stump (tree with depth 1)
 function build_stump(
 		labels      :: AbstractVector{Label},
-		features    :: AbstractArray{S,N},
+		features    :: MatricialDataset{T,D},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
 		ontology    :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(N-2)),
-		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {S, U, N}
+		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D}
 	
-	X = OntologicalDataset{S,N-2}(ontology,features)
+	X = OntologicalDataset{T,D-2}(ontology,features)
 	
 	t = treeclassifier.fit(
 		X                   = X,
@@ -54,7 +56,7 @@ end
 
 function build_tree(
 		labels              :: AbstractVector{Label},
-		features            :: AbstractArray{S,N},
+		features            :: MatricialDataset{T,D},
 		n_subfeatures       :: Int                = 0,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
@@ -62,10 +64,10 @@ function build_tree(
 		min_purity_increase :: AbstractFloat      = 0.0;
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(N-2)),
 		loss                :: Function           = util.entropy,
-		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {S, N}
+		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D}
 	
 	# TODO disaccoppia dataset e ontologia di riferimento.
-	X = OntologicalDataset{S,N-2}(ontology,features)
+	X = OntologicalDataset{T,D-2}(ontology,features)
 
 	if max_depth == -1
 		max_depth = typemax(Int)
@@ -90,12 +92,11 @@ function build_tree(
 	return _convert(t.root, t.list, labels[t.labels])
 end
 
-function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) where {S, T}
-	if purity_thresh >= 1.0
+function prune_tree(tree::DTNode{S, T}, max_purity_threshold::AbstractFloat = 1.0) where {S, T}
+	if max_purity_threshold >= 1.0
 		return tree
 	end
-	# Prune the tree once
-	# TODO check how the modal pruning should be performed
+	# Prune the tree once TODO make more efficient (avoid copying so many nodes.)
 	function _prune_run(tree::DTNode{S, T}) where {S, T}
 		N = length(tree)
 		if N == 1        ## a DTLeaf
@@ -105,7 +106,7 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 			majority = majority_vote(all_labels)
 			matches = findall(all_labels .== majority)
 			purity = length(matches) / length(all_labels)
-			if purity >= purity_thresh
+			if purity >= max_purity_threshold
 				return DTLeaf{T}(majority, all_labels)
 			else
 				return tree
@@ -119,23 +120,23 @@ function prune_tree(tree::DTNode{S, T}, purity_thresh::AbstractFloat = 1.0) wher
 	end
 
 	# Keep pruning until "convergence"
+	pruned = _prune_run(tree)
 	while true
-		pruned = _prune_run(tree)
 		length(pruned) < length(tree) || break
+		pruned = _prune_run(tree)
 		tree = pruned
 	end
 	return pruned
 end
 
 
-apply_tree(leaf::DTLeaf{T}, Xi::AbstractArray{U,N}, S::AbstractSet{<:AbstractWorld}) where {U, T, N} = leaf.majority
+apply_tree(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::AbstractSet{<:AbstractWorld}) where {U, T, MN} = leaf.majority
 
-function apply_tree(tree::DTInternal{U, T}, Xi::AbstractArray{U,N}, S::AbstractSet{<:AbstractWorld}) where {U, T, N}
+function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::AbstractSet{<:AbstractWorld}) where {U, T, MN}
 	return (
 		if tree.featid == 0
 			@error " found featid == 0, TODO figure out where does this come from" tree
 			# apply_tree(tree.left, X, S)
-		# elseif tree.modality == ModalLogic.RelationId # TODO actually, no need for this edge case, because enum would return S anyway
 		else
 			@info "applying branch..."
 			satisfied = true
@@ -153,11 +154,11 @@ function apply_tree(tree::DTInternal{U, T}, Xi::AbstractArray{U,N}, S::AbstractS
 end
 
 # Apply tree to a dimensional dataset in matricial form
-function apply_tree(tree::DTNode{S, T}, features::AbstractArray{S,N}) where {S, T, N}
+function apply_tree(tree::DTNode{S, T}, features::MatricialDataset{S,D}) where {S, T, D}
 	@info "apply_tree..."
 	# TODO don't create an ontological dataset, there is no need. Instead, attach the ontology to the tree as metadata.
-	ontology = IntervalOntology
-	X = OntologicalDataset{S,N-2}(ontology,features)
+	ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2))
+	X = OntologicalDataset{S,D-2}(ontology,features)
 	n_samp = n_samples(X)
 	# n_variables(X)
 	predictions = Array{T,1}(undef, n_samp)

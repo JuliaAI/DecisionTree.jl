@@ -1,10 +1,5 @@
-import ScikitLearnBase: BaseClassifier,
-												BaseRegressor,
-												predict,
-												# TODO predict_proba,
-                        fit!,
-                        get_classes,
-                        @declare_hyperparameters
+import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
+                        fit!, get_classes, @declare_hyperparameters
 
 ################################################################################
 # Classifier
@@ -40,8 +35,8 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     min_samples_split::Int
     min_purity_increase::Float64
     n_subfeatures::Int
-    rng::Random.AbstractRNG
-    root::Union{DTNode, Nothing}
+    rng::Random.Random.AbstractRNG
+    root::Union{LeafOrNode, Nothing}
     classes::Union{Vector, Nothing}
     DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
                            min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing, classes=nothing) =
@@ -72,13 +67,11 @@ end
 
 predict(dt::DecisionTreeClassifier, X) = apply_tree(dt.root, X)
 
-# TODO
-# predict_proba(dt::DecisionTreeClassifier, X) =
-    # apply_tree_proba(dt.root, X, dt.classes)
+predict_proba(dt::DecisionTreeClassifier, X) =
+    apply_tree_proba(dt.root, X, dt.classes)
 
-# TODO
-# predict_log_proba(dt::DecisionTreeClassifier, X) =
-    # log(predict_proba(dt, X)) # this will yield -Inf when p=0. Hmmm...
+predict_log_proba(dt::DecisionTreeClassifier, X) =
+    log(predict_proba(dt, X)) # this will yield -Inf when p=0. Hmmm...
 
 function show(io::IO, dt::DecisionTreeClassifier)
     println(io, "DecisionTreeClassifier")
@@ -117,9 +110,7 @@ Hyperparameters:
   to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `get_classes`
-
-TODO
-
+"""
 mutable struct DecisionTreeRegressor <: BaseRegressor
     pruning_purity_threshold::Float64
     max_depth::Int
@@ -128,7 +119,7 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
     min_purity_increase::Float64
     n_subfeatures::Int
     rng::Random.AbstractRNG
-    root::Union{DTNode, Nothing}
+    root::Union{LeafOrNode, Nothing}
     DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
                           min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing) =
         new(pruning_purity_threshold,
@@ -172,7 +163,7 @@ function show(io::IO, dt::DecisionTreeRegressor)
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
     print(io,   "root:                     ") ; show(io, dt.root)
 end
-"""
+
 ################################################################################
 # Random Forest Classification
 
@@ -197,7 +188,7 @@ Hyperparameters:
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
-TODO
+"""
 mutable struct RandomForestClassifier <: BaseClassifier
     n_subfeatures::Int
     n_trees::Int
@@ -255,7 +246,6 @@ function show(io::IO, rf::RandomForestClassifier)
     print(io,   "classes:             ") ; show(io, rf.classes)  ; println(io, "")
     print(io,   "ensemble:            ") ; show(io, rf.ensemble)
 end
-"""
 
 ################################################################################
 # Random Forest Regression
@@ -282,7 +272,7 @@ Hyperparameters:
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
 
 Implements `fit!`, `predict`, `get_classes`
-TODO
+"""
 mutable struct RandomForestRegressor <: BaseRegressor
     n_subfeatures::Int
     n_trees::Int
@@ -335,7 +325,6 @@ function show(io::IO, rf::RandomForestRegressor)
     println(io, "min_purity_increase: $(rf.min_purity_increase)")
     print(io,   "ensemble:            ") ; show(io, rf.ensemble)
 end
-"""
 
 ################################################################################
 # AdaBoost Stump Classifier
@@ -353,7 +342,7 @@ Hyperparameters:
   to seed and create a new random number generator.
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
-TODO
+"""
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
     n_iterations::Int
     rng::Random.AbstractRNG
@@ -386,7 +375,6 @@ function show(io::IO, ada::AdaBoostStumpClassifier)
     print(io,   "classes:      ") ; show(io, ada.classes)  ; println(io, "")
     print(io,   "ensemble:     ") ; show(io, ada.ensemble)
 end
-"""
 
 ################################################################################
 # Common functions

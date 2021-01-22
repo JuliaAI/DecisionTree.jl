@@ -1,49 +1,70 @@
 julia
 
+using Pkg
 Pkg.activate("DecisionTree.jl")
 using Revise
-using Pkg
 
 import Random
-# Random.GLOBAL_RNG
-my_rng() = Random.MersenneTwister(1)
+my_rng() = Random.MersenneTwister(1) # Random.GLOBAL_RNG
 
 using Logging
 
 using BenchmarkTools
 using DecisionTree
 using DecisionTree.ModalLogic
+using ScikitLearnBase
+using Statistics
+using Test
 
 include("example-datasets.jl")
 
-function testDataset((name,dataset), timeit::Bool = true)
+function testDataset((name,dataset), timeit::Bool = true; pruning_purity_thresholds = [0.7,0.8,0.9])
 	println("Testing dataset '$name'")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	length(dataset) == 4 || error(length(dataset))
 	X_train, Y_train, X_test, Y_test = dataset
 	if timeit
-		@btime build_tree($Y_train, $X_train; ontology = ModalLogic.IntervalOntology, rng = my_rng());
+		@btime build_tree($Y_train, $X_train; ontology = $(ModalLogic.getIntervalOntologyOfDim(X_train)), rng = my_rng());
 	end
 
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
-	T = build_tree(Y_train, X_train; rng = my_rng());
+	T = build_tree(Y_train, X_train; ontology = ModalLogic.getIntervalOntologyOfDim(X_train), rng = my_rng());
 
-	preds = apply_tree(T, X_test);
-
-	if Y_test == preds
-		println("  Accuracy: 100% baby!")
-	else
-		println("  Accuracy: ", round((sum(Y_test .== preds)/length(preds))*100, digits=2), "%")
-	end;
-
-	global_logger(ConsoleLogger(stderr, Logging.Info));
-
-	if timeit
-		println("  Nodes: $(num_nodes(T))")
-		println("  Height: $(height(T))")
-	else
+	if !timeit
 		print(T)
 	end
+
+	for pruning_purity_threshold in sort(unique([(Float64.(pruning_purity_thresholds))...,1.0]))
+		println(" Purity threshold $pruning_purity_threshold")
+		
+		global_logger(ConsoleLogger(stderr, Logging.Warn));
+
+		T_pruned = prune_tree(T, pruning_purity_threshold)
+		preds = apply_tree(T_pruned, X_test);
+		cm = confusion_matrix(Y_test, preds)
+		# @test cm.accuracy > 0.99
+
+		if Y_test == preds
+			println("  Accuracy: 100% baby!")
+		else
+			println("  Accuracy: ", round(cm.accuracy*100, digits=2), "%")
+			println("  Kappa: ", round(cm.kappa*100, digits=2), "%")
+			println("  Matrix: ")
+			display(cm.matrix)
+		end;
+
+		global_logger(ConsoleLogger(stderr, Logging.Info));
+
+		if timeit
+			println("  (nodes,height): ($(num_nodes(T_pruned)),$(height(T_pruned)))")
+		end
+	end
+
+	# model = fit!(DecisionTreeClassifier(pruning_purity_threshold=pruning_purity_threshold), X_train, Y_train)
+	# cm = confusion_matrix(Y_test, predict(model, X_test))
+	# @test cm.accuracy > 0.99
+
+	T
 end
 
 testDatasets(d, timeit::Bool = true) = map((x)->testDataset(x, timeit), d);
@@ -53,41 +74,14 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	("simpleDataset2",traintestsplit(simpleDataset2(200,5,my_rng())...,0.8)),
 	("Eduard-5",EduardDataset(5)),
 	("Eduard-10",EduardDataset(10)),
-	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 3, "Pavia", my_rng())...,0.8)),
-	# ("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(100, 3, "IndianPinesCorrected", my_rng())...,0.8)),
+	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 3, "Pavia", 5, my_rng())...,0.8)),
+	# ("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(100, 3, "IndianPinesCorrected", 5, my_rng())...,0.8)),
+	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 5, "Pavia", 5, my_rng())...,0.8)),
+	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 7, "Pavia", 5, my_rng())...,0.8)),
 ];
 
+# T = testDataset(datasets[1], false)
+# T = testDataset(datasets[2], false)
 testDatasets(datasets);
 
-# T = testDataset(datasets[1], false)
-
-# X = ModalLogic.OntologicalDataset{Int64,0}(ModalLogic.IntervalOntology,Array{Int64,2}(undef, 20, 10))
-# X = ModalLogic.OntologicalDataset{Float32,0}(ModalLogic.IntervalOntology,rand(Float32, 20, 10))
-# XX = ModalLogic.OntologicalDataset{Int64,1}(ModalLogic.IntervalOntology,X_train)
-
-#=
-
-Testing dataset 'simpleDataset'
-  120.604 ms (2251653 allocations: 194.33 MiB)
-  Accuracy: 100% baby!
-  Nodes: 3
-  Height: 1
-Testing dataset 'simpleDataset2'
-  851.795 μs (20017 allocations: 1.15 MiB)
-  Accuracy: 30.0%
-  Nodes: 1
-  Height: 0
-Testing dataset 'Eduard-5'
-  4.502 s (39457913 allocations: 1.49 GiB)
-  Accuracy: 88.89%
-  Nodes: 167
-  Height: 10
-Testing dataset 'Eduard-10'
-  11.129 s (102020927 allocations: 3.93 GiB)
-  Accuracy: 84.44%
-  Nodes: 221
-  Height: 10
-
-=#
- 
 
