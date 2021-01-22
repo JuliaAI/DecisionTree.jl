@@ -419,8 +419,9 @@ module treeclassifier
 			# After processing, if needed, perform the split and push the two children for a later processing step
 			if !node.is_leaf
 				fork!(node)
-				push!(stack, (node.l,false))
-				push!(stack, (node.r,true))
+				# Note: the left (positive) child is not limited to RelationAll, whereas the right child is only if the current node is as well.
+				push!(stack, (node.l, false))
+				push!(stack, (node.r, onlyUseRelationAll))
 			end
 		end
 
@@ -451,7 +452,6 @@ module treeclassifier
 		labels, Y_ = util.assign(Y)
 
 		min_samples_leaf = min(min_samples_leaf, round(Int, min_samples_split/2))
-		
 
 		# Use unary weights if no weight is supplied
 		if W == nothing
@@ -469,7 +469,6 @@ module treeclassifier
 			min_samples_leaf,
 			min_purity_increase,
 			max_purity_split)
-
 
 		# Call core learning function
 		root, indX = _fit(
