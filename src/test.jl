@@ -20,7 +20,7 @@ using Test
 include("example-datasets.jl")
 
 function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [])
-	println("Testing dataset '$name'")
+	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	length(dataset) == 4 || error(length(dataset))
 	X_train, Y_train, X_test, Y_test = dataset
@@ -45,7 +45,7 @@ function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_th
 		cm = confusion_matrix(Y_test, preds)
 		# @test cm.accuracy > 0.99
 
-		print("  acc.", round(cm.accuracy*100, digits=2), "%, kappa: ", round(cm.kappa*100, digits=2), "%")
+		print("  acc: ", round(cm.accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "%")
 		display(cm.matrix)
 
 		global_logger(ConsoleLogger(stderr, Logging.Info));
@@ -54,20 +54,20 @@ function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_th
 			println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 		end
 	end
-
 	T
 end
 
 testDatasets(d, timeit::Bool = true) = map((x)->testDataset(x, timeit), d);
 
 datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
-	("simpleDataset",traintestsplit(simpleDataset(200,50,my_rng())...,0.8)),
-	("simpleDataset2",traintestsplit(simpleDataset2(200,5,my_rng())...,0.8)),
-	("Eduard-5",EduardDataset(5)),
-	("Eduard-10",EduardDataset(10)),
-	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 3, "Pavia", 5, my_rng())...,0.8)),
+	# ("simpleDataset",traintestsplit(simpleDataset(200,50,my_rng())...,0.8)),
+	# ("simpleDataset2",traintestsplit(simpleDataset2(200,5,my_rng())...,0.8)),
+	# ("Eduard-5",EduardDataset(5)),
+	# ("Eduard-10",EduardDataset(10)),
+	("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 1, "Pavia", 5, my_rng())...,0.8)),
+	("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 3, "Pavia", 5, my_rng())...,0.8)),
+	("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 5, "Pavia", 5, my_rng())...,0.8)),
 	# ("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(100, 3, "IndianPinesCorrected", 5, my_rng())...,0.8)),
-	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 5, "Pavia", 5, my_rng())...,0.8)),
 	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(100, 7, "Pavia", 5, my_rng())...,0.8)),
 ];
 

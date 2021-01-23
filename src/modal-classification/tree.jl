@@ -171,30 +171,39 @@ module treeclassifier
 
 				# Find, for each instance, the highest value for any world
 				#                       and the lowest value for any world
-				maxPeaks = fill(typemin(T), n_samples)
-				minPeaks = fill(typemax(T), n_samples)
+				@info "Computing peaks..." # channel
+				maxPeaks     = fill(typemin(T), n_samples)
+				semiMaxPeaks = fill(typemin(T), n_samples)
+				minPeaks     = fill(typemax(T), n_samples)
+				semiMinPeaks = fill(typemax(T), n_samples)
 				for i in 1:n_samples
 					channel = ModalLogic.getChannel(Xf, i)
-					@info " instance {$i}/{$n_samples}" # channel
-					# TODO this findmin/findmax can be made more efficient for intervals.
+					# @info " instance $i/$n_samples" # channel
+					# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
 					for w in ModalLogic.enumAcc(Sf[i], relation, channel)
-						maxPeaks[i] = max(maxPeaks[i], ModalLogic.WMax(w, channel))
-						minPeaks[i] = min(minPeaks[i], ModalLogic.WMin(w, channel))
+						if maxPeaks[i] < ModalLogic.WMax(w, channel)
+							maxPeaks[i] = ModalLogic.WMax(w, channel)
+							semiMaxPeaks[i] = ModalLogic.WMin(w, channel)
+						else maxPeaks[i] == ModalLogic.WMax(w, channel)
+							semiMaxPeaks[i] = max(semiMaxPeaks[i], ModalLogic.WMin(w, channel))
+						end
+						if minPeaks[i] > ModalLogic.WMin(w, channel)
+							minPeaks[i] = ModalLogic.WMin(w, channel)
+							semiMinPeaks[i] = ModalLogic.WMax(w, channel)
+						else minPeaks[i] == ModalLogic.WMin(w, channel)
+							semiMinPeaks[i] = min(semiMinPeaks[i], ModalLogic.WMax(w, channel))
+						end
 					end
-					# @info "  maxPeak {$(maxPeaks[i])}"
-					# @info "  minPeak {$(minPeaks[i])}"
 				end
-				@info "  maxPeak {$maxPeaks}"
-				@info "  minPeak {$minPeaks}"
+				# @info "  (maxPeak,minPeak) $maxPeaks,$minPeaks"
 				
 				# Obtain the list of reasonable thresholds
-				thresholdDomain = setdiff(union(Set(maxPeaks),Set(minPeaks)),Set([typemin(T), typemax(T)]))
+				thresholdDomain = setdiff(union(Set(semiMaxPeaks),Set(semiMinPeaks)),Set([typemin(T), typemax(T)]))
 				@info "thresholdDomain " thresholdDomain
 
-				# Look for thresholds 'a' for the proposition "feature <= a"
-				# TODO do the same with "feature > a" (but avoid for relation = Eq because then the case is redundant)
+				# Look for thresholds 'a' for the propositions like "feature >= a"
 				for threshold in thresholdDomain
-					# [:(<=), :(>)] # TODO don't use booleans for test_operators, just symbols (possible overhead?)
+					# [:>=, :<] # TODO don't use booleans for test_operators, just symbols (possible overhead?)
 					# Note: in the propositional case, the <= and > are complementary and split-redundant
 					if relations == ModalLogic.RelationId
 						feasible_test_operators = [true]
@@ -203,30 +212,31 @@ module treeclassifier
 					end
 					# Look for the correct test operator
 					for test_operator in feasible_test_operators
-						@info " threshold {$threshold}... Question: <$relation> (A$feature " * (if test_operator "<=" else ">" end) * " $threshold)"
+						@info " threshold $threshold. Question: <$relation> (A$feature " * (if test_operator ">=" else "<" end) * " $threshold)"
 						# Re-initialize right class counts
+						@info " Testing..."
 						nr = zero(U)
 						ncr[:] .= zero(U)
 						for i in 1:n_samples
-							@info " instance {$i}/{$n_samples}   peaks ($(minPeaks[i])/$(maxPeaks[i]))"
+							@info " instance $i/$n_samples   peaks ($(minPeaks[i])/$(semiMinPeaks[i])/$(semiMaxPeaks[i])/$(maxPeaks[i]))"
 							satisfied = true
+							# No world to go
 							if maxPeaks[i] == typemin(T) # && minPeaks[i] == typemax(T)
 								# @info "   NO!"
 								satisfied = false
-							elseif maxPeaks[i] <= threshold
-								# This is definitely a nl (Sf[i] makes a modal step)
+							elseif test_operator == true && semiMaxPeaks[i] < threshold
 								# @info "   YES!!!"
-								satisfied = test_operator # e.g. true for <=
-							elseif minPeaks[i] > threshold
-								# This is definitely a nr (Sf[i] stays the same)
-								# @info "   NO!!!"
-								satisfied = !test_operator # e.g. true for >
+								satisfied = false
+							elseif test_operator == false && semiMinPeaks[i] >= threshold
+								# @info "   YES!!!"
+								satisfied = false
 							else
 								# @info "   must manually check worlds." # channel
-								# TODO satisfied = false
-								channel = ModalLogic.getChannel(Xf, i)
-								(satisfied,_) = ModalLogic.modalStep(Sf[i], relation, channel, Val(test_operator), threshold, Val(true))
+								# TODO leverage the fact that if a world is (A <= a) then it can't be (A > a)
+								# channel = ModalLogic.getChannel(Xf, i)
+								# (satisfied,_) = ModalLogic.modalStep(Sf[i], relation, channel, Val(test_operator), threshold, Val(true))
 							end
+							
 							if !satisfied
 								nr += Wf[i]
 								ncr[Yf[i]] += Wf[i]
@@ -238,7 +248,7 @@ module treeclassifier
 							ncl[lab] = nc[lab] - ncr[lab]
 						end
 						nl = nt - nr
-						@info " (nl,nr) = ($nl,$nr)\n"
+						@info " (n_left,n_right) = ($nl,$nr)\n"
 
 						# Honor min_samples_leaf
 						if nl >= min_samples_leaf && n_samples - nl >= min_samples_leaf
@@ -260,7 +270,7 @@ module treeclassifier
 								@info " best_purity = " best_purity
 								@info " " best_relation
 								@info ", " best_feature
-								@info ", " (best_test_operator ? (:<=) : (:>))
+								@info ", " (best_test_operator ? (:>=) : (:<))
 								@info ", " best_threshold
 								# @info threshold_lo, threshold_hi
 							end
@@ -292,10 +302,11 @@ module treeclassifier
 			# node.purity    = best_purity
 			node.modality       = best_relation
 			node.feature        = best_feature
-			node.test_operator  = (best_test_operator ? (:<=) : (:>))
+			node.test_operator  = (best_test_operator ? (:>=) : (:<))
 			node.threshold      = best_threshold
 
-			@info " Split condition: <$best_relation> (A$best_feature $best_test_operator $best_threshold)"
+			@info " Best split condition: <$best_relation> (A$best_feature " *
+			 (best_test_operator ? ">=" : ":<") * " $best_threshold)"
 
 			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
@@ -304,7 +315,7 @@ module treeclassifier
 			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_samples
 			unsatisfied_flags = fill(1, n_samples)
 			for i in 1:n_samples
-				@info " instance {$i}/{$n_samples}"
+				# @info " instance {$i}/{$n_samples}"
 				channel = ModalLogic.getChannel(Xf, i)
 				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, Val(best_test_operator), best_threshold, Val(false))
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead

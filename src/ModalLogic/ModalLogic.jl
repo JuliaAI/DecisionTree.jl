@@ -94,18 +94,18 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 
 @inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
 @inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
-@inline WLeq(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
+@inline WGeq(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
-	# @info "WLeq" w val #n readWorld(w,channel)
 	@inbounds for x in readWorld(w,channel)
-      x <= val || return false
+      x >= val || return false
   end
   return true
 end
-@inline WGre(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
+@inline WLes(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
+	# @info "WLes" w val #n readWorld(w,channel)
 	@inbounds for x in readWorld(w,channel)
-      x > val || return false
+      x < val || return false
   end
   return true
 end
@@ -159,8 +159,8 @@ modalStep(S::WorldSetType,
 		for w in worlds # Sf[i]
 			# @info " world" w
 			# TODO make sure that the modal step doesn't require that all worlds contribute to the new set. Consider why <>(p and q) is different from (<>p and [](p->q)) 
-			if (test_operator == Val(true) && WLeq(w, Xfi, threshold)) ||
-				 (test_operator == Val(false) && WGre(w, Xfi, threshold))
+			if (test_operator == Val(true) && WGeq(w, Xfi, threshold)) ||
+				 (test_operator == Val(false) && WLes(w, Xfi, threshold))
 				satisfied = true
 				if fastMode == Val(false)
 					push!(new_worlds, w)
