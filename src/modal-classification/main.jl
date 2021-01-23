@@ -17,7 +17,7 @@ function _convert(
 	else
 		left = _convert(node.l, list, labels)
 		right = _convert(node.r, list, labels)
-		return DTInternal{S, T}(node.feature, node.threshold, node.test_operator, node.modality, left, right)
+		return DTInternal{S, T}(node.modality, node.feature, node.test_operator, node.threshold, left, right)
 	end
 end
 
@@ -113,7 +113,7 @@ function prune_tree(tree::DTNode{S, T}, max_purity_threshold::AbstractFloat = 1.
 			end
 		else
 			# TODO also associate an Internal node with values and majority (all_labels, majority)
-			return DTInternal{S, T}(tree.featid, tree.featval, tree.test_operator, tree.modality,
+			return DTInternal{S, T}(tree.modality, tree.featid, tree.test_operator, tree.featval,
 						_prune_run(tree.left),
 						_prune_run(tree.right))
 		end
@@ -142,7 +142,7 @@ function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::Abst
 			satisfied = true
 			channel = ModalLogic.getInstanceFeature(Xi, tree.featid)
 			@info " S" S
-			(satisfied,S) = ModalLogic.modalStep(S, channel, tree.modality, tree.featval, Val(false))
+			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, Val(tree.test_operator == (:<=)), tree.featval, Val(false))
 			@info " ->S'" S
 			if satisfied
 				apply_tree(tree.left, Xi, S)

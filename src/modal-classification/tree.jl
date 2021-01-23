@@ -29,10 +29,10 @@ module treeclassifier
 		l           :: NodeMeta{S}      # left child
 		r           :: NodeMeta{S}      # right child
 		# purity      :: U              # purity grade attained if this is a split
-		modality    :: R where R<:AbstractRelation # modal operator (e.g. RelationId for the propositional case)
-		feature     :: Int              # feature used for splitting
+		modality         :: R where R<:AbstractRelation # modal operator (e.g. RelationId for the propositional case)
+		feature          :: Int              # feature used for splitting
 		test_operator    :: Symbol           # test_operator (e.g. <=)
-		threshold   :: S                # threshold value
+		threshold        :: S                # threshold value
 		function NodeMeta{S}(
 				region      :: UnitRange{Int},
 				depth       :: Int,
@@ -43,7 +43,6 @@ module treeclassifier
 			node.depth = depth
 			node.modal_depth = modal_depth
 			node.is_leaf = false
-			node.test_operator = :(<=) # TODO change
 			node
 		end
 	end
@@ -143,7 +142,7 @@ module treeclassifier
 		best_purity = typemin(U)
 		best_relation = ModalLogic.RelationNone
 		best_feature = -1
-		best_test_operator = :(0)
+		best_test_operator = true # nothing
 		best_threshold = T(-1)
 		# threshold_lo = ...
 		# threshold_hi = ...
@@ -151,7 +150,10 @@ module treeclassifier
 		# true if every feature is constant
 		unsplittable = true
 		
-		# Find best split
+		#####################
+		## Find best split ##
+		#####################
+
 		# For each variable
 		feature = 1
 		@inbounds while feature <= n_variables(X) # && unsplittable # TODO Uncomment this to stop at the first valid split encountered for any feature
@@ -192,68 +194,78 @@ module treeclassifier
 				# Look for thresholds 'a' for the proposition "feature <= a"
 				# TODO do the same with "feature > a" (but avoid for relation = Eq because then the case is redundant)
 				for threshold in thresholdDomain
-					@info " threshold {$threshold}... Question: <$relation> (A$feature <= $threshold)"
-
-					# Re-initialize right class counts
-					nr = zero(U)
-					ncr[:] .= zero(U)
-					for i in 1:n_samples
-						@info " instance {$i}/{$n_samples}   peaks ($(minPeaks[i])/$(maxPeaks[i]))"
-						satisfied = true
-						if maxPeaks[i] == typemin(T) # && minPeaks[i] == typemax(T)
-							# @info "   NO!"
-							satisfied = false
-						elseif maxPeaks[i] <= threshold
-							# This is definitely a nl (Sf[i] makes a modal step)
-							# @info "   YES!!!"
+					# [:(<=), :(>)] # TODO don't use booleans for test_operators, just symbols (possible overhead?)
+					# Note: in the propositional case, the <= and > are complementary and split-redundant
+					if relations == ModalLogic.RelationId
+						feasible_test_operators = [true]
+					else
+						feasible_test_operators = [true, false]
+					end
+					# Look for the correct test operator
+					for test_operator in feasible_test_operators
+						@info " threshold {$threshold}... Question: <$relation> (A$feature " * (if test_operator "<=" else ">" end) * " $threshold)"
+						# Re-initialize right class counts
+						nr = zero(U)
+						ncr[:] .= zero(U)
+						for i in 1:n_samples
+							@info " instance {$i}/{$n_samples}   peaks ($(minPeaks[i])/$(maxPeaks[i]))"
 							satisfied = true
-						elseif minPeaks[i] > threshold
-							# This is definitely a nr (Sf[i] stays the same)
-							# @info "   NO!!!"
-							satisfied = false
-						else
-							# @info "   must manually check worlds." # channel
-							channel = ModalLogic.getChannel(Xf, i)
-							(satisfied,_) = ModalLogic.modalStep(Sf[i], channel, relation, threshold, Val(true))
+							if maxPeaks[i] == typemin(T) # && minPeaks[i] == typemax(T)
+								# @info "   NO!"
+								satisfied = false
+							elseif maxPeaks[i] <= threshold
+								# This is definitely a nl (Sf[i] makes a modal step)
+								# @info "   YES!!!"
+								satisfied = test_operator # e.g. true for <=
+							elseif minPeaks[i] > threshold
+								# This is definitely a nr (Sf[i] stays the same)
+								# @info "   NO!!!"
+								satisfied = !test_operator # e.g. true for >
+							else
+								# @info "   must manually check worlds." # channel
+								# TODO satisfied = false
+								channel = ModalLogic.getChannel(Xf, i)
+								(satisfied,_) = ModalLogic.modalStep(Sf[i], relation, channel, Val(test_operator), threshold, Val(true))
+							end
+							if !satisfied
+								nr += Wf[i]
+								ncr[Yf[i]] += Wf[i]
+							end
 						end
-						if !satisfied
-							nr += Wf[i]
-							ncr[Yf[i]] += Wf[i]
-						end
-					end
 
-					# Calculate left class counts
-					@simd for lab in 1:length(nc) # TODO something like @simd ncl .= nc - ncr instead
-						ncl[lab] = nc[lab] - ncr[lab]
-					end
-					nl = nt - nr
-					@info " (nl,nr) = ($nl,$nr)\n"
-
-					# Honor min_samples_leaf
-					if nl >= min_samples_leaf && n_samples - nl >= min_samples_leaf
-						unsplittable = false
-						# TODO what is this purity?
-						purity = -(nl * purity_function(ncl, nl) +
-							      	 nr * purity_function(ncr, nr))
-						@info " purity = " purity
-						if purity > best_purity && !isapprox(purity, best_purity)
-							best_purity    = purity
-							best_relation  = relation
-							best_feature   = feature
-							best_test_operator  = (:<=) # TODO expand
-							best_threshold = threshold
-							# TODO: At the end, we should take the average between current and last.
-							#  This requires thresholds to be sorted
-							# threshold_lo, threshold_hi  = last_f, curr_f
-							@info " new optimum:"
-							@info " best_purity = " best_purity
-							@info " " best_relation
-							@info ", " best_feature
-							@info ", " best_test_operator
-							@info ", " best_threshold
-							# @info threshold_lo, threshold_hi
+						# Calculate left class counts
+						@simd for lab in 1:length(nc) # TODO something like @simd ncl .= nc - ncr instead
+							ncl[lab] = nc[lab] - ncr[lab]
 						end
-					end
+						nl = nt - nr
+						@info " (nl,nr) = ($nl,$nr)\n"
+
+						# Honor min_samples_leaf
+						if nl >= min_samples_leaf && n_samples - nl >= min_samples_leaf
+							unsplittable = false
+							# TODO what is this purity?
+							purity = -(nl * purity_function(ncl, nl) +
+								      	 nr * purity_function(ncr, nr))
+							@info " purity = " purity
+							if purity > best_purity && !isapprox(purity, best_purity)
+								best_purity    = purity
+								best_relation  = relation
+								best_feature   = feature
+								best_test_operator  = test_operator # TODO expand
+								best_threshold = threshold
+								# TODO: At the end, we should take the average between current and last.
+								#  This requires thresholds to be sorted
+								# threshold_lo, threshold_hi  = last_f, curr_f
+								@info " new optimum:"
+								@info " best_purity = " best_purity
+								@info " " best_relation
+								@info ", " best_feature
+								@info ", " (best_test_operator ? (:<=) : (:>))
+								@info ", " best_threshold
+								# @info threshold_lo, threshold_hi
+							end
+						end
+					end # for test_operator
 				end # for threshold
 			end # for relation
 			feature += 1
@@ -278,12 +290,12 @@ module treeclassifier
 			# - ones that are <= threshold
 
 			# node.purity    = best_purity
-			node.modality  = best_relation
-			node.feature   = best_feature
-			node.test_operator  = best_test_operator
-			node.threshold = best_threshold
+			node.modality       = best_relation
+			node.feature        = best_feature
+			node.test_operator  = (best_test_operator ? (:<=) : (:>))
+			node.threshold      = best_threshold
 
-			@info " Split condition: <$best_relation> (A$best_feature $best_test_operator $best_threshold)" # TODO <= becomes generic <=, >.
+			@info " Split condition: <$best_relation> (A$best_feature $best_test_operator $best_threshold)"
 
 			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
@@ -294,7 +306,7 @@ module treeclassifier
 			for i in 1:n_samples
 				@info " instance {$i}/{$n_samples}"
 				channel = ModalLogic.getChannel(Xf, i)
-				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], channel, best_relation, best_threshold, Val(false))
+				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, Val(best_test_operator), best_threshold, Val(false))
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 

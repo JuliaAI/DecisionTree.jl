@@ -43,12 +43,11 @@ end
 # Inner node, holding the output decision
 struct DTInternal{S<:Real, T}
 
-	# Feature
-	featid   :: Int
-	featval  :: featType where featType<:S
-	test_operator :: Symbol # Test operator (e.g. <=, ==)
-	# string representing an existential modality (e.g. ♢, L, LL)
 	modality :: R where R<:AbstractRelation
+	featid   :: Int
+	test_operator :: Symbol # Test operator (e.g. <=, ==)
+	featval  :: featType where featType<:S
+	# string representing an existential modality (e.g. ♢, L, LL)
 
 	# Child nodes
 	left     :: Union{DTLeaf{T}, DTInternal{S, T}}
@@ -65,7 +64,7 @@ is_leaf(n::DTInternal) = false
 is_modal_node(n::DTInternal) = (!is_leaf(n) && n.modality != ModalLogic.RelationId)
 
 zero(String) = ""
-convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(0, zero(S), lf, DTLeaf(zero(T), [zero(T)]))
+convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(ModalLogic.RelationNone, 0, :(nothing), zero(S), lf, DTLeaf(zero(T), [zero(T)]))
 promote_rule(::Type{DTInternal{S, T}}, ::Type{DTLeaf{T}}) where {S, T} = DTInternal{S, T}
 
 # make a Random Number Generator object

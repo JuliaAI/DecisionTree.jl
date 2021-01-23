@@ -1,11 +1,15 @@
 ✔	TODO const MatricialDomain{T,N} = AbstractArray{T,N} end @done (21-01-15 14:55)
 ✔ perhaps the domain should not be 20x3x3 but 3x3x20, because Julia is column-first @done (21-01-15 14:55)
 ✔	Calculate confusion matrix @done (21-01-22 20:09)
-☐	Hide computation of the peaks.
-☐	Add >
-☐	Note that we need to know the speedup for using the peaks array. Maybe create a dataset with tiny worlds.
-☐	Generate table of worlds' extremes before the whole computation. Note that in the crisp case, this leads then to constant propositional check.
+✔	Add > @done (21-01-23 01:19)
+☐	Note that we need to know the speedup for using the peaks array. Hide computation of the peaks.
+☐	Create a dataset with many but tiny worlds. Even a completely random one.
+☐	Bring back the peaks, noting that this leads to constant propositional check.
+☐	Improve the computation of the peaks leveraging the structure of IA Frames.
+☐	Now move the peaks computation to the outer algorithm scope, so that it happens BEFORE the whole computation.
 ☐	Soften > and <= to be >alpha and <=alpha. Make alpha an array to iterate over. Find an efficient way to compute it (note that with a few elements in the world, it can be made efficient with integer operations).
+☐	> doubles the time but doesn't seem to improve performances. Is this a bug? Try to come up with a dataset that shows if it works. If it's not a bug, maybe we should consider parametrizing on whether this is to be used or not.
+☐	Fix naming style (e.g. variables, etc. Order of struct's members)
 ☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)?
 ☐	Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 ☐	Test adimensional case 1x1, & 2D case 3x3, 5x5, 7x7, with alfa=.8
@@ -32,6 +36,101 @@
 
 
 # Timings history
+
+
+Testing dataset 'simpleDataset'
+  195.146 ms (2866508 allocations: 216.25 MiB)
+ Purity threshold 0.8
+  acc.100.0%, kappa: 100.0%  Matrix: 2×2 Array{Int64,2}:
+ 28   0
+  0  12
+nodes: (3, heigh: 1) Purity threshold 1.0
+  acc.100.0%, kappa: 100.0%  Matrix: 2×2 Array{Int64,2}:
+ 28   0
+  0  12
+nodes: (3, heigh: 1)Testing dataset 'simpleDataset2'
+  2.827 ms (30430 allocations: 1.57 MiB)
+ Purity threshold 0.8
+  acc.30.0%, kappa: 0.0%  Matrix: 2×2 Array{Int64,2}:
+ 0  28
+ 0  12
+nodes: (1, heigh: 0) Purity threshold 1.0
+  acc.30.0%, kappa: 0.0%  Matrix: 2×2 Array{Int64,2}:
+ 0  28
+ 0  12
+nodes: (1, heigh: 0)Testing dataset 'Eduard-5'
+  12.766 s (80825464 allocations: 3.02 GiB)
+ Purity threshold 0.8
+  acc.85.56%, kappa: 84.52%  Matrix: 15×15 Array{Int64,2}:
+ 4  2  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  6  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  5  1  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 1  0  0  0  0  0  4  1  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  3  0  0  1  0  2  0  0
+ 0  0  0  0  1  0  0  0  5  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  6  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  5  0  1  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  1  0  5  0  0
+ 0  0  0  0  0  1  0  0  0  0  0  0  0  5  0
+ 0  0  1  0  0  0  0  0  0  0  0  0  0  0  5
+nodes: (105, heigh: 8) Purity threshold 1.0
+  acc.88.89%, kappa: 88.1%  Matrix: 15×15 Array{Int64,2}:
+ 4  2  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  6  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  5  1  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 1  0  0  0  0  0  4  1  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  4  0  0  1  0  1  0  0
+ 0  0  0  0  1  0  0  0  5  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  6  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  1  0  5  0  0
+ 1  0  0  0  0  0  0  0  0  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (129, heigh: 8)Testing dataset 'Eduard-10'
+  36.787 s (303679147 allocations: 11.38 GiB)
+ Purity threshold 0.8
+  acc.85.56%, kappa: 84.52%  Matrix: 15×15 Array{Int64,2}:
+ 3  1  0  0  0  0  0  0  0  1  0  0  0  0  1
+ 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  5  0  0  1  0  0  0  0  0  0  0  0  0
+ 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  4  0  0  0  0  0  0  0  2
+ 0  0  0  1  0  0  0  5  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  1  2  0  0  0  0  0  0  0  0  3  0
+ 0  0  0  0  0  0  0  1  1  0  0  0  0  0  4
+nodes: (103, heigh: 9) Purity threshold 1.0
+  acc.88.89%, kappa: 88.1%  Matrix: 15×15 Array{Int64,2}:
+ 4  1  0  0  0  0  0  0  0  1  0  0  0  0  0
+ 0  6  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  5  0  0  1  0  0  0  0  0  0  0  0  0
+ 0  0  0  6  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  4  0  0  0  0  0  0  0  2
+ 0  0  0  1  0  0  0  5  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  5  0  1  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  1  0  0  0  0  0  1  0  0  0  4  0
+ 0  0  0  0  0  0  0  0  1  0  0  0  0  0  5
+nodes: (125, heigh: 9)
 
 
 add Confusion matrix, post-pruning, two-dimensional case and fix onlyUseRelationAll:

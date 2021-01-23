@@ -102,6 +102,13 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
   end
   return true
 end
+@inline WGre(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
+	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
+	@inbounds for x in readWorld(w,channel)
+      x > val || return false
+  end
+  return true
+end
 
 
 # World generators/enumerators and array/set-like structures
@@ -137,21 +144,23 @@ print_rel_short(::_RelationAll) = ""
 #  on a domain, and eventually compute the new world set.
 # TODO check that this dispatches on fastMode
 modalStep(S::WorldSetType,
-					Xfi::AbstractArray{U,N},
 					relation::R,
+					Xfi::AbstractArray{U,N},
+					test_operator::Union{Val{true},Val{false}}, # TODO not boolean Union{Val{:<=},Val{:>}}
 					threshold::U,
-					fastMode::Val{V} where V) where {W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, U, N} = begin
+					fastMode::Val{V}) where {V, W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, U, N} = begin
 	@info "modalStep"
 	satisfied = false
 	worlds = enumAcc(S, relation, Xfi)
 	if length(collect(Iterators.take(worlds, 1))) > 0
-		# TODO maybe it's better to use an array and then create a set with = Set(worlds)
 		if fastMode == Val(false)
 			new_worlds = WorldSetType()
 		end
 		for w in worlds # Sf[i]
 			# @info " world" w
-			if WLeq(w, Xfi, threshold) # WLeq is <= TODO expand on test_operator
+			# TODO make sure that the modal step doesn't require that all worlds contribute to the new set. Consider why <>(p and q) is different from (<>p and [](p->q)) 
+			if (test_operator == Val(true) && WLeq(w, Xfi, threshold)) ||
+				 (test_operator == Val(false) && WGre(w, Xfi, threshold))
 				satisfied = true
 				if fastMode == Val(false)
 					push!(new_worlds, w)

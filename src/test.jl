@@ -4,21 +4,22 @@ using Pkg
 Pkg.activate("DecisionTree.jl")
 using Revise
 
+using DecisionTree
+using DecisionTree.ModalLogic
+
 import Random
 my_rng() = Random.MersenneTwister(1) # Random.GLOBAL_RNG
 
 using Logging
 
 using BenchmarkTools
-using DecisionTree
-using DecisionTree.ModalLogic
 using ScikitLearnBase
 using Statistics
 using Test
 
 include("example-datasets.jl")
 
-function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [0.8])
+function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [])
 	println("Testing dataset '$name'")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	length(dataset) == 4 || error(length(dataset))
@@ -45,13 +46,12 @@ function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_th
 		# @test cm.accuracy > 0.99
 
 		print("  acc.", round(cm.accuracy*100, digits=2), "%, kappa: ", round(cm.kappa*100, digits=2), "%")
-		print("  Matrix: ")
 		display(cm.matrix)
 
 		global_logger(ConsoleLogger(stderr, Logging.Info));
 
 		if timeit
-			print("nodes: ($(num_nodes(T_pruned)), heigh: $(height(T_pruned)))")
+			println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 		end
 	end
 
