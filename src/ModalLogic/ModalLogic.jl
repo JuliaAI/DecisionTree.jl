@@ -62,7 +62,6 @@ n_samples(X::OntologicalDataset{T,N})        where {T,N} = size(X, N+1)
 n_variables(X::OntologicalDataset{T,N})      where {T,N} = size(X, N+2)
 # dimensionality(X::OntologicalDataset{T,N})   where {T,N} = N
 
-# TODO: the adimensional case returns a value of type T, instead of an array. Mh, fix? Or we could say we don't handl the adimensional case
 @inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = ud[idx]           # N=0
 @inline getChannel(ud::MatricialUniDataset{T,2},  idx::Integer) where T = ud[:, idx]        # N=1
 @inline getChannel(ud::MatricialUniDataset{T,3},  idx::Integer) where T = ud[:, :, idx]     # N=2
@@ -82,6 +81,7 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,2}) where T = Arra
 MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,3}) where T = Array{T, 2}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 2}
 MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Array{T, 3}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 3}
 
+# TODO use Xf[i,[(:) for i in 1:N]...]
 # @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, N)...]::AbstractArray{T,N-1}
 # @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, dimensionality(X))...]::AbstractArray{T,N-1}
 
@@ -90,26 +90,23 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 # featureview(X::OntologicalDataset{T,1}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :)
 # featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
 
-# TODO use Xf[i,[(:) for i in 1:N]...]
-
 @inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
 @inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
 @inline WGeq(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	@inbounds for x in readWorld(w,channel)
-      x >= val || return false
-  end
-  return true
+		x >= val || return false
+	end
+	return true
 end
 @inline WLes(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @info "WLes" w val #n readWorld(w,channel)
 	@inbounds for x in readWorld(w,channel)
-      x < val || return false
-  end
-  return true
+		x < val || return false
+	end
+	return true
 end
-
 
 # World generators/enumerators and array/set-like structures
 # TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum

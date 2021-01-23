@@ -145,9 +145,6 @@ enumAcc1_2(S::Union{WorldGenerator,AbstractWorldSet{Interval}}, ::_IA_Li, X::Int
 
 #####
 
-
-# TODO check this other idea, maybe it's more efficient under certain conditions
-
 # enumAccW2(w::Interval, ::_RelationAll,  X::Integer) where T = enumIntervalsInRange(1, X+1)
 ## Enumerate accessible worlds from a single world
 enumAccW2(w::Interval, ::_IA_A,  X::Integer) where T = zip(Iterators.repeated(w.y), w.y+1:X+1)
