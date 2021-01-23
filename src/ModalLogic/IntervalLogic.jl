@@ -430,6 +430,8 @@ enumAcc(WorS::WorldOrSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) w
 
 const Interval2DOntology = Ontology(Interval2D,IA2DRelations)
 
+worldTypeSize(::Type{Interval}) = 2
+worldTypeSize(::Type{Interval2D}) = 4
 getIntervalOntologyOfDim(::Val{1}) = IntervalOntology
 getIntervalOntologyOfDim(::Val{2}) = Interval2DOntology
 getIntervalOntologyOfDim(::MatricialDataset{T,D}) where {T,D} = getIntervalOntologyOfDim(Val(D-2))

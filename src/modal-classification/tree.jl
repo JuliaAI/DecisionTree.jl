@@ -96,6 +96,7 @@ module treeclassifier
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							Sf                  :: AbstractVector{WorldSet{WT}},
+							# TODO Ef                  :: AbstractArray{T},
 							
 							rng                 :: Random.AbstractRNG,
 							onlyUseRelationAll  :: Bool) where {WT<:AbstractWorld, T, U, N, M}
@@ -411,11 +412,15 @@ module treeclassifier
 		S = [WorldSet{X.ontology.worldType}([X.ontology.worldType(ModalLogic.InitialWorld)]) for i in 1:n_instances]
 
 		# Array memory for dataset
-		Xf = MatricialUniDataset(undef, X.domain)
+		Xf = MatricialUniDataset{T, N-1}(undef, X.domain)
 		Yf = Vector{Label}(undef, n_instances)
 		Wf = Vector{U}(undef, n_instances)
 		# TODO Maybe it's worth to allocate this vector as well?
 		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
+
+		# TODO use Ef = Dict(X.ontology.worldType,Tuple{T,T})
+		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
+		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)

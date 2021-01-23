@@ -68,24 +68,23 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	# ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng())...,0.8)),
 	# ("Eduard-5",EduardDataset(5)),
 	# ("Eduard-10",EduardDataset(10)),
-	("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.5)),
-	("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.5)),
-	("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", rng = my_rng())...,0.5)),
-	("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", flattened = true, rng = my_rng())...,0.5)),
-	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.5)),
-	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.5)),
-	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.5)),
-	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", flattened = true, rng = my_rng())...,0.5)),
-	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 7, "Pavia", n_variables = 5, rng = my_rng())...,0.5)),
+	("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.8)),
+	("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", rng = my_rng())...,0.8)),
+	("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", flattened = true, rng = my_rng())...,0.8)),
+	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
+	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+	("IndianPinesCorrectedDataset",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", flattened = true, rng = my_rng())...,0.8)),
+	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 7, "Pavia", n_variables = 5, rng = my_rng())...,0.8)),
 ];
 
 # T = testDataset(datasets[1], false)
 # @profview T = testDataset(datasets[2], false)
-T = testDataset(datasets[1], false)
+# T = testDataset(datasets[1], false)
 # @profile T = testDataset(datasets[1], false)
 # pprof()
 # Profile.print()
-# testDatasets(datasets);
+testDatasets(datasets);
 
 # X_train, Y_train, X_test, Y_test = traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng())...,0.8)
 # model = fit!(DecisionTreeClassifier(pruning_purity_threshold=pruning_purity_threshold), X_train, Y_train)
