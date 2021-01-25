@@ -13,7 +13,9 @@ export DTNode, DTLeaf, DTInternal,
 			 num_nodes, height, modal_height,
 			 build_stump, build_tree,
        print_tree, prune_tree, apply_tree,
-			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data
+			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
+			 #
+			 startWithRelationAll, startAtCenter
 
 # ScikitLearn API
 export DecisionTreeClassifier,
@@ -31,6 +33,10 @@ using .ModalLogic
 
 ###########################
 ########## Types ##########
+
+abstract type _initCondition end
+struct _startWithRelationAll  <: _initCondition end; const startWithRelationAll  = _startWithRelationAll();
+struct _startAtCenter         <: _initCondition end; const startAtCenter         = _startAtCenter();
 
 # Leaf node, holding the output decision
 struct DTLeaf{T} # TODO specify output type: Number, Label, String, Union{Number,Label,String}?
@@ -57,6 +63,12 @@ end
 
 # Decision node/tree # TODO figure out, maybe this has to be abstract and to supertype DTLeaf and DTInternal
 const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
+
+struct DTree{S<:Real, T<:Real}
+	# TODO ontology      :: Ontology
+	root :: DTNode{S, T}
+	initCondition :: _initCondition
+end
 
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false

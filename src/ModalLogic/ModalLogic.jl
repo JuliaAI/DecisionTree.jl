@@ -7,7 +7,7 @@ using ComputedFieldTypes
 
 export AbstractWorld, AbstractRelation,
 				Ontology, OntologicalDataset,
-				n_samples, n_variables, dimension,
+				n_samples, n_variables, channel_size,
 				IntervalOntology,
 				MatricialInstance,
 				MatricialDataset,
@@ -32,8 +32,9 @@ struct Ontology
 end
 
 # This constant is used to create the default world for each WorldType
-#  (e.g. Interval(ModalLogic.InitialWorld) = Interval(-1,0))
-struct _InitialWorld end; const InitialWorld = _InitialWorld();
+#  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
+struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
+struct _centeredWorld end; const centeredWorld = _centeredWorld();
 
 # A dataset, given by a set of N-dimensional (multi-variate) matrices/instances,
 #  and an Ontology to be interpreted on each of them.
@@ -60,6 +61,7 @@ size(X::OntologicalDataset{T,N})             where {T,N} = size(X.domain)
 size(X::OntologicalDataset{T,N}, i::Integer) where {T,N} = size(X.domain, i)
 n_samples(X::OntologicalDataset{T,N})        where {T,N} = size(X, N+1)
 n_variables(X::OntologicalDataset{T,N})      where {T,N} = size(X, N+2)
+channel_size(X::OntologicalDataset{T,N})      where {T,N} = size(X.domain)[1:end-2]
 # dimensionality(X::OntologicalDataset{T,N})   where {T,N} = N
 
 @inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = ud[idx]           # N=0

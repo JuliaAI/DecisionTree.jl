@@ -34,7 +34,7 @@ function build_stump(
 		labels      :: AbstractVector{Label},
 		features    :: MatricialDataset{T,D},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
-		ontology    :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(N-2)),
+		ontology    :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D}
 	
 	X = OntologicalDataset{T,D-2}(ontology,features)
@@ -48,10 +48,18 @@ function build_stump(
 		max_depth           = 1,
 		min_samples_leaf    = 1,
 		min_samples_split   = 2,
-		min_purity_increase = 0.0;
+		min_purity_increase = 0.0,
+		max_purity_split    = 1.0,
+		initCondition       = startWithRelationAll,
 		rng                 = rng)
 
-	return _convert(t.root, t.list, labels[t.labels])
+	root = _convert(t.root, t.list, labels[t.labels])
+	# This is in order to mantain compatibility
+	if initCondition == startWithRelationAll
+		root
+	else
+		DTree{T, Label}(root, initCondition)
+	end
 end
 
 function build_tree(
@@ -61,8 +69,10 @@ function build_tree(
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
 		min_samples_split   :: Int                = 2,
-		min_purity_increase :: AbstractFloat      = 0.0;
-		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(N-2)),
+		min_purity_increase :: AbstractFloat      = 0.0,
+		max_purity_split    :: AbstractFloat      = 1.0;
+		initCondition       :: _initCondition     = startWithRelationAll,
+		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		loss                :: Function           = util.entropy,
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D}
 	
@@ -87,9 +97,17 @@ function build_tree(
 		min_samples_leaf    = min_samples_leaf,
 		min_samples_split   = min_samples_split,
 		min_purity_increase = min_purity_increase,
+		max_purity_split    = max_purity_split,
+		initCondition       = initCondition,
 		rng                 = rng)
 
-	return _convert(t.root, t.list, labels[t.labels])
+	root = _convert(t.root, t.list, labels[t.labels])
+	# This is in order to mantain compatibility
+	if initCondition == startWithRelationAll
+		root
+	else
+		DTree{T, Label}(root, initCondition)
+	end
 end
 
 function prune_tree(tree::DTNode{S, T}, max_purity_threshold::AbstractFloat = 1.0) where {S, T}
@@ -129,10 +147,14 @@ function prune_tree(tree::DTNode{S, T}, max_purity_threshold::AbstractFloat = 1.
 	return pruned
 end
 
+function prune_tree(tree::DTree{S, T}, max_purity_threshold::AbstractFloat = 1.0) where {S, T}
+	DTree{S,T}(prune_tree(tree.root), tree.initCondition)
+end
 
-apply_tree(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::AbstractSet{<:AbstractWorld}) where {U, T, MN} = leaf.majority
 
-function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::AbstractSet{<:AbstractWorld}) where {U, T, MN}
+apply_tree(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::WorldSet{worldType}) where {U, T, MN, worldType<:AbstractWorld} = leaf.majority
+
+function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::WorldSet{worldType}) where {U, T, MN, worldType<:AbstractWorld}
 	return (
 		if tree.featid == 0
 			@error " found featid == 0, TODO figure out where does this come from" tree
@@ -144,29 +166,29 @@ function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::Abst
 			@info " S" S
 			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, Val(tree.test_operator == (:>=)), tree.featval, Val(false))
 			@info " ->S'" S
-			if satisfied
-				apply_tree(tree.left, Xi, S)
-			else
-				apply_tree(tree.right, Xi, S)
-			end
+			apply_tree((satisfied ? tree.left : tree.right), Xi, S)
 		end
 	)
 end
 
-# Apply tree to a dimensional dataset in matricial form
-function apply_tree(tree::DTNode{S, T}, features::MatricialDataset{S,D}) where {S, T, D}
+# Apply tree with initialConditions to a dimensional dataset in matricial form
+function apply_tree(tree::DTree{S, T}, features::MatricialDataset{S,D}) where {S, T, D}
 	@info "apply_tree..."
 	# TODO don't create an ontological dataset, there is no need. Instead, attach the ontology to the tree as metadata.
 	ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2))
 	X = OntologicalDataset{S,D-2}(ontology,features)
 	n_samp = n_samples(X)
-	# n_variables(X)
 	predictions = Array{T,1}(undef, n_samp)
 	for i in 1:n_samp
-		@info " instance {$i}/{$n_samp}"
+		@info " instance $i/$n_samp"
 		# TODO figure out: is it better to interpret the whole dataset at once, or instance-by-instance? The first one enables reusing training code
-		# attach to the tree the worldType, and use that
-		predictions[i] = apply_tree(tree, ModalLogic.getInstance(X.domain, i), Set([X.ontology.worldType(ModalLogic.InitialWorld)]))
+		w0params =
+			if tree.initCondition == startWithRelationAll
+				[ModalLogic.emptyWorld]
+			elseif tree.initCondition == startAtCenter
+				[ModalLogic.centeredWorld, channel_size(X)...]
+		end
+		predictions[i] = apply_tree(tree.root, ModalLogic.getInstance(X.domain, i), WorldSet{X.ontology.worldType}([X.ontology.worldType(w0params...)]))
 	end
 	return (if T <: Float64
 			Float64.(predictions)
@@ -174,6 +196,12 @@ function apply_tree(tree::DTNode{S, T}, features::MatricialDataset{S,D}) where {
 			predictions
 		end)
 end
+
+# Apply tree to a dimensional dataset in matricial form
+function apply_tree(tree::DTNode{S, T}, features::MatricialDataset{S,D}) where {S, T, D}
+	apply_tree(DTree{S, T}(tree, startWithRelationAll), features)
+end
+
 
 #=
 TODO

@@ -8,11 +8,10 @@ module treeclassifier
 	
 	export fit
 
-	include("../util.jl")
 	using ..ModalLogic
 	using ComputedFieldTypes
-	using .util
-	using ..util: Label
+	using ..DecisionTree
+	using DecisionTree.util
 
 	import Random
 
@@ -48,9 +47,10 @@ module treeclassifier
 	end
 
 	struct Tree{S, T}
-		root   :: NodeMeta{S}
-		list   :: Vector{T}
-		labels :: Vector{Label}
+		root           :: NodeMeta{S}
+		list           :: Vector{T}
+		labels         :: Vector{Label}
+		initCondition  :: DecisionTree._initCondition
 	end
 
 	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,1}, d::MatricialDataset{T,2}, idx::Integer, feature::Integer) where T = begin
@@ -391,6 +391,7 @@ module treeclassifier
 			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
 			min_purity_increase     :: AbstractFloat,
 			max_purity_split        :: AbstractFloat,
+			initCondition           :: DecisionTree._initCondition,
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
 		# Dataset sizes
@@ -409,10 +410,16 @@ module treeclassifier
 		#  But then you have to know that at test time as well... So it must be part of the tree in some way
 		#  TODO Maybe it's enough to just create a default constructor for any world type.
 
-		S = [WorldSet{X.ontology.worldType}([X.ontology.worldType(ModalLogic.InitialWorld)]) for i in 1:n_instances]
+		w0params =
+			if initCondition == startWithRelationAll
+				[ModalLogic.emptyWorld]
+			elseif initCondition == startAtCenter
+				[ModalLogic.centeredWorld, channel_size(X)...]
+		end
+		S = WorldSet{X.ontology.worldType}[[X.ontology.worldType(w0params...)] for i in 1:n_instances]
 
 		# Array memory for dataset
-		Xf = MatricialUniDataset{T, N-1}(undef, X.domain)
+		Xf = Array{T, N+1}(undef, channel_size(X)..., n_instances)
 		Yf = Vector{Label}(undef, n_instances)
 		Wf = Vector{U}(undef, n_instances)
 		# TODO Maybe it's worth to allocate this vector as well?
@@ -427,7 +434,7 @@ module treeclassifier
 		# Create root node
 		root = NodeMeta{T}(1:n_instances, 0, 0)
 		# Stack of nodes to process
-		stack = Tuple{NodeMeta{T},Bool}[(root,true)]
+		stack = Tuple{NodeMeta{T},Bool}[(root,(initCondition == startWithRelationAll))]
 		# The first iteration is treated sightly differently
 		@inbounds while length(stack) > 0
 			# Pop node and process it
@@ -470,7 +477,8 @@ module treeclassifier
 			min_samples_leaf        :: Int,
 			min_samples_split       :: Int,
 			min_purity_increase     :: AbstractFloat,
-			max_purity_split = 1.0  :: AbstractFloat, # TODO add this to scikit's interface.
+			max_purity_split        :: AbstractFloat, # TODO add this to scikit's interface.
+			initCondition           :: DecisionTree._initCondition,
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
@@ -479,7 +487,7 @@ module treeclassifier
 		# Translate labels to categorical form
 		labels, Y_ = util.assign(Y)
 
-		min_samples_leaf = min(min_samples_leaf, round(Int, min_samples_split/2))
+		min_samples_leaf = min(min_samples_leaf, div(min_samples_split, 2))
 
 		# Use unary weights if no weight is supplied
 		if W == nothing
@@ -508,8 +516,9 @@ module treeclassifier
 			min_samples_leaf,
 			min_purity_increase,
 			max_purity_split,
+			initCondition,
 			rng)
 
-		return Tree{T, S}(root, labels, indX)
+		return Tree{T, S}(root, labels, indX, initCondition)
 	end
 end
