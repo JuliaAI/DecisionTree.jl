@@ -1,35 +1,26 @@
-✔	TODO const MatricialDomain{T,N} = AbstractArray{T,N} end @done (21-01-15 14:55)
-✔ perhaps the domain should not be 20x3x3 but 3x3x20, because Julia is column-first @done (21-01-15 14:55)
-✔	Calculate confusion matrix @done (21-01-22 20:09)
-✔	Add > @done (21-01-23 01:19)
-✔	Note that we need to know the speedup for using the extremes array. Hide computation of the extremes. @done (21-01-24 14:32)
-✔	Bring back the extremes, noting that this leads to constant propositional check. @done (21-01-24 14:32)
-✔	Try different starting condition: start at the central pixel. @done (21-01-25 00:10)
-☐	Test with no initCondition
+☐	Check the speedup with/without inbounds (3x3 and 5x5 cases)
+☐	Test topological manually
 ☐	Test 5x5
-☐	Check the speedup with inbounds
+☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
 ☐	Parametrize on the test operators
-☐	Improve the computation of the extremes leveraging the structure of IA Frames.
 ☐	Create a dataset with many but tiny worlds. Even a completely random one.
-☐	Clean initCondition code
 ☐	Now move the extremes computation to the outer algorithm scope, so that it happens BEFORE the whole computation.
 ☐	Soften > and <= to be >alpha and <=alpha. Make alpha an array to iterate over. Find an efficient way to compute it (note that with a few elements in the world, it can be made efficient with integer operations).
+☐	Improve the computation of the extremes leveraging the structure of IA Frames.
 ☐	> doubles the time but doesn't seem to improve performances. Is this a bug? Try to come up with a dataset that shows if it works. If it's not a bug, maybe we should consider parametrizing on whether this is to be used or not.
-☐	Fix naming style (e.g. variables, etc. Order of struct's members)
-☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)?
-☐	Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
+☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 ☐	Test adimensional case 1x1, & 2D case 3x3, 5x5, 7x7, with alfa=.8
-☐	Add specific sampling on the image
-✔	Try the two-dimensional case! @done (21-01-21 01:12)
+☐	Use specific sampling on the image
+☐	Clean initCondition and worldType code
+☐	Fix naming style (e.g. variables, etc. Order of struct's members)
 
 ☐	Add tree parser
 ☐	Add convenience methods for tree editing.
-✔	Use view instead of slicing @done (21-01-18 20:47)
 ☐	Generalize World as a tuple of parameters ( https://stackoverflow.com/questions/40160120/generic-constructors-for-subtypes-of-an-abstract-type )
 ☐	use staticArrays for small domains (matrices/vectors) https://github.com/JuliaArrays/StaticArrays.jl
 		X = OntologicalDataset(IntervalOntology,Array{SMatrix{3,3,Int},2}(undef, 20, 10))
 
-☐	Add ProgressMeter?
+☐	Try adding ProgressMeter? https://github.com/timholy/ProgressMeter.jl
 ☐	Generalize greedy step to greedy-n step.
 ☐	Generalize to beam-search and then beam-search-n?
 ☐	An ontology interpreted over an N-dimensional domain gives rise to a Kripke model/frame,
@@ -39,3 +30,18 @@
 		struct KripkeFrame{T} <: AbstractKripkeFrame{T}
 ☐	Extend to categorical variables
 
+
+
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+	✔	verify new code. (test all datasets (avoid dataset[2] flattened)) @done (21-01-26 18:06)
+	✔	Test with no initCondition @done (21-01-26 18:06)
+	✔	Try different starting condition: start at the central pixel. @done (21-01-25 00:10)
+	✔	Note that we need to know the speedup for using the extremes array. Hide computation of the extremes. @done (21-01-24 14:32)
+	✔	Bring back the extremes, noting that this leads to constant propositional check. @done (21-01-24 14:32)
+	✔	Add > @done (21-01-23 01:19)
+	✔	Calculate confusion matrix @done (21-01-22 20:09)
+	✔	Try the two-dimensional case! @done (21-01-21 01:12)
+	✔	Use view instead of slicing @done (21-01-18 20:47)
+	✔ perhaps the domain should not be 20x3x3 but 3x3x20, because Julia is column-first @done (21-01-15 14:55)
+	✔	TODO const MatricialDomain{T,N} = AbstractArray{T,N} end @done (21-01-15 14:55)

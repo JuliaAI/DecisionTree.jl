@@ -65,8 +65,8 @@ end
 const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
 
 struct DTree{S<:Real, T<:Real}
-	# TODO ontology      :: Ontology
-	root :: DTNode{S, T}
+	root          :: DTNode{S, T}
+	worldType     :: Type{<:AbstractWorld}
 	initCondition :: _initCondition
 end
 

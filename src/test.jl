@@ -30,7 +30,8 @@ function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_th
 	println("args = ", args)
 	println("kwargs = ", kwargs)
 
-	println(" n_samples = $(size(X_train)[end-1])")
+	# println(" n_samples = $(size(X_train)[end-1])")
+	println(" train size = $(size(X_train))")
 	if timeit
 		@btime build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());
 	end
@@ -42,6 +43,7 @@ function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_th
 		print(T)
 	end
 
+	println(" test size = $(size(X_test))")
 	for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))
 		println(" Purity threshold $pruning_purity_threshold")
 		
@@ -61,7 +63,7 @@ function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_th
 			println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 		end
 	end
-	T
+	return T;
 end
 
 # testDatasets(d, timeit::Bool = true) = map((x)->testDataset(x, timeit), d);
@@ -74,11 +76,13 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	("PaviaDataset, 1x1",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.8)),
 	("PaviaDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", flattened = true, rng = my_rng())...,0.8)),
 	("PaviaDataset, 3x3",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", rng = my_rng())...,0.8)),
-	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
 	("IndianPinesCorrectedDataset, 1x1",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 	("IndianPinesCorrectedDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(16*30, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 	("IndianPinesCorrectedDataset, 3x3",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),
-	# ("PaviaDataset",traintestsplit(SampleLandCoverDataset(9*30, 7, "Pavia", n_variables = 5, rng = my_rng())...,0.8)),
+	("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
+	("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+	("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
+	("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 ];
 
 args = (
@@ -90,10 +94,32 @@ args = (
 )
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
+	ontology=getIntervalTopologicalOntologyOfDim(Val(2))
 )
-T = testDataset(datasets[1], false, args=args, kwargs=kwargs)
-T = testDataset(datasets[2], false, args=args, kwargs=kwargs)
-T = testDataset(datasets[3], false, args=args, kwargs=kwargs)
+# T = testDataset(datasets[1], false, args=args, kwargs=kwargs);
+# T = testDataset(datasets[2], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
+# T = testDataset(datasets[4], false, args=args, kwargs=kwargs);
+# T = testDataset(datasets[5], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[6], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[7], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[8], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[9], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[10], false, args=args, kwargs=kwargs);
+kwargs = (
+	initCondition=DecisionTree.startWithRelationAll,
+	ontology=getIntervalTopologicalOntologyOfDim(Val(2))
+)
+# T = testDataset(datasets[1], false, args=args, kwargs=kwargs);
+# T = testDataset(datasets[2], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
+# T = testDataset(datasets[4], false, args=args, kwargs=kwargs);
+# T = testDataset(datasets[5], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[6], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[7], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[8], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[9], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[10], false, args=args, kwargs=kwargs);
 
 # @profview T = testDataset(datasets[2], false)
 # T = testDataset(datasets[1], false)

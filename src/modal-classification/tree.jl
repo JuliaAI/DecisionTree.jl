@@ -9,7 +9,6 @@ module treeclassifier
 	export fit
 
 	using ..ModalLogic
-	using ComputedFieldTypes
 	using ..DecisionTree
 	using DecisionTree.util
 

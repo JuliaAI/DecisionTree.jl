@@ -24,10 +24,10 @@ end
 ################################################################################
 
 # TODO include adimensional case? Probably not in the dataset itself
-buildOntologicalDataset(features :: MatricialDataset{T,3}) where {T} =
-	OntologicalDataset{T,1}(ModalLogic.getIntervalOntologyOfDim(Val(1)),features)
-buildOntologicalDataset(features :: MatricialDataset{T,4}) where {T} =
-	OntologicalDataset{T,2}(ModalLogic.getIntervalOntologyOfDim(Val(2)),features)
+# buildOntologicalDataset(features :: MatricialDataset{T,3}) where {T} =
+	# OntologicalDataset{T,1}(ModalLogic.getIntervalOntologyOfDim(Val(1)),features)
+# buildOntologicalDataset(features :: MatricialDataset{T,4}) where {T} =
+	# OntologicalDataset{T,2}(ModalLogic.getIntervalOntologyOfDim(Val(2)),features)
 
 # Build a stump (tree with depth 1)
 function build_stump(
@@ -54,11 +54,11 @@ function build_stump(
 		rng                 = rng)
 
 	root = _convert(t.root, t.list, labels[t.labels])
-	# This is in order to mantain compatibility
-	if initCondition == startWithRelationAll
+	# TODO remove This is in order to mantain compatibility
+	if initCondition == startWithRelationAll && ontology == ModalLogic.getIntervalOntologyOfDim(Val(D-2))
 		root
 	else
-		DTree{T, Label}(root, initCondition)
+		DTree{T, Label}(root, ontology.worldType, initCondition)
 	end
 end
 
@@ -75,7 +75,7 @@ function build_tree(
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		loss                :: Function           = util.entropy,
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D}
-	
+
 	# TODO disaccoppia dataset e ontologia di riferimento.
 	X = OntologicalDataset{T,D-2}(ontology,features)
 
@@ -102,11 +102,11 @@ function build_tree(
 		rng                 = rng)
 
 	root = _convert(t.root, t.list, labels[t.labels])
-	# This is in order to mantain compatibility
-	if initCondition == startWithRelationAll
+	# TODO remove This is in order to mantain compatibility
+	if initCondition == startWithRelationAll && ontology == ModalLogic.getIntervalOntologyOfDim(Val(D-2))
 		root
 	else
-		DTree{T, Label}(root, initCondition)
+		DTree{T, Label}(root, ontology.worldType, initCondition)
 	end
 end
 
@@ -148,7 +148,7 @@ function prune_tree(tree::DTNode{S, T}, max_purity_threshold::AbstractFloat = 1.
 end
 
 function prune_tree(tree::DTree{S, T}, max_purity_threshold::AbstractFloat = 1.0) where {S, T}
-	DTree{S,T}(prune_tree(tree.root), tree.initCondition)
+	DTree{S,T}(prune_tree(tree.root), tree.worldType, tree.initCondition)
 end
 
 
@@ -172,12 +172,9 @@ function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::Worl
 end
 
 # Apply tree with initialConditions to a dimensional dataset in matricial form
-function apply_tree(tree::DTree{S, T}, features::MatricialDataset{S,D}) where {S, T, D}
+function apply_tree(tree::DTree{S, T}, d::MatricialDataset{S,D}) where {S, T, D}
 	@info "apply_tree..."
-	# TODO don't create an ontological dataset, there is no need. Instead, attach the ontology to the tree as metadata.
-	ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2))
-	X = OntologicalDataset{S,D-2}(ontology,features)
-	n_samp = n_samples(X)
+	n_samp = n_samples(d)
 	predictions = Array{T,1}(undef, n_samp)
 	for i in 1:n_samp
 		@info " instance $i/$n_samp"
@@ -186,9 +183,9 @@ function apply_tree(tree::DTree{S, T}, features::MatricialDataset{S,D}) where {S
 			if tree.initCondition == startWithRelationAll
 				[ModalLogic.emptyWorld]
 			elseif tree.initCondition == startAtCenter
-				[ModalLogic.centeredWorld, channel_size(X)...]
+				[ModalLogic.centeredWorld, channel_size(d)...]
 		end
-		predictions[i] = apply_tree(tree.root, ModalLogic.getInstance(X.domain, i), WorldSet{X.ontology.worldType}([X.ontology.worldType(w0params...)]))
+		predictions[i] = apply_tree(tree.root, ModalLogic.getInstance(d, i), WorldSet{tree.worldType}([tree.worldType(w0params...)]))
 	end
 	return (if T <: Float64
 			Float64.(predictions)
@@ -198,8 +195,8 @@ function apply_tree(tree::DTree{S, T}, features::MatricialDataset{S,D}) where {S
 end
 
 # Apply tree to a dimensional dataset in matricial form
-function apply_tree(tree::DTNode{S, T}, features::MatricialDataset{S,D}) where {S, T, D}
-	apply_tree(DTree{S, T}(tree, startWithRelationAll), features)
+function apply_tree(tree::DTNode{S, T}, d::MatricialDataset{S,D}) where {S, T, D}
+	apply_tree(DTree{S, T}(tree, ModalLogic.getIntervalOntologyOfDim(Val(D-2)).worldType, startWithRelationAll), d)
 end
 
 

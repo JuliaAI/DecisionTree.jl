@@ -8,14 +8,12 @@ using ComputedFieldTypes
 export AbstractWorld, AbstractRelation,
 				Ontology, OntologicalDataset,
 				n_samples, n_variables, channel_size,
-				IntervalOntology,
 				MatricialInstance,
 				MatricialDataset,
 				MatricialUniDataset,
 				WorldSet
 				# RelationAll, RelationNone, RelationId,
 				# enumAcc,
-				# IARelations,
 
 # Fix
 Base.keys(g::Base.Generator) = g.iter
@@ -52,6 +50,10 @@ const MatricialInstance{T,MN} = AbstractArray{T,MN}
 const MatricialUniDataset{T,UD} = AbstractArray{T,UD}
 const MatricialDataset{T,D}     = AbstractArray{T,D}
 
+n_samples(d::MatricialDataset{T,D})        where {T,D} = size(d, D-1)
+n_variables(d::MatricialDataset{T,D})      where {T,D} = size(d, D)
+channel_size(d::MatricialDataset{T,D})     where {T,D} = size(d)[1:end-2]
+
 @computed struct OntologicalDataset{T,N}
 	ontology  :: Ontology
 	domain    :: MatricialDataset{T,N+1+1}
@@ -59,10 +61,9 @@ end
 
 size(X::OntologicalDataset{T,N})             where {T,N} = size(X.domain)
 size(X::OntologicalDataset{T,N}, i::Integer) where {T,N} = size(X.domain, i)
-n_samples(X::OntologicalDataset{T,N})        where {T,N} = size(X, N+1)
-n_variables(X::OntologicalDataset{T,N})      where {T,N} = size(X, N+2)
-channel_size(X::OntologicalDataset{T,N})      where {T,N} = size(X.domain)[1:end-2]
-# dimensionality(X::OntologicalDataset{T,N})   where {T,N} = N
+n_samples(X::OntologicalDataset{T,N})        where {T,N} = n_samples(X.domain)
+n_variables(X::OntologicalDataset{T,N})      where {T,N} = n_variables(X.domain)
+channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain)
 
 @inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = ud[idx]           # N=0
 @inline getChannel(ud::MatricialUniDataset{T,2},  idx::Integer) where T = ud[:, idx]        # N=1
@@ -85,7 +86,6 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 
 # TODO use Xf[i,[(:) for i in 1:N]...]
 # @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, N)...]::AbstractArray{T,N-1}
-# @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, dimensionality(X))...]::AbstractArray{T,N-1}
 
 # TODO maybe using views can improve performances
 # featureview(X::OntologicalDataset{T,0}, idxs::AbstractVector{Integer}, feature::Integer) = X.domain[idxs, feature]
@@ -112,17 +112,23 @@ end
 
 # World generators/enumerators and array/set-like structures
 # TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
-const WorldGenerator = Union{Base.Generator,IterTools.Distinct}
 const AbstractWorldSet{W} = Union{AbstractVector{W},AbstractSet{W}} where {W<:AbstractWorld}
 # Concrete type for sets: vectors are faster than sets, so we
 # const WorldSet = AbstractSet{W} where W<:AbstractWorld
 const WorldSet{W} = Vector{W} where {W<:AbstractWorld}
 WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
 
-const WorldOrSet{W} = Union{W,WorldGenerator,AbstractWorldSet{W}} where {W<:AbstractWorld}
+## Enumerate accessible worlds
 
 # Fallback: enumAcc works with domains AND their dimensions
 enumAcc(S::Any, r::AbstractRelation, X::MatricialChannel{T,N}) where {T,N} = enumAcc(S, r, size(X)...)
+# Fallback: enumAcc for world sets maps to enumAcc-ing their elements
+#  (note: one may overload this function to provide improved implementations for special cases (e.g. <L> of a world set in interval algebra))
+enumAcc(S::AbstractWorldSet{worldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,worldType<:AbstractWorld} = begin
+	IterTools.imap(worldType,
+		IterTools.distinct(Iterators.flatten((enumAccBare(w, r, XYZ...) for w in S)))
+	)
+end
 
 # Ontology-agnostic relations:
 # - Identity relation  (RelationId)    =  S -> S
@@ -132,8 +138,8 @@ struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId(
 struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
 struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
-enumAcc(W::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [W]
-enumAcc(S::Union{WorldGenerator,AbstractWorldSet{W}}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
+enumAcc(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
+enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
 # Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
 
 print_rel_short(::_RelationId)  = "Id"
@@ -190,35 +196,5 @@ modalStep(S::WorldSetType,
 end
 
 include("IntervalLogic.jl")
-
-#=
-############################################
-END Performance tuning
-############################################
-
-
-using Revise
-using BenchmarkTools
-include("DecisionTree.jl/src/ModalLogic.jl")
-
-
-X = fill(1, 40)
-S = [Interval(15, 25)]
-S1 = enumAcc1(S, IA_L, X)
-S2 = enumAcc2(S, IA_L, X)
-Sc = Array{Interval,1}(collect(S))
-
-
-@btime enumAcc(S1, IA_L,  X) |> collect;
-@btime enumAcc(S2, IA_L,  X) |> collect;
-@btime enumAcc(Sc, IA_L,  X) |> collect;
-@btime enumAcc(S1, IA_Di,  X) |> collect;
-@btime enumAcc(S2, IA_Di,  X) |> collect;
-@btime enumAcc(Sc, IA_Di,  X) |> collect;
-@btime enumAcc(S1, IA_Oi,  X) |> collect;
-@btime enumAcc(S2, IA_Oi,  X) |> collect;
-@btime enumAcc(Sc, IA_Oi,  X) |> collect;
-
-=#
 
 end # module
