@@ -2,20 +2,20 @@
 ✔	Test topological manually @done (21-02-02 14:57)
 ✔	Fix print_world @done (21-02-02 14:07)
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
-☐	Parametrize on the test operators
+✔	Parametrize on the test operators @done (21-02-02 17:52)
 ☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
-☐	Create a dataset with many but tiny worlds. Even a completely random one.
-☐	Now move the extremes computation to the outer algorithm scope, so that it happens BEFORE the whole computation.
 ☐	Soften > and <= to be >alpha and <=alpha. Make alpha an array to iterate over. Find an efficient way to compute it (note that with a few elements in the world, it can be made efficient with integer operations).
 ☐	Improve the computation of the extremes leveraging the structure of IA Frames.
+☐	Now move the extremes computation to the outer algorithm scope, so that it happens BEFORE the whole computation.
+☐	Create a dataset with many but tiny worlds. Even a completely random one.
 ☐	> doubles the time but doesn't seem to improve performances. Is this a bug? Try to come up with a dataset that shows if it works. If it's not a bug, maybe we should consider parametrizing on whether this is to be used or not.
 ☐	Add point-based ontology, and test point-based + rectangle algebra?
 ☐	Test 5x5
 ☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 ☐	Test adimensional case 1x1, & 2D case 3x3, 5x5, 7x7, with alfa=.8
 ☐	Use specific sampling on the image
-☐	Clean initCondition and worldType code
 ☐	Fix naming style (e.g. variables, etc. Order of struct's members)
+☐	Clean initCondition and worldType code
 
 ☐	Try slicing with JuliennedArrays? https://bramtayl.github.io/JuliennedArrays.jl/latest/
 ☐	@inbounds ? https://github.com/JuliaLang/julia/issues/39340

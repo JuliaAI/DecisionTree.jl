@@ -82,7 +82,8 @@ module treeclassifier
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
 							max_purity_split    :: AbstractFloat,            # maximum purity allowed on a split
-							
+							test_operators      :: Vector{ModalLogic.TestOperator},
+
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
 							
 							# The six arrays below are given for optimization purposes
@@ -138,11 +139,24 @@ module treeclassifier
 		else
 			relations = [ModalLogic.RelationId, (X.ontology.relationSet)...]
 		end
+
+		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
+		#  can be complementary, and thus it is redundant to use both.
+		#  We avoid this by creating a dedicated set of relations for propositional splits
+		propositional_test_operators = 
+			if [ModalLogic.TestOpGeq, ModalLogic.TestOpLes] ⊆ test_operators
+				filter!(e->e ≠ ModalLogic.TestOpLes,test_operators)
+			else
+				test_operators
+			end
+		nonpropositional_test_operators = test_operators
+
+
 		# Optimization tracking variables
 		best_purity = typemin(U)
 		best_relation = ModalLogic.RelationNone
 		best_feature = -1
-		best_test_operator = ModalLogic.TestOpNone # nothing
+		best_test_operator = ModalLogic.TestOpNone
 		best_threshold = T(-1)
 		# threshold_lo = ...
 		# threshold_hi = ...
@@ -203,15 +217,8 @@ module treeclassifier
 
 				# Look for thresholds 'a' for the propositions like "feature >= a"
 				for threshold in thresholdDomain
-					# [:>=, :<] # TODO don't use booleans for test_operators, just symbols (possible overhead?)
-					# Note: in the propositional case, the <= and > are complementary and split-redundant
-					if relations == ModalLogic.RelationId
-						feasible_test_operators = [ModalLogic.TestOpGeq]
-					else
-						feasible_test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes]
-					end
 					# Look for the correct test operator
-					for test_operator in feasible_test_operators
+					for test_operator in (relations == ModalLogic.RelationId ? propositional_test_operators : nonpropositional_test_operators)
 						@info " test condition: $(display_modal_test(relation, test_operator, feature, threshold))"
 						# Re-initialize right class counts
 						@info " Testing..."
@@ -390,6 +397,7 @@ module treeclassifier
 			min_purity_increase     :: AbstractFloat,
 			max_purity_split        :: AbstractFloat,
 			initCondition           :: DecisionTree._initCondition,
+			test_operators          :: Vector{ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
 		# Dataset sizes
@@ -445,6 +453,7 @@ module treeclassifier
 				min_samples_leaf,
 				min_purity_increase,
 				max_purity_split,
+				test_operators,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, 
 				rng,
@@ -477,6 +486,7 @@ module treeclassifier
 			min_purity_increase     :: AbstractFloat,
 			max_purity_split        :: AbstractFloat, # TODO add this to scikit's interface.
 			initCondition           :: DecisionTree._initCondition,
+			test_operators          :: Vector{ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
@@ -515,6 +525,7 @@ module treeclassifier
 			min_purity_increase,
 			max_purity_split,
 			initCondition,
+			test_operators,
 			rng)
 
 		return Tree{T, S}(root, labels, indX, initCondition)

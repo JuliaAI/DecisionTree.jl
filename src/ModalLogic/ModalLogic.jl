@@ -196,7 +196,7 @@ print_rel_short(::_RelationAll) = ""
 
 # Perform the modal step, that is, evaluate a modal formula
 #  on a domain, and eventually compute the new world set.
-# TODO check that this dispatches on fastMode
+# TODO perhaps fastMode never needed, figure out
 modalStep(S::WorldSetType,
 					relation::R,
 					Xfi::AbstractArray{U,N},
@@ -212,7 +212,6 @@ modalStep(S::WorldSetType,
 		end
 		for w in worlds # Sf[i]
 			# @info " world" w
-			# TODO make sure that the modal step doesn't require that all worlds contribute to the new set. Consider why <>(p and q) is different from (<>p and [](p->q)) 
 			if TestCondition(test_operator, w, Xfi, threshold)
 				satisfied = true
 				if fastMode == Val(false)
@@ -227,7 +226,7 @@ modalStep(S::WorldSetType,
 			if satisfied == true
 				S = new_worlds
 			else 
-				# If none of the neighboring worlds satisfies the propositional condition, then 
+				# If none of the neighboring worlds satisfies the condition, then 
 				#  the new set is left unchanged
 			end
 		end

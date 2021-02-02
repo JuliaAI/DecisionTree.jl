@@ -35,6 +35,7 @@ function build_stump(
 		features    :: MatricialDataset{T,D},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
 		ontology    :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
+		test_operators      :: AbstractVector{ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D}
 	
 	X = OntologicalDataset{T,D-2}(ontology,features)
@@ -51,6 +52,7 @@ function build_stump(
 		min_purity_increase = 0.0,
 		max_purity_split    = 1.0,
 		initCondition       = startWithRelationAll,
+		test_operators      = test_operators,
 		rng                 = rng)
 
 	root = _convert(t.root, t.list, labels[t.labels])
@@ -73,6 +75,7 @@ function build_tree(
 		max_purity_split    :: AbstractFloat      = 1.0;
 		initCondition       :: _initCondition     = startWithRelationAll,
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
+		test_operators      :: AbstractVector{ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 		loss                :: Function           = util.entropy,
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D}
 
@@ -99,6 +102,7 @@ function build_tree(
 		min_purity_increase = min_purity_increase,
 		max_purity_split    = max_purity_split,
 		initCondition       = initCondition,
+		test_operators      = test_operators,
 		rng                 = rng)
 
 	root = _convert(t.root, t.list, labels[t.labels])
