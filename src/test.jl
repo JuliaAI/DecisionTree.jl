@@ -96,6 +96,7 @@ kwargs = (
 	initCondition=DecisionTree.startAtCenter,
 	ontology=getIntervalTopologicalOntologyOfDim(Val(2))
 )
+# timeit = true
 timeit = false
 T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 # T = testDataset(datasets[2], timeit, args=args, kwargs=kwargs);

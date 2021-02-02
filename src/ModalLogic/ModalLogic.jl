@@ -102,6 +102,7 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 ################################################################################
 
 abstract type TestOperator end
+struct _TestOpNone  <: TestOperator end; const TestOpNone  = _TestOpNone();
 # >=
 struct _TestOpGeq  <: TestOperator end; const TestOpGeq  = _TestOpGeq();
 # <
@@ -199,7 +200,7 @@ print_rel_short(::_RelationAll) = ""
 modalStep(S::WorldSetType,
 					relation::R,
 					Xfi::AbstractArray{U,N},
-					test_operator::Union{Val{true},Val{false}}, # TODO not boolean Union{Val{:<=},Val{:>}}
+					test_operator::TestOperator,
 					threshold::U,
 					fastMode::Val{V}) where {V, W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, U, N} = begin
 	@info "modalStep"
@@ -212,8 +213,7 @@ modalStep(S::WorldSetType,
 		for w in worlds # Sf[i]
 			# @info " world" w
 			# TODO make sure that the modal step doesn't require that all worlds contribute to the new set. Consider why <>(p and q) is different from (<>p and [](p->q)) 
-			if (test_operator == Val(true) && TestCondition(TestOpGeq, w, Xfi, threshold)) ||
-				 (test_operator == Val(false) && TestCondition(TestOpLes, w, Xfi, threshold))
+			if TestCondition(test_operator, w, Xfi, threshold)
 				satisfied = true
 				if fastMode == Val(false)
 					push!(new_worlds, w)

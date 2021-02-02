@@ -142,7 +142,7 @@ module treeclassifier
 		best_purity = typemin(U)
 		best_relation = ModalLogic.RelationNone
 		best_feature = -1
-		best_test_operator = true # nothing
+		best_test_operator = ModalLogic.TestOpNone # nothing
 		best_threshold = T(-1)
 		# threshold_lo = ...
 		# threshold_hi = ...
@@ -206,13 +206,13 @@ module treeclassifier
 					# [:>=, :<] # TODO don't use booleans for test_operators, just symbols (possible overhead?)
 					# Note: in the propositional case, the <= and > are complementary and split-redundant
 					if relations == ModalLogic.RelationId
-						feasible_test_operators = [true]
+						feasible_test_operators = [ModalLogic.TestOpGeq]
 					else
-						feasible_test_operators = [true, false]
+						feasible_test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes]
 					end
 					# Look for the correct test operator
 					for test_operator in feasible_test_operators
-						@info " threshold $threshold. Question: <$relation> (A$feature " * (if test_operator ">=" else "<" end) * " $threshold)"
+						@info " test condition: $(display_modal_test(relation, test_operator, feature, threshold))"
 						# Re-initialize right class counts
 						@info " Testing..."
 						nr = zero(U)
@@ -224,10 +224,10 @@ module treeclassifier
 							if maxPeaks[i] == typemin(T) # && minPeaks[i] == typemax(T)
 								# @info "   NO!"
 								satisfied = false
-							elseif test_operator == true && semiMaxPeaks[i] < threshold
+							elseif test_operator == ModalLogic.TestOpGeq && semiMaxPeaks[i] < threshold
 								# @info "   YES!!!"
 								satisfied = false
-							elseif test_operator == false && semiMinPeaks[i] >= threshold
+							elseif test_operator == ModalLogic.TestOpLes && semiMinPeaks[i] >= threshold
 								# @info "   YES!!!"
 								satisfied = false
 							else
@@ -270,7 +270,7 @@ module treeclassifier
 								@info " best_purity = " best_purity
 								@info " " best_relation
 								@info ", " best_feature
-								@info ", " (best_test_operator ? ModalLogic.TestOpGeq : ModalLogic.TestOpLes)
+								@info ", " best_test_operator
 								@info ", " best_threshold
 								# @info threshold_lo, threshold_hi
 							end
@@ -302,11 +302,10 @@ module treeclassifier
 			# node.purity    = best_purity
 			node.modality       = best_relation
 			node.feature        = best_feature
-			node.test_operator  = (best_test_operator ? ModalLogic.TestOpGeq : ModalLogic.TestOpLes)
+			node.test_operator  = best_test_operator
 			node.threshold      = best_threshold
 
-			@info " Best split condition: <$best_relation> (A$best_feature " *
-			 (best_test_operator ? ">=" : ":<") * " $best_threshold)"
+			@info " Best test condition: $(display_modal_test(best_relation, best_test_operator, best_feature, best_threshold))"
 
 			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
@@ -317,7 +316,7 @@ module treeclassifier
 			for i in 1:n_samples
 				# @info " instance {$i}/{$n_samples}"
 				channel = ModalLogic.getChannel(Xf, i)
-				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, Val(best_test_operator), best_threshold, Val(false))
+				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, best_test_operator, best_threshold, Val(false))
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 

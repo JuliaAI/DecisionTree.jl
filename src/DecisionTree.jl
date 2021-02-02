@@ -95,6 +95,14 @@ include("util.jl")
 include("modal-classification/main.jl")
 # TODO: include("ModalscikitlearnAPI.jl")
 
+display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, lhs::String, featval::Number) = begin
+	test = display_propositional_test(test_operator, "V$(lhs)", featval)
+	if modality != ModalLogic.RelationId
+		"<$(ModalLogic.print_rel_short(modality))> ($test)"
+	else
+		"$test"
+	end
+end
 
 #############################
 ########## Methods ##########
@@ -130,13 +138,7 @@ function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
 				return
 		end
 
-		test = display_propositional_test(tree.test_operator, "V$(tree.featid)", tree.featval)
-		println(
-			if is_modal_node(tree)
-				"<$(ModalLogic.print_rel_short(tree.modality))> ($test)"
-			else
-				"$test"
-			end)
+		println(display_modal_test(tree.modality, tree.test_operator, "V$(tree.featid)", tree.featval))
 		# indent_str = " " ^ indent
 		indent_str = reduce(*, [i == 1 ? "│" : " " for i in indent_guides])
 		# print(indent_str * "╭✔")
