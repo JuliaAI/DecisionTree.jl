@@ -11,7 +11,9 @@ export AbstractWorld, AbstractRelation,
 				MatricialInstance,
 				MatricialDataset,
 				MatricialUniDataset,
-				WorldSet
+				WorldSet,
+				display_propositional_test
+				# , TestOperator
 				# RelationAll, RelationNone, RelationId,
 				# enumAcc,
 
@@ -29,10 +31,9 @@ struct Ontology
 	Ontology(worldType, relationSet) = new(worldType, collect(Set(relationSet)))
 end
 
-# This constant is used to create the default world for each WorldType
-#  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
-struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
-struct _centeredWorld end; const centeredWorld = _centeredWorld();
+################################################################################
+# BEGIN Matricial dataset
+################################################################################
 
 # A dataset, given by a set of N-dimensional (multi-variate) matrices/instances,
 #  and an Ontology to be interpreted on each of them.
@@ -92,23 +93,70 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 # featureview(X::OntologicalDataset{T,1}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :)
 # featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
 
+################################################################################
+# END Matricial dataset
+################################################################################
+
+################################################################################
+# BEGIN Test operators
+################################################################################
+
+abstract type TestOperator end
+# >=
+struct _TestOpGeq  <: TestOperator end; const TestOpGeq  = _TestOpGeq();
+# <
+struct _TestOpLes  <: TestOperator end; const TestOpLes  = _TestOpLes();
+# >=_α
+struct _TestOpGeqSoft  <: TestOperator
+  alpha :: AbstractFloat
+end;
+const TestOpGeq075  = _TestOpGeqSoft(0.75);
+const TestOpGeq08  = _TestOpGeqSoft(0.8);
+const TestOpGeq09  = _TestOpGeqSoft(0.9);
+const TestOpGeq095  = _TestOpGeqSoft(0.95);
+# <_α
+struct _TestOpLesSoft  <: TestOperator
+  alpha :: AbstractFloat
+end;
+const TestOpLes075  = _TestOpLesSoft(0.75);
+const TestOpLes08  = _TestOpLesSoft(0.8);
+const TestOpLes09  = _TestOpLesSoft(0.9);
+const TestOpLes095  = _TestOpLesSoft(0.95);
+
+display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) >= $(featval)"
+display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) < $(featval)"
+display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(test_operator.alpha*100)% [$(lhs) >= $(featval)]"
+display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(test_operator.alpha*100)% [$(lhs) < $(featval)]"
+
+
 @inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
 @inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
-@inline WGeq(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
+@inline TestCondition(test_operator::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	@inbounds for x in readWorld(w,channel)
-		x >= val || return false
+		x >= featval || return false
 	end
 	return true
 end
-@inline WLes(w::AbstractWorld, channel::MatricialChannel{T,N}, val::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= val)
+@inline TestCondition(test_operator::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
-	# @info "WLes" w val #n readWorld(w,channel)
+	# @info "WLes" w featval #n readWorld(w,channel)
 	@inbounds for x in readWorld(w,channel)
-		x < val || return false
+		x < featval || return false
 	end
 	return true
 end
+
+################################################################################
+# END Test operators
+################################################################################
+
+
+# This constant is used to create the default world for each WorldType
+#  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
+struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
+struct _centeredWorld end; const centeredWorld = _centeredWorld();
+
 
 # World generators/enumerators and array/set-like structures
 # TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
@@ -164,8 +212,8 @@ modalStep(S::WorldSetType,
 		for w in worlds # Sf[i]
 			# @info " world" w
 			# TODO make sure that the modal step doesn't require that all worlds contribute to the new set. Consider why <>(p and q) is different from (<>p and [](p->q)) 
-			if (test_operator == Val(true) && WGeq(w, Xfi, threshold)) ||
-				 (test_operator == Val(false) && WLes(w, Xfi, threshold))
+			if (test_operator == Val(true) && TestCondition(TestOpGeq, w, Xfi, threshold)) ||
+				 (test_operator == Val(false) && TestCondition(TestOpLes, w, Xfi, threshold))
 				satisfied = true
 				if fastMode == Val(false)
 					push!(new_worlds, w)

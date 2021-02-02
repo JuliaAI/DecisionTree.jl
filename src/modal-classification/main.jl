@@ -164,7 +164,7 @@ function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::Worl
 			satisfied = true
 			channel = ModalLogic.getInstanceFeature(Xi, tree.featid)
 			@info " S" S
-			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, Val(tree.test_operator == (:>=)), tree.featval, Val(false))
+			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, Val(tree.test_operator == ModalLogic.TestOpGeq), tree.featval, Val(false))
 			@info " ->S'" S
 			apply_tree((satisfied ? tree.left : tree.right), Xi, S)
 		end

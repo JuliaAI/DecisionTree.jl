@@ -6,7 +6,7 @@ struct Interval <: AbstractWorld
 	x :: Integer
 	y :: Integer
 	# TODO check x<y but only in debug mode.  && x<=N, y<=N ?
-	# Interval(x,y) = x>0 && y>0 && x < y ? new(x,y) : error("Can't instantiate (x={$x},y={$y})")
+	# Interval(x,y) = x>0 && y>0 && x < y ? new(x,y) : error("Can't instantiate Interval(x={$x},y={$y})")
 	Interval(x::Integer,y::Integer) = new(x,y)
 	Interval((x,y)::Tuple{Integer,Integer}) = new(x,y)
 	Interval(::_emptyWorld) = new(-1,0)
@@ -17,13 +17,15 @@ end
 enumPairsIn(a::Integer, b::Integer) =
 	Iterators.filter((a)->a[1]<a[2], Iterators.product(a:b-1, a+1:b)) # TODO try to avoid filter maybe
 
-enumAccBare(w::Interval, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [(w.x, w.y)]
+enumAccBare(w::Interval, ::_RelationId, XYZ::Vararg{Integer,N}) where {N} = [(w.x, w.y)]
 enumAcc(S::AbstractWorldSet{Interval}, r::_RelationAll, X::Integer) where T =
 	IterTools.imap(Interval, enumPairsIn(1, X+1))
 
 worldTypeSize(::Type{Interval}) = 2
 
-@inline readWorld(w::Interval, channel::MatricialChannel{T,1}) where {T} = @inbounds channel[w.x:w.y-1]
+print_world(w::Interval) = println("Interval [$(w.x),$(w.y)), length $(w.y-w.x)")
+
+@inline readWorld(w::Interval, channel::MatricialChannel{T,1}) where {T} = channel[w.x:w.y-1]
 
 ################################################################################
 # END Interval
@@ -151,15 +153,22 @@ struct Interval2D <: AbstractWorld
 	Interval2D(w::_centeredWorld, X::Integer, Y::Integer) = new(Interval(w,X),Interval(w,Y))
 end
 
-enumAccBare(w::Interval2D, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [(w.x, w.y)]
+enumAccBare(w::Interval2D, ::_RelationId, XYZ::Vararg{Integer,N}) where {N} = [(w.x, w.y)]
 enumAcc(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) where T =
-	IterTools.imap(Interval2D, enumPairsIn(1, X+1), enumPairsIn(1, Y+1))
-		# Iterators.product(enumAcc(S, RelationAll, X), enumAcc(S, RelationAll, Y))
+	IterTools.imap(Interval2D,
+		Iterators.product(enumPairsIn(1, X+1), enumPairsIn(1, Y+1))
+		# enumAccBare(w..., IA2DRel(RelationAll,RelationAll), X, Y)
+	)
+	# IterTools.imap(Interval2D, enumPairsIn(1, X+1), enumPairsIn(1, Y+1))
 		# enumAccBare(w, IA2DRel(RelationAll,RelationAll), X, Y)
+# enumAccBare(w::Interval2D, r::_RelationAll, X::Integer, Y::Integer) where T =
+# 	enumAccBare(w, _IA2DRel(RelationAll,RelationAll), X, Y)
 
 worldTypeSize(::Type{Interval2D}) = 4
 
-@inline readWorld(w::Interval2D, channel::MatricialChannel{T,2}) where {T} = @inbounds channel[w.y.x:w.y.y-1,w.x.x:w.x.y-1]
+print_world(w::Interval2D) = println("Interval2D [$(w.x.x),$(w.x.y)) × [$(w.y.x),$(w.y.y)), length $(w.x.y-w.x.x)×$(w.y.y-w.y.x) = $((w.x.y-w.x.x)*(w.y.y-w.y.x))")
+
+@inline readWorld(w::Interval2D, channel::MatricialChannel{T,2}) where {T} = channel[w.y.x:w.y.y-1,w.x.x:w.x.y-1]
 
 ################################################################################
 # END Interval2D
@@ -242,8 +251,6 @@ enumAccBare2(w::Interval, r::_RelationAll, X::Integer) where T =
 enumAccBare(w::Interval2D, r::R where R<:_IA2DRel, X::Integer, Y::Integer) where T =
 	Iterators.product(enumAccBare2(w.x, r.x, X), enumAccBare2(w.y, r.y, Y))
 	# TODO try instead: Iterators.product(enumAcc(w.x, r.x, X), enumAcc(w.y, r.y, Y))
-enumAccBare(w::Interval2D, r::_RelationAll, X::Integer, Y::Integer) where T =
-	enumAccBare(w, IA2DRel(RelationAll,RelationAll), X, Y)
 
 # More efficient implementations for edge cases
 # TODO write efficient implementations for _IA2DRelations_U
@@ -343,11 +350,12 @@ enumAccBare(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) where T =
 		Iterators.product(enumAccBare(w.x, Topo_TPP,   X), enumAccBare(w.y, Topo_TPPi,  Y)),
 		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, Topo_TPP,   Y)),
 		#
+		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, Topo_NTPP,  Y)),
+		Iterators.product(enumAccBare(w.x, Topo_NTPP,  X), enumAccBare(w.y, Topo_TPPi,  Y)),
+		#
 		Iterators.product(enumAccBare(w.x, Topo_TPP,   X), enumAccBare(w.y, Topo_NTPPi, Y)),
-		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, Topo_NTPPi, Y)),
 		Iterators.product(enumAccBare(w.x, Topo_NTPP,  X), enumAccBare(w.y, Topo_NTPPi, Y)),
 		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_TPP,   Y)),
-		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_TPPi,  Y)),
 		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_NTPP,  Y)),
 	))
 enumAccBare(w::Interval2D, ::_Topo_TPP,   X::Integer, Y::Integer) where T =
@@ -368,8 +376,8 @@ enumAccBare(w::Interval2D, ::_Topo_TPPi,  X::Integer, Y::Integer) where T =
 	Iterators.flatten((
 		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, Topo_TPPi,  Y)),
 		#
-		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, Topo_NTPP,  Y)),
-		Iterators.product(enumAccBare(w.x, Topo_NTPP,  X), enumAccBare(w.y, Topo_TPPi,  Y)),
+		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, Topo_NTPPi, Y)),
+		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_TPPi,  Y)),
 		#
 		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, RelationId, Y)),
 		Iterators.product(enumAccBare(w.x, RelationId, X), enumAccBare(w.y, Topo_TPPi,  Y)),
@@ -390,6 +398,33 @@ enumAccBare(w::Interval2D, ::_Topo_NTPPi, X::Integer, Y::Integer) where T =
 ################################################################################
 # END Topological relations
 ################################################################################
+
+# TODO Point
+# ################################################################################
+# # BEGIN Point
+# ################################################################################
+
+# struct Point <: AbstractWorld
+# 	x :: Integer
+# 	# TODO check x<=N but only in debug mode
+# 	# Point(x) = x<=N ... ? new(x) : error("Can't instantiate Point(x={$x})")
+# 	Point(x::Integer) = new(x)
+# 	Point(::_emptyWorld) = new(0)
+# 	Point(::_centeredWorld, X::Integer) = new(div(X,2)+1)
+# end
+
+# enumAccBare(w::Point, ::_RelationId, XYZ::Vararg{Integer,N}) where {N} = [(w.x,)]
+# enumAcc(S::AbstractWorldSet{Point}, r::_RelationAll, X::Integer) where T =
+# 	IterTools.imap(Point, 1:X)
+
+# worldTypeSize(::Type{Interval}) = 1
+
+# @inline readWorld(w::Point, channel::MatricialChannel{T,1}) where {T} = channel[w.x]
+
+# ################################################################################
+# # END Point
+# ################################################################################
+
 
 export genericIntervalOntology,
 				IntervalOntology,

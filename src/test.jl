@@ -81,8 +81,8 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	("IndianPinesCorrectedDataset, 3x3",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 	("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
 	("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),
-	("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
-	("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+	# ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
+	# ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 ];
 
 args = (
@@ -96,19 +96,20 @@ kwargs = (
 	initCondition=DecisionTree.startAtCenter,
 	ontology=getIntervalTopologicalOntologyOfDim(Val(2))
 )
-# T = testDataset(datasets[1], false, args=args, kwargs=kwargs);
-# T = testDataset(datasets[2], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
-# T = testDataset(datasets[4], false, args=args, kwargs=kwargs);
-# T = testDataset(datasets[5], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[6], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[7], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[8], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[9], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[10], false, args=args, kwargs=kwargs);
+timeit = false
+T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+# T = testDataset(datasets[2], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
+# T = testDataset(datasets[5], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[7], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[8], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[9], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[10], timeit, args=args, kwargs=kwargs);
 kwargs = (
 	initCondition=DecisionTree.startWithRelationAll,
-	ontology=getIntervalTopologicalOntologyOfDim(Val(2))
+	ontology=getIntervalOntologyOfDim(Val(2))
 )
 # T = testDataset(datasets[1], false, args=args, kwargs=kwargs);
 # T = testDataset(datasets[2], false, args=args, kwargs=kwargs);
@@ -132,3 +133,37 @@ T = testDataset(datasets[10], false, args=args, kwargs=kwargs);
 # model = fit!(DecisionTreeClassifier(pruning_purity_threshold=pruning_purity_threshold), X_train, Y_train)
 # cm = confusion_matrix(Y_test, predict(model, X_test))
 # @test cm.accuracy > 0.99
+
+# for relations in [ModalLogic.TopoRelations, ModalLogic.IA2DRelations]
+# 	for (X,Y) in Iterators.product(4:6,4:9)
+# 		sum = 0
+# 		for rel in relations
+# 			sum += (ModalLogic.enumAcc(S, rel, X,Y) |> collect |> length)
+# 			end
+# 		# println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
+# 		@assert sum == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)
+# 	end
+# 	for (X,Y) in Iterators.product(4:6,4:9)
+# 		sum = 0
+# 		for rel in relations
+# 			sum += (ModalLogic.enumAcc(S, rel, X,Y) |> distinct |> collect |> length)
+# 			end
+# 		# println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
+# 		@assert sum == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)
+# 	end
+# end
+
+# S = [ModalLogic.Interval2D((2,3),(3,4))]
+# S = [ModalLogic.Interval2D((2,4),(2,4))]
+S = [ModalLogic.Interval2D((2,3),(2,3))]
+relations = ModalLogic.TopoRelations
+(X,Y) = (3,3)
+SUM = 0
+for rel in relations
+	println(rel)
+	map(ModalLogic.print_world, ModalLogic.enumAcc(S, rel, X,Y) |> collect)
+	global SUM
+	SUM += (ModalLogic.enumAcc(S, rel, X,Y) |> collect |> length)
+end
+# println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
+@assert SUM == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)

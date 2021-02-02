@@ -1,25 +1,33 @@
-☐	Check the speedup with/without inbounds (3x3 and 5x5 cases)
-☐	Test topological manually
-☐	Test 5x5
+✔	Check the speedup with/without inbounds (3x3 and 5x5 cases) @done (21-02-02 13:56)
+✔	Test topological manually @done (21-02-02 14:57)
+✔	Fix print_world @done (21-02-02 14:07)
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
 ☐	Parametrize on the test operators
+☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
 ☐	Create a dataset with many but tiny worlds. Even a completely random one.
 ☐	Now move the extremes computation to the outer algorithm scope, so that it happens BEFORE the whole computation.
 ☐	Soften > and <= to be >alpha and <=alpha. Make alpha an array to iterate over. Find an efficient way to compute it (note that with a few elements in the world, it can be made efficient with integer operations).
 ☐	Improve the computation of the extremes leveraging the structure of IA Frames.
 ☐	> doubles the time but doesn't seem to improve performances. Is this a bug? Try to come up with a dataset that shows if it works. If it's not a bug, maybe we should consider parametrizing on whether this is to be used or not.
+☐	Add point-based ontology, and test point-based + rectangle algebra?
+☐	Test 5x5
 ☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 ☐	Test adimensional case 1x1, & 2D case 3x3, 5x5, 7x7, with alfa=.8
 ☐	Use specific sampling on the image
 ☐	Clean initCondition and worldType code
 ☐	Fix naming style (e.g. variables, etc. Order of struct's members)
 
+☐	Try slicing with JuliennedArrays? https://bramtayl.github.io/JuliennedArrays.jl/latest/
+☐	@inbounds ? https://github.com/JuliaLang/julia/issues/39340
+
+☐	allow to reconsider previous worldsets and modal depths
 ☐	Add tree parser
 ☐	Add convenience methods for tree editing.
 ☐	Generalize World as a tuple of parameters ( https://stackoverflow.com/questions/40160120/generic-constructors-for-subtypes-of-an-abstract-type )
 ☐	use staticArrays for small domains (matrices/vectors) https://github.com/JuliaArrays/StaticArrays.jl
 		X = OntologicalDataset(IntervalOntology,Array{SMatrix{3,3,Int},2}(undef, 20, 10))
 
+☐ Half-an-idea: variables are just another dimension without order
 ☐	Try adding ProgressMeter? https://github.com/timholy/ProgressMeter.jl
 ☐	Generalize greedy step to greedy-n step.
 ☐	Generalize to beam-search and then beam-search-n?

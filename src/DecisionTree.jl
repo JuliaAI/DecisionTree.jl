@@ -51,7 +51,7 @@ struct DTInternal{S<:Real, T}
 
 	modality :: R where R<:AbstractRelation
 	featid   :: Int
-	test_operator :: Symbol # Test operator (e.g. <=, ==)
+	test_operator :: ModalLogic.TestOperator # Test operator (e.g. <=, ==)
 	featval  :: featType where featType<:S
 	# string representing an existential modality (e.g. ♢, L, LL)
 
@@ -72,11 +72,14 @@ end
 
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
+is_leaf(t::DTree) = is_leaf(t.root)
 
 is_modal_node(n::DTInternal) = (!is_leaf(n) && n.modality != ModalLogic.RelationId)
+is_modal_node(t::DTree) = is_modal_node(t.root)
 
 zero(String) = ""
 convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(ModalLogic.RelationNone, 0, :(nothing), zero(S), lf, DTLeaf(zero(T), [zero(T)]))
+
 promote_rule(::Type{DTInternal{S, T}}, ::Type{DTLeaf{T}}) where {S, T} = DTInternal{S, T}
 
 # make a Random Number Generator object
@@ -99,17 +102,21 @@ include("modal-classification/main.jl")
 # Length (total # of nodes)
 num_nodes(leaf::DTLeaf) = 1
 num_nodes(tree::DTInternal) = 1 + num_nodes(tree.left) + num_nodes(tree.right)
+num_nodes(t::DTree) = num_nodes(t.root)
 
 length(leaf::DTLeaf) = 1
 length(tree::DTInternal) = length(tree.left) + length(tree.right)
+length(t::DTree) = length(t.root)
 
 # Height
 height(leaf::DTLeaf) = 0
 height(tree::DTInternal) = 1 + max(height(tree.left), height(tree.right))
+height(t::DTree) = height(t.root)
 
 # Modal height
 modal_height(leaf::DTLeaf) = 0
 modal_height(tree::DTInternal) = (is_modal_node(tree) ? 1 : 0) + max(modal_height(tree.left), modal_height(tree.right))
+modal_height(t::DTree) = modal_height(t.root)
 
 function print_tree(leaf::DTLeaf, depth=-1, indent=0, indent_guides=[])
 		matches = findall(leaf.values .== leaf.majority)
@@ -123,7 +130,7 @@ function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
 				return
 		end
 
-		test = "A$(tree.featid) $(tree.test_operator) $(tree.featval)"
+		test = display_propositional_test(tree.test_operator, "V$(tree.featid)", tree.featval)
 		println(
 			if is_modal_node(tree)
 				"<$(ModalLogic.print_rel_short(tree.modality))> ($test)"
@@ -140,6 +147,12 @@ function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
 		print_tree(tree.right, depth, indent + 1, [indent_guides..., 0])
 end
 
+function print_tree(tree::DTree)
+		println("worldType: $(tree.worldType)")
+		println("initCondition: $(tree.initCondition)")
+		print_tree(tree.root)
+end
+
 function show(io::IO, leaf::DTLeaf)
 		println(io, "Decision Leaf")
 		println(io, "Majority: $(leaf.majority)")
@@ -148,6 +161,15 @@ function show(io::IO, leaf::DTLeaf)
 end
 
 function show(io::IO, tree::DTInternal)
+		println(io, "Decision Node")
+		println(io, "Leaves: $(length(tree))")
+		println(io, "Tot nodes: $(num_nodes(tree))")
+		println(io, "Height: $(height(tree))")
+		println(io, "Modal height:  $(modal_height(tree))")
+		print_tree(tree)
+end
+
+function show(io::IO, tree::DTree)
 		println(io, "Decision Tree")
 		println(io, "Leaves: $(length(tree))")
 		println(io, "Tot nodes: $(num_nodes(tree))")

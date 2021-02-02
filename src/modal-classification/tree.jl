@@ -28,9 +28,9 @@ module treeclassifier
 		r           :: NodeMeta{S}      # right child
 		# purity      :: U              # purity grade attained if this is a split
 		modality         :: R where R<:AbstractRelation # modal operator (e.g. RelationId for the propositional case)
-		feature          :: Int              # feature used for splitting
-		test_operator    :: Symbol           # test_operator (e.g. <=)
-		threshold        :: S                # threshold value
+		feature          :: Int                      # feature used for splitting
+		test_operator    :: ModalLogic.TestOperator  # test_operator (e.g. <=)
+		threshold        :: S                        # threshold value
 		function NodeMeta{S}(
 				region      :: UnitRange{Int},
 				depth       :: Int,
@@ -116,7 +116,7 @@ module treeclassifier
 		# Check leaf conditions
 		if (min_samples_leaf * 2 >  n_samples
 		 || nc[node.label]       == nt
-		 || nc[node.label] / nt >= max_purity_split # TODO this purity has to be the purity function, not the number of training samples.
+		 || nc[node.label] / nt  >= max_purity_split # TODO this purity has to be the purity function, not the number of training samples.
 		 || max_depth            <= node.depth)
 			node.is_leaf = true
 			return
@@ -270,7 +270,7 @@ module treeclassifier
 								@info " best_purity = " best_purity
 								@info " " best_relation
 								@info ", " best_feature
-								@info ", " (best_test_operator ? (:>=) : (:<))
+								@info ", " (best_test_operator ? ModalLogic.TestOpGeq : ModalLogic.TestOpLes)
 								@info ", " best_threshold
 								# @info threshold_lo, threshold_hi
 							end
@@ -283,7 +283,7 @@ module treeclassifier
 
 		# If the split is good, partition and split according to the optimum
 		@inbounds if (unsplittable # no splits honor min_samples_leaf
-			|| (best_purity / nt + purity_function(nc, nt) < min_purity_increase)) # TODO what is this gain here? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
+			|| (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
 			@info " LEAF" (best_purity / nt)
 			node.is_leaf = true
 			return
@@ -302,7 +302,7 @@ module treeclassifier
 			# node.purity    = best_purity
 			node.modality       = best_relation
 			node.feature        = best_feature
-			node.test_operator  = (best_test_operator ? (:>=) : (:<))
+			node.test_operator  = (best_test_operator ? ModalLogic.TestOpGeq : ModalLogic.TestOpLes)
 			node.threshold      = best_threshold
 
 			@info " Best split condition: <$best_relation> (A$best_feature " *
