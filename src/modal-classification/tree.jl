@@ -82,7 +82,7 @@ module treeclassifier
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
 							max_purity_split    :: AbstractFloat,            # maximum purity allowed on a split
-							test_operators      :: Vector{ModalLogic.TestOperator},
+							test_operators      :: AbstractVector{<:ModalLogic.TestOperator},
 
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
 							
@@ -397,7 +397,7 @@ module treeclassifier
 			min_purity_increase     :: AbstractFloat,
 			max_purity_split        :: AbstractFloat,
 			initCondition           :: DecisionTree._initCondition,
-			test_operators          :: Vector{ModalLogic.TestOperator},
+			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
 		# Dataset sizes
@@ -486,7 +486,7 @@ module treeclassifier
 			min_purity_increase     :: AbstractFloat,
 			max_purity_split        :: AbstractFloat, # TODO add this to scikit's interface.
 			initCondition           :: DecisionTree._initCondition,
-			test_operators          :: Vector{ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features

@@ -1,8 +1,4 @@
-✔	Check the speedup with/without inbounds (3x3 and 5x5 cases) @done (21-02-02 13:56)
-✔	Test topological manually @done (21-02-02 14:57)
-✔	Fix print_world @done (21-02-02 14:07)
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
-✔	Parametrize on the test operators @done (21-02-02 17:52)
 ☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
 ☐	Soften > and <= to be >alpha and <=alpha. Make alpha an array to iterate over. Find an efficient way to compute it (note that with a few elements in the world, it can be made efficient with integer operations).
 ☐	Improve the computation of the extremes leveraging the structure of IA Frames.
@@ -42,6 +38,10 @@
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✔	Parametrize on the test operators @done (21-02-02 17:52)
+	✔	Test topological manually @done (21-02-02 14:57)
+	✔	Fix print_world @done (21-02-02 14:07)
+	✔	Check the speedup with/without inbounds (3x3 and 5x5 cases) @done (21-02-02 13:56)
 	✔	verify new code. (test all datasets (avoid dataset[2] flattened)) @done (21-01-26 18:06)
 	✔	Test with no initCondition @done (21-01-26 18:06)
 	✔	Try different starting condition: start at the central pixel. @done (21-01-25 00:10)

@@ -96,7 +96,7 @@ include("modal-classification/main.jl")
 # TODO: include("ModalscikitlearnAPI.jl")
 
 display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, lhs::String, featval::Number) = begin
-	test = display_propositional_test(test_operator, "V$(lhs)", featval)
+	test = display_propositional_test(test_operator, lhs, featval)
 	if modality != ModalLogic.RelationId
 		"<$(ModalLogic.print_rel_short(modality))> ($test)"
 	else

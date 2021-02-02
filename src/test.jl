@@ -94,7 +94,9 @@ args = (
 )
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
-	ontology=getIntervalTopologicalOntologyOfDim(Val(2))
+	ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+	test_operators=[ModalLogic.TestOpLes],
+	# test_operators=[ModalLogic.TestOpGeq],
 )
 # timeit = true
 timeit = false
@@ -168,3 +170,5 @@ for rel in relations
 end
 # println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
 @assert SUM == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)
+
+# Test that T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs); with test_operators=[ModalLogic.TestOpLes] and without is equivalent
