@@ -28,25 +28,27 @@ abstract type AbstractRelation end
 struct Ontology
 	worldType   :: Type{<:AbstractWorld}
 	relationSet :: AbstractVector{<:AbstractRelation}
-	Ontology(worldType, relationSet) = new(worldType, collect(Set(relationSet)))
+	Ontology(worldType, relationSet) = new(worldType, unique(relationSet))
+	# Ontology(worldType, relationSet) = new(worldType, relationSet)
 end
 
 # TODO improve, decouple from relationSets definitions
+# Actually, this will not work because relationSet does this collect(set(...)) thing... mh maybe better avoid that thing?
 show(io::IO, o::Ontology) = begin
 	print(io, "Ontology(")
 	show(io, o.worldType)
 	print(io, ",")
-	if o.relationSet == IARelations
+	if issetequal(o.relationSet, IARelations)
 		print(io, "IARelations")
-	elseif o.relationSet == IARelations_extended
+	elseif issetequal(o.relationSet, IARelations_extended)
 		print(io, "IARelations_extended")
-	elseif o.relationSet == IA2DRelations
+	elseif issetequal(o.relationSet, IA2DRelations)
 		print(io, "IA2DRelations")
-	elseif o.relationSet == IA2DRelations_U
+	elseif issetequal(o.relationSet, IA2DRelations_U)
 		print(io, "IA2DRelations_U")
-	elseif o.relationSet == IA2DRelations_extended
+	elseif issetequal(o.relationSet, IA2DRelations_extended)
 		print(io, "IA2DRelations_extended")
-	elseif o.relationSet == TopoRelations
+	elseif issetequal(o.relationSet, TopoRelations)
 		print(io, "TopoRelations")
 	else
 		show(io, o.relationSet)
