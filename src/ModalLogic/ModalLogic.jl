@@ -191,8 +191,8 @@ enumAcc(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {Wo
 enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
 # Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
 
-print_rel_short(::_RelationId)  = "Id"
-print_rel_short(::_RelationAll) = ""
+display_rel_short(::_RelationId)  = "Id"
+display_rel_short(::_RelationAll) = ""
 
 # Perform the modal step, that is, evaluate a modal formula
 #  on a domain, and eventually compute the new world set.

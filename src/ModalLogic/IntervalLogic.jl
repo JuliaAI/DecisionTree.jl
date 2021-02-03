@@ -1,3 +1,5 @@
+show(io::IO, r::AbstractRelation) = println(io, "<" * display_rel_short(r) * ">")
+
 ################################################################################
 # BEGIN Interval
 ################################################################################
@@ -50,19 +52,19 @@ struct _IA_Ei <: _IARel end; const IA_Ei = _IA_Ei(); # Ends inverse
 struct _IA_Di <: _IARel end; const IA_Di = _IA_Di(); # During inverse
 struct _IA_Oi <: _IARel end; const IA_Oi = _IA_Oi(); # Overlaps inverse
 
-# TODO change name to print_rel_short
-print_rel_short(::_IA_A)  = "A"
-print_rel_short(::_IA_L)  = "L"
-print_rel_short(::_IA_B)  = "B"
-print_rel_short(::_IA_E)  = "E"
-print_rel_short(::_IA_D)  = "D"
-print_rel_short(::_IA_O)  = "O"
-print_rel_short(::_IA_Ai) = "Ai"
-print_rel_short(::_IA_Li) = "Li"
-print_rel_short(::_IA_Bi) = "Bi"
-print_rel_short(::_IA_Ei) = "Ei"
-print_rel_short(::_IA_Di) = "Di"
-print_rel_short(::_IA_Oi) = "Oi"
+# TODO change name to display_rel_short
+display_rel_short(::_IA_A)  = "A"
+display_rel_short(::_IA_L)  = "L"
+display_rel_short(::_IA_B)  = "B"
+display_rel_short(::_IA_E)  = "E"
+display_rel_short(::_IA_D)  = "D"
+display_rel_short(::_IA_O)  = "O"
+display_rel_short(::_IA_Ai) = "Ai"
+display_rel_short(::_IA_Li) = "Li"
+display_rel_short(::_IA_Bi) = "Bi"
+display_rel_short(::_IA_Ei) = "Ei"
+display_rel_short(::_IA_Di) = "Di"
+display_rel_short(::_IA_Oi) = "Oi"
 
 # 12 Interval Algebra relations
 const IARelations = [IA_A,  IA_L,  IA_B,  IA_E,  IA_D,  IA_O,
@@ -203,8 +205,8 @@ const IA_DiI = _IA2DRel(IA_Di       , RelationId); const IA_DiU = _IA2DRel(IA_Di
 const IA_OiI = _IA2DRel(IA_Oi       , RelationId); const IA_OiU = _IA2DRel(IA_Oi       , RelationAll); const IA_OiA = _IA2DRel(IA_Oi       , IA_A); const IA_OiL = _IA2DRel(IA_Oi       , IA_L); const IA_OiB = _IA2DRel(IA_Oi       , IA_B); const IA_OiE = _IA2DRel(IA_Oi       , IA_E); const IA_OiD = _IA2DRel(IA_Oi       , IA_D); const IA_OiO = _IA2DRel(IA_Oi       , IA_O); const IA_OiAi = _IA2DRel(IA_Oi       , IA_Ai); const IA_OiLi = _IA2DRel(IA_Oi       , IA_Li); const IA_OiBi = _IA2DRel(IA_Oi       , IA_Bi); const IA_OiEi = _IA2DRel(IA_Oi       , IA_Ei); const IA_OiDi = _IA2DRel(IA_Oi       , IA_Di); const IA_OiOi = _IA2DRel(IA_Oi       , IA_Oi);
 
 # Print 2D Interval Algebra relations
-print_rel_short(::_IA2DRel{_XR,_YR}) where {_XR<:_IABase,_YR<:_IABase} =
-	string(print_rel_short(_XR()), ",", print_rel_short(_YR())); 
+display_rel_short(::_IA2DRel{_XR,_YR}) where {_XR<:_IABase,_YR<:_IABase} =
+	string(display_rel_short(_XR()), ",", display_rel_short(_YR())); 
 
 # 13^2-1=168 Rectangle Algebra relations
 const IA2DRelations = [
@@ -280,13 +282,13 @@ struct _Topo_TPPi   <: _TopoRel end; const Topo_TPPi   = _Topo_TPPi();   # Tange
 struct _Topo_NTPP   <: _TopoRel end; const Topo_NTPP   = _Topo_NTPP();   # Non-tangential proper part
 struct _Topo_NTPPi  <: _TopoRel end; const Topo_NTPPi  = _Topo_NTPPi();  # Non-tangential proper part inverse
 
-print_rel_short(::_Topo_DC)    = "DC"
-print_rel_short(::_Topo_EC)    = "EC"
-print_rel_short(::_Topo_PO)    = "PO"
-print_rel_short(::_Topo_TPP)   = "TPP"
-print_rel_short(::_Topo_TPPi)  = "TPPi"
-print_rel_short(::_Topo_NTPP)  = "NTPP"
-print_rel_short(::_Topo_NTPPi) = "NTPPi"
+display_rel_short(::_Topo_DC)    = "DC"
+display_rel_short(::_Topo_EC)    = "EC"
+display_rel_short(::_Topo_PO)    = "PO"
+display_rel_short(::_Topo_TPP)   = "TPP"
+display_rel_short(::_Topo_TPPi)  = "TPPi"
+display_rel_short(::_Topo_NTPP)  = "NTPP"
+display_rel_short(::_Topo_NTPPi) = "NTPPi"
 
 const TopoRelations = [Topo_DC, Topo_EC, Topo_PO, Topo_TPP, Topo_TPPi, Topo_NTPP, Topo_NTPPi]
 
