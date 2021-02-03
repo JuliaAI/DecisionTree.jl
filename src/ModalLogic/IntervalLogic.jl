@@ -1,4 +1,4 @@
-show(io::IO, r::AbstractRelation) = println(io, "<" * display_rel_short(r) * ">")
+show(io::IO, r::AbstractRelation) = print(io, "<" * display_rel_short(r) * ">")
 
 ################################################################################
 # BEGIN Interval

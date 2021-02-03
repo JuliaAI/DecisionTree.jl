@@ -79,8 +79,8 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	("IndianPinesCorrectedDataset, 1x1",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 	("IndianPinesCorrectedDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(16*30, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 	("IndianPinesCorrectedDataset, 3x3",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),
-	("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
-	("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+	# ("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
+	# ("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 	# ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
 	# ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 ];
@@ -95,8 +95,8 @@ args = (
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
 	# initCondition=DecisionTree.startWithRelationAll,
-	ontology=getIntervalOntologyOfDim(Val(2))
-	# ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+	# ontology=getIntervalOntologyOfDim(Val(2))
+	ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
 	# test_operators=[ModalLogic.TestOpLes],
 	# test_operators=[ModalLogic.TestOpGeq],
 )

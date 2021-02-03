@@ -188,34 +188,24 @@ module treeclassifier
 				#                       and the lowest value for any world
 				@info "Computing peaks..." # channel
 				maxPeaks     = fill(typemin(T), n_samples)
-				semiMaxPeaks = fill(typemin(T), n_samples)
 				minPeaks     = fill(typemax(T), n_samples)
-				semiMinPeaks = fill(typemax(T), n_samples)
 				for i in 1:n_samples
 					channel = ModalLogic.getChannel(Xf, i)
 					# @info " instance $i/$n_samples" # channel
-					# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
 					for w in ModalLogic.enumAcc(Sf[i], relation, channel)
 						(_wmax,_wmin) = Sogliole[indX[i + r_start],feature][w]
-						# TODO fix, this is most surely wrong!
-						if maxPeaks[i] < _wmax
-							maxPeaks[i] = _wmax
-							semiMaxPeaks[i] = _wmin
-						else maxPeaks[i] == _wmax
-							semiMaxPeaks[i] = max(semiMaxPeaks[i], _wmin)
+						if maxPeaks[i] < _wmin
+							maxPeaks[i] = max(maxPeaks[i], _wmin)
 						end
-						if minPeaks[i] > _wmin
-							minPeaks[i] = _wmin
-							semiMinPeaks[i] = _wmax
-						else minPeaks[i] == _wmin
-							semiMinPeaks[i] = min(semiMinPeaks[i], _wmax)
+						if minPeaks[i] > _wmax
+							minPeaks[i] = min(minPeaks[i], _wmax)
 						end
 					end
 				end
 				# @info "  (maxPeak,minPeak) $maxPeaks,$minPeaks"
 				
 				# Obtain the list of reasonable thresholds
-				thresholdDomain = setdiff(union(Set(semiMaxPeaks),Set(semiMinPeaks)),Set([typemin(T), typemax(T)]))
+				thresholdDomain = setdiff(union(Set(maxPeaks),Set(minPeaks)),Set([typemin(T), typemax(T)]))
 				@info "thresholdDomain " thresholdDomain
 
 				# Look for thresholds 'a' for the propositions like "feature >= a"
@@ -228,16 +218,16 @@ module treeclassifier
 						nr = zero(U)
 						ncr[:] .= zero(U)
 						for i in 1:n_samples
-							@info " instance $i/$n_samples   peaks ($(minPeaks[i])/$(semiMinPeaks[i])/$(semiMaxPeaks[i])/$(maxPeaks[i]))"
+							@info " instance $i/$n_samples   peaks ($(minPeaks[i])/$(maxPeaks[i]))"
 							satisfied = true
 							# No world to go
 							if maxPeaks[i] == typemin(T) # && minPeaks[i] == typemax(T)
 								# @info "   NO!"
 								satisfied = false
-							elseif test_operator == ModalLogic.TestOpGeq && semiMaxPeaks[i] < threshold
+							elseif test_operator == ModalLogic.TestOpGeq && maxPeaks[i] < threshold
 								# @info "   YES!!!"
 								satisfied = false
-							elseif test_operator == ModalLogic.TestOpLes && semiMinPeaks[i] >= threshold
+							elseif test_operator == ModalLogic.TestOpLes && minPeaks[i] >= threshold
 								# @info "   YES!!!"
 								satisfied = false
 							else
