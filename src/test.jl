@@ -94,12 +94,14 @@ args = (
 )
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
-	ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
-	test_operators=[ModalLogic.TestOpLes],
+	# initCondition=DecisionTree.startWithRelationAll,
+	ontology=getIntervalOntologyOfDim(Val(2))
+	# ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+	# test_operators=[ModalLogic.TestOpLes],
 	# test_operators=[ModalLogic.TestOpGeq],
 )
-# timeit = true
-timeit = false
+timeit = true
+# timeit = false
 T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 # T = testDataset(datasets[2], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
@@ -110,20 +112,6 @@ T = testDataset(datasets[7], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[8], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[9], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[10], timeit, args=args, kwargs=kwargs);
-kwargs = (
-	initCondition=DecisionTree.startWithRelationAll,
-	ontology=getIntervalOntologyOfDim(Val(2))
-)
-# T = testDataset(datasets[1], false, args=args, kwargs=kwargs);
-# T = testDataset(datasets[2], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
-# T = testDataset(datasets[4], false, args=args, kwargs=kwargs);
-# T = testDataset(datasets[5], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[6], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[7], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[8], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[9], false, args=args, kwargs=kwargs);
-T = testDataset(datasets[10], false, args=args, kwargs=kwargs);
 
 # @profview T = testDataset(datasets[2], false)
 # T = testDataset(datasets[1], false)

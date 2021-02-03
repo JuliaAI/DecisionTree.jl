@@ -22,6 +22,7 @@ enumAcc(S::AbstractWorldSet{Interval}, r::_RelationAll, X::Integer) where T =
 	IterTools.imap(Interval, enumPairsIn(1, X+1))
 
 worldTypeSize(::Type{Interval}) = 2
+n_worlds(::Type{Interval}, channel_size::Tuple{Integer}) = div(channel_size[1]*(channel_size[1]+1),2)
 
 print_world(w::Interval) = println("Interval [$(w.x),$(w.y)), length $(w.y-w.x)")
 
@@ -165,6 +166,7 @@ enumAcc(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer
 # 	enumAccBare(w, _IA2DRel(RelationAll,RelationAll), X, Y)
 
 worldTypeSize(::Type{Interval2D}) = 4
+n_worlds(::Type{Interval2D}, channel_size::Tuple{Integer,Integer}) = n_worlds(Interval, channel_size[1]) * n_worlds(Interval, channel_size[2])
 
 print_world(w::Interval2D) = println("Interval2D [$(w.x.x),$(w.x.y)) × [$(w.y.x),$(w.y.y)), length $(w.x.y-w.x.x)×$(w.y.y-w.y.x) = $((w.x.y-w.x.x)*(w.y.y-w.y.x))")
 
