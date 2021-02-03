@@ -184,22 +184,15 @@ module treeclassifier
 			for relation in relations
 				@info "Testing relation " relation
 
-				# Find, for each instance, the highest value for any world
-				#                       and the lowest value for any world
-				@info "Computing peaks..." # channel
-				maxPeaks     = fill(typemin(T), n_samples)
-				minPeaks     = fill(typemax(T), n_samples)
+				maxPeaks = fill(typemin(T), n_samples)
+				minPeaks = fill(typemax(T), n_samples)
 				for i in 1:n_samples
 					channel = ModalLogic.getChannel(Xf, i)
 					# @info " instance $i/$n_samples" # channel
-					for w in ModalLogic.enumAcc(Sf[i], relation, channel)
-						(_wmax,_wmin) = Sogliole[indX[i + r_start],feature][w]
-						if maxPeaks[i] < _wmin
-							maxPeaks[i] = max(maxPeaks[i], _wmin)
-						end
-						if minPeaks[i] > _wmax
-							minPeaks[i] = min(minPeaks[i], _wmax)
-						end
+					for w in Sf[i]
+						(_wmax,_wmin) = Sogliole[feature][relation][indX[i + r_start]][w]
+						maxPeaks[i] = max(maxPeaks[i], _wmax)
+						minPeaks[i] = min(minPeaks[i], _wmin)
 					end
 				end
 				# @info "  (maxPeak,minPeak) $maxPeaks,$minPeaks"
@@ -435,21 +428,49 @@ module treeclassifier
 		# TODO expand for generic test operators
 		# TODO test with array-only Sogliole = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
 		# TODO try something like Sogliole = fill(No: Dict{X.ontology.worldType,Tuple{T,T}}(), n_instances, n_variables(X))
-		Sogliole = Array{Dict{X.ontology.worldType,Tuple{T,T}}, 2}(undef, n_instances, n_variables(X))
+		
+		# TODO improve code leveraging world/dimensional dataset structure
+		relations = [ModalLogic.RelationAll, (X.ontology.relationSet)...]
+		# Sogliole = Array{Dict{X.ontology.worldType,Tuple{T,T}}, 3}(undef, n_instances, length(relations)+1, n_variables(X))
+		Sogliole = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,Tuple{T,T}}}}}(undef, n_variables(X))
 		w0 = X.ontology.worldType(w0params...)
 		for feature in 1:n_variables(X)
+			Sogliole[feature] = Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,Tuple{T,T}}}}()
+
+			# Find the highest/lowest threshold
+
+			# Propositional, local
+			relation = ModalLogic.RelationId
+			Sogliole[feature][relation] = Vector{Dict{X.ontology.worldType,Tuple{T,T}}}(undef, n_instances)
 			for i in 1:n_instances
-				Sogliole[i,feature] = Dict{X.ontology.worldType,Tuple{T,T}}()
-				channel = ModalLogic.getFeature(X.domain, i, feature)
-				# TODO improve code leveraging world/dimensional dataset structure
+				Sogliole[feature][relation][i] = Dict{X.ontology.worldType,Tuple{T,T}}()
+				@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
 				for w in ModalLogic.enumAcc([w0], ModalLogic.RelationAll, channel)
-					# Sogliole[1,w,i,feature] = ModalLogic.WMax(w, channel)
-					# Sogliole[2,w,i,feature] = ModalLogic.WMin(w, channel)
-					Sogliole[i,feature][w] = (ModalLogic.WMax(w, channel), ModalLogic.WMin(w, channel))
-				end
-			end
-		end
-		
+					Sogliole[feature][relation][i][w] = (ModalLogic.WMax(w, channel), ModalLogic.WMin(w, channel))
+				end # worlds
+			end # instances
+
+			# Modal
+			for relation in relations
+				Sogliole[feature][relation] = Vector{Dict{X.ontology.worldType,Tuple{T,T}}}(undef, n_instances)
+				for i in 1:n_instances
+					Sogliole[feature][relation][i] = Dict{X.ontology.worldType,Tuple{T,T}}()
+					@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
+					# For each world w and each relation R, compute the peaks of v worlds, with w<R>v
+					for w in ModalLogic.enumAcc([w0], ModalLogic.RelationAll, channel)
+						_wmax, _wmin = typemin(T), typemax(T)
+						for v in ModalLogic.enumAcc([w], relation, channel)
+							(_vmax,_vmin) = Sogliole[feature][ModalLogic.RelationId][i][v]
+							_wmax = max(_wmax, _vmin)
+							_wmin = min(_wmin, _vmax)
+						end
+						Sogliole[feature][relation][i][w] = (_wmax, _wmin)
+					end # worlds
+				end # instances
+			end # relation
+
+		end # feature
+
 		# println(Sogliole)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)

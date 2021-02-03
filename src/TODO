@@ -1,4 +1,5 @@
 ☐	Estendi a >=alpha e <alpha, calcola i peaks intelligentemente. In particolare, questi testoperators hanno la proprieta' di ordine; al contrario, un operatore potrebbe essere categorico e non avere picchi, solo valori giusti.
+☐	Try topological and interval algebra without tangential cases, or with tangential cases merged with other relations.
 ☐	Valuta quale estensione di array e' bello tenere. Array piccoli e compatti? Array con nomi nelle dimensioni? Etc.
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
 ☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?

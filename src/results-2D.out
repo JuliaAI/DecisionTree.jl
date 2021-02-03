@@ -1,0 +1,2665 @@
+Benchmarking dataset 'PaviaDataset'...
+ n_samples = 216
+, DecisionTree._startAtCenter()) Purity threshold 1.0
+	acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  0  2  0  0
+ 0  2  1  1  0  2  0  0  0
+ 0  1  2  0  0  0  0  3  0
+ 0  2  0  4  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  2  1  0  2  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 26
+Tot nodes: 51
+Height: 9
+Modal height:  0
+A103 >= 1649
+✔ A7 >= 981
+│✔ A1 >= 2140
+││✔ 5 : 24/24
+││✘ A72 >= 2184
+││ ✔ 3 : 2/4
+││ ✘ A101 >= 1686
+││  ✔ A69 >= 1832
+││  │✔ A32 >= 1725
+││  ││✔ A36 >= 1903
+││  │││✔ A72 >= 2039
+││  ││││✔ 8 : 4/5
+││  ││││✘ 3 : 4/4
+││  │││✘ 8 : 9/9
+││  ││✘ 3 : 7/7
+││  │✘ 8 : 10/10
+││  ✘ 3 : 6/6
+│✘ A69 >= 912
+│ ✔ A85 >= 2765
+│ │✔ A10 >= 407
+│ ││✔ 4 : 3/5
+│ ││✘ 2 : 7/7
+│ │✘ A5 >= 450
+│ │ ✔ A5 >= 534
+│ │ │✔ A4 >= 710
+│ │ ││✔ A3 >= 810
+│ │ │││✔ 2 : 2/4
+│ │ │││✘ 6 : 6/6
+│ │ ││✘ A30 >= 801
+│ │ ││ ✔ A1 >= 924
+│ │ ││ │✔ 6 : 4/5
+│ │ ││ │✘ 2 : 3/4
+│ │ ││ ✘ 2 : 4/4
+│ │ │✘ 6 : 9/9
+│ │ ✘ 2 : 5/5
+│ ✘ 4 : 21/21
+✘ A7 >= 568
+ ✔ A91 >= 1352
+ │✔ A85 >= 1565
+ ││✔ A7 >= 1284
+ │││✔ 7 : 2/4
+ │││✘ 3 : 4/5
+ ││✘ A19 >= 1308
+ ││ ✔ 7 : 16/16
+ ││ ✘ A102 >= 1459
+ ││  ✔ 1 : 5/5
+ ││  ✘ A1 >= 1045
+ ││   ✔ 7 : 4/4
+ ││   ✘ 7 : 2/4
+ │✘ 1 : 15/15
+ ✘ 9 : 24/24
+, DecisionTree._startAtCenter())
+
+julia> T = testDataset(datasets[2], false, args=args, kwargs=kwargs)                                                        
+Benchmarking dataset 'PaviaDataset'...
+ n_samples = 216
+, DecisionTree._startAtCenter()) Purity threshold 1.0
+	acc: 9.26% kappa: -2.08% 9×9 Array{Int64,2}:
+ 0  0  0  2  1  1  0  0  2
+ 1  0  0  0  0  0  1  1  3
+ 0  0  0  0  1  0  0  2  3
+ 0  1  1  1  0  1  0  0  2
+ 1  0  0  0  0  0  1  1  3
+ 1  1  0  1  0  0  0  0  3
+ 0  0  1  0  0  1  0  0  4
+ 2  0  1  0  0  0  0  1  2
+ 1  0  1  0  0  0  1  0  3
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 43
+Tot nodes: 85
+Height: 12
+Modal height:  0
+A2 >= 446
+✔ A15 >= 346
+│✔ A12 >= 652
+││✔ A30 >= 551
+│││✔ A192 >= 1011
+││││✔ A95 >= 356
+│││││✔ A269 >= 897
+││││││✔ A7 >= 583
+│││││││✔ A794 >= 2728
+││││││││✔ A620 >= 1679
+│││││││││✔ A676 >= 1938
+││││││││││✔ 4 : 3/6
+││││││││││✘ 7 : 3/4
+│││││││││✘ 3 : 2/6
+││││││││✘ A246 >= 1366
+││││││││ ✔ A650 >= 1874
+││││││││ │✔ A7 >= 1355
+││││││││ ││✔ 5 : 2/4
+│││││││ ││✘ 8 : 3/4
+││││││││ │✘ 9 : 3/6
+││││││││ ✘ A51 >= 947
+││││││││  ✔ 7 : 4/4
+││││││││  ✘ A8 >= 1198
+││││││││   ✔ 3 : 3/7
+││││││││   ✘ 8 : 3/5
+│││││││✘ A52 >= 352
+│││││││ ✔ A52 >= 413
+│││││││ │✔ 1 : 3/4
+│││││││ │✘ 2 : 3/5
+│││││││ ✘ A5 >= 1225
+│││││││  ✔ 9 : 2/4
+│││││││  ✘ 4 : 2/4
+││││││✘ A7 >= 691
+││││││ ✔ A890 >= 2758
+││││││ │✔ A35 >= 459
+││││││ ││✔ 2 : 3/4
+││││││ ││✘ 3 : 4/5
+││││││ │✘ A74 >= 699
+││││││ │ ✔ 1 : 3/4
+││││││ │ ✘ 4 : 4/5
+││││││ ✘ 1 : 3/4
+│││││✘ A117 >= 1265
+│││││ ✔ A277 >= 866
+│││││ │✔ A26 >= 344
+│││││ ││✔ A8 >= 681
+│││││ │││✔ 8 : 5/6
+│││││ │││✘ 7 : 2/5
+│││││ ││✘ 4 : 2/4
+│││││ │✘ 5 : 4/6
+│││││ ✘ 3 : 3/7
+││││✘ A39 >= 693
+││││ ✔ A3 >= 854
+││││ │✔ 2 : 4/5
+││││ │✘ 6 : 3/4
+││││ ✘ 1 : 3/4
+│││✘ A681 >= 2067
+│││ ✔ 7 : 3/7
+│││ ✘ A9 >= 657
+│││  ✔ 4 : 2/4
+│││  ✘ 4 : 4/4
+││✘ A57 >= 331
+││ ✔ A57 >= 361
+││ │✔ A236 >= 1579
+││ ││✔ A33 >= 464
+││ │││✔ 2 : 2/4
+││ │││✘ 3 : 4/5
+││ ││✘ A5 >= 1247
+││ ││ ✔ 8 : 4/7
+││ ││ ✘ A5 >= 973
+││ ││  ✔ 7 : 4/5
+││ ││  ✘ 5 : 4/6
+││ │✘ A925 >= 1841
+││ │ ✔ 8 : 3/5
+││ │ ✘ 6 : 5/5
+││ ✘ A12 >= 575
+││  ✔ 5 : 4/4
+││  ✘ A208 >= 1545
+││   ✔ 1 : 3/6
+││   ✘ 9 : 4/5
+│✘ A41 >= 1199
+│ ✔ 9 : 3/4
+│ ✘ 1 : 5/7
+✘ A41 >= 516
+ ✔ 8 : 3/5
+ ✘ 9 : 5/7
+, DecisionTree._startAtCenter())
+
+julia> T = testDataset(datasets[3], false, args=args, kwargs=kwargs)                                                        
+Benchmarking dataset 'PaviaDataset'...
+ n_samples = 216
+, DecisionTree._startAtCenter()) Purity threshold 1.0
+	acc: 75.93% kappa: 72.92% 9×9 Array{Int64,2}:
+ 4  1  1  0  0  0  0  0  0
+ 0  5  0  0  0  1  0  0  0
+ 0  0  4  0  0  0  0  2  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  5  0  1  0  0
+ 0  3  0  0  0  2  0  1  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  2  0  0  3  0
+ 0  0  0  0  0  0  0  0  6
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 18
+Tot nodes: 35
+Height: 7
+Modal height:  7
+<Bi,Id> (A92 >= 1637)
+✔ <Oi,Ai> (A6 < 1053)
+│✔ <O,L> (A58 >= 443)
+││✔ <E,Li> (A5 >= 479)
+│││✔ <Id,Bi> (A1 >= 848)
+││││✔ 2 : 6/7
+││││✘ <Ei,Bi> (A98 >= 2547)
+││││ ✔ 2 : 3/4
+││││ ✘ <Ei,L> (A1 < 728)
+││││  ✔ 6 : 3/4
+││││  ✘ 6 : 17/17
+│││✘ 2 : 11/11
+││✘ <Bi,Bi> (A76 >= 2576)
+││ ✔ 4 : 3/6
+││ ✘ 4 : 21/21
+│✘ A30 >= 1945
+│ ✔ A1 >= 2193
+│ │✔ 5 : 22/22
+│ │✘ 5 : 2/4
+│ ✘ <E,Ai> (A28 >= 1731)
+│  ✔ 8 : 15/15
+│  ✘ <Id,Bi> (A2 < 1460)
+│   ✔ A9 >= 1241
+│   │✔ 8 : 7/7
+│   │✘ A1 >= 763
+│   │ ✔ 3 : 5/5
+│   │ ✘ 3 : 2/4
+│   ✘ 3 : 15/15
+✘ <Id,Bi> (A2 < 876)
+ ✔ 9 : 24/24
+ ✘ <A,Di> (A18 >= 1226)
+	✔ 7 : 23/23
+	✘ <Bi,Ai> (A30 >= 1216)
+	 ✔ 3 : 2/5
+	 ✘ 1 : 22/22
+, DecisionTree._startAtCenter())
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = ()
+ n_samples = 216
+ Purity threshold 1.0
+	acc: 72.22% kappa: 68.75% 9×9 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0
+ 0  4  0  0  0  2  0  0  0
+ 1  0  1  0  0  0  0  4  0
+ 1  1  0  4  0  0  0  0  0
+ 0  0  0  0  4  0  1  1  0
+ 0  3  0  0  0  3  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+Decision Tree
+Leaves: 21
+Tot nodes: 41
+Height: 7
+Modal height:  7
+<> (A100 < 1518)
+✔ <Ei,Bi> (A2 < 876)
+│✔ A1 >= 328
+││✔ A1 < 679
+│││✔ 9 : 3/4
+│││✘ 9 : 19/19
+││✘ 9 : 2/2
+│✘ <A,Ei> (A18 >= 1253)
+│ ✔ <Id,O> (A1 >= 1153)
+│ │✔ 7 : 5/6
+│ │✘ 7 : 18/18
+│ ✘ <Di,B> (A5 >= 1071)
+│  ✔ 3 : 2/5
+│  ✘ 1 : 21/21
+✘ <> (A6 >= 1181)
+ ✔ A98 >= 2451
+ │✔ A1 >= 2109
+ ││✔ 5 : 24/24
+ ││✘ 6 : 5/6
+ │✘ <L,B> (A13 < 1371)
+ │ ✔ 3 : 15/15
+ │ ✘ <Id,O> (A15 < 1447)
+ │  ✔ <Ai,B> (A1 >= 1184)
+ │  │✔ 8 : 6/7
+ │  │✘ 3 : 6/6
+ │  ✘ 8 : 18/18
+ ✘ <> (A101 >= 3213)
+	✔ <Oi,L> (A25 >= 505)
+	│✔ 2 : 4/5
+	│✘ 4 : 21/21
+	✘ <> (A52 < 669)
+	 ✔ 2 : 9/9
+	 ✘ <> (A3 >= 827)
+		✔ <Bi,Id> (A2 >= 659)
+		│✔ <E,A> (A1 < 995)
+		││✔ 2 : 2/4
+		││✘ 6 : 4/4
+		│✘ 2 : 8/8
+		✘ <> (A1 < 337)
+		 ✔ 6 : 3/4
+		 ✘ 6 : 10/10
+
+
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_NTPPi(), _Topo_EC(), _Topo_TPPi(), _Topo_PO(), _Topo_TPP(), _Topo_DC(), _Topo_NTPP()]))
+ train size = (1, 1, 384, 200)
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 49
+Tot nodes: 97
+Height: 9
+Modal height:  0
+A149 >= 1177
+✔ A183 >= 1156
+│✔ A80 >= 1823
+││✔ A154 >= 1405
+│││✔ A44 >= 6298
+││││✔ 4 : 3/4
+││││✘ A23 >= 5163
+││││ ✔ A2 >= 4635
+││││ │✔ 12 : 2/4
+││││ │✘ A81 >= 2438
+││││ │ ✔ 2 : 9/9
+││││ │ ✘ 2 : 2/4
+││││ ✘ A88 >= 2714
+││││  ✔ 2 : 3/4
+││││  ✘ 11 : 4/5
+│││✘ A107 >= 1133
+│││ ✔ A103 >= 1110
+│││ │✔ 2 : 2/4
+│││ │✘ 4 : 6/6
+│││ ✘ 5 : 2/4
+││✘ A142 >= 1284
+││ ✔ A183 >= 1204
+││ │✔ A113 >= 1933
+││ ││✔ A6 >= 5233
+││ │││✔ A103 >= 1095
+││ ││││✔ 10 : 6/7
+││ ││││✘ 12 : 3/4
+││ │││✘ A158 >= 1332
+││ │││ ✔ A1 >= 2780
+││ │││ │✔ 11 : 2/4
+││ │││ │✘ 11 : 8/8
+││ │││ ✘ 2 : 3/6
+││ ││✘ A39 >= 5064
+││ ││ ✔ A42 >= 5641
+││ ││ │✔ 4 : 2/4
+││ ││ │✘ 3 : 13/13
+││ ││ ✘ A3 >= 4422
+││ ││  ✔ 12 : 5/5
+││ ││  ✘ 11 : 2/4
+││ │✘ A89 >= 3185
+││ │ ✔ 11 : 3/6
+││ │ ✘ A6 >= 4865
+││ │  ✔ 10 : 13/13
+││ │  ✘ 11 : 2/4
+││ ✘ A33 >= 3232
+││  ✔ A151 >= 1088
+││  │✔ 16 : 4/5
+││  │✘ 12 : 8/8
+││  ✘ A26 >= 3273
+││   ✔ 4 : 4/6
+││   ✘ 2 : 3/5
+│✘ A78 >= 1642
+│ ✔ A8 >= 4710
+│ │✔ A4 >= 4120
+│ ││✔ A77 >= 1852
+│ │││✔ 8 : 18/18
+│ │││✘ 7 : 2/4
+│ ││✘ 1 : 3/4
+│ │✘ A27 >= 2671
+│ │ ✔ 1 : 19/19
+│ │ ✘ 8 : 3/4
+│ ✘ A59 >= 2425
+│  ✔ A2 >= 4238
+│  │✔ 7 : 3/4
+│  │✘ 7 : 19/19
+│  ✘ A1 >= 3674
+│   ✔ 16 : 19/19
+│   ✘ 4 : 5/6
+✘ A27 >= 2581
+ ✔ A37 >= 4879
+ │✔ A186 >= 1087
+ ││✔ A9 >= 4439
+ │││✔ 9 : 20/20
+ │││✘ 9 : 2/4
+ ││✘ A94 >= 3038
+ ││ ✔ A9 >= 4372
+ ││ │✔ 5 : 3/4
+ ││ │✘ 15 : 6/6
+ ││ ✘ A34 >= 3608
+ ││  ✔ A4 >= 4127
+ ││  │✔ 6 : 2/4
+ ││  │✘ 6 : 20/20
+ ││  ✘ A33 >= 2965
+ ││   ✔ 15 : 5/5
+ ││   ✘ 9 : 2/4
+ │✘ A3 >= 4106
+ │ ✔ 13 : 3/4
+ │ ✘ 13 : 21/21
+ ✘ A27 >= 2406
+	✔ A163 >= 1088
+	│✔ A148 >= 1044
+	││✔ 15 : 3/5
+	││✘ 5 : 15/15
+	│✘ 14 : 2/4
+	✘ A15 >= 3680
+	 ✔ 14 : 21/21
+	 ✘ 15 : 3/4
+, DecisionTree.ModalLogic.Interval2D, DecisionTree._startAtCenter()) test size = (1, 1, 96, 200)
+ Purity threshold 1.0
+	acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  1  2  0  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  0  0  0  0  1
+ 0  1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  4  0  0  0  1  0  0  0  0  1  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  2  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  4  0  0  0  0  0  1  0
+ 0  2  0  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  0  2  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  1  0  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+
+Decision Tree
+Leaves: 76
+Tot nodes: 151
+Height: 11
+Modal height:  5
+<> (A176 >= 2955)
+✔ A177 >= 2728
+│✔ A184 >= 2935
+││✔ A765 >= 2901
+│││✔ A883 >= 2394
+││││✔ A65 >= 4825
+│││││✔ A1798 >= 1014
+││││││✔ A793 >= 2619
+│││││││✔ A3 >= 2758
+││││││││✔ A1280 >= 1130
+│││││││││✔ 11 : 5/5
+│││││││││✘ 9 : 5/5
+││││││││✘ 10 : 5/7
+│││││││✘ 13 : 2/5
+││││││✘ A714 >= 1834
+││││││ ✔ A308 >= 5009
+││││││ │✔ 7 : 2/4
+││││││ │✘ A1 >= 2604
+││││││ │ ✔ 8 : 4/4
+││││││ │ ✘ 8 : 3/4
+││││││ ✘ A379 >= 5886
+││││││  ✔ A1 >= 3150
+││││││  │✔ 11 : 5/5
+││││││  │✘ 10 : 4/6
+││││││  ✘ A944 >= 1064
+││││││   ✔ 12 : 7/7
+││││││   ✘ 11 : 4/5
+│││││✘ A704 >= 1877
+│││││ ✔ A895 >= 2254
+│││││ │✔ A347 >= 5595
+│││││ ││✔ A935 >= 1035
+│││││ │││✔ A6 >= 2991
+│││││ ││││✔ 8 : 4/4
+│││││ ││││✘ 4 : 2/4
+│││││ │││✘ A14 >= 3971
+│││││ │││ ✔ 7 : 8/8
+│││││ │││ ✘ 7 : 2/4
+│││││ ││✘ 9 : 3/4
+│││││ │✘ A27 >= 4492
+│││││ │ ✔ 10 : 3/4
+│││││ │ ✘ A680 >= 3016
+│││││ │  ✔ 11 : 4/4
+│││││ │  ✘ 9 : 3/4
+│││││ ✘ A1298 >= 1017
+│││││  ✔ A7 >= 2995
+│││││  │✔ 12 : 3/4
+│││││  │✘ 11 : 1/5
+│││││  ✘ A290 >= 2877
+│││││   ✔ A170 >= 3081
+│││││   │✔ 5 : 4/4
+│││││   │✘ 3 : 4/4
+│││││   ✘ A670 >= 3206
+│││││    ✔ 6 : 7/7
+│││││    ✘ 9 : 2/4
+││││✘ A795 >= 3283
+││││ ✔ A18 >= 4121
+││││ │✔ 13 : 3/5
+││││ │✘ 7 : 2/5
+││││ ✘ A817 >= 2701
+││││  ✔ A732 >= 3022
+││││  │✔ 14 : 3/5
+││││  │✘ A7 >= 2765
+││││  │ ✔ 9 : 4/6
+││││  │ ✘ 12 : 4/5
+││││  ✘ 5 : 2/7
+│││✘ A556 >= 4039
+│││ ✔ A849 >= 2731
+│││ │✔ A789 >= 3046
+│││ ││✔ A319 >= 4622
+│││ │││✔ 10 : 2/4
+│││ │││✘ 7 : 5/5
+│││ ││✘ A825 >= 2593
+│││ ││ ✔ A246 >= 3181
+│││ ││ │✔ 9 : 5/5
+│││ ││ │✘ 8 : 3/4
+│││ ││ ✘ 12 : 3/4
+│││ │✘ A922 >= 1086
+│││ │ ✔ 16 : 1/4
+│││ │ ✘ 13 : 4/4
+│││ ✘ A638 >= 4679
+│││  ✔ A1 >= 2771
+│││  │✔ 2 : 3/6
+│││  │✘ 5 : 3/6
+│││  ✘ A809 >= 3082
+│││   ✔ A909 >= 1723
+│││   │✔ 16 : 4/7
+│││   │✘ 15 : 3/5
+│││   ✘ A712 >= 1811
+│││    ✔ 3 : 2/4
+│││    ✘ 14 : 4/4
+││✘ A693 >= 1821
+││ ✔ A1749 >= 1052
+││ │✔ A39 >= 4582
+││ ││✔ 1 : 3/7
+││ ││✘ A57 >= 4882
+││ ││ ✔ 2 : 4/4
+││ ││ ✘ 5 : 4/4
+││ │✘ A264 >= 2696
+││ │ ✔ A21 >= 4320
+││ │ │✔ 3 : 4/4
+││ │ │✘ 6 : 3/4
+││ │ ✘ 4 : 5/5
+││ ✘ A1317 >= 1082
+││  ✔ A317 >= 4524
+││  │✔ 15 : 3/5
+││  │✘ 2 : 2/5
+││  ✘ A255 >= 3191
+││   ✔ 14 : 5/5
+││   ✘ 13 : 3/5
+│✘ A998 >= 1332
+│ ✔ A11 >= 4112
+│ │✔ A545 >= 3095
+│ ││✔ A281 >= 3231
+│ │││✔ 3 : 6/7
+│ │││✘ 2 : 4/5
+│ ││✘ 15 : 3/5
+│ │✘ A40 >= 4697
+│ │ ✔ 4 : 4/4
+│ │ ✘ 5 : 3/5
+│ ✘ A887 >= 2703
+│  ✔ A835 >= 3133
+│  │✔ 13 : 3/5
+│  │✘ 1 : 4/5
+│  ✘ A118 >= 4955
+│   ✔ 14 : 3/7
+│   ✘ 16 : 6/7
+✘ <> (A1607 >= 1104)
+ ✔ A672 >= 3248
+ │✔ 13 : 3/7
+ │✘ A149 >= 3937
+ │ ✔ A614 >= 4666
+ │ │✔ 3 : 4/5
+ │ │✘ 1 : 7/7
+ │ ✘ 16 : 5/6
+ ✘ <> (A505 >= 3863)
+	✔ A460 >= 5846
+	│✔ A6 >= 2770
+	││✔ 6 : 2/4
+	││✘ 2 : 4/4
+	│✘ A705 >= 1814
+	│ ✔ A725 >= 2062
+	│ │✔ 4 : 6/7
+	│ │✘ 5 : 3/4
+	│ ✘ 1 : 3/5
+	✘ <> (A1302 >= 1030)
+	 ✔ A1 >= 3682
+	 │✔ 14 : 4/4
+	 │✘ 1 : 2/5
+	 ✘ <> (A27 >= 4306)
+		✔ 15 : 6/6
+		✘ 6 : 2/6
+ test size = (1, 1, 96, 1800)
+ Purity threshold 1.0
+	acc: 13.54% kappa: 7.78% 16×16 Array{Int64,2}:
+ 1  0  0  0  0  0  0  0  0  0  1  0  2  2  0  0
+ 1  0  1  0  0  0  1  0  0  0  0  0  0  1  0  2
+ 2  1  1  0  0  0  0  0  0  0  0  0  0  0  1  1
+ 1  0  0  1  0  0  0  0  0  1  0  0  2  1  0  0
+ 0  0  1  0  0  0  2  1  0  0  0  0  0  0  0  2
+ 1  1  2  0  1  0  0  0  0  1  0  0  0  0  0  0
+ 0  1  1  0  0  0  0  1  3  0  0  0  0  0  0  0
+ 1  1  0  0  0  0  0  1  2  0  0  1  0  0  0  0
+ 0  0  0  1  1  0  0  0  2  1  0  0  1  0  0  0
+ 0  0  0  0  0  0  0  1  1  2  1  1  0  0  0  0
+ 0  0  0  0  0  0  1  0  0  1  0  1  0  2  0  1
+ 0  0  0  0  0  1  1  0  1  2  0  1  0  0  0  0
+ 0  0  0  0  2  0  0  0  0  1  0  1  1  1  0  0
+ 0  0  1  0  0  0  1  0  0  0  0  1  1  1  1  0
+ 1  0  0  0  0  0  0  0  0  0  0  0  1  1  1  2
+ 1  0  1  0  0  0  0  0  0  0  0  0  1  1  1  1
+
+ T = testDataset(datasets[6], false, args=args, kwargs=kwargs);     
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = ()
+ train size = (3, 3, 384, 200)
+Decision Tree
+Leaves: 37
+Tot nodes: 73
+Height: 8
+Modal height:  8
+<> (A195 >= 1073)
+✔ <Ei,Id> (A2 < 4626)
+│✔ <O,Bi> (A81 < 2411)
+││✔ <Id,Bi> (A133 >= 1964)
+│││✔ <Ai,E> (A76 >= 2775)
+││││✔ <A,Ai> (A3 < 4492)
+│││││✔ <Id,Di> (A79 >= 1853)
+││││││✔ 2 : 3/5
+││││││✘ 11 : 14/14
+│││││✘ 2 : 4/7
+││││✘ A1 < 3697
+││││ ✔ 10 : 3/4
+││││ ✘ 10 : 7/7
+│││✘ <Ei,B> (A183 < 1203)
+│││ ✔ <D,A> (A106 >= 1106)
+│││ │✔ 2 : 3/5
+│││ │✘ A1 >= 2602
+│││ │ ✔ 10 : 7/7
+│││ │ ✘ 10 : 2/3
+│││ ✘ <E,Id> (A200 < 1015)
+│││  ✔ <Ei,Id> (A146 >= 1041)
+│││  │✔ 11 : 3/4
+│││  │✘ A1 >= 2603
+│││  │ ✔ 3 : 9/9
+│││  │ ✘ 3 : 3/4
+│││  ✘ <Ei,Id> (A91 >= 2568)
+│││   ✔ <E,B> (A2 >= 4384)
+│││   │✔ 3 : 3/4
+│││   │✘ 12 : 12/12
+│││   ✘ 11 : 3/4
+││✘ <E,Bi> (A140 >= 1654)
+││ ✔ <Li,E> (A83 < 3102)
+││ │✔ <A,Id> (A36 < 5502)
+││ ││✔ 2 : 12/12
+││ ││✘ 4 : 5/5
+││ │✘ A1 >= 2765
+││ │ ✔ 3 : 2/4
+││ │ ✘ 3 : 6/6
+││ ✘ <E,A> (A21 >= 5260)
+││  ✔ 12 : 8/8
+││  ✘ A1 >= 2742
+││   ✔ 4 : 12/12
+││   ✘ 4 : 2/4
+│✘ <L,Bi> (A1 < 3845)
+│ ✔ <Ei,E> (A1 < 2607)
+│ │✔ 9 : 2/5
+│ │✘ 9 : 8/8
+│ ✘ 16 : 24/24
+✘ <> (A101 >= 1925)
+ ✔ <E,B> (A7 < 4808)
+ │✔ 1 : 24/24
+ │✘ <Id,Ei> (A77 < 1819)
+ │ ✔ 7 : 24/24
+ │ ✘ 8 : 24/24
+ ✘ <> (A26 >= 2812)
+	✔ <Bi,Id> (A35 < 3705)
+	│✔ <D,Ai> (A1 < 2720)
+	││✔ 4 : 3/4
+	││✘ 13 : 23/23
+	│✘ <A,A> (A11 >= 4443)
+	│ ✔ A1 < 2772
+	│ │✔ 9 : 3/4
+	│ │✘ 9 : 11/11
+	│ ✘ <L,Ei> (A35 >= 3955)
+	│  ✔ 6 : 23/23
+	│  ✘ <B,A> (A1 >= 3191)
+	│   ✔ 5 : 2/4
+	│   ✘ 15 : 21/21
+	✘ <> (A28 < 2347)
+	 ✔ <A,Ai> (A2 >= 3880)
+	 │✔ 14 : 22/22
+	 │✘ 14 : 2/4
+	 ✘ 5 : 19/19
+ test size = (3, 3, 96, 200)
+ Purity threshold 1.0
+	acc: 66.67% kappa: 64.44% 16×16 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  2  1  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  3  1  0  0  0  0  0  0  1  1  0  0  0  0
+ 0  1  0  4  0  0  0  0  1  0  0  0  0  0  0  0
+ 0  0  0  0  5  0  0  0  1  0  0  0  0  0  0  0
+ 0  0  0  0  1  3  0  0  0  0  0  0  0  0  2  0
+ 0  0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  5  0  0  0  0  0  0  0
+ 0  2  0  1  0  0  0  0  0  2  1  0  0  0  0  0
+ 0  1  4  0  0  0  0  0  0  0  1  0  0  0  0  0
+ 0  1  0  0  0  0  0  0  0  0  1  4  0  0  0  0
+ 0  0  0  1  0  0  0  0  0  0  0  0  5  0  0  0
+ 0  0  0  0  1  0  0  0  0  0  0  0  0  5  0  0
+ 0  0  0  0  2  0  0  0  1  0  0  0  0  2  1  0
+ 0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  5
+
+julia> kwargs = (                                                         
+				 initCondition=DecisionTree.startAtCenter,                        
+			 )                                                                  
+(initCondition = DecisionTree._startAtCenter(),)
+
+julia> T = testDataset(datasets[6], false, args=args, kwargs=kwargs);     
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(),)
+ train size = (3, 3, 384, 200)
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 37
+Tot nodes: 73
+Height: 8
+Modal height:  8
+<Bi,Di> (A158 < 1258)
+✔ A101 < 1911
+│✔ A136 >= 1472
+││✔ <Ei,Id> (A4 < 4260)
+│││✔ <D,D> (A89 >= 3034)
+││││✔ 6 : 24/24
+││││✘ 4 : 3/5
+│││✘ <Oi,E> (A1 >= 2597)
+│││ ✔ 9 : 23/23
+│││ ✘ 5 : 2/4
+││✘ <Ei,D> (A12 < 3746)
+││ ✔ <D,Di> (A26 < 2548)
+││ │✔ <Ei,E> (A1 < 3323)
+││ ││✔ 14 : 20/20
+││ ││✘ 14 : 3/4
+││ │✘ A1 < 3179
+││ │ ✔ 5 : 3/4
+││ │ ✘ 5 : 17/17
+││ ✘ <Ei,Id> (A1 >= 2714)
+││  ✔ 13 : 24/24
+││  ✘ 15 : 22/22
+│✘ <Id,E> (A77 < 1824)
+│ ✔ A1 >= 2767
+│ │✔ 7 : 3/4
+│ │✘ 7 : 21/21
+│ ✘ A3 >= 4126
+│  ✔ A1 < 3704
+│  │✔ 8 : 21/21
+│  │✘ 8 : 2/4
+│  ✘ 1 : 22/22
+✘ <Id,Di> (A2 < 4760)
+ ✔ <Bi,Id> (A75 < 3617)
+ │✔ <Ei,E> (A150 < 1264)
+ ││✔ <D,Ai> (A194 < 1085)
+ │││✔ A1 < 2601
+ ││││✔ 4 : 5/6
+ ││││✘ 10 : 4/5
+ │││✘ <B,Ai> (A40 < 3184)
+ │││ ✔ A1 < 2743
+ │││ │✔ 12 : 3/5
+ │││ │✘ 12 : 5/5
+ │││ ✘ <Id,Ei> (A1 >= 2570)
+ │││  ✔ 3 : 12/12
+ │││  ✘ 11 : 3/4
+ ││✘ <Ei,E> (A105 < 1084)
+ ││ ✔ <B,Li> (A97 >= 3084)
+ ││ │✔ <Bi,Id> (A3 >= 4412)
+ ││ ││✔ 2 : 4/4
+ ││ ││✘ 11 : 4/4
+ ││ │✘ <Id,Li> (A1 >= 2579)
+ ││ │ ✔ <D,L> (A1 >= 3706)
+ ││ │ │✔ 11 : 2/4
+ ││ │ │✘ 10 : 18/18
+ ││ │ ✘ 2 : 2/4
+ ││ ✘ <B,D> (A188 >= 1147)
+ ││  ✔ A1 >= 3176
+ ││  │✔ 2 : 2/4
+ ││  │✘ 11 : 10/10
+ ││  ✘ 12 : 3/5
+ │✘ <A,Id> (A121 >= 2331)
+ │ ✔ <Ei,E> (A1 < 3202)
+ │ │✔ 2 : 2/4
+ │ │✘ 2 : 10/10
+ │ ✘ <Bi,E> (A2 >= 4263)
+ │  ✔ <E,Ei> (A3 >= 4594)
+ │  │✔ 12 : 11/11
+ │  │✘ 3 : 2/4
+ │  ✘ A77 < 1836
+ │   ✔ 3 : 7/7
+ │   ✘ A1 < 3697
+ │    ✔ 4 : 11/11
+ │    ✘ 4 : 3/4
+ ✘ 16 : 24/24
+, DecisionTree._startAtCenter()) test size = (3, 3, 96, 200)
+ Purity threshold 1.0
+	acc: 66.67% kappa: 64.44% 16×16 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  4  1  1  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  3  1  0  0  0  0  0  0  2  0  0  0  0  0
+ 0  1  2  2  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  5  0  0  1  0  0  0  0  0  0  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0  0
+ 0  0  0  1  1  0  0  0  4  0  0  0  0  0  0  0
+ 0  1  1  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  2  0  0  0  0  0  0  2  0  1  0  0  0  0
+ 0  2  0  0  0  0  0  0  0  0  1  3  0  0  0  0
+ 0  0  0  0  1  0  0  0  0  0  0  0  5  0  0  0
+ 0  0  0  0  1  0  0  0  0  0  0  0  0  4  1  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  1  2  3  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+ 
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_NTPPi(), _Topo_EC(), _Topo_TPPi(), _Topo_PO(), _Topo_TPP(), _Topo_DC(), _Topo_NTPP()]))
+ train size = (3, 3, 216, 103)
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 20
+Tot nodes: 39
+Height: 7
+Modal height:  6
+<PO> (A87 >= 1608)
+✔ <TPPi> (A11 >= 914)
+│✔ <EC> (A98 >= 2469)
+││✔ A1 < 1434
+│││✔ 6 : 5/5
+│││✘ 5 : 24/24
+││✘ <EC> (A18 >= 1602)
+││ ✔ A2 < 1320
+││ │✔ 8 : 14/14
+││ │✘ 3 : 2/4
+││ ✘ <TPP> (A2 < 845)
+││  ✔ <EC> (A1 >= 1378)
+││  │✔ 8 : 7/7
+││  │✘ 3 : 3/4
+││  ✘ 3 : 17/17
+│✘ A80 < 2954
+│ ✔ <PO> (A11 < 438)
+│ │✔ 2 : 10/10
+│ │✘ <EC> (A1 < 654)
+│ │ ✔ <PO> (A88 >= 2149)
+│ │ │✔ <TPPi> (A4 < 642)
+│ │ ││✔ 2 : 4/5
+│ │ ││✘ 6 : 5/5
+│ │ │✘ 6 : 13/13
+│ │ ✘ 2 : 6/6
+│ ✘ <EC> (A68 < 616)
+│  ✔ 4 : 21/21
+│  ✘ 2 : 4/7
+✘ <NTPPi> (A4 >= 433)
+ ✔ A82 >= 1349
+ │✔ A14 < 1318
+ ││✔ 1 : 2/4
+ ││✘ 7 : 21/21
+ │✘ A98 >= 990
+ │ ✔ A1 >= 925
+ │ │✔ 1 : 3/4
+ │ │✘ 1 : 17/17
+ │ ✘ 7 : 2/4
+ ✘ 9 : 24/24
+, DecisionTree.ModalLogic.Interval2D, DecisionTree._startAtCenter()) test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+	acc: 77.78% kappa: 75.0% 9×9 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0
+ 0  2  1  0  0  3  0  0  0
+ 0  0  5  0  0  0  1  0  0
+ 0  1  0  5  0  0  0  0  0
+ 1  0  1  0  4  0  0  0  0
+ 0  1  0  0  0  5  0  0  0
+ 2  0  0  0  0  0  4  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+
+ Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_NTPPi(), _Topo_EC(), _Topo_TPPi(), _Topo_PO(), _Topo_TPP(), _Topo_DC(), _Topo_NTPP()]))
+ train size = (3, 3, 384, 200)
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 37
+Tot nodes: 73
+Height: 9
+Modal height:  7
+<PO> (A160 < 1311)
+✔ A13 >= 4128
+│✔ A102 >= 1611
+││✔ A7 >= 4808
+│││✔ 8 : 22/22
+│││✘ <EC> (A1 < 2594)
+│││ ✔ 1 : 3/4
+│││ ✘ 1 : 21/21
+││✘ A1 >= 2587
+││ ✔ 7 : 21/21
+││ ✘ 7 : 3/4
+│✘ <TPP> (A16 < 3963)
+│ ✔ <DC> (A149 < 1040)
+│ │✔ <DC> (A26 < 2505)
+│ ││✔ A35 < 2635
+│ │││✔ 14 : 2/4
+│ │││✘ 14 : 22/22
+│ ││✘ 5 : 19/19
+│ │✘ <EC> (A96 >= 2917)
+│ │ ✔ A1 >= 3169
+│ │ │✔ 15 : 3/4
+│ │ │✘ 15 : 17/17
+│ │ ✘ 13 : 23/23
+│ ✘ <EC> (A4 >= 4260)
+│  ✔ <EC> (A1 < 2596)
+│  │✔ 15 : 3/6
+│  │✘ 9 : 24/24
+│  ✘ <TPPi> (A89 < 3044)
+│   ✔ 4 : 3/5
+│   ✘ 6 : 24/24
+✘ <PO> (A2 < 4768)
+ ✔ <PO> (A79 >= 1935)
+ │✔ <PO> (A150 < 1278)
+ ││✔ <DC> (A2 < 4263)
+ │││✔ 4 : 14/14
+ │││✘ 12 : 4/4
+ ││✘ <EC> (A143 < 1152)
+ ││  <TPP> (A83 < 3090)
+ ││ │✔ A1 < 2596
+ ││ ││✔ 3 : 3/4
+ ││ ││✘ 3 : 6/6
+ ││ │✘ 2 : 2/4
+ ││ ✘ <EC> (A1 < 2751)
+ ││  ✔ 2 : 8/8
+ ││  ✘ 2 : 3/4
+ │✘ <TPPi> (A198 < 1050)
+ │ ✔ <EC> (A31 < 2744)
+ │ │✔ <EC> (A5 < 4401)
+ │ ││✔ 4 : 5/5
+ │ ││✘ 12 : 2/4
+ │ │✘ <EC> (A75 < 2629)
+ │ │ ✔ 2 : 5/5
+ │ │ ✘ <TPPi> (A57 >= 3012)
+ │ │  ✔ A1 < 3204
+ │ │  │✔ 10 : 10/10
+ │ │  │✘ 10 : 1/2
+ │ │  ✘ 3 : 2/3
+ │ ✘ A126 < 2249
+ │  ✔ A6 >= 4982
+ │  │✔ 3 : 10/10
+ │  │✘ <TPP> (A50 >= 4746)
+ │  │ ✔ 12 : 11/11
+ │  │ ✘ 11 : 4/7
+ │  ✘ A40 < 4081
+ │   ✔ <PO> (A3 >= 4502)
+ │   │✔ A197 < 1086
+ │   ││✔ <EC> (A52 >= 5316)
+ │   │││✔ 2 : 5/7
+ │   │││✘ 10 : 9/9
+ │   ││✘ 11 : 7/7
+ │   │✘ 11 : 11/11
+ │   ✘ 12 : 4/5
+ ✘ 16 : 24/24
+, DecisionTree.ModalLogic.Interval2D, DecisionTree._startAtCenter()) test size = (3, 3, 96, 200)
+ Purity threshold 1.0
+	acc: 73.96% kappa: 72.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  1  0  0  0  0  0  1  0  1  0  0  0  0
+ 0  0  2  2  0  0  0  0  0  0  1  1  0  0  0  0
+ 0  0  0  5  0  0  0  0  0  0  1  0  0  0  0  0
+ 0  0  0  0  4  0  1  0  0  0  0  0  0  0  1  0
+ 0  0  0  0  0  5  0  0  0  0  0  0  0  0  1  0
+ 0  0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  5  0  0  0  0  0  0  0
+ 0  0  1  0  0  0  0  0  0  2  1  2  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  1  5  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  5  0  1  0
+ 0  0  0  0  1  0  0  0  0  0  0  0  0  5  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  1  5  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+T = testDataset(datasets[3], false, args=args, kwargs=kwargs);     
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_NTPPi(), _Topo_EC(), _Topo_TPPi(), _Topo_PO(), _Topo_TPP(), _Topo_DC(), _Topo_NTPP()]))
+ train size = (3, 3, 216, 103)
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 26
+Tot nodes: 51
+Height: 7
+Modal height:  7
+<> (A94 < 1656)
+✔ <EC> (A4 < 433)
+│✔ A1 >= 771
+││✔ <EC> (A2 >= 546)
+│││✔ A1 < 693
+││││✔ 9 : 17/17
+││││✘ 9 : 3/4
+│││✘ 9 : 1/1
+││✘ 9 : 3/3
+│✘ <NTPP> (A15 >= 1228)
+│ ✔ 7 : 19/19
+│ ✘ <DC> (A40 < 1277)
+│  ✔ <TPPi> (A1 >= 1337)
+│  │✔ 1 : 3/4
+│  │✘ 1 : 19/19
+│  ✘ <DC> (A19 >= 1418)
+│   ✔ 7 : 4/4
+│   ✘ 3 : 4/6
+✘ <> (A5 < 1021)
+ ✔ <TPPi> (A81 >= 3092)
+ │✔ <EC> (A68 < 616)
+ ││✔ 4 : 20/20
+ ││✘ 2 : 4/7
+ │✘ <NTPPi> (A32 < 1486)
+ │ ✔ A8 >= 392
+ │ │✔ A4 < 905
+ │ ││✔ <NTPP> (A1 >= 725)
+ │ │││✔ 6 : 4/7
+ │ │││✘ 6 : 11/11
+ │ ││✘ 2 : 6/6
+ │ │✘ 2 : 11/11
+ │ ✘ <EC> (A71 >= 2109)
+ │  ✔ 6 : 7/7
+ │  ✘ 8 : 3/4
+ ✘ <> (A98 >= 2451)
+	✔ A1 >= 2470
+	│✔ 5 : 22/22
+	│✘ 5 : 2/4
+	✘ <> (A14 >= 1544)
+	 ✔ 8 : 10/10
+	 ✘ <> (A4 >= 1409)
+		✔ <EC> (A3 < 1221)
+		│✔ 3 : 10/10
+		│✘ 3 : 2/4
+		✘ <> (A18 >= 1470)
+		 ✔ A1 >= 1398
+		 │✔ 8 : 4/4
+		 │✘ 8 : 3/4
+		 ✘ <> (A1 < 1060)
+			✔ 3 : 4/5
+			✘ 3 : 2/3
+, DecisionTree.ModalLogic.Interval2D, DecisionTree._startWithRelationAll()) test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+	acc: 77.78% kappa: 75.0% 9×9 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0
+ 0  4  0  0  0  2  0  0  0
+ 0  0  4  0  0  0  0  2  0
+ 1  1  0  4  0  0  0  0  0
+ 0  0  0  0  4  0  1  1  0
+ 0  2  0  0  1  3  0  0  0
+ 1  0  0  0  0  0  5  0  0
+ 0  0  0  0  0  0  0  6  0
+ 0  0  0  0  0  0  0  0  6
+
+ Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_NTPPi(), _Topo_EC(), _Topo_TPPi(), _Topo_PO(), _Topo_TPP(), _Topo_DC(), _Topo_NTPP()]))
+ train size = (3, 3, 384, 200)
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 43
+Tot nodes: 85
+Height: 8
+Modal height:  6
+<> (A183 >= 1173)
+✔ <NTPPi> (A56 < 4479)
+│✔ A3 < 4774
+││✔ A41 < 5701
+│││✔ <NTPP> (A149 >= 1314)
+││││✔ <PO> (A128 >= 2222)
+│││││✔ <EC> (A1 >= 3204)
+││││││✔ 11 : 4/4
+││││││✘ 2 : 3/4
+│││││✘ <PO> (A5 < 4830)
+│││││ ✔ <EC> (A11 >= 4983)
+│││││ │✔ 11 : 5/5
+│││││ │✘ 10 : 4/4
+│││││ ✘ 10 : 12/12
+││││✘ <NTPP> (A79 >= 1758)
+││││ ✔ <NTPPi> (A6 >= 4959)
+││││ │✔ 3 : 3/4
+││││ │✘ <NTPPi> (A1 >= 2567)
+││││ │ ✔ 12 : 3/4
+││││ │ ✘ 12 : 7/7
+││││ ✘ A199 < 1033
+││││  ✔ 10 : 4/7
+││││  ✘ 11 : 5/5
+│││✘ <TPP> (A87 >= 3289)
+│││ ✔ A50 >= 5373
+│││ │✔ <DC> (A38 >= 6002)
+│││ ││✔ 3 : 3/4
+│││ ││✘ A1 >= 2771
+│││ ││ ✔ 11 : 3/4
+│││ ││ ✘ 11 : 6/6
+│││ │✘ 2 : 4/4
+│││ ✘ <NTPP> (A157 >= 1242)
+│││  ✔ 3 : 14/14
+│││  ✘ 4 : 3/6
+││✘ A129 >= 2212
+││ ✔ 2 : 6/6
+││ ✘ <NTPP> (A127 >= 2285)
+││  ✔ 2 : 2/5
+││  ✘ 12 : 9/9
+│✘ <DC> (A1 < 2589)
+│ ✔ A1 >= 2577
+│ │✔ <DC> (A1 >= 2833)
+│ ││✔ 4 : 14/14
+│ ││✘ 4 : 3/4
+│ │✘ 5 : 2/5
+│ ✘ <TPPi> (A86 < 3101)
+│  ✔ <EC> (A2 >= 4773)
+│  │✔ 16 : 6/6
+│  │✘ 2 : 6/6
+│  ✘ A1 < 2775
+│   ✔ 9 : 3/4
+│   ✘ 9 : 7/7
+✘ <> (A101 >= 1907)
+ ✔ A80 >= 1866
+ │✔ <EC> (A3 < 4126)
+ ││✔ 1 : 22/22
+ ││✘ A1 >= 3694
+ ││ ✔ 8 : 2/4
+ ││ ✘ 8 : 21/21
+ │✘ <PO> (A5 >= 4529)
+ │ ✔ 7 : 22/22
+ │ ✘ 7 : 2/4
+ ✘ <> (A129 < 1698)
+	✔ <NTPPi> (A21 < 3270)
+	│✔ <TPP> (A26 < 2500)
+	││✔ A15 >= 3760
+	│││✔ 14 : 22/22
+	│││✘ 14 : 2/4
+	││✘ 5 : 19/19
+	│✘ <NTPPi> (A1 >= 2716)
+	│ ✔ 13 : 23/23
+	│ ✘ <DC> (A1 >= 3178)
+	│  ✔ 15 : 2/4
+	│  ✘ 15 : 16/16
+	✘ <> (A15 >= 4489)
+	 ✔ A1 >= 3678
+	 │✔ 16 : 18/18
+	 │✘ <DC> (A2 >= 4115)
+	 │ ✔ 9 : 12/12
+	 │ ✘ 9 : 2/4
+	 ✘ <> (A100 >= 2272)
+		✔ 15 : 4/7
+		✘ <> (A16 < 4028)
+		 ✔ 6 : 3/5
+		 ✘ 6 : 17/17
+, DecisionTree.ModalLogic.Interval2D, DecisionTree._startWithRelationAll()) test size = (3, 3, 96, 200)
+ Purity threshold 1.0
+	acc: 69.79% kappa: 67.78% 16×16 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  0  2  1  0  0  0  0
+ 0  0  3  1  0  0  0  0  0  0  2  0  0  0  0  0
+ 0  0  1  4  0  0  0  0  1  0  0  0  0  0  0  0
+ 0  0  0  0  5  0  0  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  5  0  0  0  0  0  0  0  0  1  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  6  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0  0
+ 0  0  0  1  0  0  0  0  0  5  0  0  0  0  0  0
+ 0  1  1  2  0  0  0  0  0  1  1  0  0  0  0  0
+ 0  0  2  0  0  0  0  0  0  0  0  4  0  0  0  0
+ 0  1  0  0  1  0  0  0  0  0  0  0  4  0  0  0
+ 0  0  0  0  1  0  0  0  0  0  0  0  0  5  0  0
+ 0  0  0  0  2  0  0  0  1  0  0  0  0  2  1  0
+ 0  0  0  0  2  0  0  0  0  0  0  0  0  0  0  4
+
+Benchmarking dataset 'PaviaDataset, 5x5'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_NTPPi(), _Topo_EC(), _Topo_TPPi(), _Topo_PO(), _Topo_TPP(), _Topo_DC(), _Topo_NTPP()]))
+ train size = (5, 5, 216, 103)
+^[[200~T = testDataset(datasets[8], false, args=args, kwargs=kwargs);^[[201~
+DecisionTree.DTree{Int64,Int64}(Decision Tree
+Leaves: 19
+Tot nodes: 37
+Height: 7
+Modal height:  6
+<TPPi> (A103 >= 1676)
+✔ A5 >= 1062
+│✔ <PO> (A101 >= 2552)
+││✔ A1 >= 2398
+│││✔ 5 : 24/24
+│││✘ 6 : 4/4
+││✘ <TPPi> (A22 >= 1606)
+││ ✔ <NTPPi> (A1 >= 815)
+││ │✔ 8 : 15/15
+││ │✘ 8 : 3/4
+││ ✘ <TPP> (A1 >= 1528)
+││  ✔ 3 : 18/18
+││  ✘ 8 : 6/7
+│✘ <EC> (A39 < 401)
+│ ✔ 4 : 23/23
+│ ✘ <EC> (A62 < 616)
+│  ✔ A1 >= 1033
+│  │✔ 2 : 3/4
+│  │✘ 2 : 13/13
+│  ✘ <EC> (A2 < 452)
+│   ✔ <NTPPi> (A2 >= 281)
+│   │✔ <EC> (A1 < 380)
+│   ││✔ 6 : 3/4
+│   ││✘ 6 : 12/12
+│   │✘ 6 : 4/6
+│   ✘ 2 : 5/6
+✘ <NTPPi> (A3 >= 493)
+ ✔ <NTPP> (A19 < 1241)
+ │✔ <NTPP> (A5 >= 1006)
+ ││✔ 3 : 3/4
+ ││✘ <EC> (A62 >= 2017)
+ ││ ✔ 7 : 2/4
+ ││ ✘ 1 : 21/21
+ │✘ A1 < 1320
+ │ ✔ 7 : 5/6
+ │ ✘ 7 : 17/17
+ ✘ 9 : 24/24
+, DecisionTree.ModalLogic.Interval2D, DecisionTree._startAtCenter()) test size = (5, 5, 54, 103)
+ Purity threshold 1.0
+  acc: 70.37% kappa: 66.67% 9×9 Array{Int64,2}:
+ 3  1  1  0  0  0  1  0  0
+ 0  4  0  0  0  2  0  0  0
+ 1  0  2  0  0  0  1  2  0
+ 0  0  0  5  0  1  0  0  0
+ 0  0  0  0  4  1  0  1  0
+ 0  1  0  0  0  5  0  0  0
+ 2  0  0  0  0  0  4  0  0
+ 0  1  0  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+
+
+
+
+julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);    
+Benchmarking dataset 'PaviaDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
+ train size = (1, 1, 216, 103)
+  12.657 s (106820851 allocations: 5.97 GiB)
+ test size = (1, 1, 54, 103)
+ Purity threshold 1.0
+  acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  0  2  0  0
+ 0  2  1  1  0  2  0  0  0
+ 0  1  2  0  0  0  0  3  0
+ 0  2  0  4  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  2  1  0  2  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+ERROR: MethodError: no method matching num_nodes(::DecisionTree.DTree{Int64,Int64})
+Closest candidates are:
+  num_nodes(::DTLeaf) at /home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/src/DecisionTree.jl:100
+  num_nodes(::DTInternal) at /home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/src/DecisionTree.jl:101
+Stacktrace:
+ [1] #testDataset#41(::Array{Any,1}, ::NamedTuple{(:max_depth, :min_samples_leaf, :min_samples_split),Tuple{Int64,Int64,Int64}}, ::NamedTuple{(:initCondition, :ontology),Tuple{DecisionTree._startAtCenter,Ontology}}, ::Function, ::Tuple{String,Tuple{Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1}}}, ::Bool) at ./REPL[112]:40
+ [2] (::getfield(Main, Symbol("#kw##testDataset")))(::NamedTuple{(:args, :kwargs),Tuple{NamedTuple{(:max_depth, :min_samples_leaf, :min_samples_split),Tuple{Int64,Int64,Int64}},NamedTuple{(:initCondition, :ontology),Tuple{DecisionTree._startAtCenter,Ontology}}}}, ::typeof(testDataset), ::Tuple{String,Tuple{Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1}}}, ::Bool) at ./none:0
+ [3] top-level scope at none:0
+ [4] eval(::Module, ::Any) at ./boot.jl:319
+ [5] eval_user_input(::Any, ::REPL.REPLBackend) at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.0/REPL/src/REPL.jl:85
+ [6] run_backend(::REPL.REPLBackend) at /home/gio/.julia/packages/Revise/moD4B/src/packagedef.jl:1221
+ [7] top-level scope at none:0
+
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);    
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
+ train size = (3, 3, 216, 103)
+  93.568 s (660898119 allocations: 36.12 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 75.93% kappa: 72.92% 9×9 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0
+ 0  2  1  0  0  3  0  0  0
+ 0  0  4  0  0  0  1  1  0
+ 0  1  0  5  0  0  0  0  0
+ 1  0  1  0  4  0  0  0  0
+ 0  1  0  0  0  5  0  0  0
+ 2  0  0  0  0  0  4  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+ERROR: MethodError: no method matching num_nodes(::DecisionTree.DTree{Int64,Int64})
+Closest candidates are:
+  num_nodes(::DTLeaf) at /home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/src/DecisionTree.jl:100
+  num_nodes(::DTInternal) at /home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/src/DecisionTree.jl:101
+Stacktrace:
+ [1] #testDataset#41(::Array{Any,1}, ::NamedTuple{(:max_depth, :min_samples_leaf, :min_samples_split),Tuple{Int64,Int64,Int64}}, ::NamedTuple{(:initCondition, :ontology),Tuple{DecisionTree._startAtCenter,Ontology}}, ::Function, ::Tuple{String,Tuple{Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1}}}, ::Bool) at ./REPL[112]:40
+ [2] (::getfield(Main, Symbol("#kw##testDataset")))(::NamedTuple{(:args, :kwargs),Tuple{NamedTuple{(:max_depth, :min_samples_leaf, :min_samples_split),Tuple{Int64,Int64,Int64}},NamedTuple{(:initCondition, :ontology),Tuple{DecisionTree._startAtCenter,Ontology}}}}, ::typeof(testDataset), ::Tuple{String,Tuple{Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1}}}, ::Bool) at ./none:0
+ [3] top-level scope at none:0
+ [4] eval(::Module, ::Any) at ./boot.jl:319
+ [5] eval_user_input(::Any, ::REPL.REPLBackend) at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.0/REPL/src/REPL.jl:85
+ [6] run_backend(::REPL.REPLBackend) at /home/gio/.julia/packages/Revise/moD4B/src/packagedef.jl:1221
+ [7] top-level scope at none:0
+
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);    
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
+ train size = (1, 1, 384, 200)
+  54.023 s (438191131 allocations: 24.45 GiB)
+ test size = (1, 1, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  1  2  0  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  0  0  0  0  1
+ 0  1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  4  0  0  0  1  0  0  0  0  1  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  2  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  4  0  0  0  0  0  1  0
+ 0  2  0  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  0  2  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  1  0  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+ERROR: MethodError: no method matching num_nodes(::DecisionTree.DTree{Int64,Int64})
+Closest candidates are:
+  num_nodes(::DTLeaf) at /home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/src/DecisionTree.jl:100
+  num_nodes(::DTInternal) at /home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/src/DecisionTree.jl:101
+Stacktrace:
+ [1] #testDataset#41(::Array{Any,1}, ::NamedTuple{(:max_depth, :min_samples_leaf, :min_samples_split),Tuple{Int64,Int64,Int64}}, ::NamedTuple{(:initCondition, :ontology),Tuple{DecisionTree._startAtCenter,Ontology}}, ::Function, ::Tuple{String,Tuple{Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1}}}, ::Bool) at ./REPL[112]:40
+ [2] (::getfield(Main, Symbol("#kw##testDataset")))(::NamedTuple{(:args, :kwargs),Tuple{NamedTuple{(:max_depth, :min_samples_leaf, :min_samples_split),Tuple{Int64,Int64,Int64}},NamedTuple{(:initCondition, :ontology),Tuple{DecisionTree._startAtCenter,Ontology}}}}, ::typeof(testDataset), ::Tuple{String,Tuple{Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1}}}, ::Bool) at ./none:0
+ [3] top-level scope at none:0
+ [4] eval(::Module, ::Any) at ./boot.jl:319
+ [5] eval_user_input(::Any, ::REPL.REPLBackend) at /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.0/REPL/src/REPL.jl:85
+ [6] run_backend(::REPL.REPLBackend) at /home/gio/.julia/packages/Revise/moD4B/src/packagedef.jl:1221
+ [7] top-level scope at none:0
+
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);    
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
+ train size = (3, 3, 384, 200)
+
+
+
+
+
+
+
+
+^[[200~datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
+  # ("simpleDataset",traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng())...,0.8)),
+  # ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng())...,0.8)),
+  # ("Eduard-5",EduardDataset(5)),
+  # ("Eduard-10",EduardDataset(10)),
+  ("PaviaDataset, 1x1",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.8)),
+  ("PaviaDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", flattened = true, rng = my_rng())...,0.8)),
+  ("PaviaDataset, 3x3",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", rng = my_rng())...,0.8)),
+  ("IndianPinesCorrectedDataset, 1x1",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+  ("IndianPinesCorrectedDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(16*30, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+  ("IndianPinesCorrectedDataset, 3x3",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+  ("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
+  ("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+  # ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
+  # ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+];^[[201~
+
+julia> using DecisionTree.ModalLogic                                  
+
+julia> import Random                                                  
+
+julia> my_rng() = Random.MersenneTwister(1) # Random.GLOBAL_RNG       
+my_rng (generic function with 1 method)
+
+julia> using Logging                                                  
+
+julia> using BenchmarkTools                                           
+^[[200~args = (
+  max_depth=-1,
+  min_samples_leaf=4,
+  min_samples_split=8,
+  # min_purity_increase=0.02,
+  # max_purity_split=1.0, # TODO there's something wrong here, I think this sets min_purity_increase.
+)^[[201~
+
+julia> using ScikitLearnBase                                          
+
+julia> using Statistics                                               
+
+julia> using Test                                                     
+
+julia> using Profile                                                  
+
+julia> using PProf                                                    
+
+julia> include("example-datasets.jl")                                 
+traintestsplit (generic function with 2 methods)
+
+julia> function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [], args = (), kwargs = ())
+         println("Benchmarking dataset '$name'...")
+         global_logger(ConsoleLogger(stderr, Logging.Warn));
+         length(dataset) == 4 || error(length(dataset))
+         X_train, Y_train, X_test, Y_test = dataset
+         
+         println("args = ", args)
+         println("kwargs = ", kwargs)
+
+         # println(" n_samples = $(size(X_train)[end-1])")
+         println(" train size = $(size(X_train))")
+         if timeit
+julia> function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [], args = (), kwargs = ())               
+         println("Benchmarking dataset '$name'...")                   
+         global_logger(ConsoleLogger(stderr, Logging.Warn));          
+         length(dataset) == 4 || error(length(dataset))               
+         X_train, Y_train, X_test, Y_test = dataset                   
+                                                                      
+         println("args = ", args)                                     
+         println("kwargs = ", kwargs)                                 
+                                                                      
+         # println(" n_samples = $(size(X_train)[end-1])")            
+         println(" train size = $(size(X_train))")                    
+         if timeit                                                    
+           @btime build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());                                                       
+         end                                                          
+                                                                      
+         # global_logger(ConsoleLogger(stderr, Logging.Info))         
+         T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());                                                              
+                                                                      
+         if !timeit                                                   
+           print(T)                                                   
+         end                                                          
+                                                                      
+         println(" test size = $(size(X_test))")                      
+         for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))                                  
+           println(" Purity threshold $pruning_purity_threshold")     
+                                                                      
+           global_logger(ConsoleLogger(stderr, Logging.Warn));        
+                                                                      
+           T_pruned = prune_tree(T, pruning_purity_threshold)         
+           preds = apply_tree(T_pruned, X_test);                      
+           cm = confusion_matrix(Y_test, preds)                       
+           # @test cm.accuracy > 0.99                                 
+                                                                      
+           print("  acc: ", round(cm.accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
+           display(cm.matrix)
+
+           global_logger(ConsoleLogger(stderr, Logging.Info));
+
+           if timeit
+             println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
+           end
+         end
+         return T;
+       end
+testDataset (generic function with 2 methods)
+
+julia> datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[       
+         # ("simpleDataset",traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng())...,0.8)),                                     
+         # ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng())...,0.8)),                                    
+         # ("Eduard-5",EduardDataset(5)),                             
+         # ("Eduard-10",EduardDataset(10)),                           
+         ("PaviaDataset, 1x1",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.8)),                             
+         ("PaviaDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", flattened = true, rng = my_rng())...,0.8)), 
+         ("PaviaDataset, 3x3",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", rng = my_rng())...,0.8)),                             
+         ("IndianPinesCorrectedDataset, 1x1",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                    
+         ("IndianPinesCorrectedDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(16*30, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                        
+         ("IndianPinesCorrectedDataset, 3x3",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                    
+         ("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),                             
+         ("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                    
+         # ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),                           
+         # ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                  
+       ];                                                             
+^[[200~kwargs = (
+  initCondition=DecisionTree.startAtCenter,
+  ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+  # test_operators=[ModalLogic.TestOpLes],
+  # test_operators=[ModalLogic.TestOpGeq],
+)^[[201~
+
+julia> args = (                                                       
+         max_depth=-1,                                                
+         min_samples_leaf=4,                                          
+         min_samples_split=8,                                         
+         # min_purity_increase=0.02,                                  
+         # max_purity_split=1.0, # TODO there's something wrong here, I think this sets min_purity_increase.                                
+       )                                                              
+(max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+
+julia> kwargs = (                                                     
+         initCondition=DecisionTree.startAtCenter,                    
+         ontology=getIntervalTopologicalOntologyOfDim(Val(2)),        
+         # test_operators=[ModalLogic.TestOpLes],                     
+         # test_operators=[ModalLogic.TestOpGeq],                     
+       )                                                              
+(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
+
+julia> kwargs = (                                                     
+         initCondition=DecisionTree.startAtCenter,                    
+         ontology=getIntervalTopologicalOntologyOfDim(Val(2)),        
+         # test_operators=[ModalLogic.TestOpLes],                     
+         # test_operators=[ModalLogic.TestOpGeq],                     
+       )                                                              
+(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
+
+julia> timeit = true                                                  
+true
+
+julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'PaviaDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
+ train size = (1, 1, 216, 103)
+^[[200~T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);^[[201~
+^[[200~T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);^[[201~
+^[[200~T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);^[[201~
+  14.044 s (106713859 allocations: 5.96 GiB)
+ test size = (1, 1, 54, 103)
+ Purity threshold 1.0
+  acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  0  2  0  0
+ 0  2  1  1  0  2  0  0  0
+ 0  1  2  0  0  0  0  3  0
+ 0  2  0  4  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  2  1  0  2  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (51, height: 9)
+
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
+ train size = (3, 3, 216, 103)
+  63.460 s (467214258 allocations: 26.15 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 70.37% kappa: 66.67% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  2  0  0  0
+ 0  3  0  0  0  2  0  1  0
+ 0  0  4  0  0  0  1  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  2  0  4  0  0  0  0
+ 0  2  0  0  0  4  0  0  0
+ 2  0  0  0  0  0  4  0  0
+ 0  0  3  0  0  0  0  3  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (45, height: 7)
+
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
+ train size = (1, 1, 384, 200)
+  49.528 s (437856073 allocations: 24.42 GiB)
+ test size = (1, 1, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  1  2  0  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  0  0  0  0  1
+ 0  1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  4  0  0  0  1  0  0  0  0  1  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  2  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  4  0  0  0  0  0  1  0
+ 0  2  0  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  0  2  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  1  0  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (97, height: 9)
+
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = On
+tology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._To
+poRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO()
+, _Topo_NTPP(), _Topo_EC()]))
+ train size = (3, 3, 384, 200)
+^[[200~kwargs = (
+  initCondition=DecisionTree.startAtCenter,
+  # initCondition=DecisionTree.startWithRelationAll,
+  ontology=getIntervalOntologyOfDim(Val(2))
+  # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+  # test_operators=[ModalLogic.TestOpLes],
+  # test_operators=[ModalLogic.TestOpGeq],
+)^[[201~
+^[[200~T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
+^[[201~
+  571.373 s (4507787463 allocations: 265.65 GiB)
+ test size = (3, 3, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0
+ 0  4  1  0  0  0  0  0  0  1  0  0  0  0  0  0
+ 0  2  3  1  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  2  0  0  0  0  0  1  2  1  0  0  0  0  0
+ 0  0  0  1  5  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  5  0  0  0  0  0  0  0  0  1  0
+ 0  0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 1  0  0  0  0  0  1  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0  0
+ 0  1  0  0  0  0  0  0  0  4  1  0  0  0  0  0
+ 0  1  1  1  0  0  0  0  0  0  1  2  0  0  0  0
+ 0  1  3  1  0  0  0  0  0  0  0  1  0  0  0  0
+ 0  0  0  1  1  0  0  0  0  0  0  0  4  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  5  1  0
+ 0  0  0  0  0  0  1  0  0  0  0  0  0  2  3  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (81, height: 8)
+
+julia> kwargs = (                                                                                                                 
+         initCondition=DecisionTree.startAtCenter,                                                                                
+         # initCondition=DecisionTree.startWithRelationAll,                                                                       
+         ontology=getIntervalOntologyOfDim(Val(2))                                                                                
+         # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),                                                                  
+         # test_operators=[ModalLogic.TestOpLes],                                                                                 
+         # test_operators=[ModalLogic.TestOpGeq],                                                                                 
+       )                                                                                                                          
+(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L())  …  _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
+
+julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);                                                            
+Benchmarking dataset 'PaviaDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi}(_IA_Oi(), _IA_Oi()), _IA2DRel{_RelationId,_IA_D}(_RelationId(), _IA_D()), _IA2DRel{_IA_B,_IA_L}(_IA_B(), _IA_L()), _IA2DRel{_IA_D,_RelationId}(_IA_D(), _RelationId()), _IA2DRel{_IA_Li,_IA_Ai}(_IA_Li(), _IA_Ai()), _IA2DRel{_RelationId,_IA_E}(_RelationId(), _IA_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA_Bi(), _IA_Oi()), _IA2DRel{_IA_Di,_IA_A}(_IA_Di(), _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(), _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_RelationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), _IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), _IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
+ train size = (1, 1, 216, 103)
+  35.245 s (405883207 allocations: 24.44 GiB)
+ test size = (1, 1, 54, 103)
+ Purity threshold 1.0
+  acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  0  2  0  0
+ 0  2  1  1  0  2  0  0  0
+ 0  1  2  0  0  0  0  3  0
+ 0  2  0  4  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  2  1  0  2  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (51, height: 9)
+
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);                                                            
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi}(_IA_Oi(), _IA_Oi()), _IA2DRel{_RelationId,_IA_D}(_RelationId(), _IA_D()), _IA2DRel{_IA_B,_IA_L}(_IA_B(), _IA_L()), _IA2DRel{_IA_D,_RelationId}(_IA_D(), _RelationId()), _IA2DRel{_IA_Li,_IA_Ai}(_IA_Li(), _IA_Ai()), _IA2DRel{_RelationId,_IA_E}(_RelationId(), _IA_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA_Bi(), _IA_Oi()), _IA2DRel{_IA_Di,_IA_A}(_IA_Di(), _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(), _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_RelationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), _IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), _IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
+ train size = (3, 3, 216, 103)
+  93.462 s (497315580 allocations: 30.71 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 77.78% kappa: 75.0% 9×9 Array{Int64,2}:
+ 5  0  1  0  0  0  0  0  0
+ 0  5  0  0  0  1  0  0  0
+ 0  0  4  0  0  2  0  0  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  3  1  1  1  0
+ 0  2  0  0  0  4  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  2  0  3  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (35, height: 7)
+
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);                                                            
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi}(_IA_Oi(), _IA_Oi()), _IA2DRel{_RelationId,_IA_D}(_RelationId(), _IA_D()), _IA2DRel{_IA_B,_IA_L}(_IA_B(), _IA_L()), _IA2DRel{_IA_D,_RelationId}(_IA_D(), _RelationId()), _IA2DRel{_IA_Li,_IA_Ai}(_IA_Li(), _IA_Ai()), _IA2DRel{_RelationId,_IA_E}(_RelationId(), _IA_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA_Bi(), _IA_Oi()), _IA2DRel{_IA_Di,_IA_A}(_IA_Di(), _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(), _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_RelationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), _IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), _IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
+ train size = (1, 1, 384, 200)
+  136.606 s (1660742137 allocations: 99.79 GiB)
+ test size = (1, 1, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  1  2  0  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  0  0  0  0  1
+ 0  1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  4  0  0  0  1  0  0  0  0  1  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  2  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  4  0  0  0  0  0  1  0
+ 0  2  0  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  0  2  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  1  0  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (97, height: 9)
+
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);                                                            
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi
+}(_IA_Oi(), _IA_Oi()), _IA2DRel{_RelationId,_IA_D}(_RelationId(), _IA_D()), _IA2DRel{_IA_B,_IA_L}(_IA_B(), _IA_L()), _IA2DRel{_IA_
+D,_RelationId}(_IA_D(), _RelationId()), _IA2DRel{_IA_Li,_IA_Ai}(_IA_Li(), _IA_Ai()), _IA2DRel{_RelationId,_IA_E}(_RelationId(), _I
+A_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA_Bi(), _IA_Oi()), _IA2DRel{_IA_Di,_IA_A}(_IA_Di(),
+ _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(),
+ _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_
+IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_R
+elationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), 
+_IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), 
+_IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), 
+_IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
+ train size = (3, 3, 384, 200)
+  418.916 s (2366860732 allocations: 142.86 GiB)
+run(`say 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'`)
+ test size = (3, 3, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 6  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  2  1  2  0  0  0  0  0  0  0  1  0  0  0  0
+ 0  0  3  0  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  0  0  3  2  0  0  0  0  0  0  1  0  0  0  0
+ 0  0  0  0  5  0  0  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  6  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  1  5  0  0  0  0  0  0  0  0
+ 0  0  0  0  2  0  0  0  4  0  0  0  0  0  0  0
+ 0  0  3  1  0  0  0  0  0  1  0  1  0  0  0  0
+ 0  1  2  0  1  0  0  0  0  0  2  0  0  0  0  0
+ 0  1  2  0  0  0  0  0  0  0  1  2  0  0  0  0
+ 0  0  0  0  1  0  0  0  0  0  0  0  5  0  0  0
+ 0  0  0  0  1  0  0  0  0  0  0  0  0  4  1  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  2  2  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (79, height: 9)
+
+
+
+Introduced Sogliole
+
+
+
+julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'PaviaDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = On
+tology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._To
+poRel[<DC>
+, <TPP>
+, <PO>
+, <EC>
+, <TPPi>
+, <NTPPi>
+, <NTPP>
+]))
+ train size = (1, 1, 216, 103)
+^[[200~T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~kwargs = (
+  initCondition=DecisionTree.startAtCenter,
+  # initCondition=DecisionTree.startWithRelationAll,
+  ontology=getIntervalOntologyOfDim(Val(2))
+  # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+  # test_operators=[ModalLogic.TestOpLes],
+  # test_operators=[ModalLogic.TestOpGeq],
+)^[[201~
+^[[200~T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
+^[[201~
+^[[200~run(`say 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAA'`)^[[201~
+  11.815 s (104596944 allocations: 5.90 GiB)
+ test size = (1, 1, 54, 103)
+ Purity threshold 1.0
+  acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  0  2  0  0
+ 0  2  1  1  0  2  0  0  0
+ 0  1  2  0  0  0  0  3  0
+ 0  2  0  4  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  2  1  0  2  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (51, height: 9)
+
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);                                                            
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[<DC>
+, <TPP>
+, <PO>
+, <EC>
+, <TPPi>
+, <NTPPi>
+, <NTPP>
+]))
+ train size = (3, 3, 216, 103)
+  61.170 s (361000351 allocations: 22.18 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 70.37% kappa: 66.67% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  2  0  0  0
+ 0  3  0  0  0  2  0  1  0
+ 0  0  4  0  0  0  1  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  2  0  4  0  0  0  0
+ 0  2  0  0  0  4  0  0  0
+ 2  0  0  0  0  0  4  0  0
+ 0  0  3  0  0  0  0  3  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (45, height: 7)
+
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);                                                            
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[<DC>
+, <TPP>
+, <PO>
+, <EC>
+, <TPPi>
+, <NTPPi>
+, <NTPP>
+]))
+ train size = (1, 1, 384, 200)
+  54.560 s (428530079 allocations: 24.12 GiB)
+ test size = (1, 1, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  1  2  0  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  0  0  0  0  1
+ 0  1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  4  0  0  0  1  0  0  0  0  1  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  2  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  4  0  0  0  0  0  1  0
+ 0  2  0  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  0  2  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  1  0  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (97, height: 9)
+
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);                                                            
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.Moda
+lLogic._TopoRel[<DC>
+, <TPP>
+, <PO>
+, <EC>
+, <TPPi>
+, <NTPPi>
+, <NTPP>
+]))
+ train size = (3, 3, 384, 200)
+ Purity threshold 1.037 allocations: 236.91 GiB)
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0
+ 0  4  1  0  0  0  0  0  0  1  0  0  0  0  0  0
+ 0  2  3  1  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  2  0  0  0  0  0  1  2  1  0  0  0  0  0
+ 0  0  0  1  5  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  5  0  0  0  0  0  0  0  0  1  0
+ 0  0  0  0  0  0  6  0  0  0  0  0  0  0  0  0
+ 1  0  0  0  0  0  1  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  0  0  6  0  0  0  0  0  0  0
+ 0  1  0  0  0  0  0  0  0  4  1  0  0  0  0  0
+ 0  1  1  1  0  0  0  0  0  0  1  2  0  0  0  0
+ 0  1  3  1  0  0  0  0  0  0  0  1  0  0  0  0
+ 0  0  0  1  1  0  0  0  0  0  0  0  4  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  5  1  0
+ 0  0  0  0  0  0  1  0  0  0  0  0  0  2  3  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (81, height: 8)
+
+julia> kwargs = (                                                     
+         initCondition=DecisionTree.startAtCenter,                    
+         # initCondition=DecisionTree.startWithRelationAll,           
+         ontology=getIntervalOntologyOfDim(Val(2))                    
+         # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),      
+         # test_operators=[ModalLogic.TestOpLes],                     
+         # test_operators=[ModalLogic.TestOpGeq],                     
+       )                                                              
+(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
+, <E,D>
+, <D,D>
+, <E,Id>
+, <Bi,Ai>
+, <A,E>
+, <B,D>
+, <A,A>
+, <E,Li>
+, <Di,O>
+  …  <Ei,D>
+, <B,E>
+, <A,O>
+, <B,Bi>
+, <A,Id>
+, <D,Li>
+, <Ai,Id>
+, <Li,Di>
+, <Ei,Di>
+, <Di,Oi>
+]))
+
+julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'PaviaDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
+, <E,D>
+, <D,D>
+, <E,Id>
+, <Bi,Ai>
+, <A,E>
+, <B,D>
+, <A,A>
+, <E,Li>
+, <Di,O>
+, <Oi,B>
+, <L,A>
+, <L,Li>
+, <Ei,Bi>
+, <Ei,L>
+, <L,Di>
+, <Bi,Ei>
+, <L,Oi>
+, <Ei,Li>
+, <Di,Ei>
+, <A,Ai>
+, <Oi,Oi>
+, <E,Bi>
+, <L,B>
+, <B,Ei>
+, <Id,A>
+, <O,B>
+, <Ei,O>
+, <Oi,A>
+, <Di,Ai>
+, <Oi,Li>
+, <Di,Bi>
+, <Ei,Oi>
+, <Bi,A>
+, <D,Id>
+, <E,Di>
+, <B,Id>
+, <Id,B>
+, <Id,L>
+, <E,A>
+, <Li,D>
+, <O,E>
+, <A,Bi>
+, <Ei,Id>
+, <B,Di>
+, <Oi,Bi>
+, <A,D>
+, <Id,E>
+, <L,Ai>
+, <Id,O>
+, <L,Bi>
+, <A,Ei>
+, <D,Bi>
+, <Oi,Ei>
+, <B,L>
+, <A,Li>
+, <Id,Ei>
+, <Id,Li>
+, <D,Oi>
+, <D,A>
+, <Ai,L>
+, <Ai,Ei>
+, <O,L>
+, <O,Li>
+, <D,B>
+, <Li,B>
+, <Bi,B>
+, <D,L>
+, <O,A>
+, <Bi,Bi>
+, <Di,Id>
+, <O,D>
+, <Oi,O>
+, <O,Ei>
+, <Di,D>
+, <Bi,Li>
+, <Id,Ai>
+, <L,O>
+, <D,Ei>
+, <Ai,Di>
+, <Id,Bi>
+, <E,Ai>
+, <O,O>
+, <Ai,Ai>
+, <D,Ai>
+, <Bi,D>
+, <Oi,D>
+, <B,B>
+, <Li,O>
+, <O,Oi>
+, <A,L>
+, <L,L>
+, <A,Di>
+, <B,Ai>
+, <Ai,E>
+, <O,Bi>
+, <Li,Id>
+, <Ei,Ai>
+, <A,Oi>
+, <Bi,E>
+, <Di,A>
+, <O,Ai>
+, <Oi,E>
+, <Di,Di>
+, <L,Ei>
+, <E,O>
+, <Ai,Bi>
+, <Di,L>
+, <Id,Di>
+, <L,D>
+, <D,Di>
+, <B,A>
+, <Ei,A>
+, <Oi,Id>
+, <D,E>
+, <Id,Oi>
+, <Id,D>
+, <Bi,Oi>
+, <Di,E>
+, <Bi,Id>
+, <L,E>
+, <Li,E>
+, <O,Id>
+, <Di,B>
+, <O,Di>
+, <E,L>
+, <Ai,O>
+, <Ai,Oi>
+, <B,O>
+, <Ai,D>
+, <B,Li>
+, <E,B>
+, <A,B>
+, <Ai,A>
+, <Li,Ei>
+, <Ei,Ei>
+, <Di,Li>
+, <Li,Li>
+, <Li,Bi>
+, <Li,A>
+, <Oi,L>
+, <D,O>
+, <E,Oi>
+, <Bi,Di>
+, <L,Id>
+, <Ei,B>
+, <Li,Oi>
+, <E,E>
+, <Oi,Di>
+, <Li,Ai>
+, <B,Oi>
+, <Li,L>
+, <Ai,Li>
+, <E,Ei>
+, <Ei,E>
+, <Oi,Ai>
+, <Bi,O>
+, <Bi,L>
+, <Ei,D>
+, <B,E>
+, <A,O>
+, <B,Bi>
+, <A,Id>
+, <D,Li>
+, <Ai,Id>
+, <Li,Di>
+, <Ei,Di>
+, <Di,Oi>
+]))
+ train size = (1, 1, 216, 103)
+  37.532 s (403766292 allocations: 24.37 GiB)
+ test size = (1, 1, 54, 103)
+ Purity threshold 1.0
+  acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  0  2  0  0
+ 0  2  1  1  0  2  0  0  0
+ 0  1  2  0  0  0  0  3  0
+ 0  2  0  4  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  2  1  0  2  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (51, height: 9)
+
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
+, <E,D>
+, <D,D>
+, <E,Id>
+, <Bi,Ai>
+, <A,E>
+, <B,D>
+, <A,A>
+, <E,Li>
+, <Di,O>
+, <Oi,B>
+, <L,A>
+, <L,Li>
+, <Ei,Bi>
+, <Ei,L>
+, <L,Di>
+, <Bi,Ei>
+, <L,Oi>
+, <Ei,Li>
+, <Di,Ei>
+, <A,Ai>
+, <Oi,Oi>
+, <E,Bi>
+, <L,B>
+, <B,Ei>
+, <Id,A>
+, <O,B>
+, <Ei,O>
+, <Oi,A>
+, <Di,Ai>
+, <Oi,Li>
+, <Di,Bi>
+, <Ei,Oi>
+, <Bi,A>
+, <D,Id>
+, <E,Di>
+, <B,Id>
+, <Id,B>
+, <Id,L>
+, <E,A>
+, <Li,D>
+, <O,E>
+, <A,Bi>
+, <Ei,Id>
+, <B,Di>
+, <Oi,Bi>
+, <A,D>
+, <Id,E>
+, <L,Ai>
+, <Id,O>
+, <L,Bi>
+, <A,Ei>
+, <D,Bi>
+, <Oi,Ei>
+, <B,L>
+, <A,Li>
+, <Id,Ei>
+, <Id,Li>
+, <D,Oi>
+, <D,A>
+, <Ai,L>
+, <Ai,Ei>
+, <O,L>
+, <O,Li>
+, <D,B>
+, <Li,B>
+, <Bi,B>
+, <D,L>
+, <O,A>
+, <Bi,Bi>
+, <Di,Id>
+, <O,D>
+, <Oi,O>
+, <O,Ei>
+, <Di,D>
+, <Bi,Li>
+, <Id,Ai>
+, <L,O>
+, <D,Ei>
+, <Ai,Di>
+, <Id,Bi>
+, <E,Ai>
+, <O,O>
+, <Ai,Ai>
+, <D,Ai>
+, <Bi,D>
+, <Oi,D>
+, <B,B>
+, <Li,O>
+, <O,Oi>
+, <A,L>
+, <L,L>
+, <A,Di>
+, <B,Ai>
+, <Ai,E>
+, <O,Bi>
+, <Li,Id>
+, <Ei,Ai>
+, <A,Oi>
+, <Bi,E>
+, <Di,A>
+, <O,Ai>
+, <Oi,E>
+, <Di,Di>
+, <L,Ei>
+, <E,O>
+, <Ai,Bi>
+, <Di,L>
+, <Id,Di>
+, <L,D>
+, <D,Di>
+, <B,A>
+, <Ei,A>
+, <Oi,Id>
+, <D,E>
+, <Id,Oi>
+, <Id,D>
+, <Bi,Oi>
+, <Di,E>
+, <Bi,Id>
+, <L,E>
+, <Li,E>
+, <O,Id>
+, <Di,B>
+, <O,Di>
+, <E,L>
+, <Ai,O>
+, <Ai,Oi>
+, <B,O>
+, <Ai,D>
+, <B,Li>
+, <E,B>
+, <A,B>
+, <Ai,A>
+, <Li,Ei>
+, <Ei,Ei>
+, <Di,Li>
+, <Li,Li>
+, <Li,Bi>
+, <Li,A>
+, <Oi,L>
+, <D,O>
+, <E,Oi>
+, <Bi,Di>
+, <L,Id>
+, <Ei,B>
+, <Li,Oi>
+, <E,E>
+, <Oi,Di>
+, <Li,Ai>
+, <B,Oi>
+, <Li,L>
+, <Ai,Li>
+, <E,Ei>
+, <Ei,E>
+, <Oi,Ai>
+, <Bi,O>
+, <Bi,L>
+, <Ei,D>
+, <B,E>
+, <A,O>
+, <B,Bi>
+, <A,Id>
+, <D,Li>
+, <Ai,Id>
+, <Li,Di>
+, <Ei,Di>
+, <Di,Oi>
+]))
+ train size = (3, 3, 216, 103)
+  111.135 s (429434301 allocations: 28.12 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 75.93% kappa: 72.92% 9×9 Array{Int64,2}:
+ 5  0  1  0  0  0  0  0  0
+ 0  5  0  0  0  1  0  0  0
+ 0  0  4  0  0  2  0  0  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  3  1  1  1  0
+ 0  2  0  0  0  4  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  2  0  0  2  0  2  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (37, height: 7)
+
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
+, <E,D>
+, <D,D>
+, <E,Id>
+, <Bi,Ai>
+, <A,E>
+, <B,D>
+, <A,A>
+, <E,Li>
+, <Di,O>
+, <Oi,B>
+, <L,A>
+, <L,Li>
+, <Ei,Bi>
+, <Ei,L>
+, <L,Di>
+, <Bi,Ei>
+, <L,Oi>
+, <Ei,Li>
+, <Di,Ei>
+, <A,Ai>
+, <Oi,Oi>
+, <E,Bi>
+, <L,B>
+, <B,Ei>
+, <Id,A>
+, <O,B>
+, <Ei,O>
+, <Oi,A>
+, <Di,Ai>
+, <Oi,Li>
+, <Di,Bi>
+, <Ei,Oi>
+, <Bi,A>
+, <D,Id>
+, <E,Di>
+, <B,Id>
+, <Id,B>
+, <Id,L>
+, <E,A>
+, <Li,D>
+, <O,E>
+, <A,Bi>
+, <Ei,Id>
+, <B,Di>
+, <Oi,Bi>
+, <A,D>
+, <Id,E>
+, <L,Ai>
+, <Id,O>
+, <L,Bi>
+, <A,Ei>
+, <D,Bi>
+, <Oi,Ei>
+, <B,L>
+, <A,Li>
+, <Id,Ei>
+, <Id,Li>
+, <D,Oi>
+, <D,A>
+, <Ai,L>
+, <Ai,Ei>
+, <O,L>
+, <O,Li>
+, <D,B>
+, <Li,B>
+, <Bi,B>
+, <D,L>
+, <O,A>
+, <Bi,Bi>
+, <Di,Id>
+, <O,D>
+, <Oi,O>
+, <O,Ei>
+, <Di,D>
+, <Bi,Li>
+, <Id,Ai>
+, <L,O>
+, <D,Ei>
+, <Ai,Di>
+, <Id,Bi>
+, <E,Ai>
+, <O,O>
+, <Ai,Ai>
+, <D,Ai>
+, <Bi,D>
+, <Oi,D>
+, <B,B>
+, <Li,O>
+, <O,Oi>
+, <A,L>
+, <L,L>
+, <A,Di>
+, <B,Ai>
+, <Ai,E>
+, <O,Bi>
+, <Li,Id>
+, <Ei,Ai>
+, <A,Oi>
+, <Bi,E>
+, <Di,A>
+, <O,Ai>
+, <Oi,E>
+, <Di,Di>
+, <L,Ei>
+, <E,O>
+, <Ai,Bi>
+, <Di,L>
+, <Id,Di>
+, <L,D>
+, <D,Di>
+, <B,A>
+, <Ei,A>
+, <Oi,Id>
+, <D,E>
+, <Id,Oi>
+, <Id,D>
+, <Bi,Oi>
+, <Di,E>
+, <Bi,Id>
+, <L,E>
+, <Li,E>
+, <O,Id>
+, <Di,B>
+, <O,Di>
+, <E,L>
+, <Ai,O>
+, <Ai,Oi>
+, <B,O>
+, <Ai,D>
+, <B,Li>
+, <E,B>
+, <A,B>
+, <Ai,A>
+, <Li,Ei>
+, <Ei,Ei>
+, <Di,Li>
+, <Li,Li>
+, <Li,Bi>
+, <Li,A>
+, <Oi,L>
+, <D,O>
+, <E,Oi>
+, <Bi,Di>
+, <L,Id>
+, <Ei,B>
+, <Li,Oi>
+, <E,E>
+, <Oi,Di>
+, <Li,Ai>
+, <B,Oi>
+, <Li,L>
+, <Ai,Li>
+, <E,Ei>
+, <Ei,E>
+, <Oi,Ai>
+, <Bi,O>
+, <Bi,L>
+, <Ei,D>
+, <B,E>
+, <A,O>
+, <B,Bi>
+, <A,Id>
+, <D,Li>
+, <Ai,Id>
+, <Li,Di>
+, <Ei,Di>
+, <Di,Oi>
+]))
+ train size = (1, 1, 384, 200)
+  182.270 s (1651416143 allocations: 99.49 GiB)
+ test size = (1, 1, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  1  2  0  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  0  0  0  0  1
+ 0  1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  4  0  0  0  1  0  0  0  0  1  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  2  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  4  0  0  0  0  0  1  0
+ 0  2  0  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  0  2  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  1  0  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (97, height: 9)
+
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
+                                                                      
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
+, <E,D>
+, <D,D>
+, <E,Id>
+, <Bi,Ai>
+, <A,E>
+, <B,D>
+, <A,A>
+, <E,Li>
+, <Di,O>
+, <Oi,B>
+, <L,A>
+, <L,Li>
+, <Ei,Bi>
+, <Ei,L>
+, <L,Di>
+, <Bi,Ei>
+, <L,Oi>
+, <Ei,Li>
+, <Di,Ei>
+, <A,Ai>
+, <Oi,Oi>
+, <E,Bi>
+, <L,B>
+, <B,Ei>
+, <Id,A>
+, <O,B>
+, <Ei,O>
+, <Oi,A>
+, <Di,Ai>
+, <Oi,Li>
+, <Di,Bi>
+, <Ei,Oi>
+, <Bi,A>
+, <D,Id>
+, <E,Di>
+, <B,Id>
+, <Id,B>
+, <Id,L>
+, <E,A>
+, <Li,D>
+, <O,E>
+, <A,Bi>
+, <Ei,Id>
+, <B,Di>
+, <Oi,Bi>
+, <A,D>
+, <Id,E>
+, <L,Ai>
+, <Id,O>
+, <L,Bi>
+, <A,Ei>
+, <D,Bi>
+, <Oi,Ei>
+, <B,L>
+, <A,Li>
+, <Id,Ei>
+, <Id,Li>
+, <D,Oi>
+, <D,A>
+, <Ai,L>
+, <Ai,Ei>
+, <O,L>
+, <O,Li>
+, <D,B>
+, <Li,B>
+, <Bi,B>
+, <D,L>
+, <O,A>
+, <Bi,Bi>
+, <Di,Id>
+, <O,D>
+, <Oi,O>
+, <O,Ei>
+, <Di,D>
+, <Bi,Li>
+, <Id,Ai>
+, <L,O>
+, <D,Ei>
+, <Ai,Di>
+, <Id,Bi>
+, <E,Ai>
+, <O,O>
+, <Ai,Ai>
+, <D,Ai>
+, <Bi,D>
+, <Oi,D>
+, <B,B>
+, <Li,O>
+, <O,Oi>
+, <A,L>
+, <L,L>
+, <A,Di>
+, <B,Ai>
+, <Ai,E>
+, <O,Bi>
+, <Li,Id>
+, <Ei,Ai>
+, <A,Oi>
+, <Bi,E>
+, <Di,A>
+, <O,Ai>
+, <Oi,E>
+, <Di,Di>
+, <L,Ei>
+, <E,O>
+, <Ai,Bi>
+, <Di,L>
+, <Id,Di>
+, <L,D>
+, <D,Di>
+, <B,A>
+, <Ei,A>
+, <Oi,Id>
+, <D,E>
+, <Id,Oi>
+, <Id,D>
+, <Bi,Oi>
+, <Di,E>
+, <Bi,Id>
+, <L,E>
+, <Li,E>
+, <O,Id>
+, <Di,B>
+, <O,Di>
+, <E,L>
+, <Ai,O>
+, <Ai,Oi>
+, <B,O>
+, <Ai,D>
+, <B,Li>
+, <E,B>
+, <A,B>
+, <Ai,A>
+, <Li,Ei>
+, <Ei,Ei>
+, <Di,Li>
+, <Li,Li>
+, <Li,Bi>
+, <Li,A>
+, <Oi,L>
+, <D,O>
+, <E,Oi>
+, <Bi,Di>
+, <L,Id>
+, <Ei,B>
+, <Li,Oi>
+, <E,E>
+, <Oi,Di>
+, <Li,Ai>
+, <B,Oi>
+, <Li,L>
+, <Ai,Li>
+, <E,Ei>
+, <Ei,E>
+, <Oi,Ai>
+, <Bi,O>
+, <Bi,L>
+, <Ei,D>
+, <B,E>
+, <A,O>
+, <B,Bi>
+, <A,Id>
+, <D,Li>
+, <Ai,Id>
+, <Li,Di>
+, <Ei,Di>
+, <Di,Oi>
+]))
+ train size = (3, 3, 384, 200)
+ 
+ test size = (3, 3, 96, 200)
+
+
+removed semiM** trickery
