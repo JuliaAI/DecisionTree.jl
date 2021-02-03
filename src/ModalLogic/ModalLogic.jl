@@ -31,6 +31,25 @@ struct Ontology
 	Ontology(worldType, relationSet) = new(worldType, collect(Set(relationSet)))
 end
 
+# TODO improve, decouple from relationSets definitions
+show(io::IO, o::Ontology) = println(io,
+	"Ontology(" * o.worldType * "," *
+		if o.relationSet == IARelations
+			"IARelations"
+		elseif o.relationSet == IARelations_extended
+			"IARelations_extended"
+		elseif o.relationSet == IA2DRelations
+			"IA2DRelations"
+		elseif o.relationSet == IA2DRelations_U
+			"IA2DRelations_U"
+		elseif o.relationSet == IA2DRelations_extended
+			"IA2DRelations_extended"
+		elseif o.relationSet == TopoRelations
+			"TopoRelations"
+		end
+	* ")"
+)
+
 ################################################################################
 # BEGIN Matricial dataset
 ################################################################################

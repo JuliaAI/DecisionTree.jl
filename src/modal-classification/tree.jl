@@ -96,11 +96,11 @@ module treeclassifier
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							Sf                  :: AbstractVector{WorldSet{WT}},
-							Sogliole            :: AbstractVector{Dict{X.ontology.worldType,Tuple{T,T}},2},
+							Sogliole            :: AbstractArray{Dict{WT,Tuple{T,T}},2},
 							# TODO Ef                  :: AbstractArray{T},
 							
 							rng                 :: Random.AbstractRNG,
-							onlyUseRelationAll  :: Bool) where {WT<:AbstractWorld, T, U, N, M}
+							onlyUseRelationAll  :: Bool) where {WT<:AbstractWorld, T, U, N, M}  # WT<:X.ontology.worldType
 
 		# Region of indx to use to perform the split
 		region = node.region
@@ -196,7 +196,7 @@ module treeclassifier
 					# @info " instance $i/$n_samples" # channel
 					# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
 					for w in ModalLogic.enumAcc(Sf[i], relation, channel)
-						_wmax,_wmin = Sogliole[i,feature][w]
+						(_wmax,_wmin) = Sogliole[indX[i + r_start],feature][w]
 						# TODO fix, this is most surely wrong!
 						if maxPeaks[i] < _wmax
 							maxPeaks[i] = _wmax
@@ -331,6 +331,7 @@ module treeclassifier
 			end
 
 			@info "pre-partition" indX
+			# println(unsatisfied_flags)
 			node.split_at = util.partition!(indX, unsatisfied_flags, 0, region)
 			@info "post-partition" indX node.split_at
 
@@ -350,6 +351,8 @@ module treeclassifier
 		ind = node.split_at
 		region = node.region
 		depth = node.depth+1
+		# println(ind)
+		# println(region)
 		mdepth = (node.modality == ModalLogic.RelationNone ? node.modal_depth : node.modal_depth+1)
 		# no need to copy because we will copy at the end
 		node.l = NodeMeta{S}(region[    1:ind], depth, mdepth)
@@ -438,26 +441,29 @@ module treeclassifier
 		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
 		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )
 
-		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
-		indX = collect(1:n_instances)
-
 		# Calculate Sogliole
 		# TODO expand for generic test operators
 		# TODO test with array-only Sogliole = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
-		Sogliole = fill(Dict{X.ontology.worldType,Tuple{T,T}}(), n_instances, n_variables(X))
+		# TODO try something like Sogliole = fill(No: Dict{X.ontology.worldType,Tuple{T,T}}(), n_instances, n_variables(X))
+		Sogliole = Array{Dict{X.ontology.worldType,Tuple{T,T}}, 2}(undef, n_instances, n_variables(X))
 		w0 = X.ontology.worldType(w0params...)
 		for feature in 1:n_variables(X)
-			for i in 1:n_samples
+			for i in 1:n_instances
+				Sogliole[i,feature] = Dict{X.ontology.worldType,Tuple{T,T}}()
 				channel = ModalLogic.getFeature(X.domain, i, feature)
 				# TODO improve code leveraging world/dimensional dataset structure
-				for w in ModalLogic.enumAcc(w0, ModalLogic.RelationAll, channel)
+				for w in ModalLogic.enumAcc([w0], ModalLogic.RelationAll, channel)
 					# Sogliole[1,w,i,feature] = ModalLogic.WMax(w, channel)
 					# Sogliole[2,w,i,feature] = ModalLogic.WMin(w, channel)
-					(Sogliole[i,feature])[w] = (ModalLogic.WMax(w, channel), ModalLogic.WMin(w, channel))
+					Sogliole[i,feature][w] = (ModalLogic.WMax(w, channel), ModalLogic.WMin(w, channel))
 				end
 			end
 		end
+		
+		# println(Sogliole)
 
+		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
+		indX = collect(1:n_instances)
 		# Create root node
 		root = NodeMeta{T}(1:n_instances, 0, 0)
 		# Stack of nodes to process
@@ -476,7 +482,7 @@ module treeclassifier
 				max_purity_split,
 				test_operators,
 				indX,
-				nc, ncl, ncr, Xf, Yf, Wf, Sf, Sogliole
+				nc, ncl, ncr, Xf, Yf, Wf, Sf, Sogliole,
 				rng,
 				onlyUseRelationAll)
 			# After processing, if needed, perform the split and push the two children for a later processing step

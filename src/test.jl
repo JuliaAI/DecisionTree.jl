@@ -113,6 +113,8 @@ T = testDataset(datasets[8], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[9], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[10], timeit, args=args, kwargs=kwargs);
 
+run(`say 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'`)
+
 # @profview T = testDataset(datasets[2], false)
 # T = testDataset(datasets[1], false)
 # @profile T = testDataset(datasets[1], false)
