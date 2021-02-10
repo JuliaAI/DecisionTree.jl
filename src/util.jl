@@ -68,8 +68,8 @@ module util
 		i, j = 1, length(region)
 		r_start = region.start - 1
 		@inbounds while true
-			while w[i] <= pivot; i += 1; end;
-			while w[j]  > pivot; j -= 1; end;
+			while i <= length(region) && w[i] <= pivot; i += 1; end; # TODO check this i <= ... sign
+			while j >= 1              && w[j]  > pivot; j -= 1; end;
 			i >= j && break
 			ri = r_start + i
 			rj = r_start + j
@@ -77,7 +77,7 @@ module util
 			w[i], w[j] = w[j], w[i]
 			i += 1; j -= 1
 		end
-		return j::T
+		return j
 	end
 
 	# adapted from the Julia Base.Sort Library

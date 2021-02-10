@@ -156,9 +156,9 @@ function prune_tree(tree::DTree{S, T}, max_purity_threshold::AbstractFloat = 1.0
 end
 
 
-apply_tree(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::WorldSet{worldType}) where {U, T, MN, worldType<:AbstractWorld} = leaf.majority
+apply_tree(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}) where {U, T, MN, WorldType<:AbstractWorld} = leaf.majority
 
-function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::WorldSet{worldType}) where {U, T, MN, worldType<:AbstractWorld}
+function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}) where {U, T, MN, WorldType<:AbstractWorld}
 	return (
 		if tree.featid == 0
 			@error " found featid == 0, TODO figure out where does this come from" tree
@@ -168,7 +168,7 @@ function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::Worl
 			satisfied = true
 			channel = ModalLogic.getInstanceFeature(Xi, tree.featid)
 			@info " S" S
-			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, tree.test_operator, tree.featval, Val(false))
+			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, tree.test_operator, tree.featval)
 			@info " ->S'" S
 			apply_tree((satisfied ? tree.left : tree.right), Xi, S)
 		end

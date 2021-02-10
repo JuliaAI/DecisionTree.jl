@@ -1746,31 +1746,6 @@ poRel[<DC>
 , <NTPPi>
 , <NTPP>
 ]))
- train size = (1, 1, 216, 103)
-^[[200~T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
-^[[201~
-^[[200~T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
-^[[201~
-^[[200~T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
-^[[201~
-^[[200~kwargs = (
-  initCondition=DecisionTree.startAtCenter,
-  # initCondition=DecisionTree.startWithRelationAll,
-  ontology=getIntervalOntologyOfDim(Val(2))
-  # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
-  # test_operators=[ModalLogic.TestOpLes],
-  # test_operators=[ModalLogic.TestOpGeq],
-)^[[201~
-^[[200~T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
-^[[201~
-^[[200~T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
-^[[201~
-^[[200~T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
-^[[201~
-^[[200~T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
-^[[201~
-^[[200~run(`say 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAA'`)^[[201~
   11.815 s (104596944 allocations: 5.90 GiB)
  test size = (1, 1, 54, 103)
  Purity threshold 1.0
@@ -2663,3 +2638,229 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 
 
 removed semiM** trickery
+
+add compact Sogliole
+
+
+...
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations))
+ train size = (3, 3, 216, 103)
+Computing Sogliole...
+feature 1/103
+...
+  342.459 s (1715937983 allocations: 96.61 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 70.37% kappa: 66.67% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  2  0  0  0
+ 0  3  0  0  0  2  0  1  0
+ 0  0  4  0  0  0  1  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  2  0  4  0  0  0  0
+ 0  2  0  0  0  4  0  0  0
+ 2  0  0  0  0  0  4  0  0
+ 0  0  3  0  0  0  0  3  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (45, height: 7)
+
+Improved peaks computation for intervals!!
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations))
+ train size = (3, 3, 216, 103)
+   147.190 s (1340311200 allocations: 60.23 GiB)
+Computing Sogliole...
+feature 1/103
+feature 2/103
+feature 3/103
+feature 4/103
+feature 5/103
+feature 6/103
+feature 7/103
+feature 8/103
+feature 9/103
+feature 10/103
+feature 11/103
+feature 12/103
+feature 13/103
+feature 14/103
+feature 15/103
+feature 16/103
+feature 17/103
+feature 18/103
+feature 19/103
+feature 20/103
+feature 21/103
+feature 22/103
+feature 23/103
+feature 24/103
+feature 25/103
+feature 26/103
+feature 27/103
+feature 28/103
+feature 29/103
+feature 30/103
+feature 31/103
+feature 32/103
+feature 33/103
+feature 34/103
+feature 35/103
+feature 36/103
+feature 37/103
+feature 38/103
+feature 39/103
+feature 40/103
+feature 41/103
+feature 42/103
+feature 43/103
+feature 44/103
+feature 45/103
+feature 46/103
+feature 47/103
+feature 48/103
+feature 49/103
+feature 50/103
+feature 51/103
+feature 52/103
+feature 53/103
+feature 54/103
+feature 55/103
+feature 56/103
+feature 57/103
+feature 58/103
+feature 59/103
+feature 60/103
+feature 61/103
+feature 62/103
+feature 63/103
+feature 64/103
+feature 65/103
+feature 66/103
+feature 67/103
+feature 68/103
+feature 69/103
+feature 70/103
+feature 71/103
+feature 72/103
+feature 73/103
+feature 74/103
+feature 75/103
+feature 76/103
+feature 77/103
+feature 78/103
+feature 79/103
+feature 80/103
+feature 81/103
+feature 82/103
+feature 83/103
+feature 84/103
+feature 85/103
+feature 86/103
+feature 87/103
+feature 88/103
+feature 89/103
+feature 90/103
+feature 91/103
+feature 92/103
+feature 93/103
+feature 94/103
+feature 95/103
+feature 96/103
+feature 97/103
+feature 98/103
+feature 99/103
+feature 100/103
+feature 101/103
+feature 102/103
+feature 103/103
+Split 216 samples: V101 >= 1620 (purity -342.65269531467914)
+Split 74 samples: <NTPPi> (V4 >= 433) (purity -41.66827205358601)
+Split 50 samples: V82 >= 1349 (purity -22.165334573404326)
+Split 25 samples: V98 >= 990 (purity -6.792914443351853)
+Split 21 samples: V1 >= 925 (purity -2.249340578475233)
+Split 25 samples: <TPP> (V14 >= 1318) (purity -4.1588830833596715)
+Split 142 samples: V10 >= 929 (purity -168.43838216079934)
+Split 67 samples: <EC> (V101 >= 3217) (purity -38.50317503588948)
+Split 39 samples: <NTPPi> (V52 >= 669) (purity -19.714732844920228)
+Split 30 samples: <TPP> (V3 >= 827) (purity -14.187472778141352)
+Split 14 samples: V1 >= 337 (purity -2.249340578475233)
+Split 16 samples: <DC> (V7 >= 791) (purity -7.32737598268409)
+Split 9 samples: <DC> (V1 >= 1096) (purity -2.249340578475233)
+Split 28 samples: <TPPi> (V8 >= 406) (purity -8.024143006494441)
+Split 13 samples: <DC> (V1 >= 946) (purity -0.0)
+Split 75 samples: <EC> (V98 >= 2469) (purity -45.172375915351275)
+Split 46 samples: <EC> (V18 >= 1602) (purity -23.03052620556179)
+Split 28 samples: <EC> (V6 >= 1353) (purity -6.984466156968949)
+Split 8 samples: V1 >= 1233 (purity -2.249340578475233)
+Split 20 samples: <DC> (V1 >= 1390) (purity -2.249340578475233)
+Split 18 samples: <TPPi> (V4 >= 1541) (purity -2.772588722239781)
+Split 29 samples: V1 >= 1959 (purity -0.0)
+Decision Tree
+Leaves: 23
+Tot nodes: 45
+Height: 7
+Modal height:  5
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V101 >= 1620
+✔ V10 >= 929
+│✔ <EC> (V98 >= 2469)
+││✔ V1 >= 1959
+│││✔ 5 : 24/24
+│││✘ 6 : 5/5
+││✘ <EC> (V18 >= 1602)
+││ ✔ <TPPi> (V4 >= 1541)
+││ │✔ 3 : 2/4
+││ │✘ 8 : 14/14
+││ ✘ <EC> (V6 >= 1353)
+││  ✔ <DC> (V1 >= 1390)
+││  │✔ 3 : 16/16
+││  │✘ 3 : 3/4
+││  ✘ V1 >= 1233
+││   ✔ 8 : 4/4
+││   ✘ 8 : 3/4
+│✘ <EC> (V101 >= 3217)
+│ ✔ <TPPi> (V8 >= 406)
+│ │✔ 4 : 15/15
+│ │✘ <DC> (V1 >= 946)
+│ │ ✔ 2 : 4/4
+│ │ ✘ 4 : 9/9
+│ ✘ <NTPPi> (V52 >= 669)
+│  ✔ <TPP> (V3 >= 827)
+│  │✔ <DC> (V7 >= 791)
+│  ││✔ 6 : 5/7
+│  ││✘ <DC> (V1 >= 1096)
+│  ││ ✔ 2 : 3/4
+│  ││ ✘ 2 : 5/5
+│  │✘ V1 >= 337
+│  │ ✔ 6 : 10/10
+│  │ ✘ 6 : 3/4
+│  ✘ 2 : 9/9
+✘ <NTPPi> (V4 >= 433)
+ ✔ V82 >= 1349
+ │✔ <TPP> (V14 >= 1318)
+ ││✔ 7 : 21/21
+ ││✘ 1 : 2/4
+ │✘ V98 >= 990
+ │ ✔ V1 >= 925
+ │ │✔ 1 : 3/4
+ │ │✘ 1 : 17/17
+ │ ✘ 7 : 2/4
+ ✘ 9 : 24/24
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 70.37% kappa: 66.67% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  2  0  0  0
+ 0  3  0  0  0  2  0  1  0
+ 0  0  4  0  0  0  1  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  2  0  4  0  0  0  0
+ 0  2  0  0  0  4  0  0  0
+ 2  0  0  0  0  0  4  0  0
+ 0  0  3  0  0  0  0  3  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (45, height: 7)

@@ -1,5 +1,8 @@
 julia
 
+
+
+
 using Pkg
 Pkg.activate("DecisionTree.jl")
 using Revise
@@ -100,11 +103,19 @@ kwargs = (
 	# test_operators=[ModalLogic.TestOpLes],
 	# test_operators=[ModalLogic.TestOpGeq],
 )
-timeit = true
 # timeit = false
+# T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
+# T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 1, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
+timeit = true
+T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
+
+
+
+T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 10, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 # T = testDataset(datasets[2], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+
 T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
 # T = testDataset(datasets[5], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
