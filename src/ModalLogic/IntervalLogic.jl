@@ -19,8 +19,10 @@ end
 enumPairsIn(a::Integer, b::Integer) =
 	Iterators.filter((a)->a[1]<a[2], Iterators.product(a:b-1, a+1:b)) # TODO try to avoid filter maybe
 
-enumAccBare(w::Interval, ::_RelationId, XYZ::Vararg{Integer,N}) where {N} = [(w.x, w.y)]
-enumAcc(S::AbstractWorldSet{Interval}, r::_RelationAll, X::Integer) where T =
+# TODO parametrize all enumAccRepr on test_operator
+enumAccRepr(w::Interval, ::_RelationAll, X::Integer) = [Interval(1,X+1)]
+enumAccBare(w::Interval, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x, w.y)]
+enumAcc(S::AbstractWorldSet{Interval}, r::_RelationAll, X::Integer) =
 	IterTools.imap(Interval, enumPairsIn(1, X+1))
 
 worldTypeSize(::Type{Interval}) = 2
@@ -75,25 +77,25 @@ const IARelations = [IA_A,  IA_L,  IA_B,  IA_E,  IA_D,  IA_O,
 const IARelations_extended = [RelationAll, IARelations]
 
 # Enumerate accessible worlds from a single world
-enumAccBare(w::Interval, ::_IA_A,  X::Integer) where T = zip(Iterators.repeated(w.y), w.y+1:X+1)
-enumAccBare(w::Interval, ::_IA_Ai, X::Integer) where T = zip(1:w.x-1, Iterators.repeated(w.x))
-enumAccBare(w::Interval, ::_IA_L,  X::Integer) where T = enumPairsIn(w.y+1, X+1)
-enumAccBare(w::Interval, ::_IA_Li, X::Integer) where T = enumPairsIn(1, w.x-1)
-enumAccBare(w::Interval, ::_IA_B,  X::Integer) where T = zip(Iterators.repeated(w.x), w.x+1:w.y-1)
-enumAccBare(w::Interval, ::_IA_Bi, X::Integer) where T = zip(Iterators.repeated(w.x), w.y+1:X+1)
-enumAccBare(w::Interval, ::_IA_E,  X::Integer) where T = zip(w.x+1:w.y-1, Iterators.repeated(w.y))
-enumAccBare(w::Interval, ::_IA_Ei, X::Integer) where T = zip(1:w.x-1, Iterators.repeated(w.y))
-enumAccBare(w::Interval, ::_IA_D,  X::Integer) where T = enumPairsIn(w.x+1, w.y-1)
-enumAccBare(w::Interval, ::_IA_Di, X::Integer) where T = Iterators.product(1:w.x-1, w.y+1:X+1)
-enumAccBare(w::Interval, ::_IA_O,  X::Integer) where T = Iterators.product(w.x+1:w.y-1, w.y+1:X+1)
-enumAccBare(w::Interval, ::_IA_Oi, X::Integer) where T = Iterators.product(1:w.x-1, w.x+1:w.y-1)
+enumAccBare(w::Interval, ::_IA_A,  X::Integer) = zip(Iterators.repeated(w.y), w.y+1:X+1)
+enumAccBare(w::Interval, ::_IA_Ai, X::Integer) = zip(1:w.x-1, Iterators.repeated(w.x))
+enumAccBare(w::Interval, ::_IA_L,  X::Integer) = enumPairsIn(w.y+1, X+1)
+enumAccBare(w::Interval, ::_IA_Li, X::Integer) = enumPairsIn(1, w.x-1)
+enumAccBare(w::Interval, ::_IA_B,  X::Integer) = zip(Iterators.repeated(w.x), w.x+1:w.y-1)
+enumAccBare(w::Interval, ::_IA_Bi, X::Integer) = zip(Iterators.repeated(w.x), w.y+1:X+1)
+enumAccBare(w::Interval, ::_IA_E,  X::Integer) = zip(w.x+1:w.y-1, Iterators.repeated(w.y))
+enumAccBare(w::Interval, ::_IA_Ei, X::Integer) = zip(1:w.x-1, Iterators.repeated(w.y))
+enumAccBare(w::Interval, ::_IA_D,  X::Integer) = enumPairsIn(w.x+1, w.y-1)
+enumAccBare(w::Interval, ::_IA_Di, X::Integer) = Iterators.product(1:w.x-1, w.y+1:X+1)
+enumAccBare(w::Interval, ::_IA_O,  X::Integer) = Iterators.product(w.x+1:w.y-1, w.y+1:X+1)
+enumAccBare(w::Interval, ::_IA_Oi, X::Integer) = Iterators.product(1:w.x-1, w.x+1:w.y-1)
 
 # More efficient implementations for edge cases
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) where T =
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) =
 	IterTools.imap(Interval, enumAccBare(nth(S, argmin(map((w)->w.y, S))), IA_L, X))
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) where T =
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) =
 	IterTools.imap(Interval, enumAccBare(nth(S, argmax(map((w)->w.x, S))), IA_Li, X))
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_A, X::Integer) where T =
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_A, X::Integer) =
 	IterTools.imap(Interval,
 		Iterators.flatten(
 			IterTools.imap((y)->zip(Iterators.repeated(y), y+1:X+1),
@@ -101,7 +103,7 @@ enumAcc(S::AbstractWorldSet{Interval}, ::_IA_A, X::Integer) where T =
 			)
 		)
 	)
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Ai, X::Integer) where T =
+enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Ai, X::Integer) =
 	IterTools.imap(Interval,
 		Iterators.flatten(
 			IterTools.imap((x)->zip(1:x-1, Iterators.repeated(x)),
@@ -111,29 +113,44 @@ enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Ai, X::Integer) where T =
 	)
 
 # Other options:
-# enumAcc2_1_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) where T =
+# enumAcc2_1_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) =
 # 	IterTools.imap(Interval, enumAccBare(Base.argmin((w.y for w in S)), IA_L, X))
-# enumAcc2_1_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) where T =
+# enumAcc2_1_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) =
 # 	IterTools.imap(Interval, enumAccBare(Base.argmax((w.x for w in S)), IA_Li, X))
-# enumAcc2_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) where T = begin
+# enumAcc2_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) = begin
 # 	m = argmin(map((w)->w.y, S))
 # 	IterTools.imap(Interval, enumAccBare([w for (i,w) in enumerate(S) if i == m][1], IA_L, X))
 # end
-# enumAcc2_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) where T = begin
+# enumAcc2_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) = begin
 # 	m = argmax(map((w)->w.x, S))
 # 	IterTools.imap(Interval, enumAccBare([w for (i,w) in enumerate(S) if i == m][1], IA_Li, X))
 # end
 # # This makes sense if we have 2-Tuples instead of intervals
 # function snd((a,b)::Tuple) b end
 # function fst((a,b)::Tuple) a end
-# enumAcc2_1(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) where T = 
+# enumAcc2_1(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) = 
 # 	IterTools.imap(Interval,
 # 		enumAccBare(S[argmin(map(snd, S))], IA_L, X)
 # 	)
-# enumAcc2_1(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) where T = 
+# enumAcc2_1(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) = 
 # 	IterTools.imap(Interval,
 # 		enumAccBare(S[argmax(map(fst, S))], IA_Li, X)
 # 	)
+
+# TODO parametrize on the test_operator.
+# Note: these conditions are the ones that make a modalStep inexistent
+enumAccRepr(w::Interval, ::_IA_A,  X::Integer) = (w.y < X+1)                 ? [Interval(w.y, X+1)]     : Interval[]
+enumAccRepr(w::Interval, ::_IA_Ai, X::Integer) = (1 < w.x)                   ? [Interval(1, w.x)]       : Interval[]
+enumAccRepr(w::Interval, ::_IA_L,  X::Integer) = (w.y+1 < X+1)               ? [Interval(w.y+1, X+1)]   : Interval[]
+enumAccRepr(w::Interval, ::_IA_Li, X::Integer) = (1 < w.x-1)                 ? [Interval(1, w.x-1)]     : Interval[]
+enumAccRepr(w::Interval, ::_IA_B,  X::Integer) = (w.x < w.y-1)               ? [Interval(w.x, w.y-1)]   : Interval[]
+enumAccRepr(w::Interval, ::_IA_Bi, X::Integer) = (w.y < X+1)                 ? [Interval(w.x, X+1)]     : Interval[]
+enumAccRepr(w::Interval, ::_IA_E,  X::Integer) = (w.x+1 < w.y)               ? [Interval(w.x+1, w.y)]   : Interval[]
+enumAccRepr(w::Interval, ::_IA_Ei, X::Integer) = (1 < w.x)                   ? [Interval(1, w.y)]       : Interval[]
+enumAccRepr(w::Interval, ::_IA_D,  X::Integer) = (w.x+1 < w.y-1)             ? [Interval(w.x+1, w.y-1)] : Interval[]
+enumAccRepr(w::Interval, ::_IA_Di, X::Integer) = (1 < w.x && w.y < X+1)      ? [Interval(1, X+1)]       : Interval[]
+enumAccRepr(w::Interval, ::_IA_O,  X::Integer) = (w.x+1 < w.y && w.y < X+1)  ? [Interval(w.x+1, X+1)]   : Interval[]
+enumAccRepr(w::Interval, ::_IA_Oi, X::Integer) = (1 < w.x && w.x+1 < w.y)    ? [Interval(1, w.y-1)]     : Interval[]
 
 ################################################################################
 # END IA relations
@@ -156,15 +173,17 @@ struct Interval2D <: AbstractWorld
 	Interval2D(w::_centeredWorld, X::Integer, Y::Integer) = new(Interval(w,X),Interval(w,Y))
 end
 
-enumAccBare(w::Interval2D, ::_RelationId, XYZ::Vararg{Integer,N}) where {N} = [(w.x, w.y)]
-enumAcc(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) where T =
+# TODO parametrize on test operator
+enumAccRepr(w::Interval2D, ::_RelationAll, X::Integer, Y::Integer) = [Interval2D(Interval(1,X+1), Interval(1, Y+1))]
+enumAccBare(w::Interval2D, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x, w.y)]
+enumAcc(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) =
 	IterTools.imap(Interval2D,
 		Iterators.product(enumPairsIn(1, X+1), enumPairsIn(1, Y+1))
 		# enumAccBare(w..., IA2DRel(RelationAll,RelationAll), X, Y)
 	)
 	# IterTools.imap(Interval2D, enumPairsIn(1, X+1), enumPairsIn(1, Y+1))
 		# enumAccBare(w, IA2DRel(RelationAll,RelationAll), X, Y)
-# enumAccBare(w::Interval2D, r::_RelationAll, X::Integer, Y::Integer) where T =
+# enumAccBare(w::Interval2D, r::_RelationAll, X::Integer, Y::Integer) =
 # 	enumAccBare(w, _IA2DRel(RelationAll,RelationAll), X, Y)
 
 worldTypeSize(::Type{Interval2D}) = 4
@@ -248,23 +267,25 @@ IA2DRelations_U...
 # TODO these three are weird, the problem is _RelationAll
 enumAccBare2(w::Interval, r::R where R<:_IARel, X::Integer) = enumAccBare(w,r,X)
 enumAccBare2(w::Interval, r::_RelationId, X::Integer) = enumAccBare(w,r,X)
-enumAccBare2(w::Interval, r::_RelationAll, X::Integer) where T =
+enumAccBare2(w::Interval, r::_RelationAll, X::Integer) =
 	enumPairsIn(1, X+1)
 	# IterTools.imap(Interval, enumPairsIn(1, X+1))
 
-enumAccBare(w::Interval2D, r::R where R<:_IA2DRel, X::Integer, Y::Integer) where T =
+enumAccBare(w::Interval2D, r::R where R<:_IA2DRel, X::Integer, Y::Integer) =
 	Iterators.product(enumAccBare2(w.x, r.x, X), enumAccBare2(w.y, r.y, Y))
 	# TODO try instead: Iterators.product(enumAcc(w.x, r.x, X), enumAcc(w.y, r.y, Y))
 
 # More efficient implementations for edge cases
 # TODO write efficient implementations for _IA2DRelations_U
-# enumAcc(S::AbstractWorldSet{Interval2D}, r::_IA2DRelations_U, X::Integer, Y::Integer) where T = begin
+# enumAcc(S::AbstractWorldSet{Interval2D}, r::_IA2DRelations_U, X::Integer, Y::Integer) = begin
 # 	IterTools.imap(Interval2D,
 # 		Iterators.flatten(
 # 			Iterators.product((enumAcc(w, r.x, X) for w in S), enumAcc(S, r, Y))
 # 		)
 # 	)
 # end
+enumAccRepr(w::Interval2D, r::R where R<:_IA2DRel, X::Integer, Y::Integer) = 
+	Iterators.product(enumAccRepr(w.x, r.x, X), enumAccRepr(w.y, r.y, Y)) #  TODO try list comprehension instead of product
 
 ################################################################################
 # END IA2D relations
@@ -295,13 +316,22 @@ display_rel_short(::_Topo_NTPPi) = "NTPPi"
 const TopoRelations = [Topo_DC, Topo_EC, Topo_PO, Topo_TPP, Topo_TPPi, Topo_NTPP, Topo_NTPPi]
 
 # Enumerate accessible worlds from a single world
-enumAccBare(w::Interval, ::_Topo_DC,    X::Integer) where T = Iterators.flatten((enumAccBare(w, IA_L,  X), enumAccBare(w, IA_Li, X)))
-enumAccBare(w::Interval, ::_Topo_EC,    X::Integer) where T = Iterators.flatten((enumAccBare(w, IA_A,  X), enumAccBare(w, IA_Ai, X)))
-enumAccBare(w::Interval, ::_Topo_PO,    X::Integer) where T = Iterators.flatten((enumAccBare(w, IA_O,  X), enumAccBare(w, IA_Oi, X)))
-enumAccBare(w::Interval, ::_Topo_TPP,   X::Integer) where T = Iterators.flatten((enumAccBare(w, IA_B,  X), enumAccBare(w, IA_E,  X)))
-enumAccBare(w::Interval, ::_Topo_TPPi,  X::Integer) where T = Iterators.flatten((enumAccBare(w, IA_Bi, X), enumAccBare(w, IA_Ei, X)))
-enumAccBare(w::Interval, ::_Topo_NTPP,  X::Integer) where T = enumAccBare(w, IA_D, X)
-enumAccBare(w::Interval, ::_Topo_NTPPi, X::Integer) where T = enumAccBare(w, IA_Di, X)
+enumAccBare(w::Interval, ::_Topo_DC,    X::Integer) = Iterators.flatten((enumAccBare(w, IA_L,  X), enumAccBare(w, IA_Li, X)))
+enumAccBare(w::Interval, ::_Topo_EC,    X::Integer) = Iterators.flatten((enumAccBare(w, IA_A,  X), enumAccBare(w, IA_Ai, X)))
+enumAccBare(w::Interval, ::_Topo_PO,    X::Integer) = Iterators.flatten((enumAccBare(w, IA_O,  X), enumAccBare(w, IA_Oi, X)))
+enumAccBare(w::Interval, ::_Topo_TPP,   X::Integer) = Iterators.flatten((enumAccBare(w, IA_B,  X), enumAccBare(w, IA_E,  X)))
+enumAccBare(w::Interval, ::_Topo_TPPi,  X::Integer) = Iterators.flatten((enumAccBare(w, IA_Bi, X), enumAccBare(w, IA_Ei, X)))
+enumAccBare(w::Interval, ::_Topo_NTPP,  X::Integer) = enumAccBare(w, IA_D, X)
+enumAccBare(w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccBare(w, IA_Di, X)
+
+enumAccRepr(w::Interval, ::_Topo_DC,    X::Integer) = Interval[enumAccRepr(w, IA_L,  X)..., enumAccRepr(w, IA_Li, X)...]
+enumAccRepr(w::Interval, ::_Topo_EC,    X::Integer) = Interval[enumAccRepr(w, IA_A,  X)..., enumAccRepr(w, IA_Ai, X)...]
+enumAccRepr(w::Interval, ::_Topo_PO,    X::Integer) = Interval[enumAccRepr(w, IA_O,  X)..., enumAccRepr(w, IA_Oi, X)...]
+enumAccRepr(w::Interval, ::_Topo_TPP,   X::Integer) = Interval[enumAccRepr(w, IA_B,  X)..., enumAccRepr(w, IA_E,  X)...] # TODO simplify into something like if ... [] : [w]
+enumAccRepr(w::Interval, ::_Topo_TPPi,  X::Integer) = Interval[enumAccRepr(w, IA_Bi, X)..., enumAccRepr(w, IA_Ei, X)...] # TODO simplify into something like if ... [] : enumAccRepr(w, ::_RelationAll, X)
+enumAccRepr(w::Interval, ::_Topo_NTPP,  X::Integer) = enumAccRepr(w, IA_D, X)
+enumAccRepr(w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccRepr(w, IA_Di, X)
+
 
 # More efficient implementations for edge cases
 # ?
@@ -309,7 +339,7 @@ enumAccBare(w::Interval, ::_Topo_NTPPi, X::Integer) where T = enumAccBare(w, IA_
 # TODO try building Interval's in these, because they are only bare with respect to Interval2D
 # Enumerate accessible worlds from a single world
 # TODO try inverting these two?
-enumAccBare(w::Interval2D, ::_Topo_DC,    X::Integer, Y::Integer) where T =
+enumAccBare(w::Interval2D, ::_Topo_DC,    X::Integer, Y::Integer) =
 	IterTools.distinct(
 		Iterators.flatten((
 			Iterators.product(enumAccBare(w.x, Topo_DC,    X), enumAccBare2(w.y, RelationAll,Y)),
@@ -317,7 +347,7 @@ enumAccBare(w::Interval2D, ::_Topo_DC,    X::Integer, Y::Integer) where T =
 			# TODO try avoiding the distinct, replacing the second line (RelationAll,enumAccBare) with 7 combinations of RelationAll with Topo_EC, Topo_PO, Topo_TPP, Topo_TPPi, Topo_NTPP, Topo_NTPPi
 		))
 	)
-enumAccBare(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) where T =
+enumAccBare(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) =
 	Iterators.flatten((
 		Iterators.product(enumAccBare(w.x, Topo_EC,    X), enumAccBare(w.y, Topo_EC,    Y)),
 		#
@@ -335,7 +365,7 @@ enumAccBare(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) where T =
 		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_EC,    Y)),
 		Iterators.product(enumAccBare(w.x, RelationId, X), enumAccBare(w.y, Topo_EC,    Y)),
 	))
-enumAccBare(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) where T =
+enumAccBare(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) =
 	Iterators.flatten((
 		Iterators.product(enumAccBare(w.x, Topo_PO,    X), enumAccBare(w.y, Topo_PO,    Y)),
 		#
@@ -362,7 +392,7 @@ enumAccBare(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) where T =
 		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_TPP,   Y)),
 		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_NTPP,  Y)),
 	))
-enumAccBare(w::Interval2D, ::_Topo_TPP,   X::Integer, Y::Integer) where T =
+enumAccBare(w::Interval2D, ::_Topo_TPP,   X::Integer, Y::Integer) =
 	Iterators.flatten((
 		Iterators.product(enumAccBare(w.x, Topo_TPP,   X), enumAccBare(w.y, Topo_TPP,   Y)),
 		#
@@ -376,7 +406,7 @@ enumAccBare(w::Interval2D, ::_Topo_TPP,   X::Integer, Y::Integer) where T =
 		Iterators.product(enumAccBare(w.x, RelationId, X), enumAccBare(w.y, Topo_NTPP,  Y)),
 	))
 
-enumAccBare(w::Interval2D, ::_Topo_TPPi,  X::Integer, Y::Integer) where T =
+enumAccBare(w::Interval2D, ::_Topo_TPPi,  X::Integer, Y::Integer) =
 	Iterators.flatten((
 		Iterators.product(enumAccBare(w.x, Topo_TPPi,  X), enumAccBare(w.y, Topo_TPPi,  Y)),
 		#
@@ -390,14 +420,221 @@ enumAccBare(w::Interval2D, ::_Topo_TPPi,  X::Integer, Y::Integer) where T =
 		Iterators.product(enumAccBare(w.x, RelationId, X), enumAccBare(w.y, Topo_NTPPi, Y)),
 	))
 
-enumAccBare(w::Interval2D, ::_Topo_NTPP,  X::Integer, Y::Integer) where T =
-	Iterators.flatten((
-		Iterators.product(enumAccBare(w.x, Topo_NTPP,  X), enumAccBare(w.y, Topo_NTPP,  Y)),
-	))
-enumAccBare(w::Interval2D, ::_Topo_NTPPi, X::Integer, Y::Integer) where T =
-	Iterators.flatten((
-		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_NTPPi, Y)),
-	))
+enumAccBare(w::Interval2D, ::_Topo_NTPP,  X::Integer, Y::Integer) =
+	# Iterators.flatten((
+		Iterators.product(enumAccBare(w.x, Topo_NTPP,  X), enumAccBare(w.y, Topo_NTPP,  Y))
+		# , ))
+enumAccBare(w::Interval2D, ::_Topo_NTPPi, X::Integer, Y::Integer) =
+	# Iterators.flatten((
+		Iterators.product(enumAccBare(w.x, Topo_NTPPi, X), enumAccBare(w.y, Topo_NTPPi, Y))
+	# , ))
+
+
+
+# TODO check and fix and back to using enumAccRepr
+enumAccRepr(w::Interval2D, ::_Topo_DC,    X::Integer, Y::Integer) =
+	(true,Interval2D[
+			[Interval2D(x,y) for y in enumAccRepr(w.y, RelationAll,    Y), x in enumAccRepr(w.x, Topo_DC,   X)]...,
+			[Interval2D(x,y) for y in enumAccRepr(w.y, Topo_DC,    Y), x in [Interval(max(1,w.x.x-1),min(w.x.y+1,X+1))]]...,
+		])
+# enumAccRepr2(w::Interval2D, ::_Topo_DC,    X::Integer, Y::Integer) =
+# 	Interval2D[
+# 		[Interval2D(x,y) for y in enumAccBare2(w.y, RelationAll,    Y), x in enumAccBare(w.x, Topo_DC,   X)]...,
+# 		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_DC,    Y), x in enumAccBare2(w.x, RelationAll,    X)]...,
+# 	]
+# TODO fix e pensaci bene: ci puo' essere un modo per semplificarlo. problema geometrico come TPP
+# enumAccRepr(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) = # TODO simplify: if it's not ALL-IMAGE, otherwise
+# 	(true,Interval2D[
+# 			[Interval2D(x,y) for y in enumAccRepr(w.y, RelationAll,    Y), x in enumAccRepr(w.x, Topo_EC,   X)]...,
+# 			[Interval2D(x,y) for y in enumAccRepr(w.y, Topo_EC,    Y), x in enumAccRepr(w.x, RelationId, X)]...,
+# 		])
+enumAccRepr(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) = # TODO simplify: if it's not ALL-IMAGE, otherwise
+	# (w.x.x > 1 || w.x.y < X+1 || w.y.x > 1 || w.y.y < Y+1) ?
+		# [Interval2D(x,y) for y in enumAccBare(w.y, RelationAll, Y), x in enumAccBare(w.x, RelationAll, X)] non proprio... devi togliere il centro... :
+	(false,Interval2D[
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, Topo_EC,    X)]...,
+			#
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, Topo_EC,    X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPP,   Y), x in enumAccBare(w.x, Topo_EC,    X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPPi,  Y), x in enumAccBare(w.x, Topo_EC,    X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPP,  Y), x in enumAccBare(w.x, Topo_EC,    X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, Topo_EC,    X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, RelationId, Y), x in enumAccBare(w.x, Topo_EC,    X)]...,
+			#
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, Topo_TPP,   X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, Topo_TPPi,  X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, Topo_NTPP,  X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...,
+			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, RelationId, X)]...,
+		])
+# enumAccRepr(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) = 
+# 	# TODO optimize this!!! PO is challenging.
+# 	((w.x.y-w.x.x) > 1 && (w.y.y-w.y.x) > 1 && w.x.x > 1 && w.x.y < X+1 && w.y.x > 1 && w.y.y < Y+1) ?
+# 		Interval2D[[Interval2D(x,y) for y in enumAccRepr(w.y, RelationAll, Y), x in enumAccRepr(w.x, RelationAll, X)]...] : 
+# 		enumAccRepr2(w, Topo_PO, X, Y)
+enumAccRepr(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) = 
+	(false,Interval2D[
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, Topo_TPP,   X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, Topo_TPPi,  X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, Topo_NTPP,  X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, RelationId, X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPP,   Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPPi,  Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPP,  Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, RelationId, Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPPi,  Y), x in enumAccBare(w.x, Topo_TPP,   X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPP,   Y), x in enumAccBare(w.x, Topo_TPPi,  X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPP,  Y), x in enumAccBare(w.x, Topo_TPPi,  X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPPi,  Y), x in enumAccBare(w.x, Topo_NTPP,  X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, Topo_TPP,   X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, Topo_NTPP,  X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPP,   Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPP,  Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...,
+	])
+# TODO Per ragioni geometriche questo non e' cosi' semplice. Ma e' importante Investigare meglio perche' l'alternativa e' molto dispendiosa!
+# Ad esempio se il minimo/massimo sta sul bordo allora questo funziona; altrimenti probabilmente no.
+# enumAccRepr(w::Interval2D, ::_Topo_TPP,   X::Integer, Y::Integer) = 
+# 	(true,((w.x.y-w.x.x) > 1 || (w.y.y-w.y.x) > 1) ?
+# 		Interval2D[[Interval2D(x,y) for y in enumAccRepr(w.y, RelationId, Y), x in enumAccRepr(w.x, RelationId,  X)]...] : Interval2D[]
+# 	)
+enumAccRepr(w::Interval2D, ::_Topo_TPP,   X::Integer, Y::Integer) =  # TODO optimize because it uses enumAccBare now. Not good
+	(false,Interval2D[
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPP,   Y), x in enumAccBare(w.x, Topo_TPP,   X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPP,  Y), x in enumAccBare(w.x, Topo_TPP,   X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPP,   Y), x in enumAccBare(w.x, Topo_NTPP,  X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, RelationId, Y), x in enumAccBare(w.x, Topo_TPP,   X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPP,   Y), x in enumAccBare(w.x, RelationId, X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, RelationId, Y), x in enumAccBare(w.x, Topo_NTPP,  X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPP,  Y), x in enumAccBare(w.x, RelationId, X)]...,
+	])
+# Not good: the current world is always included, so need to take that into account.
+# enumAccRepr(w::Interval2D, ::_Topo_TPPi,  X::Integer, Y::Integer) = 
+	# (w.x.x == 1 && w.x.y == X+1 && w.y.x == 1 && w.y.y == Y+1) ?
+		# Interval2D[] : Interval2D[[Interval2D(x,y) for y in enumAccRepr(w.y, RelationAll, Y), x in enumAccRepr(w.x, RelationAll, X)]...]
+# TODO to optimize this, we should probably use the min and max of the current world
+enumAccRepr(w::Interval2D, ::_Topo_TPPi,  X::Integer, Y::Integer) =
+	(false,Interval2D[
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPPi,  Y), x in enumAccBare(w.x, Topo_TPPi,  X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, Topo_TPPi,  X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPPi,  Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, RelationId, Y), x in enumAccBare(w.x, Topo_TPPi,  X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_TPPi,  Y), x in enumAccBare(w.x, RelationId, X)]...,
+		#
+		[Interval2D(x,y) for y in enumAccBare(w.y, RelationId, Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...,
+		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, RelationId, X)]...,
+	])
+enumAccRepr(w::Interval2D, ::_Topo_NTPP,  X::Integer, Y::Integer) =
+	(true,Interval2D[[Interval2D(x,y) for y in enumAccRepr(w.y, Topo_NTPP, Y), x in enumAccRepr(w.x, Topo_NTPP, X)]...])
+enumAccRepr(w::Interval2D, ::_Topo_NTPPi, X::Integer, Y::Integer) =
+	(false,Interval2D[[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...])
+
+#=
+
+
+# To test optimizations
+fn1 = ModalLogic.enumAccRepr
+fn2 = ModalLogic.enumAccRepr2
+rel = ModalLogic.Topo_EC
+X = 4
+Y = 3
+while(true)
+	a = randn(4,4);
+	wextr = (x)->ModalLogic.WExtrema(x,a);
+	# TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
+	x1 = rand(1:X);
+	x2 = x1+rand(1:(X+1-x1));
+	x3 = rand(1:Y);
+	x4 = x3+rand(1:(Y+1-x3));
+	for i in 1:X
+		println(a[i,:]);
+	end
+	println(x1,",",x2);
+	println(x3,",",x4);
+	println(a[x1:x2-1,x3:x4-1]);
+	print("[")
+	print(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> (y)->map((x)->ModalLogic.print_world(x),y));
+	println("]")
+	print("[")
+	print(fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> (y)->map((x)->ModalLogic.print_world(x),y));
+	println("]")
+	println(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr);
+	println(fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr);
+	(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr) == (fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr) || break;
+end
+
+fn1 = ModalLogic.enumAccRepr
+fn2 = ModalLogic.enumAccRepr2
+rel = ModalLogic.Topo_EC
+a = [253 670 577; 569 730 931; 633 850 679];
+X,Y = size(a)
+while(true)
+	wextr = (x)->ModalLogic.WExtrema(x,a);
+	# TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
+	x1 = rand(1:X);
+	x2 = x1+rand(1:(X+1-x1));
+	x3 = rand(1:Y);
+	x4 = x3+rand(1:(Y+1-x3));
+	for i in 1:X
+		println(a[i,:]);
+	end
+	println(x1,",",x2);
+	println(x3,",",x4);
+	println(a[x1:x2-1,x3:x4-1]);
+	print("[")
+	print(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> (y)->map((x)->ModalLogic.print_world(x),y));
+	println("]")
+	print("[")
+	print(fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> (y)->map((x)->ModalLogic.print_world(x),y));
+	println("]")
+	println(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr);
+	println(fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr);
+	(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr) == (fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr) || break;
+end
+
+fn1 = ModalLogic.enumAccRepr
+fn2 = ModalLogic.enumAccRepr2
+rel = ModalLogic.Topo_EC
+a = [253 670 577; 569 730 931; 633 850 679];
+X,Y = size(a)
+while(true)
+wextr = (x)->ModalLogic.WExtrema(x,a);
+# TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
+x1 = 2
+x2 = 3
+x3 = 2
+x4 = 3
+for i in 1:X
+	println(a[i,:]);
+end
+println(x1,",",x2);
+println(x3,",",x4);
+println(a[x1:x2-1,x3:x4-1]);
+print("[")
+print(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> (y)->map((x)->ModalLogic.print_world(x),y));
+println("]")
+print("[")
+print(fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> (y)->map((x)->ModalLogic.print_world(x),y));
+println("]")
+println(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr);
+println(fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr);
+(fn1(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr) == (fn2(ModalLogic.Interval2D((x1,x2),(x3,x4)), rel, size(a)...) |> wextr) || break;
+end
+
+=#
 
 ################################################################################
 # END Topological relations
@@ -417,8 +654,8 @@ enumAccBare(w::Interval2D, ::_Topo_NTPPi, X::Integer, Y::Integer) where T =
 # 	Point(::_centeredWorld, X::Integer) = new(div(X,2)+1)
 # end
 
-# enumAccBare(w::Point, ::_RelationId, XYZ::Vararg{Integer,N}) where {N} = [(w.x,)]
-# enumAcc(S::AbstractWorldSet{Point}, r::_RelationAll, X::Integer) where T =
+# enumAccBare(w::Point, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x,)]
+# enumAcc(S::AbstractWorldSet{Point}, r::_RelationAll, X::Integer) =
 # 	IterTools.imap(Point, 1:X)
 
 # worldTypeSize(::Type{Interval}) = 1

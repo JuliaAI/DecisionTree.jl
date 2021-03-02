@@ -12,10 +12,11 @@ export AbstractWorld, AbstractRelation,
 				MatricialDataset,
 				MatricialUniDataset,
 				WorldSet,
-				display_propositional_test
+				display_propositional_test,
+				display_modal_test
 				# , TestOperator
 				# RelationAll, RelationNone, RelationId,
-				# enumAcc,
+				# enumAcc, enumAccRepr
 
 # Fix
 Base.keys(g::Base.Generator) = g.iter
@@ -122,6 +123,14 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 # END Matricial dataset
 ################################################################################
 
+# World generators/enumerators and array/set-like structures
+# TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
+const AbstractWorldSet{W} = Union{AbstractVector{W},AbstractSet{W}} where {W<:AbstractWorld}
+# Concrete type for sets: vectors are faster than sets, so we
+# const WorldSet = AbstractSet{W} where W<:AbstractWorld
+const WorldSet{W} = Vector{W} where {W<:AbstractWorld}
+WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
+
 ################################################################################
 # BEGIN Test operators
 ################################################################################
@@ -154,12 +163,36 @@ display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Numb
 display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(test_operator.alpha*100)% [$(lhs) >= $(featval)]"
 display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(test_operator.alpha*100)% [$(lhs) < $(featval)]"
 
+display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, featid::Integer, featval::Number) = begin
+	test = display_propositional_test(test_operator, "V$(featid)", featval)
+	if modality != ModalLogic.RelationId
+		"<$(ModalLogic.display_rel_short(modality))> ($test)"
+	else
+		"$test"
+	end
+end
 
+
+@inline WExtrema(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
+@inline WExtrema(R::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}, channel::MatricialChannel{T,N}) where {T,N} = begin
+	inverted, representatives = R
+	opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
+	for w in representatives
+		(_wmin, _wmax) = WExtrema(w,channel)
+		if inverted
+			(_wmax, _wmin) = (_wmin, _wmax)
+		end
+		opGeqMaxThresh = max(opGeqMaxThresh, _wmin)
+		opLesMinThresh = min(opLesMinThresh, _wmax)
+	end
+	return (opGeqMaxThresh, opLesMinThresh)
+end
 @inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
 @inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
 @inline TestCondition(test_operator::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
-	@inbounds for x in readWorld(w,channel)
+	# @inbounds
+	for x in readWorld(w,channel)
 		x >= featval || return false
 	end
 	return true
@@ -167,7 +200,8 @@ end
 @inline TestCondition(test_operator::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @info "WLes" w featval #n readWorld(w,channel)
-	@inbounds for x in readWorld(w,channel)
+	# @inbounds
+	for x in readWorld(w,channel)
 		x < featval || return false
 	end
 	return true
@@ -183,23 +217,15 @@ end
 struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
 struct _centeredWorld end; const centeredWorld = _centeredWorld();
 
-
-# World generators/enumerators and array/set-like structures
-# TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
-const AbstractWorldSet{W} = Union{AbstractVector{W},AbstractSet{W}} where {W<:AbstractWorld}
-# Concrete type for sets: vectors are faster than sets, so we
-# const WorldSet = AbstractSet{W} where W<:AbstractWorld
-const WorldSet{W} = Vector{W} where {W<:AbstractWorld}
-WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
-
 ## Enumerate accessible worlds
 
 # Fallback: enumAcc works with domains AND their dimensions
 enumAcc(S::Any, r::AbstractRelation, X::MatricialChannel{T,N}) where {T,N} = enumAcc(S, r, size(X)...)
+enumAccRepr(S::Any, r::AbstractRelation, X::MatricialChannel{T,N}) where {T,N} = enumAccRepr(S, r, size(X)...)
 # Fallback: enumAcc for world sets maps to enumAcc-ing their elements
 #  (note: one may overload this function to provide improved implementations for special cases (e.g. <L> of a world set in interval algebra))
-enumAcc(S::AbstractWorldSet{worldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,worldType<:AbstractWorld} = begin
-	IterTools.imap(worldType,
+enumAcc(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,WorldType<:AbstractWorld} = begin
+	IterTools.imap(WorldType,
 		IterTools.distinct(Iterators.flatten((enumAccBare(w, r, XYZ...) for w in S)))
 	)
 end
@@ -216,6 +242,9 @@ enumAcc(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {Wo
 enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
 # Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
 
+# TODO parametrize on test operator (any test operator in this case)
+enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
+
 display_rel_short(::_RelationId)  = "Id"
 display_rel_short(::_RelationAll) = ""
 
@@ -224,43 +253,33 @@ display_rel_short(::_RelationAll) = ""
 # TODO perhaps fastMode never needed, figure out
 modalStep(S::WorldSetType,
 					relation::R,
-					Xfi::AbstractArray{U,N},
+					channel::AbstractArray{T,N},
 					test_operator::TestOperator,
-					threshold::U,
-					fastMode::Val{V}) where {V, W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, U, N} = begin
-	@info "modalStep"
+					threshold::T) where {W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, T, N} = begin
+	@info "modalStep" S relation display_modal_test(relation, test_operator, -1, threshold)
 	satisfied = false
-	worlds = enumAcc(S, relation, Xfi)
+	worlds = enumAcc(S, relation, channel)
 	if length(collect(Iterators.take(worlds, 1))) > 0
-		if fastMode == Val(false)
-			new_worlds = WorldSetType()
-		end
-		for w in worlds # Sf[i]
-			# @info " world" w
-			if TestCondition(test_operator, w, Xfi, threshold)
+		new_worlds = WorldSetType()
+		for w in worlds
+			if TestCondition(test_operator, w, channel, threshold)
+				@info " Found world " w readWorld(w,channel)
 				satisfied = true
-				if fastMode == Val(false)
-					push!(new_worlds, w)
-				elseif fastMode == Val(true)
-					@info "   Found w: " w # readWorld(w,Xfi)
-					break
-				end
+				push!(new_worlds, w)
 			end
 		end
-		if fastMode == Val(false)
-			if satisfied == true
-				S = new_worlds
-			else 
-				# If none of the neighboring worlds satisfies the condition, then 
-				#  the new set is left unchanged
-			end
+		if satisfied == true
+			S = new_worlds
+		else 
+			# If none of the neighboring worlds satisfies the condition, then 
+			#  the new set is left unchanged
 		end
 	else
 		@info "   No world found"
 		# If there are no neighboring worlds, then the modal condition is not met
 	end
 	if satisfied
-		@info "   YES"
+		@info "   YES" S
 	else
 		@info "   NO" 
 	end

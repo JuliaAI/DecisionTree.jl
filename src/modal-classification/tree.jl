@@ -11,7 +11,7 @@ module treeclassifier
 	using ..ModalLogic
 	using ..DecisionTree
 	using DecisionTree.util
-
+	
 	import Random
 
 	mutable struct NodeMeta{S<:Real} # {S,U}
@@ -73,7 +73,7 @@ module treeclassifier
 							X                   :: OntologicalDataset{T, N}, # the ontological dataset
 							Y                   :: AbstractVector{Label},    # the label array
 							W                   :: AbstractVector{U},        # the weight vector
-							S                   :: AbstractVector{WorldSet{WT}}, # the vector of current worlds (TODO AbstractVector{<:AbstractSet{X.ontology.worldType}})
+							S                   :: AbstractVector{WorldSet{WorldType}}, # the vector of current worlds (TODO AbstractVector{<:AbstractSet{X.ontology.worldType}})
 							
 							purity_function     :: Function,
 							node                :: NodeMeta{T},              # the node to split
@@ -95,12 +95,16 @@ module treeclassifier
 							Xf                  :: MatricialUniDataset{T, M},
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
-							Sf                  :: AbstractVector{WorldSet{WT}},
-							Sogliole            :: AbstractArray{Dict{WT,Tuple{T,T}},2},
+							Sf                  :: AbstractVector{WorldSet{WorldType}},
+							# Sogliole            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,Tuple{T,T}}}}},
+							# Sogliole            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,Tuple{T,T}},3},
+							Sogliole            :: AbstractArray{Tuple{T,T},L},
 							# TODO Ef                  :: AbstractArray{T},
 							
 							rng                 :: Random.AbstractRNG,
-							onlyUseRelationAll  :: Bool) where {WT<:AbstractWorld, T, U, N, M}  # WT<:X.ontology.worldType
+							relationSet         :: Vector{<:ModalLogic.AbstractRelation},
+							indR                :: AbstractVector{Int},
+							) where {WorldType<:AbstractWorld, T, U, N, M,L}  # WT<:X.ontology.worldType
 
 		# Region of indx to use to perform the split
 		region = node.region
@@ -129,16 +133,6 @@ module treeclassifier
 			Yf[i] = Y[indX[i + r_start]]
 			Wf[i] = W[indX[i + r_start]]
 			Sf[i] = S[indX[i + r_start]]
-		end
-
-		# Binary relations (= unary modal operators)
-		# Note: the equality operator is the first, and is the one representing
-		#  the propositional case.
-		# Note: at the first iteration, we force a modal step (the world set is null)
-		if onlyUseRelationAll == true
-			relations = [ModalLogic.RelationAll]
-		else
-			relations = [ModalLogic.RelationId, (X.ontology.relationSet)...]
 		end
 
 		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
@@ -181,58 +175,134 @@ module treeclassifier
 
 			## Test all conditions
 			# For each relational operator
-			for relation in relations
+			for relation_id in indR
+				relation = relationSet[relation_id]
 				@info "Testing relation " relation
 
-				maxPeaks = fill(typemin(T), n_samples)
-				minPeaks = fill(typemax(T), n_samples)
-				for i in 1:n_samples
-					channel = ModalLogic.getChannel(Xf, i)
-					# @info " instance $i/$n_samples" # channel
-					for w in Sf[i]
-						(_wmax,_wmin) = Sogliole[feature][relation][indX[i + r_start]][w]
-						maxPeaks[i] = max(maxPeaks[i], _wmax)
-						minPeaks[i] = min(minPeaks[i], _wmin)
+				########################################################################
+				########################################################################
+				########################################################################
+				# Find, for each instance, the highest value for any world
+				#                       and the lowest value for any world
+				# @info "Computing peaks..." # channel
+				# opGeqMaxThresh_old     = fill(typemin(T), n_samples)
+				# opLesMinThresh_old     = fill(typemax(T), n_samples)
+				# for i in 1:n_samples
+				# 	# if relation == ModalLogic.Topo_TPP println("relation ", relation, " ", relation_id) end
+				# 	# if relation == ModalLogic.Topo_TPP println("instance ", i) end
+				# 	# if relation == ModalLogic.Topo_TPP println("Sf[i] ", Sf[i]) end
+				# 	channel = ModalLogic.getChannel(Xf, i)
+				# 	# if relation == ModalLogic.Topo_TPP println("channel ", channel) end
+				# 	# @info " instance $i/$n_samples" # channel
+				# 	# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
+				# 	for w in ModalLogic.enumAcc(Sf[i], relation, channel)
+				# 		# if relation == ModalLogic.Topo_TPP println("world ", w) end
+				# 		(_wmin,_wmax) = ModalLogic.WExtrema(w, channel)
+				# 		# if relation == ModalLogic.Topo_TPP println("wmin, wmax ", _wmin, " ", _wmax) end
+				# 		opGeqMaxThresh_old[i] = max(opGeqMaxThresh_old[i], _wmin)
+				# 		opLesMinThresh_old[i] = min(opLesMinThresh_old[i], _wmax)
+				# 	end
+				# 	# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh_old ", opGeqMaxThresh_old[i]) end
+				# 	# if relation == ModalLogic.Topo_TPP println("opLesMinThresh_old ", opLesMinThresh_old[i]) end
+				# end
+
+				########################################################################
+				########################################################################
+				########################################################################
+
+				opGeqMaxThresh = fill(typemin(T), n_samples)
+				opLesMinThresh = fill(typemax(T), n_samples)
+
+				if relation != ModalLogic.RelationAll
+					for i in 1:n_samples
+						# if relation == ModalLogic.Topo_TPP println("relation ", relation, " ", relation_id) end
+						# if relation == ModalLogic.Topo_TPP println("instance ", i) end
+						# if relation == ModalLogic.Topo_TPP println("Sf[i] ", Sf[i]); channel = ModalLogic.getChannel(Xf, i) end
+						# if relation == ModalLogic.Topo_TPP println("channel ", channel) end
+						# TODO slice Sogliole in Sogliolef?
+						@info " instance $(i)/$(n_samples)" indX[i + r_start] # Sogl
+						for w in Sf[i]
+							# if relation == ModalLogic.Topo_TPP println("world ", w) end
+							(w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
+							# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
+							@info "wmin,wmax " w w_opGeqMaxThresh w_opLesMinThresh
+							opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
+							opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
+						end
+						# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh ", opGeqMaxThresh[i]) end
+						# if relation == ModalLogic.Topo_TPP println("opLesMinThresh ", opLesMinThresh[i]) end
+					end
+				else
+					# TODO check and improve, at least this computation should be easier
+					for i in 1:n_samples
+						# @views Sogl = readSogliole(Sogliole, indX[i + r_start], 1, feature) # TODO relationId_id = 1 (ModalLogic.RelationId)
+						for w in ModalLogic.enumAcc(worldType[], ModalLogic.RelationAll, channel)
+							(w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
+							opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
+							opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
+						end
 					end
 				end
-				# @info "  (maxPeak,minPeak) $maxPeaks,$minPeaks"
+				@info "Thresh " opGeqMaxThresh opLesMinThresh
+
+				# if ! (all(opGeqMaxThresh .== opGeqMaxThresh_old) && all(opLesMinThresh .== opLesMinThresh_old))
+				# 	println("Thresholds computation is incorrect (relation=$(relation)):")
+				# 	# println("$(opGeqMaxThresh), $(opGeqMaxThresh_old)")
+				# 	# println("$(opLesMinThresh), $(opLesMinThresh_old)")
+				# 	for (i,tup) in enumerate(zip(opGeqMaxThresh, opGeqMaxThresh_old, opLesMinThresh, opLesMinThresh_old))
+				# 		if length(unique(tup[[1,2]])) > 1 && length(unique(tup[[2,3]])) > 1
+				# 			channel = ModalLogic.getChannel(Xf, i)
+				# 			println("relation ", relation)
+				# 			println("instance ", i)
+				# 			println("Sf[i] ", Sf[i])
+				# 			println("channel ", channel)
+				# 			println("opGeqMaxThresh ", opGeqMaxThresh[i])
+				# 			println("opGeqMaxThresh_old ", opGeqMaxThresh_old[i])
+				# 			println("opLesMinThresh ", opLesMinThresh[i])
+				# 			println("opLesMinThresh_old ", opLesMinThresh_old[i])
+				# 		end
+				# 	end
+				# 	@assert all(opGeqMaxThresh .== opGeqMaxThresh_old) "opGeqMaxThresh computation is incorrect (relation=$(relation)):\n$(opGeqMaxThresh), $(opGeqMaxThresh_old)"
+				# 	@assert all(opLesMinThresh .== opLesMinThresh_old) "opLesMinThresh computation is incorrect (relation=$(relation)):\n$(opLesMinThresh), $(opLesMinThresh_old)"
+				# end
+
+				# @info "  (maxPeak,minPeak) $opLesMinThresh,$opGeqMaxThresh"
 				
+				# TODO sort this and optimize?
 				# Obtain the list of reasonable thresholds
-				thresholdDomain = setdiff(union(Set(maxPeaks),Set(minPeaks)),Set([typemin(T), typemax(T)]))
+				thresholdDomain = setdiff(union(Set(opGeqMaxThresh),Set(opLesMinThresh)),Set([typemin(T), typemax(T)]))
 				@info "thresholdDomain " thresholdDomain
 
 				# Look for thresholds 'a' for the propositions like "feature >= a"
 				for threshold in thresholdDomain
 					# Look for the correct test operator
-					for test_operator in (relations == ModalLogic.RelationId ? propositional_test_operators : nonpropositional_test_operators)
-						@info " test condition: $(display_modal_test(relation, test_operator, feature, threshold))"
+					for test_operator in (relation == ModalLogic.RelationId ? propositional_test_operators : nonpropositional_test_operators)
+						@info " test condition: $(ModalLogic.display_modal_test(relation, test_operator, feature, threshold))"
 						# Re-initialize right class counts
 						@info " Testing..."
 						nr = zero(U)
 						ncr[:] .= zero(U)
 						for i in 1:n_samples
-							@info " instance $i/$n_samples   peaks ($(minPeaks[i])/$(maxPeaks[i]))"
+							@info " instance $i/$n_samples ExtremeThresh ($(opGeqMaxThresh[i])/$(opLesMinThresh[i]))"
 							satisfied = true
 							# No world to go
-							if maxPeaks[i] == typemin(T) # && minPeaks[i] == typemax(T)
+							if opGeqMaxThresh[i] == typemin(T) # && opGeqMaxThresh[i] == typemax(T)
 								# @info "   NO!"
 								satisfied = false
-							elseif test_operator == ModalLogic.TestOpGeq && maxPeaks[i] < threshold
+							elseif test_operator == ModalLogic.TestOpGeq && ! (threshold <= opGeqMaxThresh[i])
 								# @info "   YES!!!"
 								satisfied = false
-							elseif test_operator == ModalLogic.TestOpLes && minPeaks[i] >= threshold
+							elseif test_operator == ModalLogic.TestOpLes && ! (threshold > opLesMinThresh[i])
 								# @info "   YES!!!"
 								satisfied = false
-							else
-								# @info "   must manually check worlds." # channel
-								# TODO leverage the fact that if a world is (A <= a) then it can't be (A > a)
-								# channel = ModalLogic.getChannel(Xf, i)
-								# (satisfied,_) = ModalLogic.modalStep(Sf[i], relation, channel, Val(test_operator), threshold, Val(true))
 							end
 							
 							if !satisfied
+								@info "NO"
 								nr += Wf[i]
 								ncr[Yf[i]] += Wf[i]
+							else
+								@info "YES"
 							end
 						end
 
@@ -298,8 +368,10 @@ module treeclassifier
 			node.test_operator  = best_test_operator
 			node.threshold      = best_threshold
 
-			@info " Best test condition: $(display_modal_test(best_relation, best_test_operator, best_feature, best_threshold))"
+			@info " Best test condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)) (purity $(best_purity))"
 
+			println("Split $(n_samples) samples: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)) (purity $(best_purity))")
+			
 			# Compute new world sets (= make a modal step)
 			@simd for i in 1:n_samples
 				setfeature!(i, Xf, X.domain, indX[i + r_start], best_feature)
@@ -307,16 +379,18 @@ module treeclassifier
 			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_samples
 			unsatisfied_flags = fill(1, n_samples)
 			for i in 1:n_samples
-				# @info " instance {$i}/{$n_samples}"
 				channel = ModalLogic.getChannel(Xf, i)
-				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, best_test_operator, best_threshold, Val(false))
+				@info " instance $(i)/$(n_samples)" channel Sf[i]
+				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, best_test_operator, best_threshold)
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
+			@info " unsatisfied_flags" unsatisfied_flags
 
-			@info "pre-partition" indX
+			@assert length(unique(unsatisfied_flags)) > 1 "Uninformative split. Something's wrong with the optimization steps."
+			@info "pre-partition" region indX[region] unsatisfied_flags[:]
 			# println(unsatisfied_flags)
 			node.split_at = util.partition!(indX, unsatisfied_flags, 0, region)
-			@info "post-partition" indX node.split_at
+			@info "post-partition" indX[region] node.split_at
 
 			# For debug:
 			# indX = rand(1:10, 10)
@@ -341,6 +415,8 @@ module treeclassifier
 		node.l = NodeMeta{S}(region[    1:ind], depth, mdepth)
 		node.r = NodeMeta{S}(region[ind+1:end], depth, mdepth)
 	end
+
+	include("compute-thresholds.jl")
 
 	function check_input(
 			X                   :: OntologicalDataset{T, N},
@@ -420,6 +496,14 @@ module treeclassifier
 		# TODO Maybe it's worth to allocate this vector as well?
 		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
 
+		# Binary relations (= unary modal operators)
+		# Note: the equality operator is the first, and is the one representing
+		#  the propositional case.
+		relationSet = [ModalLogic.RelationId, ModalLogic.RelationAll, (X.ontology.relationSet)...]
+		relationId_id = 1
+		relationAll_id = 2
+		relation_ids = map((x)->x+2, 1:length(X.ontology.relationSet))
+
 		# TODO use Ef = Dict(X.ontology.worldType,Tuple{T,T})
 		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
 		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )
@@ -430,46 +514,15 @@ module treeclassifier
 		# TODO try something like Sogliole = fill(No: Dict{X.ontology.worldType,Tuple{T,T}}(), n_instances, n_variables(X))
 		
 		# TODO improve code leveraging world/dimensional dataset structure
-		relations = [ModalLogic.RelationAll, (X.ontology.relationSet)...]
-		# Sogliole = Array{Dict{X.ontology.worldType,Tuple{T,T}}, 3}(undef, n_instances, length(relations)+1, n_variables(X))
-		Sogliole = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,Tuple{T,T}}}}}(undef, n_variables(X))
-		w0 = X.ontology.worldType(w0params...)
-		for feature in 1:n_variables(X)
-			Sogliole[feature] = Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,Tuple{T,T}}}}()
 
-			# Find the highest/lowest threshold
-
-			# Propositional, local
-			relation = ModalLogic.RelationId
-			Sogliole[feature][relation] = Vector{Dict{X.ontology.worldType,Tuple{T,T}}}(undef, n_instances)
-			for i in 1:n_instances
-				Sogliole[feature][relation][i] = Dict{X.ontology.worldType,Tuple{T,T}}()
-				@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
-				for w in ModalLogic.enumAcc([w0], ModalLogic.RelationAll, channel)
-					Sogliole[feature][relation][i][w] = (ModalLogic.WMax(w, channel), ModalLogic.WMin(w, channel))
-				end # worlds
-			end # instances
-
-			# Modal
-			for relation in relations
-				Sogliole[feature][relation] = Vector{Dict{X.ontology.worldType,Tuple{T,T}}}(undef, n_instances)
-				for i in 1:n_instances
-					Sogliole[feature][relation][i] = Dict{X.ontology.worldType,Tuple{T,T}}()
-					@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
-					# For each world w and each relation R, compute the peaks of v worlds, with w<R>v
-					for w in ModalLogic.enumAcc([w0], ModalLogic.RelationAll, channel)
-						_wmax, _wmin = typemin(T), typemax(T)
-						for v in ModalLogic.enumAcc([w], relation, channel)
-							(_vmax,_vmin) = Sogliole[feature][ModalLogic.RelationId][i][v]
-							_wmax = max(_wmax, _vmin)
-							_wmin = min(_wmin, _vmax)
-						end
-						Sogliole[feature][relation][i][w] = (_wmax, _wmin)
-					end # worlds
-				end # instances
-			end # relation
-
-		end # feature
+		# Sogliole = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,Tuple{T,T}}}}}(undef, n_variables(X))
+		println("Computing Sogliole...")
+		
+		@info " Computing Sogliole..."
+		# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
+		Sogliole = computeSogliole(X,X.ontology.worldType,
+			# TODO test_operators,
+			relationSet,relationId_id,relation_ids)
 
 		# println(Sogliole)
 
@@ -495,7 +548,9 @@ module treeclassifier
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, Sogliole,
 				rng,
-				onlyUseRelationAll)
+				relationSet,
+				(onlyUseRelationAll ? [relationAll_id] : [relationId_id, relation_ids...])
+				)
 			# After processing, if needed, perform the split and push the two children for a later processing step
 			if !node.is_leaf
 				fork!(node)
