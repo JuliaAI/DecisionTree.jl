@@ -39,7 +39,7 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 1
 		# global_logger(ConsoleLogger(stderr, Logging.Info))
-		@time T = build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());
+		@time T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 2
 		@btime build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());
 		# global_logger(ConsoleLogger(stderr, Logging.Info))
