@@ -2,6 +2,9 @@
 
 
 
+
+
+
 using Pkg
 Pkg.activate("DecisionTree.jl")
 using Revise
@@ -120,6 +123,7 @@ T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9
 T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[2], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+
 T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[5], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
