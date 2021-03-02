@@ -42,7 +42,7 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 1
 		# global_logger(ConsoleLogger(stderr, Logging.Info))
-		@time T = build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());
+		@time T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 2
 		@btime build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());
 		# global_logger(ConsoleLogger(stderr, Logging.Info))
@@ -123,7 +123,6 @@ T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9
 T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[2], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
-
 T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[5], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
