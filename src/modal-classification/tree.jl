@@ -197,7 +197,7 @@ module treeclassifier
 				# 	# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
 				# 	for w in ModalLogic.enumAcc(Sf[i], relation, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("world ", w) end
-				# 		(_wmin,_wmax) = ModalLogic.WExtrema(w, channel)
+				# 		(_wmin,_wmax) = ModalLogic.WExtrema(test_operators, w, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("wmin, wmax ", _wmin, " ", _wmax) end
 				# 		opGeqMaxThresh_old[i] = max(opGeqMaxThresh_old[i], _wmin)
 				# 		opLesMinThresh_old[i] = min(opLesMinThresh_old[i], _wmax)
@@ -237,7 +237,7 @@ module treeclassifier
 					for i in 1:n_samples
 						# @views Sogl = readSogliole(Sogliole, indX[i + r_start], 1, feature) # TODO relationId_id = 1 (ModalLogic.RelationId)
 						for w in ModalLogic.enumAcc(worldType[], ModalLogic.RelationAll, channel)
-							(w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
+							(w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], 1, feature)
 							opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
 							opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
 						end
@@ -520,9 +520,7 @@ module treeclassifier
 		
 		@info " Computing Sogliole..."
 		# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
-		Sogliole = computeSogliole(X,X.ontology.worldType,
-			# TODO test_operators,
-			relationSet,relationId_id,relation_ids)
+		Sogliole = computeSogliole(X,X.ontology.worldType,test_operators,relationSet,relationId_id,relation_ids)
 
 		# println(Sogliole)
 

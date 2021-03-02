@@ -2864,3 +2864,125 @@ V101 >= 1620
  0  0  3  0  0  0  0  3  0
  0  0  0  0  0  0  0  0  6
 nodes: (45, height: 7)
+
+
+
+
+Benchmarking dataset 'PaviaDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations))
+ train size = (1, 1, 216, 103)
+  6.391 s (25118254 allocations: 1.34 GiB)
+Split 216 samples: V103 >= 1649 (purity -348.87566080751503)
+Split 77 samples: V7 >= 568 (purity -52.333710117081516)
+Split 53 samples: V91 >= 1352 (purity -36.63478350074642)
+Split 38 samples: V85 >= 1565 (purity -27.484529081644222)
+Split 29 samples: V19 >= 1308 (purity -8.972413788244452)
+Split 13 samples: V102 >= 1459 (purity -4.4986811569504646)
+Split 8 samples: V1 >= 1045 (purity -2.772588722239781)
+Split 9 samples: V7 >= 1284 (purity -6.660895201050611)
+Split 139 samples: V7 >= 981 (purity -159.30789920316084)
+Split 70 samples: V69 >= 912 (purity -43.127131839182695)
+Split 49 samples: V85 >= 2765 (purity -31.728297512845902)
+Split 37 samples: V5 >= 450 (purity -19.874763985767828)
+Split 32 samples: V5 >= 534 (purity -15.74617438943)
+Split 23 samples: V4 >= 710 (purity -13.665643986772672)
+Split 13 samples: V30 >= 801 (purity -6.18265418937591)
+Split 9 samples: V1 >= 924 (purity -4.7513526961661725)
+Split 10 samples: V3 >= 810 (purity -2.77258872223978)
+Split 12 samples: V10 >= 407 (purity -3.3650583350462817)
+Split 69 samples: V1 >= 2140 (purity -37.88250524109425)
+Split 45 samples: V72 >= 2184 (purity -30.885984848614996)
+Split 41 samples: V101 >= 1686 (purity -22.501935388303036)
+Split 35 samples: V69 >= 1832 (purity -17.308674177249028)
+Split 25 samples: V32 >= 1725 (purity -10.635160432960484)
+Split 18 samples: V36 >= 1903 (purity -6.18265418937591)
+Split 9 samples: V72 >= 2039 (purity -2.5020121176909393)
+ test size = (1, 1, 54, 103)
+ Purity threshold 1.0
+  acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+ 4  0  0  0  0  0  2  0  0
+ 0  2  1  1  0  2  0  0  0
+ 0  1  2  0  0  0  0  3  0
+ 0  2  0  4  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  2  1  0  2  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  0  0  5  0
+ 0  0  0  0  0  0  0  0  6
+nodes: (51, height: 9)
+
+                                                             
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations))
+ train size = (1, 1, 384, 200)
+Split 384 samples: V149 >= 1177 (purity -829.5727382155787)
+Split 141 samples: V27 >= 2581 (purity -191.0607447617995)
+Split 49 samples: V27 >= 2406 (purity -27.848305937922362)
+Split 25 samples: V15 >= 3680 (purity -2.249340578475233)
+Split 24 samples: V163 >= 1088 (purity -11.226770478359596)
+Split 20 samples: V148 >= 1044 (purity -3.3650583350462817)
+Split 92 samples: V37 >= 4879 (purity -91.35741983681518)
+Split 25 samples: V3 >= 4106 (purity -2.249340578475233)
+Split 67 samples: V186 >= 1087 (purity -52.58271171926312)
+Split 43 samples: V94 >= 3038 (purity -31.35519888801376)
+Split 33 samples: V34 >= 3608 (purity -14.522233612885595)
+Split 9 samples: V33 >= 2965 (purity -4.1588830833596715)
+Split 24 samples: V4 >= 4127 (purity -2.772588722239781)
+Split 10 samples: V9 >= 4372 (purity -2.249340578475232)
+Split 24 samples: V9 >= 4439 (purity -4.1588830833596715)
+Split 243 samples: V183 >= 1156 (purity -439.87241548766565)
+Split 97 samples: V78 >= 1642 (purity -94.74642573494259)
+Split 48 samples: V59 >= 2425 (purity -20.593798447859633)
+Split 25 samples: V1 >= 3674 (purity -2.703367253197828)
+Split 23 samples: V2 >= 4238 (purity -2.249340578475233)
+Split 49 samples: V8 >= 4710 (purity -24.999292198528735)
+Split 23 samples: V27 >= 2671 (purity -2.249340578475233)
+Split 26 samples: V4 >= 4120 (purity -8.951334720158487)
+Split 22 samples: V77 >= 1852 (purity -2.772588722239781)
+Split 146 samples: V80 >= 1823 (purity -258.8377677891425)
+Split 102 samples: V142 >= 1284 (purity -166.0927965272505)
+Split 24 samples: V33 >= 3232 (purity -27.313171198260026)
+Split 11 samples: V26 >= 3273 (purity -8.57043770593505)
+Split 13 samples: V151 >= 1088 (purity -2.5020121176909393)
+Split 78 samples: V183 >= 1204 (purity -108.83325847266708)
+Split 23 samples: V89 >= 3185 (purity -12.226005059546743)
+Split 17 samples: V6 >= 4865 (purity -2.772588722239781)
+Split 55 samples: V113 >= 1933 (purity -70.19814476529717)
+Split 26 samples: V39 >= 5064 (purity -17.469699892759927)
+Split 9 samples: V3 >= 4422 (purity -4.1588830833596715)
+Split 17 samples: V42 >= 5641 (purity -4.1588830833596715)
+Split 29 samples: V6 >= 5233 (purity -30.525578011394302)
+Split 18 samples: V158 >= 1332 (purity -11.475160094639762)
+Split 12 samples: V1 >= 2780 (purity -2.772588722239781)
+Split 11 samples: V103 >= 1095 (purity -5.120154806494096)
+Split 44 samples: V154 >= 1405 (purity -62.44375965552747)
+Split 14 samples: V107 >= 1133 (purity -9.162907318741555)
+Split 10 samples: V103 >= 1110 (purity -2.77258872223978)
+Split 30 samples: V44 >= 6298 (purity -35.0343865846502)
+Split 26 samples: V23 >= 5163 (purity -25.790313928116227)
+Split 9 samples: V88 >= 2714 (purity -4.7513526961661725)
+Split 17 samples: V2 >= 4635 (purity -9.740082368457681)
+Split 13 samples: V81 >= 2438 (purity -2.772588722239781)
+  21.777 s (87004105 allocations: 4.65 GiB)
+ test size = (1, 1, 96, 200)
+ Purity threshold 1.0
+  acc: 64.58% kappa: 62.22% 16×16 Array{Int64,2}:
+ 5  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0
+ 0  3  0  0  0  0  0  0  0  1  2  0  0  0  0  0
+ 0  0  1  1  0  0  0  0  0  1  2  0  0  0  0  1
+ 0  1  0  5  0  0  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  4  0  0  0  1  0  0  0  0  1  0  0
+ 0  0  0  1  0  5  0  0  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  5  1  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  0  2  4  0  0  0  0  0  0  0  0
+ 0  0  0  0  0  1  0  0  4  0  0  0  0  0  1  0
+ 0  2  0  0  0  0  0  0  0  2  1  1  0  0  0  0
+ 0  1  0  2  0  0  0  0  0  0  3  0  0  0  0  0
+ 0  1  0  1  0  0  0  0  0  1  2  1  0  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  6  0  0
+ 0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
+ 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
+nodes: (97, height: 9)
