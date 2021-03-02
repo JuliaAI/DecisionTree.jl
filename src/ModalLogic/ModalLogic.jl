@@ -145,18 +145,18 @@ struct _TestOpLes  <: TestOperator end; const TestOpLes  = _TestOpLes();
 struct _TestOpGeqSoft  <: TestOperator
   alpha :: AbstractFloat
 end;
-const TestOpGeq075  = _TestOpGeqSoft(0.75);
-const TestOpGeq08  = _TestOpGeqSoft(0.8);
-const TestOpGeq09  = _TestOpGeqSoft(0.9);
-const TestOpGeq095  = _TestOpGeqSoft(0.95);
+const TestOpGeq075  = _TestOpGeqSoft(Rational(75,100));
+const TestOpGeq08  = _TestOpGeqSoft(Rational(80,100));
+const TestOpGeq09  = _TestOpGeqSoft(Rational(90,100));
+const TestOpGeq095  = _TestOpGeqSoft(Rational(95,100));
 # <_α
 struct _TestOpLesSoft  <: TestOperator
   alpha :: AbstractFloat
 end;
-const TestOpLes075  = _TestOpLesSoft(0.75);
-const TestOpLes08  = _TestOpLesSoft(0.8);
-const TestOpLes09  = _TestOpLesSoft(0.9);
-const TestOpLes095  = _TestOpLesSoft(0.95);
+const TestOpLes075  = _TestOpLesSoft(Rational(75,100));
+const TestOpLes08  = _TestOpLesSoft(Rational(80,100));
+const TestOpLes09  = _TestOpLesSoft(Rational(90,100));
+const TestOpLes095  = _TestOpLesSoft(Rational(95,100));
 
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) >= $(featval)"
 display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) < $(featval)"
@@ -174,7 +174,12 @@ end
 
 
 @inline WExtrema(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
-@inline WExtrema(R::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}, channel::MatricialChannel{T,N}) where {T,N} = begin
+# @inline WExtremaSoft(alpha::Rational{Integer}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	# TODO... Rational
+	# vals = vec(readWorld(w,channel))
+	# partialsort!()
+# end
+@inline WExtremaRepr(R::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}, channel::MatricialChannel{T,N}) where {T,N} = begin
 	inverted, representatives = R
 	opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
 	for w in representatives

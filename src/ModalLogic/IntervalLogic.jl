@@ -553,7 +553,7 @@ X = 4
 Y = 3
 while(true)
 	a = randn(4,4);
-	wextr = (x)->ModalLogic.WExtrema(x,a);
+	wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLes], x,a);
 	# TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
 	x1 = rand(1:X);
 	x2 = x1+rand(1:(X+1-x1));
@@ -582,7 +582,7 @@ rel = ModalLogic.Topo_EC
 a = [253 670 577; 569 730 931; 633 850 679];
 X,Y = size(a)
 while(true)
-	wextr = (x)->ModalLogic.WExtrema(x,a);
+	wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLes], x,a);
 	# TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
 	x1 = rand(1:X);
 	x2 = x1+rand(1:(X+1-x1));
@@ -611,7 +611,7 @@ rel = ModalLogic.Topo_EC
 a = [253 670 577; 569 730 931; 633 850 679];
 X,Y = size(a)
 while(true)
-wextr = (x)->ModalLogic.WExtrema(x,a);
+wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLes], x,a);
 # TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
 x1 = 2
 x2 = 3

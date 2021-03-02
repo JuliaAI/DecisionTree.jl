@@ -1,7 +1,8 @@
 ✔	Fix the new optimization thingy. It fails, maybe need to swap min/max. @done (21-02-05 18:06)
 ☐	Determine whether it's faster to use SoglId or recalculate. (If SoglId is better, use it in WExtrema?)
-☐	Optimize/fix topological enumerators. There may be some errors as well with interval relations (think of the TPPi thingy, that maybe happens elsewhere)
+✔	Optimize/fix topological enumerators. There may be some errors as well with interval relations (think of the TPPi thingy, that maybe happens elsewhere) @done (21-02-10 17:41)
 ☐	sort threshold domain and optimize?
+☐	Rename Topological relations to RCC8, and create RCC5 ontology by joining n/tpp(i) into pp(i) (proper part) and dc/ec into dr (disjointness).
 ☐	enumAcc to only use channel_size and not the whole channel
 ☐	Estendi a >=alpha e <alpha, calcola i peaks intelligentemente. In particolare, questi testoperators hanno la proprieta' di ordine; al contrario, un operatore potrebbe essere categorico e non avere picchi, solo valori giusti.
 ☐	Try topological and interval algebra without tangential cases, or with tangential cases merged with other relations.
