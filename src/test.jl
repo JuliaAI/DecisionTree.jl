@@ -119,12 +119,13 @@ T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
 # exit()
 
 T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 10, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
-T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
-T = testDataset(datasets[2], timeit, args=args, kwargs=kwargs);
-T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
-T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
-T = testDataset(datasets[5], timeit, args=args, kwargs=kwargs);
-T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
+post_pruning_purity_thresholds = [0.7, 0.8, 0.9]
+T = testDataset(datasets[1], timeit, post_pruning_purity_thresholds = post_pruning_purity_thresholds, args=args, kwargs=kwargs);
+T = testDataset(datasets[2], timeit, post_pruning_purity_thresholds = post_pruning_purity_thresholds, args=args, kwargs=kwargs);
+T = testDataset(datasets[3], timeit, post_pruning_purity_thresholds = post_pruning_purity_thresholds, args=args, kwargs=kwargs);
+T = testDataset(datasets[4], timeit, post_pruning_purity_thresholds = post_pruning_purity_thresholds, args=args, kwargs=kwargs);
+T = testDataset(datasets[5], timeit, post_pruning_purity_thresholds = post_pruning_purity_thresholds, args=args, kwargs=kwargs);
+T = testDataset(datasets[6], timeit, post_pruning_purity_thresholds = post_pruning_purity_thresholds, args=args, kwargs=kwargs);
 
 
 timeit = 1
