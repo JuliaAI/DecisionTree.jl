@@ -83,6 +83,7 @@ module treeclassifier
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
 							max_purity_split    :: AbstractFloat,            # maximum purity allowed on a split
 							test_operators      :: AbstractVector{<:ModalLogic.TestOperator},
+							p_test_operators    :: AbstractVector{<:ModalLogic.TestOperator},
 
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
 							
@@ -135,18 +136,6 @@ module treeclassifier
 			Sf[i] = S[indX[i + r_start]]
 		end
 
-		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
-		#  can be complementary, and thus it is redundant to use both.
-		#  We avoid this by creating a dedicated set of relations for propositional splits
-		propositional_test_operators = 
-			if [ModalLogic.TestOpGeq, ModalLogic.TestOpLes] ⊆ test_operators
-				filter!(e->e ≠ ModalLogic.TestOpLes,test_operators)
-			else
-				test_operators
-			end
-		nonpropositional_test_operators = test_operators
-
-
 		# Optimization tracking variables
 		best_purity = typemin(U)
 		best_relation = ModalLogic.RelationNone
@@ -197,6 +186,7 @@ module treeclassifier
 				# 	# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
 				# 	for w in ModalLogic.enumAcc(Sf[i], relation, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("world ", w) end
+				#     TODO expand this code to multiple test_operators
 				# 		(_wmin,_wmax) = ModalLogic.WExtrema(test_operators, w, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("wmin, wmax ", _wmin, " ", _wmax) end
 				# 		opGeqMaxThresh_old[i] = max(opGeqMaxThresh_old[i], _wmin)
@@ -276,7 +266,7 @@ module treeclassifier
 				# Look for thresholds 'a' for the propositions like "feature >= a"
 				for threshold in thresholdDomain
 					# Look for the correct test operator
-					for test_operator in (relation == ModalLogic.RelationId ? propositional_test_operators : nonpropositional_test_operators)
+					for test_operator in (relation == ModalLogic.RelationId ? p_test_operators : test_operators)
 						@info " test condition: $(ModalLogic.display_modal_test(relation, test_operator, feature, threshold))"
 						# Re-initialize right class counts
 						@info " Testing..."
@@ -504,6 +494,18 @@ module treeclassifier
 		relationAll_id = 2
 		relation_ids = map((x)->x+2, 1:length(X.ontology.relationSet))
 
+		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
+		#  are complementary, and thus it is redundant to check both at the same node.
+		#  We avoid this by creating a dedicated set of relations for propositional splits
+		# TODO optimize this: use opposite_test_operator() to check pairs.
+		# TODO First, check that TestOpGeq095 and TestOpLes095 are actually complementary
+		propositional_test_operators = 
+			if [ModalLogic.TestOpGeq, ModalLogic.TestOpLes] ⊆ test_operators
+				filter!(e->e ≠ ModalLogic.TestOpLes,test_operators)
+			else
+				test_operators
+			end
+		
 		# TODO use Ef = Dict(X.ontology.worldType,Tuple{T,T})
 		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
 		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )
@@ -543,6 +545,7 @@ module treeclassifier
 				min_purity_increase,
 				max_purity_split,
 				test_operators,
+				propositional_test_operators,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, Sogliole,
 				rng,
