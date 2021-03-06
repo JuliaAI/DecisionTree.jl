@@ -2986,3 +2986,142 @@ Split 13 samples: V81 >= 2438 (purity -2.772588722239781)
  0  0  0  0  0  2  0  0  1  0  0  0  0  1  2  0
  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
 nodes: (97, height: 9)
+
+
+
+julia-1.5.3:
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLes()])
+ train size = (3, 3, 216, 103)
+Computing Sogliole...
+Split 216 samples: <EC> (V9 >= 1073) (purity -351.00235084038457)                              
+Split 89 samples: <NTPPi> (V64 >= 315) (purity -71.26906304754931)                             
+Split 47 samples: V69 >= 325 (purity -1.021405182655144e-14)                                   
+Split 42 samples: V72 >= 1505 (purity -29.694820009090684)                                     
+Split 13 samples: <TPP> (V72 >= 1442) (purity -2.772588722239781)                              
+Split 29 samples: <TPP> (V27 >= 1259) (purity -9.386075711038778)                              
+Split 24 samples: <NTPP> (V100 >= 2418) (purity -2.772588722239781)                            
+Split 127 samples: <TPPi> (V99 >= 1693) (purity -159.25321618944832)                           
+Split 45 samples: <TPPi> (V19 >= 1304) (purity -25.017378478857044)                            
+Split 13 samples: <TPPi> (V35 >= 1360) (purity -2.249340578475233)                             
+Split 32 samples: <TPP> (V29 >= 1531) (purity -3.1394888625873)                                
+Split 9 samples: V1 >= 1409 (purity -2.249340578475233)                                        
+Split 82 samples: <DC> (V1 >= 2700) (purity -69.97723285064416)                                
+Split 58 samples: <TPP> (V77 >= 2446) (purity -44.57791224234647)                              
+Split 47 samples: <TPPi> (V9 >= 1341) (purity -25.937021688015413)                             
+Split 26 samples: <DC> (V2 >= 1288) (purity -10.6722990086007)
+Split 22 samples: <DC> (V6 >= 1325) (purity -6.634653515415064)
+Split 18 samples: V1 >= 1710 (purity -2.249340578475233)
+Split 21 samples: <EC> (V28 >= 1988) (purity -2.772588722239781)
+Split 11 samples: <PO> (V1 >= 1072) (purity -2.772588722239781)
+Decision Tree
+Leaves: 21
+Tot nodes: 41
+Height: 8
+Modal height:  7
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<EC> (V9 >= 1073)
+✔ <TPPi> (V99 >= 1693)
+│✔ <DC> (V1 >= 2700)
+││✔ 5 : 24/24
+││✘ <TPP> (V77 >= 2446)
+││ ✔ <PO> (V1 >= 1072)
+││ │✔ 6 : 7/7
+││ │✘ 6 : 2/4
+││ ✘ <TPPi> (V9 >= 1341)
+││  ✔ <EC> (V28 >= 1988)
+││  │✔ 3 : 2/4
+││  │✘ 8 : 17/17
+││  ✘ <DC> (V2 >= 1288)
+││   ✔ <DC> (V6 >= 1325)
+││   │✔ V1 >= 1710
+││   ││✔ 3 : 3/4
+││   ││✘ 3 : 14/14
+││   │✘ 3 : 2/4
+││   ✘ 8 : 4/4
+│✘ <TPPi> (V19 >= 1304)
+│ ✔ <TPP> (V29 >= 1531)
+│ │✔ V1 >= 1409
+│ ││✔ 1 : 3/4
+│ ││✘ 1 : 5/5
+│ │✘ 7 : 23/23
+│ ✘ <TPPi> (V35 >= 1360)
+│  ✔ 3 : 3/4
+│  ✘ 1 : 9/9
+✘ <NTPPi> (V64 >= 315)
+ ✔ V72 >= 1505
+ │✔ <TPP> (V27 >= 1259)
+ ││✔ 6 : 4/5
+ ││✘ <NTPP> (V100 >= 2418)
+ ││ ✔ 2 : 20/20
+ ││ ✘ 2 : 2/4
+ │✘ <TPP> (V72 >= 1442)
+ │ ✔ 6 : 9/9
+ │ ✘ 2 : 2/4
+ ✘ V69 >= 325
+  ✔ 4 : 23/23
+  ✘ 9 : 24/24
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 74.07% kappa: 70.83% 9×9 Array{Int64,2}:
+ 4  1  0  0  0  1  0  0  0
+ 0  1  0  2  0  3  0  0  0
+ 1  0  3  0  0  1  0  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  6  0  0  0
+ 1  0  0  0  0  0  5  0  0
+ 0  0  1  0  0  1  0  4  0
+ 1  0  0  0  0  0  0  0  5
+nodes: (41, height: 8)
+Decision Tree
+Leaves: 21
+Tot nodes: 41
+Height: 8
+Modal height:  7
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<EC> (V9 >= 1073)
+✔ <TPPi> (V99 >= 1693)
+│✔ <DC> (V1 >= 2700)
+││✔ 5 : 24/24
+││✘ <TPP> (V77 >= 2446)
+││ ✔ <PO> (V1 >= 1072)
+││ │✔ 6 : 7/7
+││ │✘ 6 : 2/4
+││ ✘ <TPPi> (V9 >= 1341)
+││  ✔ <EC> (V28 >= 1988)
+││  │✔ 3 : 2/4
+││  │✘ 8 : 17/17
+││  ✘ <DC> (V2 >= 1288)
+││   ✔ <DC> (V6 >= 1325)
+││   │✔ V1 >= 1710
+││   ││✔ 3 : 3/4
+││   ││✘ 3 : 14/14
+││   │✘ 3 : 2/4
+││   ✘ 8 : 4/4
+│✘ <TPPi> (V19 >= 1304)
+│ ✔ <TPP> (V29 >= 1531)
+│ │✔ V1 >= 1409
+│ ││✔ 1 : 3/4
+│ ││✘ 1 : 5/5
+│ │✘ 7 : 23/23
+│ ✘ <TPPi> (V35 >= 1360)
+│  ✔ 3 : 3/4
+│  ✘ 1 : 9/9
+✘ <NTPPi> (V64 >= 315)
+ ✔ V72 >= 1505
+ │✔ <TPP> (V27 >= 1259)
+ ││✔ 6 : 4/5
+ ││✘ <NTPP> (V100 >= 2418)
+ ││ ✔ 2 : 20/20
+ ││ ✘ 2 : 2/4
+ │✘ <TPP> (V72 >= 1442)
+ │ ✔ 6 : 9/9
+ │ ✘ 2 : 2/4
+ ✘ V69 >= 325
+  ✔ 4 : 23/23
+  ✘ 9 : 24/24

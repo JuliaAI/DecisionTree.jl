@@ -38,15 +38,13 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 
 	# println(" n_samples = $(size(X_train)[end-1])")
 	println(" train size = $(size(X_train))")
+	# global_logger(ConsoleLogger(stderr, Logging.Info))
 	if timeit == 0
-		# global_logger(ConsoleLogger(stderr, Logging.Info))
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 1
-		# global_logger(ConsoleLogger(stderr, Logging.Info))
 		@time T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 2
 		@btime build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());
-		# global_logger(ConsoleLogger(stderr, Logging.Info))
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	end
 
@@ -118,7 +116,7 @@ kwargs = (
 timeit = 2
 T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
 
-
+# exit()
 
 T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 10, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
@@ -162,7 +160,7 @@ for min_purity_increase in [0.0, 0.02]
 		end
 	end
 end
-run(`say 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'`)
+# run(`say 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'`)
 
 # @profview T = testDataset(datasets[2], false)
 # T = testDataset(datasets[1], false)
