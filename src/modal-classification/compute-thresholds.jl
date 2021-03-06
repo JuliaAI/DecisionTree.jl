@@ -85,8 +85,11 @@
 		@inbounds for feature in 1:n_vars
 			println("feature $(feature)/$(n_vars)")
 			
-			get_thresholds = (w, channel)->ModalLogic.WExtrema(test_operators, w, channel)
-
+			# get_thresholds = (w, channel)->ModalLogic.WExtrema(test_operators, w, channel)
+			# get_thresholds_repr = (w, relation, channel)->ModalLogic.WExtremaRepr(test_operators, w, channel)
+			get_thresholds = (w, channel)->ModalLogic.WExtrema(w, channel)
+			get_thresholds_repr = (w, channel)->ModalLogic.WExtremaRepr(w, channel)
+			
 			# Find the highest/lowest thresholds
 
 			for i in 1:n_instances
@@ -110,7 +113,7 @@
 					# For each world w and each relation R, compute the peaks of v worlds, with w<R>v
 					for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
 						# @info "World " w 
-						thresholds = ModalLogic.WExtremaRepr(ModalLogic.enumAccRepr(w, relation, channel), channel)
+						thresholds = get_thresholds_repr(ModalLogic.enumAccRepr(w, relation, channel), channel)
 						# opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
 						# inverted,representatives = ModalLogic.enumAccRepr(w, relation, channel)
 						# for v in representatives

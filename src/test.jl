@@ -1,3 +1,4 @@
+# julia-1.5.3
 # julia
 
 
@@ -6,7 +7,7 @@
 
 
 using Pkg
-Pkg.activate("DecisionTree.jl")
+Pkg.activate("..")
 using Revise
 
 using DecisionTree

@@ -141,22 +141,37 @@ struct _TestOpNone  <: TestOperator end; const TestOpNone  = _TestOpNone();
 struct _TestOpGeq  <: TestOperator end; const TestOpGeq  = _TestOpGeq();
 # <
 struct _TestOpLes  <: TestOperator end; const TestOpLes  = _TestOpLes();
+
+opposite_test_operator(::_TestOpGeq) = TestOpLes
+opposite_test_operator(::_TestOpLes) = TestOpGeq
+
 # >=_α
 struct _TestOpGeqSoft  <: TestOperator
   alpha :: AbstractFloat
 end;
-const TestOpGeq075  = _TestOpGeqSoft(Rational(75,100));
-const TestOpGeq08  = _TestOpGeqSoft(Rational(80,100));
-const TestOpGeq09  = _TestOpGeqSoft(Rational(90,100));
 const TestOpGeq095  = _TestOpGeqSoft(Rational(95,100));
+const TestOpGeq09  = _TestOpGeqSoft(Rational(90,100));
+const TestOpGeq08  = _TestOpGeqSoft(Rational(80,100));
+const TestOpGeq075  = _TestOpGeqSoft(Rational(75,100));
+
 # <_α
 struct _TestOpLesSoft  <: TestOperator
   alpha :: AbstractFloat
 end;
-const TestOpLes075  = _TestOpLesSoft(Rational(75,100));
-const TestOpLes08  = _TestOpLesSoft(Rational(80,100));
-const TestOpLes09  = _TestOpLesSoft(Rational(90,100));
 const TestOpLes095  = _TestOpLesSoft(Rational(95,100));
+const TestOpLes09  = _TestOpLesSoft(Rational(90,100));
+const TestOpLes08  = _TestOpLesSoft(Rational(80,100));
+const TestOpLes075  = _TestOpLesSoft(Rational(75,100));
+
+# opposite_test_operator(::_TestOpGeq095) = TestOpLes095
+# opposite_test_operator(::_TestOpLes095) = TestOpGeq095
+# opposite_test_operator(::_TestOpGeq09)  = TestOpLes09
+# opposite_test_operator(::_TestOpLes09)  = TestOpGeq09
+# opposite_test_operator(::_TestOpGeq08)  = TestOpLes08
+# opposite_test_operator(::_TestOpLes08)  = TestOpGeq08
+# opposite_test_operator(::_TestOpGeq075) = TestOpLes075
+# opposite_test_operator(::_TestOpLes075) = TestOpGeq075
+
 
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) >= $(featval)"
 display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) < $(featval)"
@@ -173,7 +188,13 @@ display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOpe
 end
 
 
+# @inline WExtrema(test_operator::TestOperator, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N}
+	# = extrema(readWorld(w,channel))
+	# opGeq, opLes
+	# thresholds = ModalLogic.WExtremaRepr(test_operator, channel)
+	# ModalLogic.enumAccRepr(channel)
 @inline WExtrema(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
+
 # @inline WExtremaSoft(alpha::Rational{Integer}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# TODO... Rational
 	# vals = vec(readWorld(w,channel))
