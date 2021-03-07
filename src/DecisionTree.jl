@@ -8,6 +8,16 @@ using LinearAlgebra
 import Random
 using Statistics
 
+using Logging
+using Logging: @logmsg
+# Log single algorithm overview (e.g. splits performed in decision tree building)
+const DTOverview = Logging.LogLevel(-500)
+# 
+const DTDebug = Logging.LogLevel(-1000)
+# 
+const DTDetail = Logging.LogLevel(-1500)
+
+
 export DTNode, DTLeaf, DTInternal,
 			 is_leaf, is_modal_node,
 			 num_nodes, height, modal_height,
@@ -15,7 +25,8 @@ export DTNode, DTLeaf, DTInternal,
        print_tree, prune_tree, apply_tree,
 			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
 			 #
-			 startWithRelationAll, startAtCenter
+			 startWithRelationAll, startAtCenter,
+			 DTOverview, DTDebug, DTDetail
 
 # ScikitLearn API
 export DecisionTreeClassifier,

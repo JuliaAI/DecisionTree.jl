@@ -1,4 +1,5 @@
-
+	
+	# readSogliole: read a specific value of the Sogliole array
 
 	@inline function readSogliole(
 		Sogliole            :: AbstractArray{<:AbstractDict{WorldType,Tuple{T,T}},3},
@@ -81,9 +82,14 @@
 		n_vars = n_variables(X)
 		x,y = channel_size(X)
 
+		# Prepare Sogliole array
 		Sogliole = Array{Tuple{T,T}, 7}(undef, x, x+1, y, y+1, n_instances, length(relationSet), n_vars)
+		@logmsg DTDebug "Computing Sogliole for Interval2D datasets..." size(X) n_instances n_vars x y test_operators relationSet relationId_id relation_ids size(Sogliole)
+
+		firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
+
 		@inbounds for feature in 1:n_vars
-			println("feature $(feature)/$(n_vars)")
+			@logmsg DTOverview "Feature $(feature)/$(n_vars)"
 			
 			# get_thresholds = (w, channel)->ModalLogic.WExtrema(test_operators, w, channel)
 			# get_thresholds_repr = (w, relation, channel)->ModalLogic.WExtremaRepr(test_operators, w, channel)
@@ -93,27 +99,37 @@
 			# Find the highest/lowest thresholds
 
 			for i in 1:n_instances
-				# println("instance $(i)/$(n_samples)")
+				@logmsg DTDebug "Instance $(i)/$(n_instances)"
 
 				# Propositional, local
 				@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
+				# println(channel)
 				for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
+					@logmsg DTDetail "World" w
 					# opGeqMaxThresh, opLesMinThresh = ModalLogic.WMin(w, channel), ModalLogic.WMax(w, channel)
 					thresholds = get_thresholds(w, channel)
 					Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i,relationId_id,feature] = thresholds
-				end
+				end # world
 
-				@views SoglId = Sogliole[:,:,:,:, i,relationId_id,feature]
+				# @views SoglId = Sogliole[:,:,:,:, i,relationId_id,feature]
 				# Modal
 				for relation_id in relation_ids
 					relation = relationSet[relation_id]
+					@logmsg DTDebug "Relation $(relation) (id: $(relation_id))" # "/$(length(relation_ids))"
 					@views Sogl = Sogliole[:,:,:,:, i,relation_id,feature]
-					# println("relation $(relation)")
-					# @info "Relation " relation_id relation
-					# For each world w and each relation R, compute the peaks of v worlds, with w<R>v
-					for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
-						# @info "World " w 
-						thresholds = get_thresholds_repr(ModalLogic.enumAccRepr(w, relation, channel), channel)
+					# For each world w and each relation, compute the thresholds of all v worlds, with w<R>v
+					worlds = if relation != ModalLogic.RelationAll
+							ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
+						else
+							[firstWorld]
+						end
+					for w in worlds
+						accrepr = if relation != ModalLogic.RelationAll
+							ModalLogic.enumAccRepr(w, relation, channel)
+						else
+							(true,ModalLogic.enumAccRepr(w, relation, channel))
+						end
+						thresholds = get_thresholds_repr(accrepr, channel)
 						# opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
 						# inverted,representatives = ModalLogic.enumAccRepr(w, relation, channel)
 						# for v in representatives
@@ -131,13 +147,17 @@
 						# Quale e' piu' veloce? TODO use SoglId in Wextrema?
 						# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.WExtremaRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "Wextrema different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
 
-						@info "World " relation_id relation w thresholds
+						@logmsg DTDetail "World" w relation thresholds
 						Sogl[w.x.x, w.x.y, w.y.x, w.y.y] = thresholds
-					end
+					end # world
 				end # relation
+
+				# w = firstWorld
+				# println(Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i,2,feature])
+				# readline()
 
 			end # instances
 		end # feature
-		@info "Done." Sogliole[:,[1,relation_ids...],:]
+		@logmsg DTDebug "Done computing Sogliole" # Sogliole[:,[1,relation_ids...],:]
 		Sogliole
 	end

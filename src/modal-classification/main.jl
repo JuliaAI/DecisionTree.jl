@@ -164,12 +164,12 @@ function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::Worl
 			@error " found featid == 0, TODO figure out where does this come from" tree
 			# apply_tree(tree.left, X, S)
 		else
-			@info "applying branch..."
+			@logmsg DTDetail "applying branch..."
 			satisfied = true
 			channel = ModalLogic.getInstanceFeature(Xi, tree.featid)
-			@info " S" S
+			@logmsg DTDetail " S" S
 			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, tree.test_operator, tree.featval)
-			@info " ->S'" S
+			@logmsg DTDetail " ->(satisfied,S')" satisfied S
 			apply_tree((satisfied ? tree.left : tree.right), Xi, S)
 		end
 	)
@@ -177,11 +177,11 @@ end
 
 # Apply tree with initialConditions to a dimensional dataset in matricial form
 function apply_tree(tree::DTree{S, T}, d::MatricialDataset{S,D}) where {S, T, D}
-	@info "apply_tree..."
-	n_samp = n_samples(d)
-	predictions = Array{T,1}(undef, n_samp)
-	for i in 1:n_samp
-		@info " instance $i/$n_samp"
+	@logmsg DTDetail "apply_tree..."
+	n_instances = n_samples(d)
+	predictions = Array{T,1}(undef, n_instances)
+	for i in 1:n_instances
+		@logmsg DTDetail " instance $i/$n_instances"
 		# TODO figure out: is it better to interpret the whole dataset at once, or instance-by-instance? The first one enables reusing training code
 		w0params =
 			if tree.initCondition == startWithRelationAll

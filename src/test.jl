@@ -39,6 +39,7 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 	# println(" n_samples = $(size(X_train)[end-1])")
 	println(" train size = $(size(X_train))")
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
+	global_logger(ConsoleLogger(stderr, DecisionTree.DTOverview))
 	if timeit == 0
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 1
@@ -101,10 +102,12 @@ args = (
 	# min_purity_increase=0.02,
 	# max_purity_split=1.0, # TODO there's something wrong here, I think this sets min_purity_increase.
 )
+# TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
 	# initCondition=DecisionTree.startWithRelationAll,
 	# ontology=getIntervalOntologyOfDim(Val(2))
+	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
 	ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
 	# test_operators=[ModalLogic.TestOpLes],
 	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],

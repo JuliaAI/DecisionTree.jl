@@ -12,6 +12,7 @@ struct Interval <: AbstractWorld
 	Interval(x::Integer,y::Integer) = new(x,y)
 	Interval((x,y)::Tuple{Integer,Integer}) = new(x,y)
 	Interval(::_emptyWorld) = new(-1,0)
+	Interval(::_firstWorld) = new(1,2)
 	Interval(::_centeredWorld, X::Integer) = new(div(X,2)+1,div(X,2)+1+1+(isodd(X) ? 0 : 1))
 end
 
@@ -170,6 +171,7 @@ struct Interval2D <: AbstractWorld
 	Interval2D((x,y)::Tuple{Interval,Interval}) = new(x,y)
 	Interval2D(x::Tuple{Integer,Integer}, y::Tuple{Integer,Integer}) = new(Interval(x),Interval(y))
 	Interval2D(w::_emptyWorld) = new(Interval(w),Interval(w))
+	Interval2D(w::_firstWorld) = new(Interval(w),Interval(w))
 	Interval2D(w::_centeredWorld, X::Integer, Y::Integer) = new(Interval(w,X),Interval(w,Y))
 end
 
@@ -651,6 +653,7 @@ end
 # 	# Point(x) = x<=N ... ? new(x) : error("Can't instantiate Point(x={$x})")
 # 	Point(x::Integer) = new(x)
 # 	Point(::_emptyWorld) = new(0)
+# 	Point(::_firstWorld) = new(1)
 # 	Point(::_centeredWorld, X::Integer) = new(div(X,2)+1)
 # end
 

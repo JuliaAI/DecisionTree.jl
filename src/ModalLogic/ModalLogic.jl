@@ -2,6 +2,8 @@ module ModalLogic
 
 using IterTools
 import Base: argmax, argmin, size, show, convert
+using Logging: @logmsg
+using ..DecisionTree
 
 using ComputedFieldTypes
 
@@ -149,34 +151,50 @@ opposite_test_operator(::_TestOpLes) = TestOpGeq
 struct _TestOpGeqSoft  <: TestOperator
   alpha :: AbstractFloat
 end;
-const TestOpGeq095  = _TestOpGeqSoft(Rational(95,100));
-const TestOpGeq09  = _TestOpGeqSoft(Rational(90,100));
-const TestOpGeq08  = _TestOpGeqSoft(Rational(80,100));
-const TestOpGeq075  = _TestOpGeqSoft(Rational(75,100));
+const TestOpGeq_95  = _TestOpGeqSoft((Rational(95,100)));
+const TestOpGeq_90  = _TestOpGeqSoft((Rational(90,100)));
+const TestOpGeq_80  = _TestOpGeqSoft((Rational(80,100)));
+const TestOpGeq_75  = _TestOpGeqSoft((Rational(75,100)));
 
 # <_α
 struct _TestOpLesSoft  <: TestOperator
   alpha :: AbstractFloat
 end;
-const TestOpLes095  = _TestOpLesSoft(Rational(95,100));
-const TestOpLes09  = _TestOpLesSoft(Rational(90,100));
-const TestOpLes08  = _TestOpLesSoft(Rational(80,100));
-const TestOpLes075  = _TestOpLesSoft(Rational(75,100));
+const TestOpLes_95  = _TestOpLesSoft((Rational(95,100)));
+const TestOpLes_90  = _TestOpLesSoft((Rational(90,100)));
+const TestOpLes_80  = _TestOpLesSoft((Rational(80,100)));
+const TestOpLes_75  = _TestOpLesSoft((Rational(75,100)));
 
-# opposite_test_operator(::_TestOpGeq095) = TestOpLes095
-# opposite_test_operator(::_TestOpLes095) = TestOpGeq095
-# opposite_test_operator(::_TestOpGeq09)  = TestOpLes09
-# opposite_test_operator(::_TestOpLes09)  = TestOpGeq09
-# opposite_test_operator(::_TestOpGeq08)  = TestOpLes08
-# opposite_test_operator(::_TestOpLes08)  = TestOpGeq08
-# opposite_test_operator(::_TestOpGeq075) = TestOpLes075
-# opposite_test_operator(::_TestOpLes075) = TestOpGeq075
+alpha(x::_TestOpGeqSoft) = x.alpha
+alpha(x::_TestOpLesSoft) = x.alpha
+
+opposite_test_operator(x::_TestOpGeqSoft) = _TestOpLesSoft(alpha(x))
+opposite_test_operator(x::_TestOpLesSoft) = _TestOpGeqSoft(alpha(x))
+
+# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLes_95
+# opposite_test_operator(::_TestOpLesSoft{Val{Rational(95,100)}}) = TestOpGeq_95
+# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(90,100)}}) = TestOpLes_90
+# opposite_test_operator(::_TestOpLesSoft{Val{Rational(90,100)}}) = TestOpGeq_90
+# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(80,100)}}) = TestOpLes_80
+# opposite_test_operator(::_TestOpLesSoft{Val{Rational(80,100)}}) = TestOpGeq_80
+# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(75,100)}}) = TestOpLes_75
+# opposite_test_operator(::_TestOpLesSoft{Val{Rational(75,100)}}) = TestOpGeq_75
+
+
+# alpha(::_TestOpGeqSoft{Val{Rational(95,100)}}) = Rational(95,100)
+# alpha(::_TestOpLesSoft{Val{Rational(95,100)}}) = Rational(95,100)
+# alpha(::_TestOpGeqSoft{Val{Rational(90,100)}}) = Rational(90,100)
+# alpha(::_TestOpLesSoft{Val{Rational(90,100)}}) = Rational(90,100)
+# alpha(::_TestOpGeqSoft{Val{Rational(80,100)}}) = Rational(80,100)
+# alpha(::_TestOpLesSoft{Val{Rational(80,100)}}) = Rational(80,100)
+# alpha(::_TestOpGeqSoft{Val{Rational(75,100)}}) = Rational(75,100)
+# alpha(::_TestOpLesSoft{Val{Rational(75,100)}}) = Rational(75,100)
 
 
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) >= $(featval)"
 display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) < $(featval)"
-display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(test_operator.alpha*100)% [$(lhs) >= $(featval)]"
-display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(test_operator.alpha*100)% [$(lhs) < $(featval)]"
+display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) >= $(featval)]"
+display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) < $(featval)]"
 
 display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, featid::Integer, featval::Number) = begin
 	test = display_propositional_test(test_operator, "V$(featid)", featval)
@@ -240,6 +258,7 @@ end
 
 # This constant is used to create the default world for each WorldType
 #  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
+struct _firstWorld end;    const firstWorld    = _firstWorld();
 struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
 struct _centeredWorld end; const centeredWorld = _centeredWorld();
 
@@ -282,14 +301,14 @@ modalStep(S::WorldSetType,
 					channel::AbstractArray{T,N},
 					test_operator::TestOperator,
 					threshold::T) where {W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, T, N} = begin
-	@info "modalStep" S relation display_modal_test(relation, test_operator, -1, threshold)
+	@logmsg DTDetail "modalStep" S relation display_modal_test(relation, test_operator, -1, threshold)
 	satisfied = false
 	worlds = enumAcc(S, relation, channel)
 	if length(collect(Iterators.take(worlds, 1))) > 0
 		new_worlds = WorldSetType()
 		for w in worlds
 			if TestCondition(test_operator, w, channel, threshold)
-				@info " Found world " w readWorld(w,channel)
+				@logmsg DTDetail " Found world " w readWorld(w,channel)
 				satisfied = true
 				push!(new_worlds, w)
 			end
@@ -301,13 +320,13 @@ modalStep(S::WorldSetType,
 			#  the new set is left unchanged
 		end
 	else
-		@info "   No world found"
+		@logmsg DTDetail "   No world found"
 		# If there are no neighboring worlds, then the modal condition is not met
 	end
 	if satisfied
-		@info "   YES" S
+		@logmsg DTDetail "   YES" S
 	else
-		@info "   NO" 
+		@logmsg DTDetail "   NO" 
 	end
 	return (satisfied,S)
 end
