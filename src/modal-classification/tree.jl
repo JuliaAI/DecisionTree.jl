@@ -336,7 +336,8 @@ module treeclassifier
 			node.is_leaf = true
 			return
 		else
-			@logmsg DTOverview " Branch ($(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity__nt/nt)"
+			best_purity = best_purity__nt/nt
+			@logmsg DTOverview " Branch ($(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
 
 			# try
 			# 	node.threshold = (threshold_lo + threshold_hi) / 2.0
@@ -348,7 +349,7 @@ module treeclassifier
 			# - ones that are > threshold
 			# - ones that are <= threshold
 
-			node.purity         = best_purity__nt/nt
+			node.purity         = best_purity
 			node.modality       = best_relation
 			node.feature        = best_feature
 			node.test_operator  = best_test_operator
