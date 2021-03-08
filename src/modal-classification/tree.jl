@@ -98,15 +98,15 @@ module treeclassifier
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							Sf                  :: AbstractVector{WorldSet{WorldType}},
-							# Sogliole            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,Tuple{T,T}}}}},
-							# Sogliole            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,Tuple{T,T}},3},
-							Sogliole            :: AbstractArray{Tuple{T,T},L},
+							# Sogliole            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,NTuple{NTO,T}}}}},
+							# Sogliole            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
+							Sogliole            :: AbstractArray{NTuple{NTO,T},L},
 							# TODO Ef                  :: AbstractArray{T},
 							
 							rng                 :: Random.AbstractRNG,
 							relationSet         :: Vector{<:ModalLogic.AbstractRelation},
 							relation_ids                :: AbstractVector{Int},
-							) where {WorldType<:AbstractWorld, T, U, N, M,L}  # WT<:X.ontology.worldType
+							) where {WorldType<:AbstractWorld, T, U, N, M, NTO, L}  # WT<:X.ontology.worldType
 
 		# Region of indx to use to perform the split
 		region = node.region
@@ -238,6 +238,7 @@ module treeclassifier
 				end
 
 				# TODO sort this and optimize?
+				# TODO no need to do union!! Just use opGeqMaxThresh for one and opLesMinThresh for the other...
 				# Obtain the list of reasonable thresholds
 				thresholdDomain = setdiff(union(Set(opGeqMaxThresh),Set(opLesMinThresh)),Set([typemin(T), typemax(T)]))
 
@@ -482,34 +483,45 @@ module treeclassifier
 		relationAll_id = 2
 		relation_ids = map((x)->x+2, 1:length(X.ontology.relationSet))
 		# TODO figure out if one should use this
-		# availableModalRelation_ids = relation_ids
-		availableModalRelation_ids = [relationAll_id, relation_ids...]
+		availableModalRelation_ids = relation_ids
+		# availableModalRelation_ids = [relationAll_id, relation_ids...]
 		allAvailableRelation_ids = [relationId_id, availableModalRelation_ids...]
+
+		# Fix test_operators order
+		ModalLogic.sort_test_operators!(test_operators)
+		
+		if length(test_operators) > 2
+			println("test_operators")
+			println(test_operators)
+			readline()
+		end
 
 		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
 		#  are complementary, and thus it is redundant to check both at the same node.
 		#  We avoid this by creating a dedicated set of relations for propositional splits
 		# TODO optimize this: use opposite_test_operator() to check pairs.
 		# TODO But first, check that TestOpGeq095 and TestOpLes095 are actually complementary
+		# TODO actually it seems like test_operators are never redundant.
 		propositional_test_operators = 
-			if [ModalLogic.TestOpGeq, ModalLogic.TestOpLes] ⊆ test_operators
-				filter!(e->e ≠ ModalLogic.TestOpLes,test_operators)
+			if false && [ModalLogic.TestOpGeq, ModalLogic.TestOpLes] ⊆ test_operators
+				filter(e->e ≠ ModalLogic.TestOpLes,test_operators)
 			else
 				test_operators
 			end
+
 		
-		# TODO use Ef = Dict(X.ontology.worldType,Tuple{T,T})
+		# TODO use Ef = Dict(X.ontology.worldType,NTuple{NTO,T})
 		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
 		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )
 
 		# Calculate Sogliole
 		# TODO expand for generic test operators
 		# TODO test with array-only Sogliole = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
-		# TODO try something like Sogliole = fill(No: Dict{X.ontology.worldType,Tuple{T,T}}(), n_instances, n_variables(X))
+		# TODO try something like Sogliole = fill(No: Dict{X.ontology.worldType,NTuple{NTO,T}}(), n_instances, n_variables(X))
 		
 		# TODO improve code leveraging world/dimensional dataset structure
 
-		# Sogliole = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,Tuple{T,T}}}}}(undef, n_variables(X))
+		# Sogliole = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,NTuple{NTO,T}}}}}(undef, n_variables(X))
 		
 		# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
 		Sogliole = computeSogliole(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)

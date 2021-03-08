@@ -144,8 +144,11 @@ struct _TestOpGeq  <: TestOperator end; const TestOpGeq  = _TestOpGeq();
 # <
 struct _TestOpLes  <: TestOperator end; const TestOpLes  = _TestOpLes();
 
-opposite_test_operator(::_TestOpGeq) = TestOpLes
-opposite_test_operator(::_TestOpLes) = TestOpGeq
+dual_test_operator(::_TestOpGeq) = TestOpLes
+dual_test_operator(::_TestOpLes) = TestOpGeq
+
+primary_test_operator(x::_TestOpGeq) = TestOpGeq # x
+primary_test_operator(x::_TestOpLes) = TestOpGeq # dual_test_operator(x)
 
 # >=_α
 struct _TestOpGeqSoft  <: TestOperator
@@ -168,17 +171,20 @@ const TestOpLes_75  = _TestOpLesSoft((Rational(75,100)));
 alpha(x::_TestOpGeqSoft) = x.alpha
 alpha(x::_TestOpLesSoft) = x.alpha
 
-opposite_test_operator(x::_TestOpGeqSoft) = _TestOpLesSoft(alpha(x))
-opposite_test_operator(x::_TestOpLesSoft) = _TestOpGeqSoft(alpha(x))
+dual_test_operator(x::_TestOpGeqSoft) = _TestOpLesSoft(1-alpha(x))
+dual_test_operator(x::_TestOpLesSoft) = _TestOpGeqSoft(1-alpha(x))
 
-# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLes_95
-# opposite_test_operator(::_TestOpLesSoft{Val{Rational(95,100)}}) = TestOpGeq_95
-# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(90,100)}}) = TestOpLes_90
-# opposite_test_operator(::_TestOpLesSoft{Val{Rational(90,100)}}) = TestOpGeq_90
-# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(80,100)}}) = TestOpLes_80
-# opposite_test_operator(::_TestOpLesSoft{Val{Rational(80,100)}}) = TestOpGeq_80
-# opposite_test_operator(::_TestOpGeqSoft{Val{Rational(75,100)}}) = TestOpLes_75
-# opposite_test_operator(::_TestOpLesSoft{Val{Rational(75,100)}}) = TestOpGeq_75
+primary_test_operator(x::_TestOpGeqSoft) = x
+primary_test_operator(x::_TestOpLesSoft) = dual_test_operator(x)
+
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLes_95
+# dual_test_operator(::_TestOpLesSoft{Val{Rational(95,100)}}) = TestOpGeq_95
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(90,100)}}) = TestOpLes_90
+# dual_test_operator(::_TestOpLesSoft{Val{Rational(90,100)}}) = TestOpGeq_90
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(80,100)}}) = TestOpLes_80
+# dual_test_operator(::_TestOpLesSoft{Val{Rational(80,100)}}) = TestOpGeq_80
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(75,100)}}) = TestOpLes_75
+# dual_test_operator(::_TestOpLesSoft{Val{Rational(75,100)}}) = TestOpGeq_75
 
 
 # alpha(::_TestOpGeqSoft{Val{Rational(95,100)}}) = Rational(95,100)
@@ -190,6 +196,17 @@ opposite_test_operator(x::_TestOpLesSoft) = _TestOpGeqSoft(alpha(x))
 # alpha(::_TestOpGeqSoft{Val{Rational(75,100)}}) = Rational(75,100)
 # alpha(::_TestOpLesSoft{Val{Rational(75,100)}}) = Rational(75,100)
 
+
+sort_test_operators!(x::Vector{TestOperator}) = begin
+	test_operators_order = [
+		TestOpGeq, TestOpLes,
+		TestOpGeq_95, TestOpLes_95,
+		TestOpGeq_90, TestOpLes_90,
+		TestOpGeq_80, TestOpLes_80,
+		TestOpGeq_75, TestOpLes_75,
+	]
+	intersect(test_operators_order, x)
+end
 
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) >= $(featval)"
 display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) < $(featval)"
@@ -206,33 +223,30 @@ display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOpe
 end
 
 
-# @inline WExtrema(test_operator::TestOperator, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N}
-	# = extrema(readWorld(w,channel))
-	# opGeq, opLes
-	# thresholds = ModalLogic.WExtremaRepr(test_operator, channel)
-	# ModalLogic.enumAccRepr(channel)
-@inline WExtrema(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
+@inline WExtrema(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
+@inline WExtreme(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
+@inline WExtreme(::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
 
-# @inline WExtremaSoft(alpha::Rational{Integer}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
-	# TODO... Rational
-	# vals = vec(readWorld(w,channel))
-	# partialsort!()
-# end
-@inline WExtremaRepr(R::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}, channel::MatricialChannel{T,N}) where {T,N} = begin
-	inverted, representatives = R
-	opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
-	for w in representatives
-		(_wmin, _wmax) = WExtrema(w,channel)
-		if inverted
-			(_wmax, _wmin) = (_wmin, _wmax)
-		end
-		opGeqMaxThresh = max(opGeqMaxThresh, _wmin)
-		opLesMinThresh = min(opLesMinThresh, _wmax)
-	end
-	return (opGeqMaxThresh, opLesMinThresh)
+
+# TODO improved version for Rational numbers
+@inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	vals = vec(readWorld(w,channel))
+	x = partialsort!(vals,1+floor(Int, (1.0-alpha(test_op))*length(vals)))
+	x,x
 end
-@inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
-@inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
+@inline WExtreme(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	vals = vec(readWorld(w,channel))
+	partialsort!(vals,1+floor(Int, (1.0-alpha(test_op))*length(vals)))
+end
+@inline WExtreme(test_op::_TestOpLesSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	vals = vec(readWorld(w,channel))
+	partialsort!(vals,1+floor(Int, (alpha(test_op))*length(vals)))
+end
+
+# TODO remove
+# @inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
+# @inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
+
 @inline TestCondition(test_operator::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @inbounds

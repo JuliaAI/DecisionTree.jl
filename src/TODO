@@ -4,19 +4,19 @@
 ☐	sort threshold domain and optimize?
 ☐	Rename Topological relations to RCC8, and create RCC5 ontology by joining n/tpp(i) into pp(i) (proper part) and dc/ec into dr (disjointness).
 ☐	Add IA7, IA3, IA3^7, IA7^2 relations
-☐	enumAcc to only use channel_size and not the whole channel
-☐	Estendi a >=alpha e <alpha, calcola i peaks intelligentemente. In particolare, questi testoperators hanno la proprieta' di ordine; al contrario, un operatore potrebbe essere categorico e non avere picchi, solo valori giusti.
+✔	enumAcc to only use channel_size and not the whole channel @done (21-03-07 16:44)
+☐	Extend to >=alpha and <alpha; these operators are ordered, closed/not closed; maybe others are categorical, in general some are. Fix </>= thing
 ☐	Try topological and interval algebra without tangential cases, or with tangential cases merged with other relations.
 ☐	Valuta quale estensione di array e' bello tenere. Array piccoli e compatti? Array con nomi nelle dimensioni? Etc.
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
 ☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
-☐	Soften > and <= to be >alpha and <=alpha. Make alpha an array to iterate over. Find an efficient way to compute it (note that with a few elements in the world, it can be made efficient with integer operations).
-☐	Improve the computation of the extremes leveraging the structure of IA Frames.
-☐	Now move the extremes computation to the outer algorithm scope, so that it happens BEFORE the whole computation.
+✔	Soften > and <= to be >alpha and <=alpha. Make alpha an array to iterate over. Find an efficient way to compute it (note that with a few elements in the world, it can be made efficient with integer operations). @done (21-03-08 00:58)
+✔	Improve the computation of the extremes leveraging the structure of IA Frames. @done (21-03-08 00:59)
+✔	Now move the extremes computation to the outer algorithm scope, so that it happens BEFORE the whole computation. @done (21-03-08 00:59)
 ☐	Create a dataset with many but tiny worlds. Even a completely random one.
 ☐	> doubles the time but doesn't seem to improve performances. Is this a bug? Try to come up with a dataset that shows if it works. If it's not a bug, maybe we should consider parametrizing on whether this is to be used or not.
 ☐	Add point-based ontology, and test point-based + rectangle algebra?
-☐	Test 5x5
+✔	Test 5x5 @done (21-03-08 00:59)
 ☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 ☐	Test adimensional case 1x1, & 2D case 3x3, 5x5, 7x7, with alfa=.8
 ☐	Use specific sampling on the image

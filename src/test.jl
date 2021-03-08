@@ -40,6 +40,7 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 	println(" train size = $(size(X_train))")
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
 	global_logger(ConsoleLogger(stderr, DecisionTree.DTOverview))
+	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
 	if timeit == 0
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	elseif timeit == 1
@@ -117,7 +118,10 @@ kwargs = (
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 1, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 timeit = 2
-T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
+T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
+
+
+T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 
 # exit()
 

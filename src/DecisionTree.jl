@@ -12,9 +12,9 @@ using Logging
 using Logging: @logmsg
 # Log single algorithm overview (e.g. splits performed in decision tree building)
 const DTOverview = Logging.LogLevel(-500)
-# 
+# Log debug info
 const DTDebug = Logging.LogLevel(-1000)
-# 
+# Log more detailed debug info
 const DTDetail = Logging.LogLevel(-1500)
 
 
