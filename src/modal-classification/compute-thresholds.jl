@@ -88,9 +88,6 @@
 
 		firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 
-		# @logmsg DTDebug "" test_operators
-		# readline()
-
 		# With sorted test_operators
 		actual_test_operators = Tuple{Bool,ModalLogic.TestOperator}[]
 		nonprimary_test_operators = ModalLogic.TestOperator[]
@@ -107,34 +104,15 @@
 				push!(actual_test_operators, (false,test_operator))
 			end
 		end
-
-		# @logmsg DTDebug "..." test_operators actual_test_operators
-		# readline()
 		
-		# get_thresholds = (w, channel)->ModalLogic.WExtrema(w, channel)
-		# get_thresholds_repr = (w, channel)->ModalLogic.WExtremaRepr(w, channel)
-
-		get_thresholds(w::AbstractWorld, channel::ModalLogic.MatricialChannel{T,N}) = begin
-			thresholds = T[]
-			# thresholds = similar(test_operators, T)
-			for (both,test_operator) in actual_test_operators
-				thresholds = if both
-						[thresholds..., ModalLogic.WExtrema(test_operator, w, channel)...]
-					else
-						[thresholds..., ModalLogic.WExtreme(test_operator, w, channel)]
-					end
-			end
-			Tuple(thresholds)
-		end
-
 		@inline WExtremaModal(test_operator::ModalLogic.TestOperator, SoglId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+			# TODO use SoglId[w.x.x, w.x.y, w.y.x, w.y.y]...?
 			ModalLogic.WExtremaModal(test_operator, w, relation, channel)
-			
-			# TODO use SoglId...?
+
 			# TODO fix this
 			# accrepr = ModalLogic.enumAccRepr(test_operator, w, relation, channel)
 
-			# # TODO use SoglId[w.x.x, w.x.y, w.y.x, w.y.y]
+			# # TODO use 
 			# # accrepr::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}
 			# inverted, representatives = accrepr
 			# opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
@@ -185,7 +163,7 @@
 
 		@inbounds for feature in 1:n_vars
 			@logmsg DTDebug "Feature $(feature)/$(n_vars)"
-			if ((feature-1) % floor(Int, ((n_vars-1)/5))) == 0
+			if ((feature+1) % (floor(Int, ((n_vars)/5))+1)) == 0
 				@logmsg DTOverview "Feature $(feature)/$(n_vars)"
 			end
 			
@@ -199,9 +177,17 @@
 				# println(channel)
 				for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
 					@logmsg DTDetail "World" w
-					# opGeqMaxThresh, opLesMinThresh = ModalLogic.WMin(w, channel), ModalLogic.WMax(w, channel)
-					thresholds = get_thresholds(w, channel)
-					Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i,relationId_id,feature] = thresholds
+					thresholds = T[]
+					# thresholds = similar(test_operators, T)
+					for (both,test_operator) in actual_test_operators
+						thresholds = if both
+								[thresholds..., ModalLogic.WExtrema(test_operator, w, channel)...]
+							else
+								[thresholds..., ModalLogic.WExtreme(test_operator, w, channel)]
+							end
+					end
+					# TODO make the tuple part of the array.
+					Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i,relationId_id,feature] = Tuple(thresholds)
 				end # world
 
 				@views SoglId = Sogliole[:,:,:,:, i,relationId_id,feature]

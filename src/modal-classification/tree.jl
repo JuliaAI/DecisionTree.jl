@@ -386,6 +386,7 @@ module treeclassifier
 			node.threshold      = best_threshold
 			
 			# Compute new world sets (= make a modal step)
+			# TODO remove the use of Xf
 			@simd for i in 1:n_instances
 				setfeature!(i, Xf, X.domain, indX[i + r_start], best_feature)
 			end
@@ -399,18 +400,24 @@ module treeclassifier
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 
-			if best_nl != n_instances-sum(unsatisfied_flags)
-				throw(Base.ErrorException("Something's wrong with the optimization steps. unsatisfied_flags: $(unsatisfied_flags)\n$(best_nl)\n$(n_instances-sum(unsatisfied_flags))\n"))
-			end
-
 			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
-			# for i in 1:n_instances
-			# 	println(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))
-			# end
+			for i in 1:n_instances
+				println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))" * "\t" * "$(Sf[i])" * "\t" * "$(!(unsatisfied_flags[i]==1))")
+			end
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
-			@assert length(unique(unsatisfied_flags)) > 1 "Uninformative split. Something's wrong with the optimization steps. unsatisfied_flags: $(unsatisfied_flags)"
+			if best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
+				errStr = "Something's wrong with the optimization steps.\n"
+				if length(unique(unsatisfied_flags)) == 1
+					errStr *= "Uninformative split.\n$(unsatisfied_flags)\n"
+				end
+				if best_nl != n_instances-sum(unsatisfied_flags)
+					errStr *= "unsatisfied_flags:\n$(unsatisfied_flags)\n$(best_nl)\n$(n_instances-sum(unsatisfied_flags))\n"
+				end
+				throw(Base.ErrorException(errStr))
+			end
+
 			@logmsg DTDetail "pre-partition" region indX[region] unsatisfied_flags
 			node.split_at = util.partition!(indX, unsatisfied_flags, 0, region)
 			@logmsg DTDetail "post-partition" indX[region] node.split_at

@@ -440,7 +440,7 @@ n_worlds(::Type{Interval2D}, channel_size::Tuple{Integer,Integer}) = n_worlds(In
 
 print_world(w::Interval2D) = println("Interval2D [$(w.x.x),$(w.x.y)) × [$(w.y.x),$(w.y.y)), length $(w.x.y-w.x.x)×$(w.y.y-w.y.x) = $((w.x.y-w.x.x)*(w.y.y-w.y.x))")
 
-@inline readWorld(w::Interval2D, channel::MatricialChannel{T,2}) where {T} = channel[w.y.x:w.y.y-1,w.x.x:w.x.y-1]
+@inline readWorld(w::Interval2D, channel::MatricialChannel{T,2}) where {T} = channel[w.x.x:w.x.y-1,w.y.x:w.y.y-1]
 
 ################################################################################
 # END Interval2D
@@ -534,9 +534,6 @@ enumAccBare(w::Interval2D, r::R where R<:_IA2DRel, X::Integer, Y::Integer) =
 # 	)
 # end
 
-# enumAccRepr(w::Interval2D, r::R where R<:_IA2DRel, X::Integer, Y::Integer) = 
-# 	Iterators.product(enumAccRepr(w.x, r.x, X)[2], enumAccRepr(w.y, r.y, Y)[2]) #  TODO try list comprehension instead of product
-
 # enumAccRepr for _IA2DRelations_U
 # 3 operator categories for the 13+1 relations
 const _IA2DRelMaximizer = Union{_RelationAll,_IA_L,_IA_Li,_IA_D}
@@ -601,6 +598,22 @@ WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where
 	extr = mapslices(extrema, vals, dims=1)
 	maximum(first,extr),minimum(last,extr)
 end
+WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
+	productRepr = combineIntervalAccRepr(test_operator, w, r, size(channel)..., _ReprFake)
+	if productRepr == _ReprNone{Interval2D}()
+		return typemin(T)
+	end
+	vals = readWorld(productRepr.w, channel)
+	maximum(mapslices(minimum, vals, dims=1))
+end
+WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
+	productRepr = combineIntervalAccRepr(test_operator, w, r, size(channel)..., _ReprFake)
+	if productRepr == _ReprNone{Interval2D}()
+		return typemax(T)
+	end
+	vals = readWorld(productRepr.w, channel)
+	minimum(mapslices(maximum, vals, dims=1))
+end
 WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	productRepr = combineIntervalAccRepr(test_operator, w, r, size(channel)..., _ReprFake)
 	if productRepr == _ReprNone{Interval2D}()
@@ -611,14 +624,6 @@ WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where
 	extr = mapslices(extrema, vals, dims=2)
 	maximum(first,extr),minimum(last,extr)
 end
-WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
-	productRepr = combineIntervalAccRepr(test_operator, w, r, size(channel)..., _ReprFake)
-	if productRepr == _ReprNone{Interval2D}()
-		return typemin(T)
-	end
-	vals = readWorld(productRepr.w, channel)
-	maximum(mapslices(minimum, vals, dims=1))
-end
 WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	productRepr = combineIntervalAccRepr(test_operator, w, r, size(channel)..., _ReprFake)
 	if productRepr == _ReprNone{Interval2D}()
@@ -626,14 +631,6 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where
 	end
 	vals = readWorld(productRepr.w, channel)
 	maximum(mapslices(minimum, vals, dims=2))
-end
-WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
-	productRepr = combineIntervalAccRepr(test_operator, w, r, size(channel)..., _ReprFake)
-	if productRepr == _ReprNone{Interval2D}()
-		return typemax(T)
-	end
-	vals = readWorld(productRepr.w, channel)
-	minimum(mapslices(maximum, vals, dims=1))
 end
 WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	productRepr = combineIntervalAccRepr(test_operator, w, r, size(channel)..., _ReprFake)
@@ -674,6 +671,14 @@ display_rel_short(::_Topo_NTPPi) = "NTPPi"
 
 const TopoRelations = [Topo_DC, Topo_EC, Topo_PO, Topo_TPP, Topo_TPPi, Topo_NTPP, Topo_NTPPi]
 
+topo2IARelations(::_Topo_DC)     = [IA_L,  IA_Li]
+topo2IARelations(::_Topo_EC)     = [IA_A,  IA_Ai]
+topo2IARelations(::_Topo_PO)     = [IA_O,  IA_Oi]
+topo2IARelations(::_Topo_TPP)    = [IA_B,  IA_E]
+topo2IARelations(::_Topo_TPPi)   = [IA_Bi, IA_Ei]
+topo2IARelations(::_Topo_NTPP)   = [IA_D]
+topo2IARelations(::_Topo_NTPPi)  = [IA_Di]
+
 # Enumerate accessible worlds from a single world
 enumAccBare(w::Interval, ::_Topo_DC,    X::Integer) = Iterators.flatten((enumAccBare(w, IA_L,  X), enumAccBare(w, IA_Li, X)))
 enumAccBare(w::Interval, ::_Topo_EC,    X::Integer) = Iterators.flatten((enumAccBare(w, IA_A,  X), enumAccBare(w, IA_Ai, X)))
@@ -683,13 +688,110 @@ enumAccBare(w::Interval, ::_Topo_TPPi,  X::Integer) = Iterators.flatten((enumAcc
 enumAccBare(w::Interval, ::_Topo_NTPP,  X::Integer) = enumAccBare(w, IA_D, X)
 enumAccBare(w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccBare(w, IA_Di, X)
 
-enumAccRepr(w::Interval, ::_Topo_DC,    X::Integer) = Interval[enumAccRepr(w, IA_L,  X)[2]..., enumAccRepr(w, IA_Li, X)[2]...]
-enumAccRepr(w::Interval, ::_Topo_EC,    X::Integer) = Interval[enumAccRepr(w, IA_A,  X)[2]..., enumAccRepr(w, IA_Ai, X)[2]...]
-enumAccRepr(w::Interval, ::_Topo_PO,    X::Integer) = Interval[enumAccRepr(w, IA_O,  X)[2]..., enumAccRepr(w, IA_Oi, X)[2]...]
-enumAccRepr(w::Interval, ::_Topo_TPP,   X::Integer) = Interval[enumAccRepr(w, IA_B,  X)[2]..., enumAccRepr(w, IA_E,  X)[2]...] # TODO simplify into something like if ... [] : [w]
-enumAccRepr(w::Interval, ::_Topo_TPPi,  X::Integer) = Interval[enumAccRepr(w, IA_Bi, X)[2]..., enumAccRepr(w, IA_Ei, X)[2]...] # TODO simplify into something like if ... [] : enumAccRepr(w, ::_RelationAll, X)[2]
-enumAccRepr(w::Interval, ::_Topo_NTPP,  X::Integer) = enumAccRepr(w, IA_D, X)[2]
-enumAccRepr(w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccRepr(w, IA_Di, X)[2]
+# TODO optimize maximum(first,extr),minimum(last,extr) by using reduce(...)
+
+# TODO write these compactly!!! Also softened operators can be written in compact form
+# WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::Union{_Topo_DC,_Topo_EC,_Topo_PO,_Topo_TPP,_Topo_TPPi}, channel::MatricialChannel{T,1}) where {T} = begin
+# 	repr1,repr2 = map((r_IA)->(enumAccRepr(w, r_IA,  X)), topo2IARelations(r))
+# 	extr = yieldReprs(test_operator, repr1, channel), yieldReprs(test_operator, repr2, channel)
+# 	maximum(first,extr),minimum(last,extr)
+# end
+# WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::Union{_Topo_DC,_Topo_EC,_Topo_PO,_Topo_TPP,_Topo_TPPi}, channel::MatricialChannel{T,1}) where {T} = begin
+# 	repr1,repr2 = map((r_IA)->(enumAccRepr(w, r_IA,  X)), topo2IARelations(r))
+# 	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+# end
+# WExtremeModal(test_operator::_TestOpLes, w::Interval, r::Union{_Topo_DC,_Topo_EC,_Topo_PO,_Topo_TPP,_Topo_TPPi}, channel::MatricialChannel{T,1}) where {T} = begin
+# 	repr1,repr2 = map((r_IA)->(enumAccRepr(w, r_IA,  X)), topo2IARelations(r))
+# 	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+# end
+
+WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_DC, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_L,  X)
+	repr2 = enumAccRepr(w, IA_Li,  X)
+	extr = yieldReprs(test_operator, repr1, channel), yieldReprs(test_operator, repr2, channel)
+	maximum(first,extr),minimum(last,extr)
+end
+WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_DC, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_L,  X)
+	repr2 = enumAccRepr(w, IA_Li,  X)
+	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_DC, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_L,  X)
+	repr2 = enumAccRepr(w, IA_Li,  X)
+	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+
+WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_EC, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_A,  X)
+	repr2 = enumAccRepr(w, IA_Ai,  X)
+	extr = yieldReprs(test_operator, repr1, channel), yieldReprs(test_operator, repr2, channel)
+	maximum(first,extr),minimum(last,extr)
+end
+WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_EC, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_A,  X)
+	repr2 = enumAccRepr(w, IA_Ai,  X)
+	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_EC, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_A,  X)
+	repr2 = enumAccRepr(w, IA_Ai,  X)
+	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+
+WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_PO, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_O,  X)
+	repr2 = enumAccRepr(w, IA_Oi,  X)
+	extr = yieldReprs(test_operator, repr1, channel), yieldReprs(test_operator, repr2, channel)
+	maximum(first,extr),minimum(last,extr)
+end
+WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_PO, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_O,  X)
+	repr2 = enumAccRepr(w, IA_Oi,  X)
+	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_PO, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_O,  X)
+	repr2 = enumAccRepr(w, IA_Oi,  X)
+	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+
+WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_TPP, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_B,  X)
+	repr2 = enumAccRepr(w, IA_E,  X)
+	extr = yieldReprs(test_operator, repr1, channel), yieldReprs(test_operator, repr2, channel)
+	maximum(first,extr),minimum(last,extr)
+end
+WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_TPP, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_B,  X)
+	repr2 = enumAccRepr(w, IA_E,  X)
+	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_TPP, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_B,  X)
+	repr2 = enumAccRepr(w, IA_E,  X)
+	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+
+WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_TPPi, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_Bi,  X)
+	repr2 = enumAccRepr(w, IA_Ei,  X)
+	extr = yieldReprs(test_operator, repr1, channel), yieldReprs(test_operator, repr2, channel)
+	maximum(first,extr),minimum(last,extr)
+end
+WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_TPPi, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_Bi,  X)
+	repr2 = enumAccRepr(w, IA_Ei,  X)
+	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_TPPi, channel::MatricialChannel{T,1}) where {T} = begin
+	repr1 = enumAccRepr(w, IA_Bi,  X)
+	repr2 = enumAccRepr(w, IA_Ei,  X)
+	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
+end
+
+enumAccRepr(test_operator::TestOperator, w::Interval, ::_Topo_NTPP,  X::Integer) = enumAccRepr(test_operator, w, IA_D, X)
+enumAccRepr(test_operator::TestOperator, w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccRepr(test_operator, w, IA_Di, X)
 
 
 # More efficient implementations for edge cases
@@ -796,17 +898,6 @@ enumAccRepr(w::Interval2D, ::_Topo_DC,    X::Integer, Y::Integer) =
 			[Interval2D(x,y) for y in enumAccRepr(w.y, RelationAll,    Y)[2], x in enumAccRepr(w.x, Topo_DC,   X)[2]]...,
 			[Interval2D(x,y) for y in enumAccRepr(w.y, Topo_DC,    Y)[2], x in [Interval(max(1,w.x.x-1),min(w.x.y+1,X+1))]]...,
 		])
-# enumAccRepr2(w::Interval2D, ::_Topo_DC,    X::Integer, Y::Integer) =
-# 	Interval2D[
-# 		[Interval2D(x,y) for y in enumAccBare2(w.y, RelationAll,    Y), x in enumAccBare(w.x, Topo_DC,   X)]...,
-# 		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_DC,    Y), x in enumAccBare2(w.x, RelationAll,    X)]...,
-# 	]
-# TODO fix e pensaci bene: ci puo' essere un modo per semplificarlo. problema geometrico come TPP
-# enumAccRepr(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) = # TODO simplify: if it's not ALL-IMAGE, otherwise
-# 	(true,Interval2D[
-# 			[Interval2D(x,y) for y in enumAccRepr(w.y, RelationAll,    Y), x in enumAccRepr(w.x, Topo_EC,   X)]...,
-# 			[Interval2D(x,y) for y in enumAccRepr(w.y, Topo_EC,    Y), x in enumAccRepr(w.x, RelationId, X)]...,
-# 		])
 enumAccRepr(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) = # TODO simplify: if it's not ALL-IMAGE, otherwise
 	# (w.x.x > 1 || w.x.y < X+1 || w.y.x > 1 || w.y.y < Y+1) ?
 		# [Interval2D(x,y) for y in enumAccBare(w.y, RelationAll, Y), x in enumAccBare(w.x, RelationAll, X)] non proprio... devi togliere il centro... :
@@ -827,11 +918,6 @@ enumAccRepr(w::Interval2D, ::_Topo_EC,    X::Integer, Y::Integer) = # TODO simpl
 			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...,
 			[Interval2D(x,y) for y in enumAccBare(w.y, Topo_EC,    Y), x in enumAccBare(w.x, RelationId, X)]...,
 		])
-# enumAccRepr(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) = 
-# 	# TODO optimize this!!! PO is challenging.
-# 	((w.x.y-w.x.x) > 1 && (w.y.y-w.y.x) > 1 && w.x.x > 1 && w.x.y < X+1 && w.y.x > 1 && w.y.y < Y+1) ?
-# 		Interval2D[[Interval2D(x,y) for y in enumAccRepr(w.y, RelationAll, Y), x in enumAccRepr(w.x, RelationAll, X)]...] : 
-# 		enumAccRepr2(w, Topo_PO, X, Y)
 enumAccRepr(w::Interval2D, ::_Topo_PO,    X::Integer, Y::Integer) = 
 	(false,Interval2D[
 		[Interval2D(x,y) for y in enumAccBare(w.y, Topo_PO,    Y), x in enumAccBare(w.x, Topo_PO,    X)]...,
@@ -900,6 +986,9 @@ enumAccRepr(w::Interval2D, ::_Topo_NTPP,  X::Integer, Y::Integer) =
 	(true,Interval2D[[Interval2D(x,y) for y in enumAccRepr(w.y, Topo_NTPP, Y)[2], x in enumAccRepr(w.x, Topo_NTPP, X)[2]]...])
 enumAccRepr(w::Interval2D, ::_Topo_NTPPi, X::Integer, Y::Integer) =
 	(false,Interval2D[[Interval2D(x,y) for y in enumAccBare(w.y, Topo_NTPPi, Y), x in enumAccBare(w.x, Topo_NTPPi, X)]...])
+
+# enumAccRepr(test_operator::TestOperator, w::Interval2D, ::_Topo_NTPP,  X::Integer, Y::Integer) = enumAccRepr(test_operator, w, IA_D, X, Y)
+# enumAccRepr(test_operator::TestOperator, w::Interval2D, ::_Topo_NTPPi, X::Integer, Y::Integer) = enumAccRepr(test_operator, w, IA_Di, X, Y)
 
 #=
 

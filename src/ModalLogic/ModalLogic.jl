@@ -236,21 +236,21 @@ display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOpe
 end
 
 
-@inline WExtrema(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = reverse(extrema(readWorld(w,channel)))
+@inline WExtrema(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
 @inline WExtreme(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# println(_TestOpGeq)
 	# println(w)
 	# println(channel)
 	# println(maximum(readWorld(w,channel)))
 	# readline()
-	maximum(readWorld(w,channel))
+	minimum(readWorld(w,channel))
 end
 @inline WExtreme(::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# println(_TestOpLes)
 	# println(w)
 	# println(channel)
 	# readline()
-	minimum(readWorld(w,channel))
+	maximum(readWorld(w,channel))
 end
 
 

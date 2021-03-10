@@ -121,6 +121,8 @@ timeit = 2
 T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
 # timeit = 0
+T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
+
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 1, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 
