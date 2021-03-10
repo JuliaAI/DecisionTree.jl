@@ -50,9 +50,9 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
 	end
 
-	if timeit != 2
-		print(T)
-	end
+	# if timeit != 2
+	# 	print(T)
+	# end
 
 	println(" test size = $(size(X_test))")
 	for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))
@@ -107,18 +107,22 @@ args = (
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
 	# initCondition=DecisionTree.startWithRelationAll,
-	# ontology=getIntervalOntologyOfDim(Val(2))
+	ontology=getIntervalOntologyOfDim(Val(2)),
+	# ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
 	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
-	ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+	useRelationAll = false,
+	# useRelationAll = true,
+	test_operators=[ModalLogic.TestOpGeq],
 	# test_operators=[ModalLogic.TestOpLes],
-	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes, ModalLogic.TestOpGeq075, ModalLogic.TestOpLes075],
 )
+timeit = 2
+T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
+T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
 # timeit = 0
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 1, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
-timeit = 2
-T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
 
 
 T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);

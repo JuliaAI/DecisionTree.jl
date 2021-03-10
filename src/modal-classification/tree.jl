@@ -11,6 +11,7 @@ module treeclassifier
 	using ..ModalLogic
 	using ..DecisionTree
 	using DecisionTree.util
+	using BenchmarkTools
 	using Logging: @logmsg
 	import Random
 
@@ -84,8 +85,7 @@ module treeclassifier
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
 							max_purity_split    :: AbstractFloat,            # maximum purity allowed on a split
 							test_operators      :: AbstractVector{<:ModalLogic.TestOperator},
-							p_test_operators    :: AbstractVector{<:ModalLogic.TestOperator},
-
+							
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
 							
 							# The six arrays below are given for optimization purposes
@@ -146,6 +146,7 @@ module treeclassifier
 		best_feature = -1
 		best_test_operator = ModalLogic.TestOpNone
 		best_threshold = T(-1)
+		best_nl = -1 # TODO this is just for checking
 		# threshold_lo = ...
 		# threshold_hi = ...
 
@@ -167,18 +168,18 @@ module treeclassifier
 			# end
 			
 			# Gather all values needed for the current feature
-			@simd for i in 1:n_instances
-				# @logmsg DTDetail "Instance $(i)/$(n_instances)"
-				# TODO make this a view? featureview?
-				setfeature!(i, Xf, X.domain, indX[i + r_start], feature)
-			end
+			# TODO note that Xf is almost not required animore...
+			# @simd for i in 1:n_instances
+			# 	# @logmsg DTDetail "Instance $(i)/$(n_instances)"
+			# 	# TODO make this a view? featureview?
+			# 	setfeature!(i, Xf, X.domain, indX[i + r_start], feature)
+			# end
 
 			## Test all conditions
 			# For each relational operator
 			for relation_id in relation_ids
 				relation = relationSet[relation_id]
 				@logmsg DTDebug "Testing relation $(relation) (id: $(relation_id))..." # "/$(length(relation_ids))"
-
 				########################################################################
 				########################################################################
 				########################################################################
@@ -191,7 +192,7 @@ module treeclassifier
 				# 	# if relation == ModalLogic.Topo_TPP println("relation ", relation, " ", relation_id) end
 				# 	# if relation == ModalLogic.Topo_TPP println("instance ", i) end
 				# 	# if relation == ModalLogic.Topo_TPP println("Sf[i] ", Sf[i]) end
-				# 	channel = ModalLogic.getChannel(Xf, i)
+				# 	channel = ModalLogic.getChannel(Xf but remember this is not computed anymore, i)
 				# 	# if relation == ModalLogic.Topo_TPP println("channel ", channel) end
 				# 	# @info " instance $i/$n_instances" # channel
 				# 	# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
@@ -214,35 +215,54 @@ module treeclassifier
 				opGeqMaxThresh = fill(typemin(T), n_instances)
 				opLesMinThresh = fill(typemax(T), n_instances)
 
+				# TODO optimize this!!
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 				for i in 1:n_instances
 					# TODO slice Sogliole in Sogliolef?
 					@logmsg DTDetail " Instance $(i)/$(n_instances)" indX[i + r_start]
-					
 					worlds = if (relation != ModalLogic.RelationAll)
 							Sf[i]
 						else
 							[firstWorld]
 						end
-
 					for w in worlds
-						# if relation == ModalLogic.Topo_TPP println("world ", w) end
-						(w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
-						# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
-						@logmsg DTDetail "w_opGeqMaxThresh,w_opLesMinThresh " w w_opGeqMaxThresh w_opLesMinThresh
-						opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
-						opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
+						sogl = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
+						@logmsg DTDetail " Sogl" w sogl
+						for i_test_operator in 1:length(test_operators) # TODO use correct indexing for test_operators
+							# if relation == ModalLogic.Topo_TPP println("world ", w) end
+							# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
+							# (w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
+							# @logmsg DTDetail "w_opGeqMaxThresh,w_opLesMinThresh " w w_opGeqMaxThresh w_opLesMinThresh
+							# opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
+							# opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
+
+							# opExtremeThreshArr,optimizer = ModalLogic.polarity(test_operators[i_test_operator]) ? (opGeqMaxThresh,max) : (opLesMinThresh,min)
+							# opExtremeThreshArr[i] = optimizer(opExtremeThreshArr[i], sogl[i_test_operator])
+
+							if ModalLogic.polarity(test_operators[i_test_operator])
+								opGeqMaxThresh[i] = max(opGeqMaxThresh[i], sogl[i_test_operator])
+							else
+								opLesMinThresh[i] = min(opLesMinThresh[i], sogl[i_test_operator])
+							end
+						end
+						# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh ", opGeqMaxThresh[i]) end
+						# if relation == ModalLogic.Topo_TPP println("opLesMinThresh ", opLesMinThresh[i]) end
 					end
-					# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh ", opGeqMaxThresh[i]) end
-					# if relation == ModalLogic.Topo_TPP println("opLesMinThresh ", opLesMinThresh[i]) end
 				end
 
 				# TODO sort this and optimize?
 				# TODO no need to do union!! Just use opGeqMaxThresh for one and opLesMinThresh for the other...
 				# Obtain the list of reasonable thresholds
-				thresholdDomain = setdiff(union(Set(opGeqMaxThresh),Set(opLesMinThresh)),Set([typemin(T), typemax(T)]))
+				
+				# thresholdDomain = setdiff(union(Set(opGeqMaxThresh),Set(opLesMinThresh)),Set([typemin(T), typemax(T)]))
 
-				@logmsg DTDebug "Thresholds computed: " opGeqMaxThresh opLesMinThresh thresholdDomain
+				# println(opLesMinThresh)
+				# readline()
+
+				# @logmsg DTDebug "Thresholds computed: " opGeqMaxThresh opLesMinThresh thresholdDomain
+				# println(opGeqMaxThresh)
+				# println(opLesMinThresh)
+				# readline()
 
 				# if ! (all(opGeqMaxThresh .== opGeqMaxThresh_old) && all(opLesMinThresh .== opLesMinThresh_old))
 				# 	println("Thresholds computation is incorrect (relation=$(relation)):")
@@ -250,7 +270,7 @@ module treeclassifier
 				# 	# println("$(opLesMinThresh), $(opLesMinThresh_old)")
 				# 	for (i,tup) in enumerate(zip(opGeqMaxThresh, opGeqMaxThresh_old, opLesMinThresh, opLesMinThresh_old))
 				# 		if length(unique(tup[[1,2]])) > 1 && length(unique(tup[[2,3]])) > 1
-				# 			channel = ModalLogic.getChannel(Xf, i)
+				# 			channel = ModalLogic.getChannel(Xf but remember this is not computed anymore, i)
 				# 			println("relation ", relation)
 				# 			println("instance ", i)
 				# 			println("Sf[i] ", Sf[i])
@@ -267,27 +287,37 @@ module treeclassifier
 
 				# @info "  (maxPeak,minPeak) $opLesMinThresh,$opGeqMaxThresh"
 
-				# Look for thresholds 'a' for the propositions like "feature >= a"
-				for threshold in thresholdDomain
-					# Look for the correct test operator
-					for test_operator in (relation == ModalLogic.RelationId ? p_test_operators : test_operators)
+
+				# Look for the correct test operator
+				for test_operator in test_operators
+					# if !ModalLogic.polarity(test_operator)
+						# continue
+					# end
+					thresholdArr = (ModalLogic.polarity(test_operator) ? opGeqMaxThresh : opLesMinThresh)
+					thresholdDomain = setdiff(Set(thresholdArr),Set([typemin(T), typemax(T)]))
+					# Look for thresholdArr 'a' for the propositions like "feature >= a"
+					for threshold in thresholdDomain
 						@logmsg DTDebug " Testing condition: $(ModalLogic.display_modal_test(relation, test_operator, feature, threshold))"
 						# Re-initialize right class counts
 						nr = zero(U)
 						ncr[:] .= zero(U)
 						for i in 1:n_instances
-							@logmsg DTDetail " instance $i/$n_instances ExtremeThresh ($(opGeqMaxThresh[i])/$(opLesMinThresh[i]))"
+							# @logmsg DTDetail " instance $i/$n_instances ExtremeThresh ($(opGeqMaxThresh[i])/$(opLesMinThresh[i]))"
 							satisfied = true
 							# No world to go
-							if opGeqMaxThresh[i] == typemin(T) # && opGeqMaxThresh[i] == typemax(T)
-								# @logmsg DTDetail "   NO!"
-								satisfied = false
-							elseif test_operator == ModalLogic.TestOpGeq && ! (threshold <= opGeqMaxThresh[i])
+							# if thresholdArr[i] == typemax(T) || thresholdArr[i] == typemin(T) # opLesMinThresh[i] == typemax(T) # opGeqMaxThresh[i] == typemin(T) TODO (one is probably enough)
+							# 	# @logmsg DTDetail "   NO!"
+							# 	satisfied = false
+							# else
+							if ModalLogic.polarity(test_operator) && (threshold > thresholdArr[i])
 								# @logmsg DTDetail "   YES!!!"
 								satisfied = false
-							elseif test_operator == ModalLogic.TestOpLes && ! (threshold > opLesMinThresh[i])
+							elseif ! (ModalLogic.polarity(test_operator)) && (threshold < thresholdArr[i]) # TODO is this ok? closed/non-closed
+							# elseif test_operator == ModalLogic.TestOpLes && ! (threshold > thresholdArr[i])
 								# @logmsg DTDetail "   YES!!!"
 								satisfied = false
+							# elseif ! (ModalLogic.polarity(test_operator)) && (threshold >= thresholdArr[i]) # TODO is this ok? closed/non-closed
+							# 	println("NO!!!")
 							end
 							
 							if !satisfied
@@ -313,19 +343,20 @@ module treeclassifier
 							purity = -(nl * purity_function(ncl, nl) +
 								      	 nr * purity_function(ncr, nr))
 							if purity > best_purity__nt && !isapprox(purity, best_purity__nt)
-								best_purity__nt         = purity
+								best_purity__nt     = purity
 								best_relation       = relation
 								best_feature        = feature
 								best_test_operator  = test_operator
 								best_threshold      = threshold
+								best_nl             = nl # TODO for checking consistency purposes only
 								# TODO: At the end, we should take the average between current and last.
 								#  This requires thresholds to be sorted
 								# threshold_lo, threshold_hi  = last_f, curr_f
 								@logmsg DTDetail "  Found new optimum: " (best_purity__nt/nt) best_relation best_feature best_test_operator best_threshold
 							end
 						end
-					end # for test_operator
-				end # for threshold
+					end # for threshold
+				end # for test_operator
 			end # for relation
 		end # for feature
 
@@ -338,8 +369,6 @@ module treeclassifier
 			return
 		else
 			best_purity = best_purity__nt/nt
-			@logmsg DTOverview " Branch ($(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
-
 			# try
 			# 	node.threshold = (threshold_lo + threshold_hi) / 2.0
 			# catch
@@ -360,6 +389,7 @@ module treeclassifier
 			@simd for i in 1:n_instances
 				setfeature!(i, Xf, X.domain, indX[i + r_start], best_feature)
 			end
+
 			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_instances
 			unsatisfied_flags = fill(1, n_instances)
 			for i in 1:n_instances
@@ -368,9 +398,19 @@ module treeclassifier
 				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, best_test_operator, best_threshold)
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
+
+			if best_nl != n_instances-sum(unsatisfied_flags)
+				throw(Base.ErrorException("Something's wrong with the optimization steps. unsatisfied_flags: $(unsatisfied_flags)\n$(best_nl)\n$(n_instances-sum(unsatisfied_flags))\n"))
+			end
+
+			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
+			# for i in 1:n_instances
+			# 	println(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))
+			# end
+
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
-			@assert length(unique(unsatisfied_flags)) > 1 "Uninformative split. Something's wrong with the optimization steps."
+			@assert length(unique(unsatisfied_flags)) > 1 "Uninformative split. Something's wrong with the optimization steps. unsatisfied_flags: $(unsatisfied_flags)"
 			@logmsg DTDetail "pre-partition" region indX[region] unsatisfied_flags
 			node.split_at = util.partition!(indX, unsatisfied_flags, 0, region)
 			@logmsg DTDetail "post-partition" indX[region] node.split_at
@@ -444,6 +484,7 @@ module treeclassifier
 			min_purity_increase     :: AbstractFloat,
 			max_purity_split        :: AbstractFloat,
 			initCondition           :: DecisionTree._initCondition,
+			useRelationAll          :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
@@ -478,13 +519,19 @@ module treeclassifier
 		# Binary relations (= unary modal operators)
 		# Note: the equality operator is the first, and is the one representing
 		#  the propositional case.
+		# TODO check what happens if ModalLogic.RelationAll o ModalLogic.RelationId is in X.ontology.relationSet (I mean... optimize that case)
 		relationSet = [ModalLogic.RelationId, ModalLogic.RelationAll, (X.ontology.relationSet)...]
 		relationId_id = 1
 		relationAll_id = 2
 		relation_ids = map((x)->x+2, 1:length(X.ontology.relationSet))
 		# TODO figure out if one should use this
-		availableModalRelation_ids = relation_ids
-		# availableModalRelation_ids = [relationAll_id, relation_ids...]
+
+		if useRelationAll
+			availableModalRelation_ids = [relationAll_id, relation_ids...]
+		else
+			availableModalRelation_ids = relation_ids
+		end
+
 		allAvailableRelation_ids = [relationId_id, availableModalRelation_ids...]
 
 		# Fix test_operators order
@@ -498,16 +545,13 @@ module treeclassifier
 
 		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
 		#  are complementary, and thus it is redundant to check both at the same node.
-		#  We avoid this by creating a dedicated set of relations for propositional splits
+		#  We avoid this by only keeping one of the two operators.
 		# TODO optimize this: use opposite_test_operator() to check pairs.
-		# TODO But first, check that TestOpGeq095 and TestOpLes095 are actually complementary
-		# TODO actually it seems like test_operators are never redundant.
-		propositional_test_operators = 
-			if false && [ModalLogic.TestOpGeq, ModalLogic.TestOpLes] ⊆ test_operators
-				filter(e->e ≠ ModalLogic.TestOpLes,test_operators)
-			else
-				test_operators
-			end
+		# TODO But first, check that TestOpGeq95 and TestOpLes05 are actually complementary
+		if prod(channel_size(X)) == 1 && test_operators ⊆ all_ordered_test_operators
+			test_operators = [ModalLogic.TestOpGeq]
+			# test_operators = filter(e->e ≠ ModalLogic.TestOpLes,test_operators)
+		end
 
 		
 		# TODO use Ef = Dict(X.ontology.worldType,NTuple{NTO,T})
@@ -525,6 +569,7 @@ module treeclassifier
 		
 		# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
 		Sogliole = computeSogliole(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+		# Sogliole = @btime computeSogliole($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)
@@ -545,7 +590,6 @@ module treeclassifier
 				min_purity_increase,
 				max_purity_split,
 				test_operators,
-				propositional_test_operators,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, Sogliole,
 				rng,
@@ -580,6 +624,7 @@ module treeclassifier
 			min_purity_increase     :: AbstractFloat,
 			max_purity_split        :: AbstractFloat, # TODO add this to scikit's interface.
 			initCondition           :: DecisionTree._initCondition,
+			useRelationAll          :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
@@ -619,6 +664,7 @@ module treeclassifier
 			min_purity_increase,
 			max_purity_split,
 			initCondition,
+			useRelationAll,
 			test_operators,
 			rng)
 

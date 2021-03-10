@@ -150,6 +150,9 @@ dual_test_operator(::_TestOpLes) = TestOpGeq
 primary_test_operator(x::_TestOpGeq) = TestOpGeq # x
 primary_test_operator(x::_TestOpLes) = TestOpGeq # dual_test_operator(x)
 
+polarity(x::_TestOpGeq) = true
+polarity(x::_TestOpLes) = false
+
 # >=_α
 struct _TestOpGeqSoft  <: TestOperator
   alpha :: AbstractFloat
@@ -177,6 +180,10 @@ dual_test_operator(x::_TestOpLesSoft) = _TestOpGeqSoft(1-alpha(x))
 primary_test_operator(x::_TestOpGeqSoft) = x
 primary_test_operator(x::_TestOpLesSoft) = dual_test_operator(x)
 
+# TODO use
+polarity(x::_TestOpGeqSoft) = true
+polarity(x::_TestOpLesSoft) = false
+
 # dual_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLes_95
 # dual_test_operator(::_TestOpLesSoft{Val{Rational(95,100)}}) = TestOpGeq_95
 # dual_test_operator(::_TestOpGeqSoft{Val{Rational(90,100)}}) = TestOpLes_90
@@ -196,22 +203,28 @@ primary_test_operator(x::_TestOpLesSoft) = dual_test_operator(x)
 # alpha(::_TestOpGeqSoft{Val{Rational(75,100)}}) = Rational(75,100)
 # alpha(::_TestOpLesSoft{Val{Rational(75,100)}}) = Rational(75,100)
 
-
-sort_test_operators!(x::Vector{TestOperator}) = begin
-	test_operators_order = [
+const all_ordered_test_operators = [
 		TestOpGeq, TestOpLes,
 		TestOpGeq_95, TestOpLes_95,
 		TestOpGeq_90, TestOpLes_90,
 		TestOpGeq_80, TestOpLes_80,
 		TestOpGeq_75, TestOpLes_75,
 	]
-	intersect(test_operators_order, x)
+const all_test_operators_order = [
+		TestOpGeq, TestOpLes,
+		TestOpGeq_95, TestOpLes_95,
+		TestOpGeq_90, TestOpLes_90,
+		TestOpGeq_80, TestOpLes_80,
+		TestOpGeq_75, TestOpLes_75,
+	]
+sort_test_operators!(x::Vector{TO}) where {TO<:TestOperator} = begin
+	intersect(all_test_operators_order, x)
 end
 
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) >= $(featval)"
-display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) < $(featval)"
+display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) <= $(featval)"
 display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) >= $(featval)]"
-display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) < $(featval)]"
+display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) <= $(featval)]"
 
 display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, featid::Integer, featval::Number) = begin
 	test = display_propositional_test(test_operator, "V$(featid)", featval)
@@ -223,12 +236,26 @@ display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOpe
 end
 
 
-@inline WExtrema(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
-@inline WExtreme(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
-@inline WExtreme(::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
+@inline WExtrema(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = reverse(extrema(readWorld(w,channel)))
+@inline WExtreme(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	# println(_TestOpGeq)
+	# println(w)
+	# println(channel)
+	# println(maximum(readWorld(w,channel)))
+	# readline()
+	maximum(readWorld(w,channel))
+end
+@inline WExtreme(::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	# println(_TestOpLes)
+	# println(w)
+	# println(channel)
+	# readline()
+	minimum(readWorld(w,channel))
+end
 
 
 # TODO improved version for Rational numbers
+# TODO check
 @inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
 	x = partialsort!(vals,1+floor(Int, (1.0-alpha(test_op))*length(vals)))
@@ -260,10 +287,18 @@ end
 	# @info "WLes" w featval #n readWorld(w,channel)
 	# @inbounds
 	for x in readWorld(w,channel)
-		x < featval || return false
+		x <= featval || return false
 	end
 	return true
 end
+
+# Utility type for enhanced computation of thresholds
+abstract type _ReprTreatment end
+struct _ReprFake{worldType<:AbstractWorld}  <: _ReprTreatment w :: worldType end
+struct _ReprMax{worldType<:AbstractWorld}  <: _ReprTreatment w :: worldType end
+struct _ReprMin{worldType<:AbstractWorld}  <: _ReprTreatment w :: worldType end
+struct _ReprVal{worldType<:AbstractWorld}  <: _ReprTreatment w :: worldType end
+struct _ReprNone{worldType<:AbstractWorld} <: _ReprTreatment end
 
 ################################################################################
 # END Test operators
@@ -279,8 +314,8 @@ struct _centeredWorld end; const centeredWorld = _centeredWorld();
 ## Enumerate accessible worlds
 
 # Fallback: enumAcc works with domains AND their dimensions
-enumAcc(S::Any, r::AbstractRelation, X::MatricialChannel{T,N}) where {T,N} = enumAcc(S, r, size(X)...)
-enumAccRepr(S::Any, r::AbstractRelation, X::MatricialChannel{T,N}) where {T,N} = enumAccRepr(S, r, size(X)...)
+enumAcc(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAcc(S, r, size(channel)...)
+enumAccRepr(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAccRepr(S, r, size(channel)...)
 # Fallback: enumAcc for world sets maps to enumAcc-ing their elements
 #  (note: one may overload this function to provide improved implementations for special cases (e.g. <L> of a world set in interval algebra))
 enumAcc(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,WorldType<:AbstractWorld} = begin
@@ -303,6 +338,10 @@ enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<
 
 # TODO parametrize on test operator (any test operator in this case)
 enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
+WExtremaModal(test_operator::ModalLogic._TestOpGeq, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+	WExtrema(test_operator, w, channel)
+WExtremeModal(test_operator::Union{ModalLogic._TestOpGeq,ModalLogic._TestOpLes}, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+	WExtreme(test_operator, w, channel)
 
 display_rel_short(::_RelationId)  = "Id"
 display_rel_short(::_RelationAll) = ""

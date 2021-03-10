@@ -128,25 +128,46 @@
 		end
 
 		@inline WExtremaModal(test_operator::ModalLogic.TestOperator, SoglId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+			ModalLogic.WExtremaModal(test_operator, w, relation, channel)
+			
+			# TODO use SoglId...?
+			# TODO fix this
+			# accrepr = ModalLogic.enumAccRepr(test_operator, w, relation, channel)
 
-			accrepr = if relation != ModalLogic.RelationAll
-					ModalLogic.enumAccRepr(w, relation, channel)
-				else
-					(true,ModalLogic.enumAccRepr(w, relation, channel))
-				end
-			# TODO use SoglId[w.x.x, w.x.y, w.y.x, w.y.y]
-			# accrepr::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}
-			inverted, representatives = accrepr
-			opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
-			for w in representatives
-				(_wmin, _wmax) = ModalLogic.WExtrema(test_operator, w, channel)
-				if inverted
-					(_wmax, _wmin) = (_wmin, _wmax)
-				end
-				opGeqMaxThresh = max(opGeqMaxThresh, _wmin)
-				opLesMinThresh = min(opLesMinThresh, _wmax)
-			end
-			return (opGeqMaxThresh, opLesMinThresh)
+			# # TODO use SoglId[w.x.x, w.x.y, w.y.x, w.y.y]
+			# # accrepr::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}
+			# inverted, representatives = accrepr
+			# opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
+			# for w in representatives
+			# 	(_wmin, _wmax) = ModalLogic.WExtrema(test_operator, w, channel)
+			# 	if inverted
+			# 		(_wmax, _wmin) = (_wmin, _wmax)
+			# 	end
+			# 	opGeqMaxThresh = max(opGeqMaxThresh, _wmin)
+			# 	opLesMinThresh = min(opLesMinThresh, _wmax)
+			# end
+			# return (opGeqMaxThresh, opLesMinThresh)
+		end
+
+		@inline WExtremeModal(test_operator::ModalLogic.TestOperator, SoglId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+			ModalLogic.WExtremeModal(test_operator, w, relation, channel)
+		# 	# TODO fix this
+		# 	accrepr = ModalLogic.enumAccRepr(test_operator, w, relation, channel)
+			
+		# 	# TODO use SoglId[w.x.x, w.x.y, w.y.x, w.y.y]
+		# 	# accrepr::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}
+		# 	inverted, representatives = accrepr
+		# 	TODO inverted...
+		# 	(opExtremeThresh, optimizer) = if ModalLogic.polarity(test_operator)
+		# 			typemin(T), max
+		# 		else
+		# 			typemax(T), min
+		# 		end
+		# 	for w in representatives
+		# 		_wextreme = ModalLogic.WExtreme(test_operator, w, channel)
+		# 		opExtremeThresh = optimizer(opExtremeThresh, _wextreme)
+		# 	end
+		# 	return opExtremeThresh
 		end
 
 		get_thresholds_repr(SoglId, w, relation, channel) = begin
@@ -156,7 +177,7 @@
 				thresholds = if both
 						[thresholds..., WExtremaModal(test_operator, SoglId, w, relation, channel)...]
 					else
-						[thresholds..., WExtremeModal(test_operator, w, relation, channel)]
+						[thresholds..., WExtremeModal(test_operator, SoglId, w, relation, channel)]
 					end
 			end
 			Tuple(thresholds)

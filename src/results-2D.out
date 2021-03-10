@@ -3699,3 +3699,127 @@ Height: 8
 Modal height:  5
 worldType: DecisionTree.ModalLogic.Interval2D
 initCondition: DecisionTree._startAtCenter()
+
+
+  1.884 s (31778454 allocations: 1.49 GiB)
+
+
+
+  Benchmarking dataset 'PaviaDataset, 3x3'...                                                                                                                                                                                                                                                                                                                                                  
+  args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)                                                                                                                                                                                                                                                                                                                         
+  kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,AbstractRelation[]), useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLes()])                                                                                               
+   train size = (3, 3, 216, 103)                                                                                                                          └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/compute-thresholds.jl:189                                                   
+    1.864 s (31778454 allocations: 1.49 GiB)                                                                                                                    
+  ┌ LogLevel(-500):  Branch (216 samples) on condition: <> (V9 >= 1073), purity -1.625010883520299                                                               
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346                                                                
+  ┌ LogLevel(-500):  Branch (89 samples) on condition: <> (V64 < 315), purity -0.8007759892983068                                                                
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346                                                                
+  ┌ LogLevel(-500):  Branch (42 samples) on condition: <> (V72 < 1505), purity -0.7070195240259687                                                               
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346                                                                
+  ┌ LogLevel(-500):  Branch (29 samples) on condition: <> (V27 >= 1259), purity -0.3236577831392682                                                              
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346                                                                
+  ┌ LogLevel(-500):  Branch (24 samples) on condition: V100 >= 2418, purity -0.11552453009332421                                                                
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346                                                                
+  ┌ LogLevel(-500):  Branch (13 samples) on condition: V5 >= 705, purity -0.21327605555690624                                                                   
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346                                                                                                                                                                                                                               
+  ┌ LogLevel(-500):  Branch (47 samples) on condition: V69 >= 433, purity -2.1732025162875404e-16                                                                
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346                                                                
+  ┌ LogLevel(-500):  Branch (127 samples) on condition: V86 < 1546, purity -1.2238306104652403                                                                  
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (82 samples) on condition: V1 >= 2700, purity -0.8312025688710774
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (58 samples) on condition: V76 >= 2452, purity -0.7435712386065986
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (49 samples) on condition: V21 >= 1542, purity -0.695797732074463
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (13 samples) on condition: V1 >= 1416, purity -0.1730261983442487
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (36 samples) on condition: V47 < 1916, purity -0.5687613927318138
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (18 samples) on condition: V9 >= 1487, purity -0.4243427788632086
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (12 samples) on condition: V9 < 1564, purity -0.0     
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (18 samples) on condition: V41 >= 1777, purity -0.12496336547084629
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (45 samples) on condition: V67 < 1251, purity -0.46104061083107634
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (31 samples) on condition: <> (V3 >= 1341), purity -0.28887880360050594
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (9 samples) on condition: V5 >= 1368, purity -0.5860667599923023
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  Decision Tree                                                                                  
+  Leaves: 20                                                                                     
+  Tot nodes: 39                                                                                  
+  Height: 8                                                                                      
+  Modal height:  4                                                                               
+  worldType: DecisionTree.ModalLogic.Interval2D                                                  
+  initCondition: DecisionTree._startAtCenter()                                                   
+  <> (V9 >= 1073)                                                                                
+  ✔ V86 < 1546                                                                                   
+  │✔ V67 < 1251                                                                                  
+  ││✔ 1 : 14/14                                                                                  
+  ││✘ <> (V3 >= 1341)                                                                            
+  ││ ✔ V5 >= 1368                                                                                
+  ││ │✔ 1 : 4/4                                                                                  
+  ││ │✘ 7 : 2/5                                                                                  
+  ││ ✘ 7 : 22/22                                                                                 
+  │✘ V1 >= 2700                                                                                  
+  │ ✔ 5 : 24/24                                                                                  
+  │ ✘ V76 >= 2452                                                                                
+  │  ✔ 6 : 9/9                                                                                   
+  │  ✘ V21 >= 1542                                                                               
+  │   ✔ V47 < 1916                                                                               
+  │   │✔ V41 >= 1777                                                                             
+  │   ││✔ 8 : 14/14                                                                              
+  │   ││✘ 1 : 3/4                                                                                
+  │   │✘ V9 >= 1487                                                                              
+  │   │ ✔ V9 < 1564                                                                              
+  │   │ │✔ 8 : 8/8                                                                               
+  │   │ │✘ 3 : 4/4                                                                               
+  │   │ ✘ 3 : 6/6                                                                                
+  │   ✘ V1 >= 1416                                                                               
+  │    ✔ 3 : 9/9                                                                                 
+  │    ✘ 3 : 3/4                                                                                 
+  ✘ <> (V64 < 315)                                                                               
+   ✔ V69 >= 433                                                                                  
+   │✔ 4 : 23/23                                                                                  
+   │✘ 9 : 24/24                                                                                  
+   ✘ <> (V72 < 1505)                                                                             
+    ✔ V5 >= 705                                                                                  
+    │✔ 2 : 2/4                                                                                   
+    │✘ 6 : 9/9                                                                                   
+    ✘ <> (V27 >= 1259)                                                                           
+     ✔ 6 : 4/5                                                                                   
+     ✘ V100 >= 2418                                                                              
+      ✔ 2 : 20/20                                                                                
+      ✘ 2 : 2/4                                                                                  
+   test size = (3, 3, 54, 103)                                                                   
+   Purity threshold 1.0                                                                          
+    acc: 72.22% kappa: 68.75% 9×9 Array{Int64,2}:                                                
+   4  1  0  0  0  0  1  0  0
+   0  2  0  2  0  2  0  0  0
+   2  0  1  0  0  1  0  2  0
+   0  0  0  6  0  0  0  0  0
+   0  0  0  0  6  0  0  0  0
+   0  0  0  0  0  6  0  0  0
+   2  0  0  0  0  0  4  0  0
+   0  0  0  0  0  1  0  5  0
+   1  0  0  0  0  0  0  0  5
+  nodes: (39, height: 8)
+  Decision Tree
+  Leaves: 20
+  Tot nodes: 39
+  Height: 8
+  Modal height:  4
+  worldType: DecisionTree.ModalLogic.Interval2D
+  initCondition: DecisionTree._startAtCenter()
+
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,AbstractRelation[]), useRelationAll = true, test_operators = [DecisionTree.ModalLogic._TestOpLes()])
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,IA2DRelations), useRelationAll = false, test_operators = [DecisionTree.ModalLogic._TestOpGeq()])

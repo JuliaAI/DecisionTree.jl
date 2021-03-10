@@ -52,6 +52,7 @@ function build_stump(
 		min_purity_increase = 0.0,
 		max_purity_split    = 1.0,
 		initCondition       = startWithRelationAll,
+		useRelationAll      = true,
 		test_operators      = test_operators,
 		rng                 = rng)
 
@@ -74,6 +75,7 @@ function build_tree(
 		min_purity_increase :: AbstractFloat      = 0.0,
 		max_purity_split    :: AbstractFloat      = 1.0;
 		initCondition       :: _initCondition     = startWithRelationAll,
+		useRelationAll      :: Bool               = true,
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 		loss                :: Function           = util.entropy,
@@ -102,6 +104,7 @@ function build_tree(
 		min_purity_increase = min_purity_increase,
 		max_purity_split    = max_purity_split,
 		initCondition       = initCondition,
+		useRelationAll      = useRelationAll,
 		test_operators      = test_operators,
 		rng                 = rng)
 
