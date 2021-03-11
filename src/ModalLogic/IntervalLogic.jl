@@ -26,6 +26,7 @@ struct Interval <: AbstractWorld
 	y :: Integer
 	# TODO check x<y but only in debug mode.  && x<=N, y<=N ?
 	# Interval(x,y) = x>0 && y>0 && x < y ? new(x,y) : error("Can't instantiate Interval(x={$x},y={$y})")
+	Interval(w::Interval) = new(w.x,w.y)
 	Interval(x::Integer,y::Integer) = new(x,y)
 	Interval((x,y)::Tuple{Integer,Integer}) = new(x,y)
 	Interval(::_emptyWorld) = new(-1,0)
@@ -354,6 +355,7 @@ enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_Oi, X::Integer) = (1 <
 struct Interval2D <: AbstractWorld
 	x :: Interval
 	y :: Interval
+	Interval2D(w::Interval2D) = new(w.x,w.y)
 	Interval2D(x::Interval,y::Interval) = new(x,y)
 	Interval2D(((xx,xy),(yx,yy))::Tuple{Tuple{Integer,Integer},Tuple{Integer,Integer}}) = new(Interval(xx,xy),Interval(yx,yy))
 	Interval2D((x,y)::Tuple{Interval,Interval}) = new(x,y)
@@ -612,7 +614,8 @@ WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where
 	end
 	vals = readWorld(productRepr.w, channel)
 	# TODO try: maximum(mapslices(minimum, vals, dims=1)),minimum(mapslices(maximum, vals, dims=1))
-	extr = mapslices(extrema, vals, dims=1)
+	extr = vec(mapslices(extrema, vals, dims=1))
+	# println(extr)
 	maxExtrema(extr)
 end
 WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
@@ -638,7 +641,7 @@ WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where
 	end
 	vals = readWorld(productRepr.w, channel)
 	# TODO try: maximum(mapslices(minimum, vals, dims=2)),minimum(mapslices(maximum, vals, dims=2))
-	extr = mapslices(extrema, vals, dims=2)
+	extr = vec(mapslices(extrema, vals, dims=2))
 	maxExtrema(extr)
 end
 WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
@@ -1313,6 +1316,7 @@ end
 # ################################################################################
 
 # struct Point <: AbstractWorld
+	# Point(w::Point) = new(w.x,w.y)
 # 	x :: Integer
 # 	# TODO check x<=N but only in debug mode
 # 	# Point(x) = x<=N ... ? new(x) : error("Can't instantiate Point(x={$x})")

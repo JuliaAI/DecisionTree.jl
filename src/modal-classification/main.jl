@@ -53,6 +53,7 @@ function build_stump(
 		max_purity_split    = 1.0,
 		initCondition       = startWithRelationAll,
 		useRelationAll      = true,
+		useRelationId       = true,
 		test_operators      = test_operators,
 		rng                 = rng)
 
@@ -76,6 +77,7 @@ function build_tree(
 		max_purity_split    :: AbstractFloat      = 1.0;
 		initCondition       :: _initCondition     = startWithRelationAll,
 		useRelationAll      :: Bool               = true,
+		useRelationId       :: Bool               = true,
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 		loss                :: Function           = util.entropy,
@@ -105,6 +107,7 @@ function build_tree(
 		max_purity_split    = max_purity_split,
 		initCondition       = initCondition,
 		useRelationAll      = useRelationAll,
+		useRelationId       = useRelationId,
 		test_operators      = test_operators,
 		rng                 = rng)
 
@@ -191,6 +194,8 @@ function apply_tree(tree::DTree{S, T}, d::MatricialDataset{S,D}) where {S, T, D}
 				[ModalLogic.emptyWorld]
 			elseif tree.initCondition == startAtCenter
 				[ModalLogic.centeredWorld, channel_size(d)...]
+			elseif typeof(tree.initCondition) <: _startAtWorld
+				[tree.initCondition.w]
 		end
 		predictions[i] = apply_tree(tree.root, ModalLogic.getInstance(d, i), WorldSet{tree.worldType}([tree.worldType(w0params...)]))
 	end

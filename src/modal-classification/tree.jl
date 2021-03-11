@@ -105,7 +105,7 @@ module treeclassifier
 							
 							rng                 :: Random.AbstractRNG,
 							relationSet         :: Vector{<:ModalLogic.AbstractRelation},
-							relation_ids                :: AbstractVector{Int},
+							relation_ids        :: AbstractVector{Int},
 							) where {WorldType<:AbstractWorld, T, U, N, M, NTO, L}  # WT<:X.ontology.worldType
 
 		# Region of indx to use to perform the split
@@ -340,9 +340,7 @@ module treeclassifier
 						@logmsg DTDebug "  (n_left,n_right) = ($nl,$nr)"
 
 						# Honor min_samples_leaf
-						if
-							relation != ModalLogic.RelationId && # TODO remove
-							nl >= min_samples_leaf && n_instances - nl >= min_samples_leaf
+						if nl >= min_samples_leaf && n_instances - nl >= min_samples_leaf
 							unsplittable = false
 							# TODO figure out exactly what this purity is?
 							purity = -(nl * purity_function(ncl, nl) +
@@ -407,9 +405,9 @@ module treeclassifier
 			end
 
 			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
-			for i in 1:n_instances
-				println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
-			end
+			# for i in 1:n_instances
+			# 	println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
+			# end
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
@@ -498,6 +496,7 @@ module treeclassifier
 			max_purity_split        :: AbstractFloat,
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
+			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
@@ -520,6 +519,8 @@ module treeclassifier
 				[ModalLogic.emptyWorld]
 			elseif initCondition == startAtCenter
 				[ModalLogic.centeredWorld, channel_size(X)...]
+			elseif typeof(initCondition) <: DecisionTree._startAtWorld
+				[initCondition.w]
 		end
 		S = WorldSet{X.ontology.worldType}[[X.ontology.worldType(w0params...)] for i in 1:n_instances]
 
@@ -539,13 +540,17 @@ module treeclassifier
 		relation_ids = map((x)->x+2, 1:length(X.ontology.relationSet))
 		# TODO figure out if one should use this
 
-		if useRelationAll
-			availableModalRelation_ids = [relationAll_id, relation_ids...]
+		availableModalRelation_ids = if useRelationAll
+			[relationAll_id, relation_ids...]
 		else
-			availableModalRelation_ids = relation_ids
+			relation_ids
 		end
 
-		allAvailableRelation_ids = [relationId_id, availableModalRelation_ids...]
+		allAvailableRelation_ids = if useRelationId
+			[relationId_id, availableModalRelation_ids...]
+		else
+			availableModalRelation_ids
+		end
 
 		# Fix test_operators order
 		ModalLogic.sort_test_operators!(test_operators)
@@ -638,6 +643,7 @@ module treeclassifier
 			max_purity_split        :: AbstractFloat, # TODO add this to scikit's interface.
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
+			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
@@ -678,6 +684,7 @@ module treeclassifier
 			max_purity_split,
 			initCondition,
 			useRelationAll,
+			useRelationId,
 			test_operators,
 			rng)
 

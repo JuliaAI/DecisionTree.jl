@@ -48,6 +48,7 @@ using .ModalLogic
 abstract type _initCondition end
 struct _startWithRelationAll  <: _initCondition end; const startWithRelationAll  = _startWithRelationAll();
 struct _startAtCenter         <: _initCondition end; const startAtCenter         = _startAtCenter();
+struct _startAtWorld{T<:AbstractWorld} <: _initCondition w::T end;
 
 # Leaf node, holding the output decision
 struct DTLeaf{T} # TODO specify output type: Number, Label, String, Union{Number,Label,String}?

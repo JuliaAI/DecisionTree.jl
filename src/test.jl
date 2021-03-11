@@ -106,12 +106,15 @@ args = (
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
+	# initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
 	# initCondition=DecisionTree.startWithRelationAll,
 	# ontology=getIntervalOntologyOfDim(Val(2)),
 	# ontology=Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.TopoRelations),Set([ModalLogic.Topo_PO]))),
-	ontology=Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
-	# ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+	# ontology=Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
+	ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
 	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
+	useRelationId = true,
+	# useRelationId = false,
 	useRelationAll = false,
 	# useRelationAll = true,
 	# test_operators=[ModalLogic.TestOpGeq],
@@ -119,15 +122,38 @@ kwargs = (
 	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes, ModalLogic.TestOpGeq075, ModalLogic.TestOpLes075],
 )
+
 # timeit = 2
 timeit = 0
+
 T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+
 T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
 T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 1, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
+
+
+# TODO test the same with window 3x5; also test with a specific initial world. One that allows During, for example, or one on the border
+relations = [ModalLogic.IA2DRelations...,ModalLogic.TopoRelations...]
+i_relation = 1
+while i_relation <= length(relations)
+	relation = relations[i_relation]
+	println(relation)
+	kwargs = (
+		initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
+		useRelationId = false,
+		useRelationAll = false,
+		test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+		ontology=Ontology(ModalLogic.Interval2D,[relation]),
+	)
+	T = testDataset(("PaviaDataset, 3x3 mod",                           traintestsplit(SampleLandCoverDataset(9*30, (3,5), "Pavia", n_variables = 1, rng = my_rng())...,0.8)), 0, args=args, kwargs=kwargs);
+	println(T)
+	i_relation+=1
+end
+
 
 
 # exit()
