@@ -163,7 +163,7 @@
 
 		@inbounds for feature in 1:n_vars
 			@logmsg DTDebug "Feature $(feature)/$(n_vars)"
-			if ((feature+1) % (floor(Int, ((n_vars)/5))+1)) == 0
+			if feature == 1 || ((feature+1) % (floor(Int, ((n_vars)/5))+1)) == 0
 				@logmsg DTOverview "Feature $(feature)/$(n_vars)"
 			end
 			

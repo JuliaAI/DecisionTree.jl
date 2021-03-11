@@ -221,15 +221,15 @@ sort_test_operators!(x::Vector{TO}) where {TO<:TestOperator} = begin
 	intersect(all_test_operators_order, x)
 end
 
-display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) >= $(featval)"
-display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) <= $(featval)"
-display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) >= $(featval)]"
-display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) <= $(featval)]"
+display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) ⫺ $(featval)"
+display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) ⫹ $(featval)"
+display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫺ $(featval)]"
+display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫹ $(featval)]"
 
 display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, featid::Integer, featval::Number) = begin
 	test = display_propositional_test(test_operator, "V$(featid)", featval)
 	if modality != ModalLogic.RelationId
-		"<$(ModalLogic.display_rel_short(modality))> ($test)"
+		"$(ModalLogic.display_existential_modality(modality)) ($test)"
 	else
 		"$test"
 	end

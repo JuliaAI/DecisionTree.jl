@@ -147,6 +147,7 @@ module treeclassifier
 		best_test_operator = ModalLogic.TestOpNone
 		best_threshold = T(-1)
 		best_nl = -1 # TODO this is just for checking
+		best_unsatisfied = [] # TODO this is just for checking
 		# threshold_lo = ...
 		# threshold_hi = ...
 
@@ -301,6 +302,7 @@ module treeclassifier
 						# Re-initialize right class counts
 						nr = zero(U)
 						ncr[:] .= zero(U)
+						unsatisfied = fill(1, n_instances)
 						for i in 1:n_instances
 							# @logmsg DTDetail " instance $i/$n_instances ExtremeThresh ($(opGeqMaxThresh[i])/$(opLesMinThresh[i]))"
 							satisfied = true
@@ -325,6 +327,7 @@ module treeclassifier
 								nr += Wf[i]
 								ncr[Yf[i]] += Wf[i]
 							else
+								unsatisfied[i] = 0
 								@logmsg DTDetail "YES"
 							end
 						end
@@ -337,7 +340,9 @@ module treeclassifier
 						@logmsg DTDebug "  (n_left,n_right) = ($nl,$nr)"
 
 						# Honor min_samples_leaf
-						if nl >= min_samples_leaf && n_instances - nl >= min_samples_leaf
+						if
+							relation != ModalLogic.RelationId && # TODO remove
+							nl >= min_samples_leaf && n_instances - nl >= min_samples_leaf
 							unsplittable = false
 							# TODO figure out exactly what this purity is?
 							purity = -(nl * purity_function(ncl, nl) +
@@ -349,6 +354,7 @@ module treeclassifier
 								best_test_operator  = test_operator
 								best_threshold      = threshold
 								best_nl             = nl # TODO for checking consistency purposes only
+								best_unsatisfied    = unsatisfied # TODO for checking consistency purposes only
 								# TODO: At the end, we should take the average between current and last.
 								#  This requires thresholds to be sorted
 								# threshold_lo, threshold_hi  = last_f, curr_f
@@ -402,18 +408,18 @@ module treeclassifier
 
 			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
 			for i in 1:n_instances
-				println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))" * "\t" * "$(Sf[i])" * "\t" * "$(!(unsatisfied_flags[i]==1))")
+				println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
 			end
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
-			if best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
+			if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 				errStr = "Something's wrong with the optimization steps.\n"
 				if length(unique(unsatisfied_flags)) == 1
 					errStr *= "Uninformative split.\n$(unsatisfied_flags)\n"
 				end
-				if best_nl != n_instances-sum(unsatisfied_flags)
-					errStr *= "unsatisfied_flags:\n$(unsatisfied_flags)\n$(best_nl)\n$(n_instances-sum(unsatisfied_flags))\n"
+				if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags)
+					errStr *= "Different unsatisfied and best_unsatisfied:\ncomputed: $(best_unsatisfied)\n$(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
 				end
 				throw(Base.ErrorException(errStr))
 			end

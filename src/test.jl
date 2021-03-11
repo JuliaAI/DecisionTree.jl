@@ -107,27 +107,28 @@ args = (
 kwargs = (
 	initCondition=DecisionTree.startAtCenter,
 	# initCondition=DecisionTree.startWithRelationAll,
-	ontology=getIntervalOntologyOfDim(Val(2)),
+	# ontology=getIntervalOntologyOfDim(Val(2)),
+	# ontology=Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.TopoRelations),Set([ModalLogic.Topo_PO]))),
+	ontology=Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
 	# ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
 	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
 	useRelationAll = false,
 	# useRelationAll = true,
-	test_operators=[ModalLogic.TestOpGeq],
+	# test_operators=[ModalLogic.TestOpGeq],
 	# test_operators=[ModalLogic.TestOpLes],
-	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes, ModalLogic.TestOpGeq075, ModalLogic.TestOpLes075],
 )
-timeit = 2
+# timeit = 2
+timeit = 0
+T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
-# timeit = 0
 T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 1, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 
-
-T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 
 # exit()
 
