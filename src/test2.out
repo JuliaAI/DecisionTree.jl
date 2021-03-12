@@ -1,0 +1,2750 @@
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 320, 200)
+ test size = (1, 1, 320, 200)
+ Purity threshold 1.0
+  acc: 55.62% kappa: 52.67% 16×16 Array{Int64,2}:
+ 19   0  0  0   0   0   0  1   0  0  0  0   0  0   0   0
+  0  11  1  0   0   0   0  0   0  1  2  5   0  0   0   0
+  0   6  4  0   0   0   0  0   0  2  3  5   0  0   0   0
+  0   4  1  6   0   0   0  0   0  2  0  6   0  0   0   1
+  0   0  0  0  18   0   1  0   0  0  0  0   0  1   0   0
+  0   0  0  0   0  17   0  0   1  0  0  0   0  0   2   0
+  0   0  0  0   0   0  20  0   0  0  0  0   0  0   0   0
+  5   4  0  0   0   0   5  5   0  0  0  1   0  0   0   0
+  0   0  0  0   3   0   0  0  15  0  0  0   0  0   2   0
+  0   5  0  0   0   0   1  0   0  7  4  3   0  0   0   0
+  0   4  2  0   1   0   0  0   0  4  5  4   0  0   0   0
+  0   3  1  5   0   0   0  0   0  3  1  7   0  0   0   0
+  0   0  0  6   0   0   0  0   0  0  0  0  13  0   1   0
+  0   0  0  0   4   0   0  0   0  0  0  0   0  9   7   0
+  0   0  0  2   5   0   0  0   0  0  0  0   1  0  12   0
+  0   1  2  0   4   0   3  0   0  0  0  0   0  0   0  10Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3 flattened'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 320, 1800)
+ test size = (1, 1, 320, 1800)
+ Purity threshold 1.0
+  acc: 15.94% kappa: 10.33% 16×16 Array{Int64,2}:
+ 3  2  0  2  2  1  0  0  2  1  1  0  1  2  0  3
+ 2  2  1  0  3  4  2  0  0  2  1  0  0  1  1  1
+ 2  4  0  2  4  1  2  0  0  1  0  0  1  1  1  1
+ 2  2  1  3  1  2  0  0  2  0  1  0  2  1  2  1
+ 1  1  2  3  2  5  0  0  0  2  0  0  3  0  0  1
+ 1  1  0  4  4  7  1  0  0  0  0  0  2  0  0  0
+ 1  3  2  0  0  6  1  2  2  0  2  0  0  0  0  1
+ 0  0  3  0  0  3  1  5  3  1  1  0  3  0  0  0
+ 0  1  0  0  0  1  1  2  4  1  2  1  6  1  0  0
+ 0  1  0  0  0  0  0  1  6  4  4  2  2  0  0  0
+ 0  0  0  0  0  0  0  2  2  3  7  1  4  0  0  1
+ 1  1  0  0  0  0  0  3  2  1  5  1  3  2  0  1
+ 0  0  1  2  1  0  0  2  0  0  2  0  4  4  2  2
+ 2  2  0  1  0  0  0  1  1  1  0  0  7  2  3  0
+ 0  0  0  0  1  1  0  2  0  2  0  0  4  5  4  1
+ 4  0  0  1  1  1  0  1  0  0  1  0  4  3  2  2DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨EC⟩, ⟨PO⟩, ⟨TPP⟩, ⟨T̅P̅P̅⟩, ⟨NTPP⟩, ⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 70.0% kappa: 68.0% 16×16 Array{Int64,2}:
+ 19   0  0  1   0   0   0   0   0  0   0   0   0   0   0   0
+  0  11  0  0   0   0   0   0   0  3   2   3   0   0   1   0
+  0   2  8  3   0   0   0   0   0  3   3   1   0   0   0   0
+  0   3  3  8   0   0   0   0   0  0   1   5   0   0   0   0
+  1   0  0  1  16   0   0   0   2  0   0   0   0   0   0   0
+  0   0  0  2   0  10   0   0   0  0   0   0   0   0   8   0
+  0   0  0  0   0   0  20   0   0  0   0   0   0   0   0   0
+  2   0  0  1   0   0   0  17   0  0   0   0   0   0   0   0
+  0   0  0  0   0   0   0   0  20  0   0   0   0   0   0   0
+  0   1  2  0   0   0   0   0   0  8   5   4   0   0   0   0
+  0   4  0  1   0   0   0   0   0  2  10   3   0   0   0   0
+  0   2  4  0   1   0   0   0   0  0   3  10   0   0   0   0
+  0   0  0  0   0   0   0   0   0  0   0   0  19   0   1   0
+  0   0  0  0   3   0   0   0   0  0   0   0   2  15   0   0
+  0   0  0  0   3   0   0   0   0  0   0   0   1   1  15   0
+  0   0  1  0   1   0   0   0   0  0   0   0   0   0   0  18Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨TPP⟩ (V73 ⫺ 4271)
+││✔ ⟨EC⟩ (V82 ⫹ 2897)
+│││✔ ⟨EC⟩ (V107 ⫺ 1155)
+││││✔ 3 : 5/5
+││││✘ V1 ⫺ 3187
+││││ ✔ 4 : 2/4
+││││ ✘ 4 : 12/12
+│││✘ V92 ⫹ 3016
+│││ ✔ 12 : 5/6
+│││ ✘ 2 : 10/10
+││✘ ⟨PO⟩ (V128 ⫹ 2077)
+││ ✔ ⟨TPP⟩ (V6 ⫺ 5019)
+││ │✔ V20 ⫹ 4297
+││ ││✔ 11 : 1/4
+││ ││✘ 3 : 12/12
+││ │✘ ⟨⟩ (V40 ⫹ 2917)
+││ │ ✔ 12 : 11/11
+││ │ ✘ 11 : 2/4
+││ ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││  ✔ ⟨PO⟩ (V88 ⫹ 2636)
+││  │✔ V1 ⫹ 2770
+││  ││✔ 11 : 9/9
+││  ││✘ 11 : 3/4
+││  │✘ 2 : 2/5
+││  ✘ ⟨TPP⟩ (V88 ⫹ 3080)
+││   ✔ ⟨PO⟩ (V1 ⫹ 2604)
+││   │✔ 11 : 3/4
+││   │✘ V1 ⫹ 2758
+││   │ ✔ 10 : 11/11
+││   │ ✘ 10 : 3/4
+││   ✘ ⟨TPP⟩ (V17 ⫹ 4722)
+││    ✔ 2 : 7/7
+││    ✘ 10 : 2/4
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨DC⟩ (V27 ⫹ 2386)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨DC⟩ (V1 ⫺ 3316)
+  │ ✔ 13 : 20/20
+  │ ✘ 15 : 15/15
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨DC⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨DC⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.81% kappa: 65.67% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0  1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0  3  2  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0  0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0  0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  9  7  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0  2  9  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0  1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   3   0   0   0   0  0  0  0   2  15   0   0
+  0  0  0  0   3   1   0   0   0  0  0  0   1   1  14   0
+  0  0  0  0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ V29 ⫹ 4287
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ V1 ⫺ 3183
+││   │ ✔ 11 : 3/4
+││   │ ✘ 11 : 4/4
+││   ✘ ⟨⟩ (V79 ⫹ 1838)
+││    ✔ V7 ⫺ 5280
+││    │✔ 10 : 12/12
+││    │✘ 11 : 2/4
+││    ✘ V42 ⫺ 5899
+││     ✔ 11 : 7/7
+││     ✘ 11 : 2/4
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨DC⟩ (V27 ⫹ 2386)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨DC⟩ (V1 ⫺ 3316)
+ │ ✔ 13 : 20/20
+ │ ✘ 15 : 15/15
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨EC⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨EC⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 68.44% kappa: 66.33% 16×16 Array{Int64,2}:
+ 16  1  0   3   0   0   0   0   0   0  0  0   0   0   0   0
+  0  7  0   3   0   0   0   0   0   4  2  3   0   0   1   0
+  0  0  8   6   0   0   0   0   0   1  4  1   0   0   0   0
+  0  3  2  14   0   0   0   0   0   0  0  1   0   0   0   0
+  0  0  0   2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0   2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0   0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0   0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0   0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  2  1   0   0   0   0   0   0  12  5  0   0   0   0   0
+  0  3  4   1   0   0   0   0   0   4  7  1   0   0   0   0
+  0  0  1   8   0   0   0   1   0   1  2  7   0   0   0   0
+  0  0  0   0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0   0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0   0   3   1   0   0   0   0  0  0   2   1  13   0
+  0  0  0   0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 9
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ ⟨EC⟩ (V3 ⫹ 4439)
+││  │✔ 4 : 12/12
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 5/5
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨EC⟩ (V78 ⫹ 1552)
+││   ✔ ⟨EC⟩ (V10 ⫺ 4892)
+││   │✔ ⟨⟩ (V24 ⫹ 4274)
+││   ││✔ V1 ⫺ 3202
+││   │││✔ 2 : 2/4
+││   │││✘ 2 : 8/8
+││   ││✘ 10 : 8/8
+││   │✘ 11 : 3/5
+││   ✘ V197 ⫹ 1073
+││    ✔ V2 ⫹ 4114
+││    │✔ 11 : 2/4
+││    │✘ 11 : 9/9
+││    ✘ V52 ⫺ 5442
+││     ✔ 11 : 4/4
+││     ✘ 10 : 4/5
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨EC⟩ (V26 ⫹ 2828)
+ │ ✔ 15 : 15/15
+ │ ✘ 13 : 20/20
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨PO⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨PO⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.19% kappa: 65.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   0  1  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   2  3  3   0   0   1   0
+  0  9  8  2   0   0   0   0   0   0  0  1   0   0   0   0
+  0  6  2  7   0   0   0   0   0   0  1  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  0  1  0   0   0   0   0   0  10  9  0   0   0   0   0
+  0  8  4  0   0   0   0   0   0   1  6  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0   0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││   ✔ ⟨PO⟩ (V1 ⫺ 3148)
+││   │✔ 2 : 2/5
+││   │✘ 11 : 11/11
+││   ✘ V29 ⫹ 4287
+││    ✔ V127 ⫹ 2161
+││    │✔ 11 : 4/6
+││    │✘ 2 : 9/9
+││    ✘ ⟨PO⟩ (V1 ⫹ 2604)
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨TPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨TPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.81% kappa: 65.67% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0  1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0  3  2  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0  0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0  0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  9  7  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0  2  9  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0  1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0  0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨TPP⟩ (V29 ⫹ 4287)
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ 11 : 6/7
+││   ✘ ⟨⟩ (V79 ⫹ 1838)
+││    ✔ V7 ⫺ 5280
+││    │✔ 10 : 12/12
+││    │✘ 11 : 3/5
+││    ✘ V42 ⫺ 5899
+││     ✔ 11 : 7/7
+││     ✘ 11 : 2/4
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 66.25% kappa: 64.0% 16×16 Array{Int64,2}:
+ 19  0  0  1   0   0   0   0   0  0  0  0   0   0   0   0
+  0  9  1  2   0   0   0   0   0  3  3  1   0   0   1   0
+  0  1  9  3   0   0   0   0   0  3  1  3   0   0   0   0
+  0  6  1  8   0   0   0   0   0  0  1  4   0   0   0   0
+  1  0  0  1  16   0   0   0   2  0  0  0   0   0   0   0
+  0  0  0  2   0  10   0   0   0  0  0  0   0   0   8   0
+  0  0  0  0   0   0  20   0   0  0  0  0   0   0   0   0
+  2  0  0  1   0   0   0  17   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  4  1  1   0   0   0   0   0  5  8  1   0   0   0   0
+  0  2  2  1   0   0   0   0   0  4  6  5   0   0   0   0
+  0  3  3  1   1   0   0   0   0  2  4  6   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  20   0   0   0
+  0  0  0  0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0  0   3   0   0   0   0  0  0  0   1   1  15   0
+  0  0  0  0   1   0   0   0   0  1  0  0   0   0   0  18Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  5
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨⟩ (V73 ⫺ 4271)
+││✔ ⟨⟩ (V152 ⫹ 1103)
+│││✔ ⟨⟩ (V200 ⫺ 1024)
+││││✔ V7 ⫹ 5449
+│││││✔ 12 : 3/4
+│││││✘ 3 : 5/5
+││││✘ ⟨⟩ (V89 ⫹ 2596)
+││││ ✔ 2 : 2/5
+││││ ✘ 4 : 13/13
+│││✘ V92 ⫹ 3022
+│││ ✔ 12 : 3/4
+│││ ✘ 2 : 8/8
+││✘ ⟨⟩ (V128 ⫺ 2166)
+││ ✔ V86 ⫹ 3098
+││ │✔ ⟨T̅P̅P̅⟩ (V8 ⫺ 5148)
+││ ││✔ V23 ⫹ 4625
+││ │││✔ 2 : 6/6
+││ │││✘ ⟨T̅P̅P̅⟩ (V3 ⫹ 4595)
+││ │││ ✔ 10 : 12/12
+││ │││ ✘ 2 : 2/4
+││ ││✘ ⟨T̅P̅P̅⟩ (V45 ⫺ 4824)
+││ ││ ✔ 3 : 2/4
+││ ││ ✘ 11 : 6/6
+││ │✘ V49 ⫹ 5305
+││ │ ✔ 11 : 11/11
+││ │ ✘ 12 : 2/4
+││ ✘ ⟨⟩ (V14 ⫺ 4824)
+││  ✔ V2 ⫹ 4147
+││  │✔ 3 : 11/11
+││  │✘ 10 : 3/4
+││  ✘ V32 ⫺ 3117
+││   ✔ 12 : 10/10
+││   ✘ 11 : 2/5
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨⟩ (V32 ⫹ 2163)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨T̅P̅P̅⟩ (V85 ⫺ 2722)
+  │ ✔ 15 : 15/15
+  │ ✘ 13 : 20/20
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨NTPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨NTPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.81% kappa: 65.67% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0  1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0  3  2  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0  0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0  0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  9  7  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0  2  9  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0  1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0  0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 33
+Tot nodes: 65
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ V29 ⫹ 4287
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ V1 ⫺ 3183
+││   │ ✔ 11 : 3/4
+││   │ ✘ 11 : 4/4
+││   ✘ ⟨⟩ (V79 ⫹ 1838)
+││    ✔ V7 ⫺ 5280
+││    │✔ 10 : 12/12
+││    │✘ 11 : 2/4
+││    ✘ ⟨NTPP⟩ (V36 ⫹ 4732)
+││     ✔ 11 : 2/4
+││     ✘ 11 : 7/7
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨N̅T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 68.12% kappa: 66.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   5  0  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0   0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0   0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  11  5  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0   3  8  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0   0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 33
+Tot nodes: 65
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ V29 ⫹ 4287
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ V1 ⫺ 3183
+││   │ ✔ 11 : 3/4
+││   │ ✘ 11 : 4/4
+││   ✘ ⟨N̅T̅P̅P̅⟩ (V76 ⫺ 2825)
+││    ✔ V42 ⫹ 5882
+││    │✔ 11 : 2/4
+││    │✘ 11 : 7/7
+││    ✘ V4 ⫹ 4199
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨EC⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨EC⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 69.69% kappa: 67.67% 16×16 Array{Int64,2}:
+ 16  0  0   3   0   0   0   0   0   1  0  0   0   0   0   0
+  0  9  0   3   0   0   0   0   0   4  0  3   0   0   1   0
+  0  2  8   6   0   0   0   0   0   1  2  1   0   0   0   0
+  0  2  2  14   0   0   0   0   0   1  0  1   0   0   0   0
+  0  0  0   2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0   2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0   0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0   0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0   0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  3  1   0   0   0   0   0   0  13  3  0   0   0   0   0
+  0  2  4   1   0   0   0   0   0   6  6  1   0   0   0   0
+  0  0  1   8   0   0   0   1   0   1  2  7   0   0   0   0
+  0  0  0   0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0   0   3   0   0   0   0   0  0  0   2  15   0   0
+  0  0  0   0   3   1   0   0   0   0  0  0   1   1  14   0
+  0  0  0   0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 30
+Tot nodes: 59
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ ⟨EC⟩ (V3 ⫹ 4439)
+││  │✔ 4 : 12/12
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 5/5
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨EC⟩ (V78 ⫹ 1552)
+││   ✔ ⟨DC⟩ (V84 ⫹ 2936)
+││   │✔ ⟨⟩ (V10 ⫺ 4958)
+││   ││✔ 10 : 7/7
+││   ││✘ 11 : 3/5
+││   │✘ ⟨⟩ (V5 ⫺ 5068)
+││   │ ✔ 10 : 3/4
+││   │ ✘ 2 : 9/9
+││   ✘ ⟨DC⟩ (V144 ⫹ 1042)
+││    ✔ 10 : 4/7
+││    ✘ V95 ⫺ 3033
+││     ✔ 11 : 2/4
+││     ✘ 11 : 11/11
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨DC⟩ (V27 ⫹ 2386)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨DC⟩ (V1 ⫺ 3316)
+ │ ✔ 13 : 20/20
+ │ ✘ 15 : 15/15
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨PO⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨PO⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.19% kappa: 65.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   0  1  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   2  3  3   0   0   1   0
+  0  9  8  2   0   0   0   0   0   0  0  1   0   0   0   0
+  0  6  2  7   0   0   0   0   0   0  1  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  0  1  0   0   0   0   0   0  10  9  0   0   0   0   0
+  0  8  4  0   0   0   0   0   0   1  6  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   3   0   0   0   0   0  0  0   2  15   0   0
+  0  0  0  0   3   1   0   0   0   0  0  0   1   1  14   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 30
+Tot nodes: 59
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││   ✔ ⟨PO⟩ (V1 ⫺ 3148)
+││   │✔ 2 : 2/5
+││   │✘ 11 : 11/11
+││   ✘ V29 ⫹ 4287
+││    ✔ V127 ⫹ 2161
+││    │✔ 11 : 4/6
+││    │✘ 2 : 9/9
+││    ✘ ⟨PO⟩ (V1 ⫹ 2604)
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨DC⟩ (V27 ⫹ 2386)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨DC⟩ (V1 ⫺ 3316)
+ │ ✔ 13 : 20/20
+ │ ✘ 15 : 15/15
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨TPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨TPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.81% kappa: 65.67% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0  1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0  3  2  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0  0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0  0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  9  7  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0  2  9  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0  1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   3   0   0   0   0  0  0  0   2  15   0   0
+  0  0  0  0   3   1   0   0   0  0  0  0   1   1  14   0
+  0  0  0  0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨TPP⟩ (V29 ⫹ 4287)
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ 11 : 6/7
+││   ✘ ⟨⟩ (V79 ⫹ 1838)
+││    ✔ V7 ⫺ 5280
+││    │✔ 10 : 12/12
+││    │✘ 11 : 3/5
+││    ✘ V42 ⫺ 5899
+││     ✔ 11 : 7/7
+││     ✘ 11 : 2/4
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨DC⟩ (V27 ⫹ 2386)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨DC⟩ (V1 ⫺ 3316)
+ │ ✔ 13 : 20/20
+ │ ✘ 15 : 15/15
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 66.25% kappa: 64.0% 16×16 Array{Int64,2}:
+ 19  0  0  1   0   0   0   0   0  0  0  0   0   0   0   0
+  0  9  1  2   0   0   0   0   0  3  3  1   0   0   1   0
+  0  1  9  3   0   0   0   0   0  3  1  3   0   0   0   0
+  0  6  1  8   0   0   0   0   0  0  1  4   0   0   0   0
+  1  0  0  1  16   0   0   0   2  0  0  0   0   0   0   0
+  0  0  0  2   0  10   0   0   0  0  0  0   0   0   8   0
+  0  0  0  0   0   0  20   0   0  0  0  0   0   0   0   0
+  2  0  0  1   0   0   0  17   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  4  1  1   0   0   0   0   0  5  8  1   0   0   0   0
+  0  2  2  1   0   0   0   0   0  4  6  5   0   0   0   0
+  0  3  3  1   1   0   0   0   0  2  4  6   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   3   0   0   0   0  0  0  0   2  15   0   0
+  0  0  0  0   3   0   0   0   0  0  0  0   1   1  15   0
+  0  0  0  0   1   0   0   0   0  1  0  0   0   0   0  18Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  5
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨⟩ (V73 ⫺ 4271)
+││✔ ⟨⟩ (V152 ⫹ 1103)
+│││✔ ⟨⟩ (V200 ⫺ 1024)
+││││✔ V7 ⫹ 5449
+│││││✔ 12 : 3/4
+│││││✘ 3 : 5/5
+││││✘ ⟨⟩ (V89 ⫹ 2596)
+││││ ✔ 2 : 2/5
+││││ ✘ 4 : 13/13
+│││✘ V92 ⫹ 3022
+│││ ✔ 12 : 3/4
+│││ ✘ 2 : 8/8
+││✘ ⟨⟩ (V128 ⫺ 2166)
+││ ✔ V86 ⫹ 3098
+││ │✔ ⟨T̅P̅P̅⟩ (V8 ⫺ 5148)
+││ ││✔ V23 ⫹ 4625
+││ │││✔ 2 : 6/6
+││ │││✘ ⟨T̅P̅P̅⟩ (V3 ⫹ 4595)
+││ │││ ✔ 10 : 12/12
+││ │││ ✘ 2 : 2/4
+││ ││✘ ⟨T̅P̅P̅⟩ (V45 ⫺ 4824)
+││ ││ ✔ 3 : 2/4
+││ ││ ✘ 11 : 6/6
+││ │✘ V49 ⫹ 5305
+││ │ ✔ 11 : 11/11
+││ │ ✘ 12 : 2/4
+││ ✘ ⟨⟩ (V14 ⫺ 4824)
+││  ✔ V2 ⫹ 4147
+││  │✔ 3 : 11/11
+││  │✘ 10 : 3/4
+││  ✘ V32 ⫺ 3117
+││   ✔ 12 : 10/10
+││   ✘ 11 : 2/5
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨DC⟩ (V27 ⫹ 2386)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨DC⟩ (V1 ⫺ 3316)
+  │ ✔ 13 : 20/20
+  │ ✘ 15 : 15/15
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨NTPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨NTPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.81% kappa: 65.67% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0  1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0  3  2  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0  0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0  0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  9  7  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0  2  9  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0  1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   3   0   0   0   0  0  0  0   2  15   0   0
+  0  0  0  0   3   1   0   0   0  0  0  0   1   1  14   0
+  0  0  0  0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ V29 ⫹ 4287
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ V1 ⫺ 3183
+││   │ ✔ 11 : 3/4
+││   │ ✘ 11 : 4/4
+││   ✘ ⟨⟩ (V79 ⫹ 1838)
+││    ✔ V7 ⫺ 5280
+││    │✔ 10 : 12/12
+││    │✘ 11 : 2/4
+││    ✘ ⟨NTPP⟩ (V36 ⫹ 4732)
+││     ✔ 11 : 2/4
+││     ✘ 11 : 7/7
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨DC⟩ (V27 ⫹ 2386)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨DC⟩ (V1 ⫺ 3316)
+ │ ✔ 13 : 20/20
+ │ ✘ 15 : 15/15
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨DC⟩, ⟨N̅T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 68.12% kappa: 66.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   5  0  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0   0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0   0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  11  5  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0   3  8  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   3   0   0   0   0   0  0  0   2  15   0   0
+  0  0  0  0   3   1   0   0   0   0  0  0   1   1  14   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ V29 ⫹ 4287
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ V1 ⫺ 3183
+││   │ ✔ 11 : 3/4
+││   │ ✘ 11 : 4/4
+││   ✘ ⟨N̅T̅P̅P̅⟩ (V76 ⫺ 2825)
+││    ✔ V42 ⫹ 5882
+││    │✔ 11 : 2/4
+││    │✘ 11 : 7/7
+││    ✘ V4 ⫹ 4199
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨DC⟩ (V27 ⫹ 2386)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨DC⟩ (V1 ⫺ 3316)
+ │ ✔ 13 : 20/20
+ │ ✘ 15 : 15/15
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨PO⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨PO⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 68.12% kappa: 66.0% 16×16 Array{Int64,2}:
+ 16  0  0   3   0   0   0   0   0   1  0  0   0   0   0   0
+  0  8  0   3   0   0   0   0   0   5  0  3   0   0   1   0
+  0  5  8   6   0   0   0   0   0   0  0  1   0   0   0   0
+  0  2  2  14   0   0   0   0   0   0  1  1   0   0   0   0
+  0  0  0   2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0   2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0   0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0   0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0   0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  0  1   0   0   0   0   0   0  11  8  0   0   0   0   0
+  0  7  4   1   0   0   0   0   0   1  6  1   0   0   0   0
+  0  0  1   8   0   0   0   1   0   1  2  7   0   0   0   0
+  0  0  0   0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0   0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0   0   3   1   0   0   0   0  0  0   2   1  13   0
+  0  0  0   0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 29
+Tot nodes: 57
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ ⟨EC⟩ (V3 ⫹ 4439)
+││  │✔ 4 : 12/12
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 5/5
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││   ✔ ⟨PO⟩ (V1 ⫺ 3148)
+││   │✔ 2 : 2/5
+││   │✘ 11 : 11/11
+││   ✘ V29 ⫹ 4287
+││    ✔ V127 ⫹ 2161
+││    │✔ 11 : 4/6
+││    │✘ 2 : 9/9
+││    ✘ ⟨EC⟩ (V1 ⫺ 3698)
+││     ✔ 10 : 12/12
+││     ✘ 11 : 2/4
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨EC⟩ (V26 ⫹ 2828)
+ │ ✔ 15 : 15/15
+ │ ✘ 13 : 20/20
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨TPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨TPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 69.06% kappa: 67.0% 16×16 Array{Int64,2}:
+ 16  1  0   3   0   0   0   0   0   0  0  0   0   0   0   0
+  0  7  0   3   0   0   0   0   0   4  2  3   0   0   1   0
+  0  0  8   6   0   0   0   0   0   1  4  1   0   0   0   0
+  0  3  2  14   0   0   0   0   0   0  0  1   0   0   0   0
+  0  0  0   2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0   2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0   0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0   0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0   0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  2  1   0   0   0   0   0   0  12  5  0   0   0   0   0
+  0  3  4   1   0   0   0   0   0   2  9  1   0   0   0   0
+  0  0  1   8   0   0   0   1   0   1  2  7   0   0   0   0
+  0  0  0   0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0   0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0   0   3   1   0   0   0   0  0  0   2   1  13   0
+  0  0  0   0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 30
+Tot nodes: 59
+Height: 9
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ ⟨EC⟩ (V3 ⫹ 4439)
+││  │✔ 4 : 12/12
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 5/5
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨EC⟩ (V78 ⫹ 1552)
+││   ✔ ⟨EC⟩ (V10 ⫺ 4892)
+││   │✔ ⟨⟩ (V24 ⫹ 4274)
+││   ││✔ V1 ⫺ 3202
+││   │││✔ 2 : 2/4
+││   │││✘ 2 : 8/8
+││   ││✘ 10 : 8/8
+││   │✘ 11 : 3/5
+││   ✘ ⟨TPP⟩ (V8 ⫹ 5223)
+││    ✔ V2 ⫺ 4364
+││    │✔ 11 : 11/11
+││    │✘ 11 : 2/4
+││    ✘ 10 : 4/7
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨EC⟩ (V26 ⫹ 2828)
+ │ ✔ 15 : 15/15
+ │ ✘ 13 : 20/20
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 69.38% kappa: 67.33% 16×16 Array{Int64,2}:
+ 19   0   0  1   0   0   0   0   0  0  0  0   0   0   0   0
+  0  12   2  0   0   0   0   0   0  2  2  1   0   0   1   0
+  0   2  11  2   0   0   0   0   0  0  3  2   0   0   0   0
+  0   4   4  7   0   0   0   0   0  1  0  4   0   0   0   0
+  1   0   0  1  16   0   0   0   2  0  0  0   0   0   0   0
+  0   0   0  2   0  10   0   0   0  0  0  0   0   0   8   0
+  0   0   0  0   0   0  20   0   0  0  0  0   0   0   0   0
+  2   1   0  0   0   0   0  17   0  0  0  0   0   0   0   0
+  0   0   0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0   2   8  0   0   0   0   0   0  8  2  0   0   0   0   0
+  0   3   2  1   0   0   0   0   0  4  8  2   0   0   0   0
+  0   2   4  1   1   0   0   0   0  1  2  9   0   0   0   0
+  0   0   0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0   0   0  0   4   0   0   0   0  0  0  0   0  14   2   0
+  0   0   0  0   3   0   0   0   0  0  0  0   2   1  14   0
+  0   0   1  0   1   0   0   0   0  0  0  0   0   0   0  18Decision Tree
+Leaves: 33
+Tot nodes: 65
+Height: 7
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨EC⟩ (V70 ⫺ 4561)
+││✔ ⟨EC⟩ (V82 ⫹ 2897)
+│││✔ ⟨EC⟩ (V107 ⫺ 1155)
+││││✔ 3 : 5/5
+││││✘ ⟨⟩ (V5 ⫺ 4897)
+││││ ✔ 4 : 13/13
+││││ ✘ 2 : 1/4
+│││✘ V102 ⫹ 1651
+│││ ✔ V1 ⫺ 2765
+│││ │✔ 12 : 5/5
+│││ │✘ 12 : 2/4
+│││ ✘ 2 : 10/10
+││✘ ⟨T̅P̅P̅⟩ (V129 ⫹ 2140)
+││ ✔ V38 ⫺ 5087
+││ │✔ V2 ⫺ 4013
+││ ││✔ 3 : 10/10
+││ ││✘ 11 : 2/4
+││ │✘ ⟨T̅P̅P̅⟩ (V75 ⫺ 2936)
+││ │ ✔ ⟨⟩ (V1 ⫹ 2570)
+││ │ │✔ 3 : 2/4
+││ │ │✘ 10 : 4/4
+││ │ ✘ V200 ⫹ 1018
+││ │  ✔ 12 : 10/10
+││ │  ✘ 11 : 3/4
+││ ✘ ⟨⟩ (V83 ⫺ 3159)
+││  ✔ ⟨⟩ (V77 ⫹ 1715)
+││  │✔ 3 : 2/4
+││  │✘ 11 : 11/11
+││  ✘ ⟨⟩ (V90 ⫹ 2577)
+││   ✔ ⟨⟩ (V6 ⫹ 5089)
+││   │✔ 2 : 8/8
+││   │✘ 10 : 4/4
+││   ✘ V3 ⫹ 4392
+││    ✔ 11 : 3/4
+││    ✘ 10 : 8/8
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨⟩ (V32 ⫹ 2163)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨EC⟩ (V26 ⫹ 2828)
+  │ ✔ 15 : 15/15
+  │ ✘ 13 : 20/20
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨NTPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨NTPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 68.12% kappa: 66.0% 16×16 Array{Int64,2}:
+ 16  1  0   3   0   0   0   0   0  0  0  0   0   0   0   0
+  0  7  0   3   0   0   0   0   0  4  2  3   0   0   1   0
+  0  0  8   6   0   0   0   0   0  1  4  1   0   0   0   0
+  0  3  2  14   0   0   0   0   0  0  0  1   0   0   0   0
+  0  0  0   2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0   2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0   0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0   0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0   0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  2  1   0   0   0   0   0   0  9  8  0   0   0   0   0
+  0  3  4   1   0   0   0   0   0  2  9  1   0   0   0   0
+  0  0  1   8   0   0   0   1   0  1  2  7   0   0   0   0
+  0  0  0   0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0   0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0   0   3   1   0   0   0  0  0  0   2   1  13   0
+  0  0  0   0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 30
+Tot nodes: 59
+Height: 9
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ ⟨EC⟩ (V3 ⫹ 4439)
+││  │✔ 4 : 12/12
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 5/5
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨EC⟩ (V78 ⫹ 1552)
+││   ✔ ⟨EC⟩ (V10 ⫺ 4892)
+││   │✔ ⟨⟩ (V24 ⫹ 4274)
+││   ││✔ V1 ⫺ 3202
+││   │││✔ 2 : 2/4
+││   │││✘ 2 : 8/8
+││   ││✘ 10 : 8/8
+││   │✘ 11 : 3/5
+││   ✘ ⟨NTPP⟩ (V143 ⫹ 1149)
+││    ✔ 10 : 2/4
+││    ✘ V2 ⫹ 4122
+││     ✔ 11 : 12/12
+││     ✘ 11 : 3/6
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨EC⟩ (V26 ⫹ 2828)
+ │ ✔ 15 : 15/15
+ │ ✘ 13 : 20/20
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨EC⟩, ⟨N̅T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.19% kappa: 65.0% 16×16 Array{Int64,2}:
+ 16  1  0   3   0   0   0   0   0  0  0  0   0   0   0   0
+  0  7  0   3   0   0   0   0   0  5  1  3   0   0   1   0
+  0  0  8   6   0   0   0   0   0  1  4  1   0   0   0   0
+  0  3  2  14   0   0   0   0   0  0  0  1   0   0   0   0
+  0  0  0   2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0   2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0   0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0   0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0   0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  2  1   0   0   0   0   0   0  9  8  0   0   0   0   0
+  0  3  4   1   0   0   0   0   0  5  6  1   0   0   0   0
+  0  0  1   8   0   0   0   1   0  1  2  7   0   0   0   0
+  0  0  0   0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0   0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0   0   3   1   0   0   0  0  0  0   2   1  13   0
+  0  0  0   0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 30
+Tot nodes: 59
+Height: 9
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ ⟨EC⟩ (V3 ⫹ 4439)
+││  │✔ 4 : 12/12
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 5/5
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨EC⟩ (V78 ⫹ 1552)
+││   ✔ ⟨EC⟩ (V10 ⫺ 4892)
+││   │✔ ⟨⟩ (V24 ⫹ 4274)
+││   ││✔ V1 ⫺ 3202
+││   │││✔ 2 : 2/4
+││   │││✘ 2 : 8/8
+││   ││✘ 10 : 8/8
+││   │✘ 11 : 3/5
+││   ✘ ⟨N̅T̅P̅P̅⟩ (V91 ⫹ 3281)
+││    ✔ 10 : 2/4
+││    ✘ ⟨N̅T̅P̅P̅⟩ (V77 ⫺ 1716)
+││     ✔ 11 : 12/12
+││     ✘ 11 : 3/6
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨EC⟩ (V26 ⫹ 2828)
+ │ ✔ 15 : 15/15
+ │ ✘ 13 : 20/20
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨TPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨TPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.19% kappa: 65.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   0  1  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   2  3  3   0   0   1   0
+  0  9  8  2   0   0   0   0   0   0  0  1   0   0   0   0
+  0  6  2  7   0   0   0   0   0   0  1  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  0  1  0   0   0   0   0   0  10  9  0   0   0   0   0
+  0  8  4  0   0   0   0   0   0   1  6  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0   0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││   ✔ ⟨PO⟩ (V1 ⫺ 3148)
+││   │✔ 2 : 2/5
+││   │✘ 11 : 11/11
+││   ✘ V29 ⫹ 4287
+││    ✔ V127 ⫹ 2161
+││    │✔ 11 : 4/6
+││    │✘ 2 : 9/9
+││    ✘ ⟨PO⟩ (V1 ⫹ 2604)
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.5% kappa: 65.33% 16×16 Array{Int64,2}:
+ 19   0   0  0   0   0   0   0   0  0  0   1   0   0   0   0
+  0  10   2  1   0   0   0   0   0  1  1   4   0   0   1   0
+  0   5  10  0   0   0   0   0   0  3  2   0   0   0   0   0
+  0   1   1  7   0   0   0   0   0  0  0  11   0   0   0   0
+  1   0   0  1  16   0   0   0   2  0  0   0   0   0   0   0
+  0   0   0  2   0  10   0   0   0  0  0   0   0   0   8   0
+  0   0   0  0   0   0  20   0   0  0  0   0   0   0   0   0
+  2   0   0  1   0   0   0  17   0  0  0   0   0   0   0   0
+  0   0   0  0   0   0   0   0  20  0  0   0   0   0   0   0
+  0   2   2  1   0   0   0   0   0  7  4   4   0   0   0   0
+  0   6   0  1   0   0   0   0   0  2  8   3   0   0   0   0
+  0   5   2  4   1   0   0   0   0  0  3   5   0   0   0   0
+  0   0   0  0   0   0   0   0   0  0  0   0  20   0   0   0
+  0   0   0  0   4   0   0   0   0  0  0   0   0  14   2   0
+  0   0   0  0   3   0   0   0   0  0  0   0   1   1  15   0
+  0   0   1  0   1   0   0   0   0  0  0   0   0   0   0  18Decision Tree
+Leaves: 35
+Tot nodes: 69
+Height: 8
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨⟩ (V73 ⫺ 4271)
+││✔ ⟨PO⟩ (V152 ⫹ 1114)
+│││✔ V77 ⫹ 1795
+││││✔ 12 : 4/5
+││││✘ V1 ⫺ 2753
+││││ ✔ 4 : 9/9
+││││ ✘ 4 : 3/4
+│││✘ ⟨T̅P̅P̅⟩ (V197 ⫺ 1096)
+│││ ✔ ⟨PO⟩ (V1 ⫺ 3186)
+│││ │✔ 12 : 2/4
+│││ │✘ 3 : 4/4
+│││ ✘ V1 ⫹ 2750
+│││  ✔ 2 : 9/9
+│││  ✘ 2 : 2/4
+││✘ ⟨PO⟩ (V128 ⫹ 2077)
+││ ✔ ⟨PO⟩ (V14 ⫺ 4706)
+││ │✔ ⟨T̅P̅P̅⟩ (V2 ⫹ 4266)
+││ ││✔ 3 : 10/10
+││ ││✘ 3 : 2/4
+││ │✘ ⟨T̅P̅P̅⟩ (V30 ⫺ 2785)
+││ │ ✔ V1 ⫺ 2743
+││ │ │✔ 12 : 3/4
+││ │ │✘ 12 : 8/8
+││ │ ✘ 11 : 2/4
+││ ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││  ✔ ⟨PO⟩ (V88 ⫹ 2636)
+││  │✔ V1 ⫹ 2770
+││  ││✔ 11 : 9/9
+││  ││✘ 11 : 3/4
+││  │✘ 2 : 2/5
+││  ✘ ⟨PO⟩ (V75 ⫹ 2607)
+││   ✔ ⟨PO⟩ (V79 ⫺ 1833)
+││   │✔ V1 ⫺ 2737
+││   ││✔ 2 : 3/4
+││   ││✘ 2 : 4/4
+││   │✘ 11 : 3/5
+││   ✘ ⟨⟩ (V1 ⫺ 3698)
+││    ✔ 10 : 12/12
+││    ✘ 10 : 3/4
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨⟩ (V32 ⫹ 2163)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨T̅P̅P̅⟩ (V85 ⫺ 2722)
+  │ ✔ 15 : 15/15
+  │ ✘ 13 : 20/20
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨NTPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨NTPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.19% kappa: 65.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   0  1  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   2  3  3   0   0   1   0
+  0  9  8  2   0   0   0   0   0   0  0  1   0   0   0   0
+  0  6  2  7   0   0   0   0   0   0  1  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  0  1  0   0   0   0   0   0  10  9  0   0   0   0   0
+  0  8  4  0   0   0   0   0   0   1  6  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0   0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││   ✔ ⟨PO⟩ (V1 ⫺ 3148)
+││   │✔ 2 : 2/5
+││   │✘ 11 : 11/11
+││   ✘ V29 ⫹ 4287
+││    ✔ V127 ⫹ 2161
+││    │✔ 11 : 4/6
+││    │✘ 2 : 9/9
+││    ✘ ⟨PO⟩ (V1 ⫹ 2604)
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨PO⟩, ⟨N̅T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.19% kappa: 65.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   0  1  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   2  3  3   0   0   1   0
+  0  9  8  2   0   0   0   0   0   0  0  1   0   0   0   0
+  0  6  2  7   0   0   0   0   0   0  1  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  0  1  0   0   0   0   0   0  10  9  0   0   0   0   0
+  0  8  4  0   0   0   0   0   0   1  6  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0   0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││   ✔ ⟨PO⟩ (V1 ⫺ 3148)
+││   │✔ 2 : 2/5
+││   │✘ 11 : 11/11
+││   ✘ V29 ⫹ 4287
+││    ✔ V127 ⫹ 2161
+││    │✔ 11 : 4/6
+││    │✘ 2 : 9/9
+││    ✘ ⟨PO⟩ (V1 ⫹ 2604)
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨TPP⟩, ⟨T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨TPP⟩, ⟨T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 69.38% kappa: 67.33% 16×16 Array{Int64,2}:
+ 19   0   0   1   0   0   0   0   0  0  0  0   0   0   0   0
+  0  11   1   2   0   0   0   0   0  1  1  3   0   0   1   0
+  0   3  10   0   0   0   0   0   0  4  3  0   0   0   0   0
+  0   6   0  10   0   0   0   0   0  1  0  3   0   0   0   0
+  1   0   0   1  16   0   0   0   2  0  0  0   0   0   0   0
+  0   0   0   2   0  10   0   0   0  0  0  0   0   0   8   0
+  0   0   0   0   0   0  20   0   0  0  0  0   0   0   0   0
+  2   0   0   1   0   0   0  17   0  0  0  0   0   0   0   0
+  0   0   0   0   0   0   0   0  20  0  0  0   0   0   0   0
+  0   4   1   0   0   0   0   0   0  8  6  1   0   0   0   0
+  0   5   0   2   0   0   0   0   0  5  7  1   0   0   0   0
+  0   2   3   1   1   0   0   0   0  4  2  7   0   0   0   0
+  0   0   0   0   0   0   0   0   0  0  0  0  20   0   0   0
+  0   0   0   0   4   0   0   0   0  0  0  0   0  14   2   0
+  0   0   0   0   3   0   0   0   0  0  0  0   1   1  15   0
+  0   0   0   0   1   0   0   0   0  1  0  0   0   0   0  18Decision Tree
+Leaves: 33
+Tot nodes: 65
+Height: 7
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨TPP⟩ (V73 ⫺ 4271)
+││✔ V138 ⫹ 1802
+│││✔ ⟨⟩ (V1 ⫹ 2568)
+││││✔ 12 : 4/4
+││││✘ V1 ⫹ 2753
+││││ ✔ 4 : 10/10
+││││ ✘ 4 : 3/4
+│││✘ ⟨⟩ (V72 ⫹ 4052)
+│││ ✔ 3 : 5/7
+│││ ✘ ⟨TPP⟩ (V2 ⫹ 4248)
+│││  ✔ 2 : 2/4
+│││  ✘ 2 : 8/8
+││✘ ⟨TPP⟩ (V130 ⫹ 2033)
+││ ✔ V14 ⫺ 4669
+││ │✔ V107 ⫺ 1128
+││ ││✔ 3 : 12/12
+││ ││✘ 10 : 5/6
+││ │✘ V40 ⫹ 2917
+││ │ ✔ V1 ⫺ 3171
+││ │ │✔ 12 : 3/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 11 : 4/5
+││ ✘ ⟨⟩ (V87 ⫺ 3269)
+││  ✔ ⟨⟩ (V144 ⫹ 1042)
+││  │✔ 10 : 4/7
+││  │✘ V1 ⫺ 3322
+││  │ ✔ 11 : 3/4
+││  │ ✘ 11 : 9/9
+││  ✘ ⟨TPP⟩ (V32 ⫺ 4375)
+││   ✔ V1 ⫺ 3696
+││   │✔ 2 : 2/4
+││   │✘ 10 : 7/7
+││   ✘ ⟨⟩ (V3 ⫺ 4579)
+││    ✔ 2 : 8/8
+││    ✘ 11 : 3/4
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨⟩ (V32 ⫹ 2163)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨T̅P̅P̅⟩ (V85 ⫺ 2722)
+  │ ✔ 15 : 15/15
+  │ ✘ 13 : 20/20
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨TPP⟩, ⟨NTPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨TPP⟩, ⟨NTPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 67.81% kappa: 65.67% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0  1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0  3  2  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0  0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0  0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  9  7  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0  2  9  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0  1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0  0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨TPP⟩ (V29 ⫹ 4287)
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ 11 : 6/7
+││   ✘ ⟨⟩ (V79 ⫹ 1838)
+││    ✔ V7 ⫺ 5280
+││    │✔ 10 : 12/12
+││    │✘ 11 : 3/5
+││    ✘ ⟨NTPP⟩ (V36 ⫹ 4732)
+││     ✔ 11 : 2/4
+││     ✘ 11 : 7/7
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨TPP⟩, ⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨TPP⟩, ⟨N̅T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 66.56% kappa: 64.33% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0  0  1  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0  2  3  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0  1  4  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0  0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3  0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0  0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1  0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  8  8  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0  5  6  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0  1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0  0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0  0  0  0   0   0   0  20Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ ⟨TPP⟩ (V29 ⫹ 4287)
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ 11 : 6/7
+││   ✘ ⟨N̅T̅P̅P̅⟩ (V76 ⫺ 2825)
+││    ✔ V42 ⫹ 5882
+││    │✔ 11 : 2/4
+││    │✘ 11 : 7/7
+││    ✘ V57 ⫺ 3277
+││     ✔ 10 : 13/13
+││     ✘ 11 : 3/4
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+
+DecisionTree.ModalLogic._TopoRel[⟨T̅P̅P̅⟩, ⟨NTPP⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨T̅P̅P̅⟩, ⟨NTPP⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 66.25% kappa: 64.0% 16×16 Array{Int64,2}:
+ 19  0  0  1   0   0   0   0   0  0  0  0   0   0   0   0
+  0  9  1  2   0   0   0   0   0  3  3  1   0   0   1   0
+  0  1  9  3   0   0   0   0   0  3  1  3   0   0   0   0
+  0  6  1  8   0   0   0   0   0  0  1  4   0   0   0   0
+  1  0  0  1  16   0   0   0   2  0  0  0   0   0   0   0
+  0  0  0  2   0  10   0   0   0  0  0  0   0   0   8   0
+  0  0  0  0   0   0  20   0   0  0  0  0   0   0   0   0
+  2  0  0  1   0   0   0  17   0  0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20  0  0  0   0   0   0   0
+  0  4  1  1   0   0   0   0   0  5  8  1   0   0   0   0
+  0  2  2  1   0   0   0   0   0  4  6  5   0   0   0   0
+  0  3  3  1   1   0   0   0   0  2  4  6   0   0   0   0
+  0  0  0  0   0   0   0   0   0  0  0  0  20   0   0   0
+  0  0  0  0   4   0   0   0   0  0  0  0   0  14   2   0
+  0  0  0  0   3   0   0   0   0  0  0  0   1   1  15   0
+  0  0  0  0   1   0   0   0   0  1  0  0   0   0   0  18Decision Tree
+Leaves: 32
+Tot nodes: 63
+Height: 8
+Modal height:  5
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨⟩ (V73 ⫺ 4271)
+││✔ ⟨⟩ (V152 ⫹ 1103)
+│││✔ ⟨⟩ (V200 ⫺ 1024)
+││││✔ V7 ⫹ 5449
+│││││✔ 12 : 3/4
+│││││✘ 3 : 5/5
+││││✘ ⟨⟩ (V89 ⫹ 2596)
+││││ ✔ 2 : 2/5
+││││ ✘ 4 : 13/13
+│││✘ V92 ⫹ 3022
+│││ ✔ 12 : 3/4
+│││ ✘ 2 : 8/8
+││✘ ⟨⟩ (V128 ⫺ 2166)
+││ ✔ V86 ⫹ 3098
+││ │✔ ⟨T̅P̅P̅⟩ (V8 ⫺ 5148)
+││ ││✔ V23 ⫹ 4625
+││ │││✔ 2 : 6/6
+││ │││✘ ⟨T̅P̅P̅⟩ (V3 ⫹ 4595)
+││ │││ ✔ 10 : 12/12
+││ │││ ✘ 2 : 2/4
+││ ││✘ ⟨T̅P̅P̅⟩ (V45 ⫺ 4824)
+││ ││ ✔ 3 : 2/4
+││ ││ ✘ 11 : 6/6
+││ │✘ V49 ⫹ 5305
+││ │ ✔ 11 : 11/11
+││ │ ✘ 12 : 2/4
+││ ✘ ⟨⟩ (V14 ⫺ 4824)
+││  ✔ V2 ⫹ 4147
+││  │✔ 3 : 11/11
+││  │✘ 10 : 3/4
+││  ✘ V32 ⫺ 3117
+││   ✔ 12 : 10/10
+││   ✘ 11 : 2/5
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨⟩ (V32 ⫹ 2163)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨T̅P̅P̅⟩ (V85 ⫺ 2722)
+  │ ✔ 15 : 15/15
+  │ ✘ 13 : 20/20
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨T̅P̅P̅⟩, ⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨T̅P̅P̅⟩, ⟨N̅T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 66.56% kappa: 64.33% 16×16 Array{Int64,2}:
+ 19   0  1  0   0   0   0   0   0   0  0  0   0   0   0   0
+  0  10  1  1   0   0   0   0   0   4  2  1   0   0   1   0
+  0   2  6  3   0   0   0   0   0   3  3  3   0   0   0   0
+  0   5  1  7   0   0   0   0   0   0  0  7   0   0   0   0
+  1   0  0  1  16   0   0   0   2   0  0  0   0   0   0   0
+  0   0  0  2   0  10   0   0   0   0  0  0   0   0   8   0
+  0   0  0  0   0   0  20   0   0   0  0  0   0   0   0   0
+  2   0  0  0   0   0   0  17   0   0  0  1   0   0   0   0
+  0   0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0   1  1  0   0   0   0   0   0  10  5  3   0   0   0   0
+  0   3  0  1   0   0   0   0   0   6  7  3   0   0   0   0
+  0   1  2  5   1   0   0   0   0   4  3  4   0   0   0   0
+  0   0  0  0   0   0   0   0   0   0  0  0  20   0   0   0
+  0   0  0  0   4   0   0   0   0   0  0  0   0  14   2   0
+  0   0  0  0   3   0   0   0   0   0  0  0   1   1  15   0
+  0   0  0  0   1   0   0   0   0   1  0  0   0   0   0  18Decision Tree
+Leaves: 33
+Tot nodes: 65
+Height: 8
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨⟩ (V73 ⫺ 4271)
+││✔ ⟨⟩ (V152 ⫹ 1103)
+│││✔ ⟨N̅T̅P̅P̅⟩ (V3 ⫺ 4213)
+││││✔ 12 : 3/6
+││││✘ ⟨⟩ (V1 ⫹ 2587)
+││││ ✔ ⟨⟩ (V1 ⫺ 3179)
+││││ │✔ 4 : 12/12
+││││ │✘ 4 : 3/4
+││││ ✘ 3 : 4/5
+│││✘ V92 ⫹ 3022
+│││ ✔ 12 : 3/4
+│││ ✘ 2 : 8/8
+││✘ ⟨⟩ (V128 ⫺ 2166)
+││ ✔ ⟨N̅T̅P̅P̅⟩ (V87 ⫹ 3260)
+││ │✔ V24 ⫺ 4280
+││ ││✔ V13 ⫺ 4653
+││ │││✔ 10 : 2/4
+││ │││✘ 10 : 4/4
+││ ││✘ 2 : 8/8
+││ │✘ ⟨N̅T̅P̅P̅⟩ (V144 ⫺ 1043)
+││ │ ✔ V1 ⫺ 2602
+││ │ │✔ 11 : 3/4
+││ │ │✘ 11 : 9/9
+││ │ ✘ V2 ⫺ 4362
+││ │  ✔ V146 ⫹ 1043
+││ │  │✔ 12 : 2/4
+││ │  │✘ 10 : 8/8
+││ │  ✘ 11 : 4/6
+││ ✘ ⟨⟩ (V14 ⫺ 4824)
+││  ✔ V2 ⫹ 4147
+││  │✔ 3 : 11/11
+││  │✘ 10 : 3/4
+││  ✘ V32 ⫺ 3117
+││   ✔ 12 : 10/10
+││   ✘ 11 : 2/5
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨⟩ (V3 ⫹ 4123)
+ │✔ V7 ⫺ 4904
+ ││✔ 7 : 20/20
+ ││✘ 1 : 17/17
+ │✘ ⟨⟩ (V6 ⫹ 4659)
+ │ ✔ 1 : 3/4
+ │ ✘ 8 : 19/19
+ ✘ ⟨⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨⟩ (V32 ⫹ 2163)
+  ││✔ 14 : 20/20
+  ││✘ ⟨T̅P̅P̅⟩ (V1 ⫹ 2594)
+  ││ ✔ 5 : 13/13
+  ││ ✘ 5 : 2/4
+  │✘ ⟨T̅P̅P̅⟩ (V85 ⫺ 2722)
+  │ ✔ 15 : 15/15
+  │ ✘ 13 : 20/20
+  ✘ ⟨⟩ (V166 ⫹ 1159)
+   ✔ ⟨T̅P̅P̅⟩ (V2 ⫺ 3991)
+   │✔ 15 : 3/4
+   │✘ 6 : 19/19
+   ✘ ⟨⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+
+DecisionTree.ModalLogic._TopoRel[⟨NTPP⟩, ⟨N̅T̅P̅P̅⟩]
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[⟨NTPP⟩, ⟨N̅T̅P̅P̅⟩]), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+  acc: 68.12% kappa: 66.0% 16×16 Array{Int64,2}:
+ 16  0  0  3   0   0   0   0   0   1  0  0   0   0   0   0
+  0  9  0  2   0   0   0   0   0   5  0  3   0   0   1   0
+  0  4  8  2   0   0   0   0   0   0  5  1   0   0   0   0
+  0  7  2  7   0   0   0   0   0   0  0  4   0   0   0   0
+  0  0  0  2  14   0   0   0   3   0  0  1   0   0   0   0
+  0  0  0  2   0  15   0   0   0   0  0  0   0   0   3   0
+  0  0  0  0   0   0  19   0   1   0  0  0   0   0   0   0
+  6  0  0  0   0   0   0  14   0   0  0  0   0   0   0   0
+  0  0  0  0   0   0   0   0  20   0  0  0   0   0   0   0
+  0  3  1  0   0   0   0   0   0  11  5  0   0   0   0   0
+  0  4  4  0   0   0   0   0   0   3  8  1   0   0   0   0
+  0  0  1  6   0   0   0   1   0   1  2  9   0   0   0   0
+  0  0  0  0   0   0   0   0   0   0  0  0  19   0   1   0
+  0  0  0  0   4   0   0   0   0   0  0  0   0  14   2   0
+  0  0  0  0   3   1   0   0   0   0  0  0   0   1  15   0
+  0  0  0  0   0   0   0   0   0   0  0  0   0   0   0  20Decision Tree
+Leaves: 33
+Tot nodes: 65
+Height: 8
+Modal height:  3
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V110 ⫺ 1209
+✔ ⟨⟩ (V192 ⫺ 1090)
+│✔ V2 ⫺ 4768
+││✔ 16 : 19/19
+││✘ V135 ⫹ 1869
+││ ✔ V39 ⫺ 5038
+││ │✔ V140 ⫺ 1541
+││ ││✔ 3 : 18/18
+││ ││✘ 4 : 4/7
+││ │✘ ⟨⟩ (V75 ⫹ 2876)
+││ │ ✔ V1 ⫺ 3684
+││ │ │✔ 11 : 2/4
+││ │ │✘ 12 : 9/9
+││ │ ✘ 10 : 5/6
+││ ✘ V59 ⫺ 2489
+││  ✔ V116 ⫹ 2348
+││  │✔ V1 ⫺ 2747
+││  ││✔ 4 : 9/9
+││  ││✘ 4 : 3/4
+││  │✘ V92 ⫹ 3016
+││  │ ✔ 12 : 4/4
+││  │ ✘ 2 : 9/9
+││  ✘ V29 ⫹ 4287
+││   ✔ ⟨⟩ (V3 ⫺ 4579)
+││   │✔ ⟨⟩ (V1 ⫹ 2575)
+││   ││✔ 2 : 2/4
+││   ││✘ 2 : 8/8
+││   │✘ V1 ⫺ 3183
+││   │ ✔ 11 : 3/4
+││   │ ✘ 11 : 4/4
+││   ✘ ⟨N̅T̅P̅P̅⟩ (V76 ⫺ 2825)
+││    ✔ V42 ⫹ 5882
+││    │✔ 11 : 2/4
+││    │✘ 11 : 7/7
+││    ✘ V4 ⫹ 4199
+││     ✔ 11 : 2/4
+││     ✘ 10 : 12/12
+│✘ ⟨⟩ (V3 ⫹ 4123)
+│ ✔ V7 ⫺ 4904
+│ │✔ 7 : 20/20
+│ │✘ 1 : 17/17
+│ ✘ ⟨⟩ (V32 ⫺ 3724)
+│  ✔ 1 : 3/4
+│  ✘ 8 : 20/20
+✘ ⟨⟩ (V16 ⫹ 3943)
+ ✔ V41 ⫺ 7316
+ │✔ ⟨⟩ (V32 ⫹ 2163)
+ ││✔ 14 : 20/20
+ ││✘ V2 ⫹ 3740
+ ││ ✔ 5 : 13/13
+ ││ ✘ 5 : 2/4
+ │✘ ⟨⟩ (V26 ⫹ 2811)
+ │ ✔ V1 ⫺ 3164
+ │ │✔ 15 : 12/12
+ │ │✘ 15 : 3/4
+ │ ✘ 13 : 19/19
+ ✘ ⟨⟩ (V166 ⫹ 1159)
+  ✔ ⟨⟩ (V4 ⫺ 4330)
+  │✔ 15 : 3/4
+  │✘ 6 : 19/19
+  ✘ ⟨⟩ (V41 ⫺ 6160)
+   ✔ 9 : 20/20
+   ✘ V1 ⫺ 3311
+    ✔ 5 : 4/4
+    ✘ 4 : 3/4
+

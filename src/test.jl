@@ -17,6 +17,7 @@ import Random
 my_rng() = Random.MersenneTwister(1) # Random.GLOBAL_RNG
 
 using Logging
+using IterTools
 
 using BenchmarkTools
 using ScikitLearnBase
@@ -27,7 +28,7 @@ using PProf
 
 include("example-datasets.jl")
 
-function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_thresholds = [], args = (), kwargs = ())
+function testDataset((name,dataset), timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, post_pruning_purity_thresholds = [], args = (), kwargs = ())
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	length(dataset) == 4 || error(length(dataset))
@@ -39,7 +40,7 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 	# println(" n_samples = $(size(X_train)[end-1])")
 	println(" train size = $(size(X_train))")
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
-	global_logger(ConsoleLogger(stderr, DecisionTree.DTOverview))
+	global_logger(ConsoleLogger(stderr, debugging_level))
 	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
 	if timeit == 0
 		T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
@@ -70,7 +71,7 @@ function testDataset((name,dataset), timeit::Integer = 2; post_pruning_purity_th
 
 		global_logger(ConsoleLogger(stderr, Logging.Info));
 
-		println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
+		# println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 	end
 	return T;
 end
@@ -82,16 +83,16 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	# ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng())...,0.8)),
 	# ("Eduard-5",EduardDataset(5)),
 	# ("Eduard-10",EduardDataset(10)),
-	("PaviaDataset, 1x1",                           traintestsplit(SampleLandCoverDataset(9*30,  1, "Pavia", rng = my_rng())...,0.8)),
-	("PaviaDataset, 3x3 flattened",                 traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", flattened = true, rng = my_rng())...,0.8)),
-	("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", rng = my_rng())...,0.8)),
-	("IndianPinesCorrectedDataset, 1x1",            traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),
-	("IndianPinesCorrectedDataset, 3x3 flattened",  traintestsplit(SampleLandCoverDataset(16*30, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.8)),
-	("IndianPinesCorrectedDataset, 3x3",            traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),
-	("PaviaDataset, 5x5",                           traintestsplit(SampleLandCoverDataset(9*30,  5, "Pavia", rng = my_rng())...,0.8)),
-	("IndianPinesCorrectedDataset, 5x5",            traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),
-	("PaviaDataset, 7x7",                           traintestsplit(SampleLandCoverDataset(9*30,  7, "Pavia", rng = my_rng())...,0.8)),
-	("IndianPinesCorrectedDataset, 7x7",            traintestsplit(SampleLandCoverDataset(16*30, 7, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+	("PaviaDataset, 1x1",                           traintestsplit(SampleLandCoverDataset(9*70,  1, "Pavia", rng = my_rng())...,0.5)),
+	("PaviaDataset, 3x3 flattened",                 traintestsplit(SampleLandCoverDataset(9*70,  3, "Pavia", flattened = true, rng = my_rng())...,0.5)),
+	("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*70,  3, "Pavia", rng = my_rng())...,0.5)),
+	("IndianPinesCorrectedDataset, 1x1",            traintestsplit(SampleLandCoverDataset(16*40, 1, "IndianPinesCorrected", rng = my_rng())...,0.5)),
+	("IndianPinesCorrectedDataset, 3x3 flattened",  traintestsplit(SampleLandCoverDataset(16*40, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.5)),
+	("IndianPinesCorrectedDataset, 3x3",            traintestsplit(SampleLandCoverDataset(16*40, 3, "IndianPinesCorrected", rng = my_rng())...,0.5)),
+	("PaviaDataset, 5x5",                           traintestsplit(SampleLandCoverDataset(9*70,  5, "Pavia", rng = my_rng())...,0.5)),
+	("IndianPinesCorrectedDataset, 5x5",            traintestsplit(SampleLandCoverDataset(16*70, 5, "IndianPinesCorrected", rng = my_rng())...,0.5)),
+	("PaviaDataset, 7x7",                           traintestsplit(SampleLandCoverDataset(9*70,  7, "Pavia", rng = my_rng())...,0.5)),
+	("IndianPinesCorrectedDataset, 7x7",            traintestsplit(SampleLandCoverDataset(16*70, 7, "IndianPinesCorrected", rng = my_rng())...,0.5)),
 	# ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
 	# ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 ];
@@ -115,7 +116,7 @@ kwargs = (
 	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
 	useRelationId = true,
 	# useRelationId = false,
-	useRelationAll = false,
+	useRelationAll = true,
 	# useRelationAll = true,
 	# test_operators=[ModalLogic.TestOpGeq],
 	# test_operators=[ModalLogic.TestOpLeq],
@@ -123,9 +124,32 @@ kwargs = (
 	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq075, ModalLogic.TestOpLeq075],
 )
 
+timeit = 0
+
+# for databatch in [0,1]
+for databatch in [1]
+	testDataset(datasets[databatch*3+1], timeit, debugging_level = Logging.Warn, args=args, kwargs=kwargs);
+	testDataset(datasets[databatch*3+2], timeit, debugging_level = Logging.Warn, args=args, kwargs=kwargs);
+
+	relations = [ModalLogic.TopoRelations, subsets(ModalLogic.TopoRelations,1)..., subsets(ModalLogic.TopoRelations,2)...]
+	i_relation = 1
+	while i_relation <= length(relations)
+		relation = relations[i_relation]
+		# relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
+		println(relation)
+		cur_kwargs = merge(kwargs, (ontology=Ontology(ModalLogic.Interval2D,relation),))
+		T = testDataset(datasets[databatch*3+3], timeit, debugging_level = Logging.Warn, args=args, kwargs=cur_kwargs);
+		println(T)
+		i_relation+=1
+	end
+end
+
+exit()
+
 # timeit = 2
 timeit = 0
 
+T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 
 T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
@@ -137,20 +161,20 @@ T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(S
 
 
 # TODO test the same with window 3x5; also test with a specific initial world. One that allows During, for example, or one on the border
-relations = [ModalLogic.IA2DRelations...,ModalLogic.TopoRelations...,]
-# relations = [ModalLogic.TopoRelations...,ModalLogic.IA2DRelations...,]
+relations = [ModalLogic.TopoRelations...,ModalLogic.IA2DRelations...,]
 i_relation = 1
 while i_relation <= length(relations)
 	relation = relations[i_relation]
 	# relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
 	println(relation)
 	kwargs = (
-		# initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
-		initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,4),(1,6))),
+		initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
+		# initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,4),(1,6))),
 		useRelationId = false,
 		useRelationAll = false,
 		test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		ontology=Ontology(ModalLogic.Interval2D,[relation]),
+		# ontology=Ontology(ModalLogic.Interval2D,relation_set),
 	)
 	T = testDataset(("PaviaDataset, 3x3 mod",                           traintestsplit(SampleLandCoverDataset(9*30, (3,5), "Pavia", rng = my_rng())...,0.8)), 0, args=args, kwargs=kwargs);
 	println(T)

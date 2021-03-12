@@ -402,9 +402,9 @@ module treeclassifier
 			end
 
 			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
-			for i in 1:n_instances
-				println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
-			end
+			# for i in 1:n_instances
+				# println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
+			# end
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
@@ -563,7 +563,7 @@ module treeclassifier
 		#  We avoid this by only keeping one of the two operators.
 		# TODO optimize this: use opposite_test_operator() to check pairs.
 		# TODO But first, check that TestOpGeq95 and TestOpLeq05 are actually complementary
-		if prod(channel_size(X)) == 1 && test_operators ⊆ all_ordered_test_operators
+		if prod(channel_size(X)) == 1 && test_operators ⊆ ModalLogic.all_ordered_test_operators
 			test_operators = [ModalLogic.TestOpGeq]
 			# test_operators = filter(e->e ≠ ModalLogic.TestOpLeq,test_operators)
 		end

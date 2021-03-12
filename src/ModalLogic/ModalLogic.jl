@@ -51,8 +51,11 @@ show(io::IO, o::Ontology) = begin
 		print(io, "IA2DRelations_U")
 	elseif issetequal(o.relationSet, IA2DRelations_extended)
 		print(io, "IA2DRelations_extended")
-	elseif issetequal(o.relationSet, TopoRelations)
-		print(io, "TopoRelations")
+	elseif issetequal(o.relationSet, RCC8Relations)
+		print(io, "RCC8")
+	else
+	elseif issetequal(o.relationSet, RCC5Relations)
+		print(io, "RCC5")
 	else
 		show(io, o.relationSet)
 	end
@@ -384,6 +387,62 @@ modalStep(S::WorldSetType,
 	return (satisfied,S)
 end
 
-include("IntervalLogic.jl")
+################################################################################
+################################################################################
+################################################################################
+
+show(io::IO, r::AbstractRelation) = print(io, display_existential_modality(r))
+display_existential_modality(r) = "⟨" * display_rel_short(r) * "⟩"
+
+# Note: with under 10 values, computation on tuples is faster
+# xtup = (zip(randn(2),randn(2)) |> collect |> Tuple);
+# xarr = (zip(randn(2),randn(2)) |> collect);
+# @btime min3Extrema($xtup)
+# @btime min3Extrema($xarr)
+# xtup = (zip(randn(10),randn(10)) |> collect |> Tuple);
+# xarr = (zip(randn(10),randn(10)) |> collect);
+# @btime min3Extrema($xtup)
+# @btime min3Extrema($xarr)
+# xtup = (zip(randn(1000),randn(1000)) |> collect |> Tuple);
+# xarr = (zip(randn(1000),randn(1000)) |> collect);
+# @btime min3Extrema($xtup)
+# @btime min3Extrema($xarr)
+minExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(min(fst,f),max(snd,s)), extr; init=(typemax(T),typemin(T)))
+maxExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(max(fst,f),min(snd,s)), extr; init=(typemin(T),typemax(T)))
+
+include("Interval.jl")
+include("IARelations.jl")
+include("TopoRelations.jl")
+include("Interval2D.jl")
+include("IA2DRelations.jl")
+include("Topo2DRelations.jl")
+# include("Point.jl")
+
+
+export genericIntervalOntology,
+				IntervalOntology,
+				Interval2DOntology,
+				getIntervalOntologyOfDim,
+				genericIntervalRCC8Ontology,
+				IntervalRCC8Ontology,
+				Interval2DRCC8Ontology,
+				getIntervalRCC8OntologyOfDim
+
+abstract type OntologyType end
+struct _genericIntervalOntology  <: OntologyType end; const genericIntervalOntology  = _genericIntervalOntology();  # After
+const IntervalOntology   = Ontology(Interval,IARelations)
+const Interval2DOntology = Ontology(Interval2D,IA2DRelations)
+
+struct _genericIntervalRCC8Ontology  <: OntologyType end; const genericIntervalRCC8Ontology  = _genericIntervalRCC8Ontology();  # After
+const IntervalRCC8Ontology   = Ontology(Interval,RCC8Relations)
+const Interval2DRCC8Ontology = Ontology(Interval2D,RCC8Relations)
+ 
+getIntervalOntologyOfDim(::MatricialDataset{T,D}) where {T,D} = getIntervalOntologyOfDim(Val(D-2))
+getIntervalOntologyOfDim(::Val{1}) = IntervalOntology
+getIntervalOntologyOfDim(::Val{2}) = Interval2DOntology
+
+getIntervalRCC8OntologyOfDim(::MatricialDataset{T,D}) where {T,D} = getIntervalRCC8OntologyOfDim(Val(D-2))
+getIntervalRCC8OntologyOfDim(::Val{1}) = IntervalRCC8Ontology
+getIntervalRCC8OntologyOfDim(::Val{2}) = Interval2DRCC8Ontology
 
 end # module
