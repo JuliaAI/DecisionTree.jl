@@ -1,9 +1,10 @@
 ✔	Figure out why we reach "Uninformative split." when using Les only @done (21-03-10 17:21)
-☐	Fix compute-threshold and enumAccRepr so that it works with soft test operator as well!
+✔	Fix compute-threshold and enumAccRepr so that it works with soft test operator as well! @done (21-03-12 14:03)
 ☐	Rename TestOpLes to TestOpLeq
 ☐	Determine whether it's faster to use SoglId or recalculate. (If SoglId is better, use it in WExtrema?)
 ☐	sort threshold domain and optimize?
 ☐	Rename Topological relations to RCC8, and create RCC5 ontology by joining n/tpp(i) into pp(i) (proper part) and dc/ec into dr (disjointness).
+☐	Test whether ordering thresholdDomain and then performing binary search is actually better
 ☐	Add IA7, IA3, IA3^7, IA7^2 relations
 ☐	Extend to >=alpha and <alpha; these operators are ordered, closed/not closed; maybe others are categorical, in general some are. Fix </>= thing. Fix is_closed/polarity
 ☐	Try topological and interval algebra without tangential cases, or with tangential cases merged with other relations.

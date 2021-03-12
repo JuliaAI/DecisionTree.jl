@@ -314,12 +314,9 @@ module treeclassifier
 							if ModalLogic.polarity(test_operator) && (threshold > thresholdArr[i])
 								# @logmsg DTDetail "   YES!!!"
 								satisfied = false
-							elseif ! (ModalLogic.polarity(test_operator)) && (threshold < thresholdArr[i]) # TODO is this ok? closed/non-closed
-							# elseif test_operator == ModalLogic.TestOpLes && ! (threshold > thresholdArr[i])
+							elseif ! (ModalLogic.polarity(test_operator)) && (threshold < thresholdArr[i])
 								# @logmsg DTDetail "   YES!!!"
 								satisfied = false
-							# elseif ! (ModalLogic.polarity(test_operator)) && (threshold >= thresholdArr[i]) # TODO is this ok? closed/non-closed
-							# 	println("NO!!!")
 							end
 							
 							if !satisfied
@@ -565,10 +562,10 @@ module treeclassifier
 		#  are complementary, and thus it is redundant to check both at the same node.
 		#  We avoid this by only keeping one of the two operators.
 		# TODO optimize this: use opposite_test_operator() to check pairs.
-		# TODO But first, check that TestOpGeq95 and TestOpLes05 are actually complementary
+		# TODO But first, check that TestOpGeq95 and TestOpLeq05 are actually complementary
 		if prod(channel_size(X)) == 1 && test_operators ⊆ all_ordered_test_operators
 			test_operators = [ModalLogic.TestOpGeq]
-			# test_operators = filter(e->e ≠ ModalLogic.TestOpLes,test_operators)
+			# test_operators = filter(e->e ≠ ModalLogic.TestOpLeq,test_operators)
 		end
 
 		
@@ -644,7 +641,7 @@ module treeclassifier
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
-			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
 
 		# Obtain the dataset's "outer size": number of samples and number of features

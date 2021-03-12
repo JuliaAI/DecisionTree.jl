@@ -142,16 +142,16 @@ struct _TestOpNone  <: TestOperator end; const TestOpNone  = _TestOpNone();
 # >=
 struct _TestOpGeq  <: TestOperator end; const TestOpGeq  = _TestOpGeq();
 # <
-struct _TestOpLes  <: TestOperator end; const TestOpLes  = _TestOpLes();
+struct _TestOpLeq  <: TestOperator end; const TestOpLeq  = _TestOpLeq();
 
-dual_test_operator(::_TestOpGeq) = TestOpLes
-dual_test_operator(::_TestOpLes) = TestOpGeq
+dual_test_operator(::_TestOpGeq) = TestOpLeq
+dual_test_operator(::_TestOpLeq) = TestOpGeq
 
 primary_test_operator(x::_TestOpGeq) = TestOpGeq # x
-primary_test_operator(x::_TestOpLes) = TestOpGeq # dual_test_operator(x)
+primary_test_operator(x::_TestOpLeq) = TestOpGeq # dual_test_operator(x)
 
 polarity(x::_TestOpGeq) = true
-polarity(x::_TestOpLes) = false
+polarity(x::_TestOpLeq) = false
 
 # >=_α
 struct _TestOpGeqSoft  <: TestOperator
@@ -163,68 +163,68 @@ const TestOpGeq_80  = _TestOpGeqSoft((Rational(80,100)));
 const TestOpGeq_75  = _TestOpGeqSoft((Rational(75,100)));
 
 # <_α
-struct _TestOpLesSoft  <: TestOperator
+struct _TestOpLeqSoft  <: TestOperator
   alpha :: AbstractFloat
 end;
-const TestOpLes_95  = _TestOpLesSoft((Rational(95,100)));
-const TestOpLes_90  = _TestOpLesSoft((Rational(90,100)));
-const TestOpLes_80  = _TestOpLesSoft((Rational(80,100)));
-const TestOpLes_75  = _TestOpLesSoft((Rational(75,100)));
+const TestOpLeq_95  = _TestOpLeqSoft((Rational(95,100)));
+const TestOpLeq_90  = _TestOpLeqSoft((Rational(90,100)));
+const TestOpLeq_80  = _TestOpLeqSoft((Rational(80,100)));
+const TestOpLeq_75  = _TestOpLeqSoft((Rational(75,100)));
 
 alpha(x::_TestOpGeqSoft) = x.alpha
-alpha(x::_TestOpLesSoft) = x.alpha
+alpha(x::_TestOpLeqSoft) = x.alpha
 
-dual_test_operator(x::_TestOpGeqSoft) = _TestOpLesSoft(1-alpha(x))
-dual_test_operator(x::_TestOpLesSoft) = _TestOpGeqSoft(1-alpha(x))
+dual_test_operator(x::_TestOpGeqSoft) = _TestOpLeqSoft(1-alpha(x))
+dual_test_operator(x::_TestOpLeqSoft) = _TestOpGeqSoft(1-alpha(x))
 
 primary_test_operator(x::_TestOpGeqSoft) = x
-primary_test_operator(x::_TestOpLesSoft) = dual_test_operator(x)
+primary_test_operator(x::_TestOpLeqSoft) = dual_test_operator(x)
 
 # TODO use
 polarity(x::_TestOpGeqSoft) = true
-polarity(x::_TestOpLesSoft) = false
+polarity(x::_TestOpLeqSoft) = false
 
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLes_95
-# dual_test_operator(::_TestOpLesSoft{Val{Rational(95,100)}}) = TestOpGeq_95
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(90,100)}}) = TestOpLes_90
-# dual_test_operator(::_TestOpLesSoft{Val{Rational(90,100)}}) = TestOpGeq_90
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(80,100)}}) = TestOpLes_80
-# dual_test_operator(::_TestOpLesSoft{Val{Rational(80,100)}}) = TestOpGeq_80
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(75,100)}}) = TestOpLes_75
-# dual_test_operator(::_TestOpLesSoft{Val{Rational(75,100)}}) = TestOpGeq_75
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLeq_95
+# dual_test_operator(::_TestOpLeqSoft{Val{Rational(95,100)}}) = TestOpGeq_95
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(90,100)}}) = TestOpLeq_90
+# dual_test_operator(::_TestOpLeqSoft{Val{Rational(90,100)}}) = TestOpGeq_90
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(80,100)}}) = TestOpLeq_80
+# dual_test_operator(::_TestOpLeqSoft{Val{Rational(80,100)}}) = TestOpGeq_80
+# dual_test_operator(::_TestOpGeqSoft{Val{Rational(75,100)}}) = TestOpLeq_75
+# dual_test_operator(::_TestOpLeqSoft{Val{Rational(75,100)}}) = TestOpGeq_75
 
 
 # alpha(::_TestOpGeqSoft{Val{Rational(95,100)}}) = Rational(95,100)
-# alpha(::_TestOpLesSoft{Val{Rational(95,100)}}) = Rational(95,100)
+# alpha(::_TestOpLeqSoft{Val{Rational(95,100)}}) = Rational(95,100)
 # alpha(::_TestOpGeqSoft{Val{Rational(90,100)}}) = Rational(90,100)
-# alpha(::_TestOpLesSoft{Val{Rational(90,100)}}) = Rational(90,100)
+# alpha(::_TestOpLeqSoft{Val{Rational(90,100)}}) = Rational(90,100)
 # alpha(::_TestOpGeqSoft{Val{Rational(80,100)}}) = Rational(80,100)
-# alpha(::_TestOpLesSoft{Val{Rational(80,100)}}) = Rational(80,100)
+# alpha(::_TestOpLeqSoft{Val{Rational(80,100)}}) = Rational(80,100)
 # alpha(::_TestOpGeqSoft{Val{Rational(75,100)}}) = Rational(75,100)
-# alpha(::_TestOpLesSoft{Val{Rational(75,100)}}) = Rational(75,100)
+# alpha(::_TestOpLeqSoft{Val{Rational(75,100)}}) = Rational(75,100)
 
 const all_ordered_test_operators = [
-		TestOpGeq, TestOpLes,
-		TestOpGeq_95, TestOpLes_95,
-		TestOpGeq_90, TestOpLes_90,
-		TestOpGeq_80, TestOpLes_80,
-		TestOpGeq_75, TestOpLes_75,
+		TestOpGeq, TestOpLeq,
+		TestOpGeq_95, TestOpLeq_95,
+		TestOpGeq_90, TestOpLeq_90,
+		TestOpGeq_80, TestOpLeq_80,
+		TestOpGeq_75, TestOpLeq_75,
 	]
 const all_test_operators_order = [
-		TestOpGeq, TestOpLes,
-		TestOpGeq_95, TestOpLes_95,
-		TestOpGeq_90, TestOpLes_90,
-		TestOpGeq_80, TestOpLes_80,
-		TestOpGeq_75, TestOpLes_75,
+		TestOpGeq, TestOpLeq,
+		TestOpGeq_95, TestOpLeq_95,
+		TestOpGeq_90, TestOpLeq_90,
+		TestOpGeq_80, TestOpLeq_80,
+		TestOpGeq_75, TestOpLeq_75,
 	]
 sort_test_operators!(x::Vector{TO}) where {TO<:TestOperator} = begin
 	intersect(all_test_operators_order, x)
 end
 
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) ⫺ $(featval)"
-display_propositional_test(test_operator::_TestOpLes, lhs::String, featval::Number) = "$(lhs) ⫹ $(featval)"
+display_propositional_test(test_operator::_TestOpLeq, lhs::String, featval::Number) = "$(lhs) ⫹ $(featval)"
 display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫺ $(featval)]"
-display_propositional_test(test_operator::_TestOpLesSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫹ $(featval)]"
+display_propositional_test(test_operator::_TestOpLeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫹ $(featval)]"
 
 display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, featid::Integer, featval::Number) = begin
 	test = display_propositional_test(test_operator, "V$(featid)", featval)
@@ -245,8 +245,8 @@ end
 	# readline()
 	minimum(readWorld(w,channel))
 end
-@inline WExtreme(::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
-	# println(_TestOpLes)
+@inline WExtreme(::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	# println(_TestOpLeq)
 	# println(w)
 	# println(channel)
 	# readline()
@@ -265,7 +265,7 @@ end
 	vals = vec(readWorld(w,channel))
 	partialsort!(vals,1+floor(Int, (1.0-alpha(test_op))*length(vals)))
 end
-@inline WExtreme(test_op::_TestOpLesSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline WExtreme(test_op::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
 	partialsort!(vals,1+floor(Int, (alpha(test_op))*length(vals)))
 end
@@ -282,7 +282,7 @@ end
 	end
 	return true
 end
-@inline TestCondition(test_operator::_TestOpLes, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
+@inline TestCondition(test_operator::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @info "WLes" w featval #n readWorld(w,channel)
 	# @inbounds
@@ -340,7 +340,7 @@ enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<
 enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
 WExtremaModal(test_operator::ModalLogic._TestOpGeq, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
 	WExtrema(test_operator, w, channel)
-WExtremeModal(test_operator::Union{ModalLogic._TestOpGeq,ModalLogic._TestOpLes}, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+WExtremeModal(test_operator::Union{ModalLogic._TestOpGeq,ModalLogic._TestOpLeq}, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
 	WExtreme(test_operator, w, channel)
 
 display_rel_short(::_RelationId)  = "Id"

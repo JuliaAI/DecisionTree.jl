@@ -56,26 +56,26 @@ yieldReprs(test_operator::_TestOpGeq, repr::_ReprVal{Interval},  channel::Matric
 yieldReprs(test_operator::_TestOpGeq, repr::_ReprNone{Interval}, channel::MatricialChannel{T,1}) where {T} =
 	(typemin(T),typemax(T))::NTuple{2,T}
 
-yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, repr::_ReprMax{Interval},  channel::MatricialChannel{T,1}) where {T} =
+yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, repr::_ReprMax{Interval},  channel::MatricialChannel{T,1}) where {T} =
 	maximum(readWorld(repr.w, channel))::T
-yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, repr::_ReprMin{Interval},  channel::MatricialChannel{T,1}) where {T} =
+yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, repr::_ReprMin{Interval},  channel::MatricialChannel{T,1}) where {T} =
 	minimum(readWorld(repr.w, channel))::T
-yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, repr::_ReprVal{Interval},  channel::MatricialChannel{T,1}) where {T} =
+yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, repr::_ReprVal{Interval},  channel::MatricialChannel{T,1}) where {T} =
 	channel[repr.w.x]::T
 yieldRepr(test_operator::_TestOpGeq, repr::_ReprNone{Interval}, channel::MatricialChannel{T,1}) where {T} =
 	typemin(T)::T
-yieldRepr(test_operator::_TestOpLes, repr::_ReprNone{Interval}, channel::MatricialChannel{T,1}) where {T} =
+yieldRepr(test_operator::_TestOpLeq, repr::_ReprNone{Interval}, channel::MatricialChannel{T,1}) where {T} =
 	typemax(T)::T
 
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_RelationId,  X::Integer) = _ReprMin(w)
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_RelationId,  X::Integer) = _ReprMax(w)
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_RelationId,  X::Integer) = _ReprMax(w)
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_RelationAll, X::Integer) = _ReprMax(Interval(1,X+1))
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_RelationAll, X::Integer) = _ReprMin(Interval(1,X+1))
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_RelationAll, X::Integer) = _ReprMin(Interval(1,X+1))
 
 # TODO optimize relationAll
 WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
 	yieldReprs(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
+WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
 	yieldRepr(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
 
 
@@ -99,7 +99,7 @@ WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval, r::R whe
 # 	# maximum(readWorld(Interval(1,X+1),channel))
 # 	maximum(channel)
 # end
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
 # 	# TODO optimize this by replacing readworld with channel[1:X]...
 # 	# X = length(channel)
 # 	# minimum(readWorld(Interval(1,X+1),channel))
@@ -243,111 +243,111 @@ enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Ai, X::Integer) =
 
 # TODO parametrize on the test_operator. These are wrong anyway...
 # Note: these conditions are the ones that make a modalStep inexistent
-enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval, ::_IA_A,  X::Integer) = (w.y < X+1)                 ? _ReprVal(Interval(w.y, w.y+1)   ) : _ReprNone{Interval}() # [Interval(w.y, X+1)]     : Interval[]
-enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval, ::_IA_Ai, X::Integer) = (1 < w.x)                   ? _ReprVal(Interval(w.x-1, w.x)   ) : _ReprNone{Interval}() # [Interval(1, w.x)]       : Interval[]
-enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval, ::_IA_B,  X::Integer) = (w.x < w.y-1)               ? _ReprVal(Interval(w.x, w.x+1)   ) : _ReprNone{Interval}() # [Interval(w.x, w.y-1)]   : Interval[]
-enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval, ::_IA_E,  X::Integer) = (w.x+1 < w.y)               ? _ReprVal(Interval(w.y-1, w.y)   ) : _ReprNone{Interval}() # [Interval(w.x+1, w.y)]   : Interval[]
+enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, ::_IA_A,  X::Integer) = (w.y < X+1)                 ? _ReprVal(Interval(w.y, w.y+1)   ) : _ReprNone{Interval}() # [Interval(w.y, X+1)]     : Interval[]
+enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, ::_IA_Ai, X::Integer) = (1 < w.x)                   ? _ReprVal(Interval(w.x-1, w.x)   ) : _ReprNone{Interval}() # [Interval(1, w.x)]       : Interval[]
+enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, ::_IA_B,  X::Integer) = (w.x < w.y-1)               ? _ReprVal(Interval(w.x, w.x+1)   ) : _ReprNone{Interval}() # [Interval(w.x, w.y-1)]   : Interval[]
+enumAccRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, ::_IA_E,  X::Integer) = (w.x+1 < w.y)               ? _ReprVal(Interval(w.y-1, w.y)   ) : _ReprNone{Interval}() # [Interval(w.x+1, w.y)]   : Interval[]
 
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_L,  X::Integer) = (w.y+1 < X+1)               ? _ReprMax(Interval(w.y+1, X+1)   ) : _ReprNone{Interval}() # [Interval(w.y+1, X+1)]   : Interval[]
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_Li, X::Integer) = (1 < w.x-1)                 ? _ReprMax(Interval(1, w.x-1)     ) : _ReprNone{Interval}() # [Interval(1, w.x-1)]     : Interval[]
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_D,  X::Integer) = (w.x+1 < w.y-1)             ? _ReprMax(Interval(w.x+1, w.y-1) ) : _ReprNone{Interval}() # [Interval(w.x+1, w.y-1)] : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_L,  X::Integer) = (w.y+1 < X+1)               ? _ReprMin(Interval(w.y+1, X+1)   ) : _ReprNone{Interval}() # [Interval(w.y+1, X+1)]   : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_Li, X::Integer) = (1 < w.x-1)                 ? _ReprMin(Interval(1, w.x-1)     ) : _ReprNone{Interval}() # [Interval(1, w.x-1)]     : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_D,  X::Integer) = (w.x+1 < w.y-1)             ? _ReprMin(Interval(w.x+1, w.y-1) ) : _ReprNone{Interval}() # [Interval(w.x+1, w.y-1)] : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_L,  X::Integer) = (w.y+1 < X+1)               ? _ReprMin(Interval(w.y+1, X+1)   ) : _ReprNone{Interval}() # [Interval(w.y+1, X+1)]   : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_Li, X::Integer) = (1 < w.x-1)                 ? _ReprMin(Interval(1, w.x-1)     ) : _ReprNone{Interval}() # [Interval(1, w.x-1)]     : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_D,  X::Integer) = (w.x+1 < w.y-1)             ? _ReprMin(Interval(w.x+1, w.y-1) ) : _ReprNone{Interval}() # [Interval(w.x+1, w.y-1)] : Interval[]
 
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_Bi, X::Integer) = (w.y < X+1)                 ? _ReprMin(Interval(w.x, w.y+1)   ) : _ReprNone{Interval}() # [Interval(w.x, X+1)]     : Interval[]
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_Ei, X::Integer) = (1 < w.x)                   ? _ReprMin(Interval(w.x-1, w.y)   ) : _ReprNone{Interval}() # [Interval(1, w.y)]       : Interval[]
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_Di, X::Integer) = (1 < w.x && w.y < X+1)      ? _ReprMin(Interval(w.x-1, w.y+1) ) : _ReprNone{Interval}() # [Interval(1, X+1)]       : Interval[]
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_O,  X::Integer) = (w.x+1 < w.y && w.y < X+1)  ? _ReprMin(Interval(w.y-1, w.y+1) ) : _ReprNone{Interval}() # [Interval(w.x+1, X+1)]   : Interval[]
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_IA_Oi, X::Integer) = (1 < w.x && w.x+1 < w.y)    ? _ReprMin(Interval(w.x-1, w.x+1) ) : _ReprNone{Interval}() # [Interval(1, w.y-1)]     : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_Bi, X::Integer) = (w.y < X+1)                 ? _ReprMax(Interval(w.x, w.y+1)   ) : _ReprNone{Interval}() # [Interval(w.x, X+1)]     : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_Ei, X::Integer) = (1 < w.x)                   ? _ReprMax(Interval(w.x-1, w.y)   ) : _ReprNone{Interval}() # [Interval(1, w.y)]       : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_Di, X::Integer) = (1 < w.x && w.y < X+1)      ? _ReprMax(Interval(w.x-1, w.y+1) ) : _ReprNone{Interval}() # [Interval(1, X+1)]       : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_O,  X::Integer) = (w.x+1 < w.y && w.y < X+1)  ? _ReprMax(Interval(w.y-1, w.y+1) ) : _ReprNone{Interval}() # [Interval(w.x+1, X+1)]   : Interval[]
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_IA_Oi, X::Integer) = (1 < w.x && w.x+1 < w.y)    ? _ReprMax(Interval(w.x-1, w.x+1) ) : _ReprNone{Interval}() # [Interval(1, w.y-1)]     : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_Bi, X::Integer) = (w.y < X+1)                 ? _ReprMax(Interval(w.x, w.y+1)   ) : _ReprNone{Interval}() # [Interval(w.x, X+1)]     : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_Ei, X::Integer) = (1 < w.x)                   ? _ReprMax(Interval(w.x-1, w.y)   ) : _ReprNone{Interval}() # [Interval(1, w.y)]       : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_Di, X::Integer) = (1 < w.x && w.y < X+1)      ? _ReprMax(Interval(w.x-1, w.y+1) ) : _ReprNone{Interval}() # [Interval(1, X+1)]       : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_O,  X::Integer) = (w.x+1 < w.y && w.y < X+1)  ? _ReprMax(Interval(w.y-1, w.y+1) ) : _ReprNone{Interval}() # [Interval(w.x+1, X+1)]   : Interval[]
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_IA_Oi, X::Integer) = (1 < w.x && w.x+1 < w.y)    ? _ReprMax(Interval(w.x-1, w.x+1) ) : _ReprNone{Interval}() # [Interval(1, w.y-1)]     : Interval[]
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_A, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y < length(channel)+1) ? (channel[w.y],channel[w.y]) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_A, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y < length(channel)+1) ? channel[w.y] : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_A, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_A, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y < length(channel)+1) ? channel[w.y] : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Ai, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x) ? (channel[w.x-1],channel[w.x-1]) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Ai, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x) ? channel[w.x-1] : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_Ai, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_Ai, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x) ? channel[w.x-1] : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_L, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y+1 < length(channel)+1) ? reverse(extrema(channel[w.y+1:length(channel)])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_L, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y+1 < length(channel)+1) ? maximum(channel[w.y+1:length(channel)]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_L, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_L, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y+1 < length(channel)+1) ? minumum(channel[w.y+1:length(channel)]) : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Li, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x-1) ? reverse(extrema(channel[1:w.x-2])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Li, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x-1) ? maximum(channel[1:w.x-2]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_Li, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_Li, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x-1) ? minumum(channel[1:w.x-2]) : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_B, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x < w.y-1) ? (channel[w.x],channel[w.x]) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_B, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x < w.y-1) ? channel[w.x] : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_B, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_B, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x < w.y-1) ? channel[w.x] : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Bi, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y < length(channel)+1) ? (minimum(channel[w.x:w.y-1+1]),maximum(channel[w.x:w.y-1+1])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Bi, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y < length(channel)+1) ? minimum(channel[w.x:w.y-1+1]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_Bi, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_Bi, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.y < length(channel)+1) ? maximum(channel[w.x:w.y-1+1]) : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_E, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y) ? (channel[w.y-1],channel[w.y-1]) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_E, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y) ? channel[w.y-1] : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_E, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_E, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y) ? channel[w.y-1] : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Ei, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x) ? (minimum(channel[w.x-1:w.y-1]),maximum(channel[w.x-1:w.y-1])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Ei, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x) ? minimum(channel[w.x-1:w.y-1]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_Ei, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_Ei, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x) ? maximum(channel[w.x-1:w.y-1]) : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_D, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y-1) ? reverse(extrema(channel[w.x+1:w.y-1-1])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_D, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y-1) ? maximum(channel[w.x+1:w.y-1-1]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_D, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_D, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y-1) ? minumum(channel[w.x+1:w.y-1-1]) : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Di, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x && w.y < length(channel)+1) ? (minimum(channel[w.x-1:w.y-1+1]),maximum(channel[w.x-1:w.y-1+1])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Di, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x && w.y < length(channel)+1) ? minimum(channel[w.x-1:w.y-1+1]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_Di, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_Di, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x && w.y < length(channel)+1) ? maximum(channel[w.x-1:w.y-1+1]) : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_O, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y && w.y < length(channel)+1) ? (minimum(channel[w.y-1:w.y-1+1]),maximum(channel[w.y-1:w.y-1+1])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_O, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y && w.y < length(channel)+1) ? minimum(channel[w.y-1:w.y-1+1]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_O, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_O, channel::MatricialChannel{T,1}) where {T} =
 # 	(w.x+1 < w.y && w.y < length(channel)+1) ? maximum(channel[w.y-1:w.y-1+1]) : typemin(T)
 
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Oi, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x && w.x+1 < w.y) ? (minimum(channel[w.x-1:w.x]),maximum(channel[w.x-1:w.x])) : (typemax(T),typemin(T))
 # WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_IA_Oi, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x && w.x+1 < w.y) ? minimum(channel[w.x-1:w.x]) : typemax(T)
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, ::_IA_Oi, channel::MatricialChannel{T,1}) where {T} =
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_IA_Oi, channel::MatricialChannel{T,1}) where {T} =
 # 	(1 < w.x && w.x+1 < w.y) ? maximum(channel[w.x-1:w.x]) : typemin(T)
 
 ################################################################################
@@ -390,21 +390,21 @@ yieldReprs(test_operator::_TestOpGeq, repr::_ReprVal{Interval2D},  channel::Matr
 yieldReprs(test_operator::_TestOpGeq, repr::_ReprNone{Interval2D}, channel::MatricialChannel{T,2}) where {T} =
 	(typemin(T),typemax(T))::NTuple{2,T}
 
-yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, repr::_ReprMax{Interval2D},  channel::MatricialChannel{T,2}) where {T} =
+yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, repr::_ReprMax{Interval2D},  channel::MatricialChannel{T,2}) where {T} =
 	maximum(readWorld(repr.w, channel))::T
-yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, repr::_ReprMin{Interval2D},  channel::MatricialChannel{T,2}) where {T} =
+yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, repr::_ReprMin{Interval2D},  channel::MatricialChannel{T,2}) where {T} =
 	minimum(readWorld(repr.w, channel))::T
-yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLes}, repr::_ReprVal{Interval2D},  channel::MatricialChannel{T,2}) where {T} =
+yieldRepr(test_operator::Union{_TestOpGeq,_TestOpLeq}, repr::_ReprVal{Interval2D},  channel::MatricialChannel{T,2}) where {T} =
 	channel[repr.w.x.x, repr.w.y.x]::T
 yieldRepr(test_operator::_TestOpGeq, repr::_ReprNone{Interval2D}, channel::MatricialChannel{T,2}) where {T} =
 	typemin(T)::T
-yieldRepr(test_operator::_TestOpLes, repr::_ReprNone{Interval2D}, channel::MatricialChannel{T,2}) where {T} =
+yieldRepr(test_operator::_TestOpLeq, repr::_ReprNone{Interval2D}, channel::MatricialChannel{T,2}) where {T} =
 	typemax(T)::T
 
 enumAccRepr(test_operator::_TestOpGeq, w::Interval2D, ::_RelationId,  X::Integer, Y::Integer) = _ReprMin(w)
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, ::_RelationId,  X::Integer, Y::Integer) = _ReprMax(w)
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, ::_RelationId,  X::Integer, Y::Integer) = _ReprMax(w)
 enumAccRepr(test_operator::_TestOpGeq, w::Interval2D, ::_RelationAll, X::Integer, Y::Integer) = _ReprMax(Interval2D(Interval(1,X+1), Interval(1,Y+1)))
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, ::_RelationAll, X::Integer, Y::Integer) = _ReprMin(Interval2D(Interval(1,X+1), Interval(1,Y+1)))
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, ::_RelationAll, X::Integer, Y::Integer) = _ReprMin(Interval2D(Interval(1,X+1), Interval(1,Y+1)))
 
 # TODO write only one ExtremeModal/ExtremaModal
 # TODO optimize relationAll
@@ -415,7 +415,7 @@ WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::R where R<:AbstractRe
 	# end
 	yieldReprs(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
 end
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval2D, r::R where R<:AbstractRelation, channel::MatricialChannel{T,2}) where {T} =
+WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::R where R<:AbstractRelation, channel::MatricialChannel{T,2}) where {T} =
 	yieldRepr(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
 # channel = [1,2,3,2,8,349,0,830,7290,298,20,29,2790,27,90279,270,2722,79072,0]
 # w = ModalLogic.Interval(3,9)
@@ -452,7 +452,7 @@ WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval2D, r::R w
 # 	# maximum(channel[1:X,1:Y])
 # 	maximum(channel)
 # end
-# WExtremeModal(test_operator::_TestOpLes, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
 # 	# TODO optimize this by replacing readworld with channel[1:X]...
 # 	# X = size(channel, 1)
 # 	# Y = size(channel, 2)
@@ -613,20 +613,20 @@ enumAccRepr(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {
 enumAccRepr(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelMinimizer}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMin)
 
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMaximizer}, X::Integer, Y::Integer) =
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMaximizer}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMin)
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMinimizer}, X::Integer, Y::Integer) =
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMinimizer}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMax)
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelSingleVal}, X::Integer, Y::Integer) =
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelSingleVal}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprVal)
 
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelSingleVal}, X::Integer, Y::Integer) =
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelSingleVal}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMin)
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelSingleVal}, X::Integer, Y::Integer) =
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelSingleVal}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMax)
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelMaximizer}, X::Integer, Y::Integer) =
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelMaximizer}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMin)
-enumAccRepr(test_operator::_TestOpLes, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelMinimizer}, X::Integer, Y::Integer) =
+enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelMinimizer}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMax)
 
 # The last two cases are difficult to express with enumAccRepr, better do it at WExtremaModal instead
@@ -651,7 +651,7 @@ yieldMinMaxCombination(test_operator::_TestOpGeq, productRepr::_ReprTreatment, c
 	maximum(mapslices(minimum, vals, dims=dims))
 end
 
-yieldMinMaxCombination(test_operator::_TestOpLes, productRepr::_ReprTreatment, channel::MatricialChannel{T,2}, dims::Integer) where {T} = begin
+yieldMinMaxCombination(test_operator::_TestOpLeq, productRepr::_ReprTreatment, channel::MatricialChannel{T,2}, dims::Integer) where {T} = begin
 	if productRepr == _ReprNone{Interval2D}()
 		return typemax(T)
 	end
@@ -662,17 +662,17 @@ end
 WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 1)
 end
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
+WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 1)
 end
 WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 2)
 end
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLes}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
+WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 2)
 end
 
-# TODO: per _TestOpLes gli operatori si invertono
+# TODO: per _TestOpLeq gli operatori si invertono
 
 ################################################################################
 # END IA2D relations
@@ -729,7 +729,7 @@ enumAccBare(w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccBare(w, IA_Di, X)
 # 	repr1, repr2 = map((r_IA)->(enumAccRepr(w, r_IA,  X)), topo2IARelations(r))
 # 	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
 # end
-# WExtremeModal(test_operator::_TestOpLes, w::Interval, r::Union{_Topo_DC,_Topo_EC,_Topo_PO,_Topo_TPP,_Topo_TPPi}, channel::MatricialChannel{T,1}) where {T} = begin
+# WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::Union{_Topo_DC,_Topo_EC,_Topo_PO,_Topo_TPP,_Topo_TPPi}, channel::MatricialChannel{T,1}) where {T} = begin
 # 	repr1, repr2 = map((r_IA)->(enumAccRepr(w, r_IA,  X)), topo2IARelations(r))
 # 	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
 # end
@@ -745,7 +745,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_DC, channel::Matr
 	repr2 = enumAccRepr(test_operator, w, IA_Li, length(channel))
 	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_DC, channel::MatricialChannel{T,1}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::_Topo_DC, channel::MatricialChannel{T,1}) where {T} = begin
 	repr1 = enumAccRepr(test_operator, w, IA_L, length(channel))
 	repr2 = enumAccRepr(test_operator, w, IA_Li, length(channel))
 	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
@@ -762,7 +762,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_EC, channel::Matr
 	repr2 = enumAccRepr(test_operator, w, IA_Ai, length(channel))
 	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_EC, channel::MatricialChannel{T,1}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::_Topo_EC, channel::MatricialChannel{T,1}) where {T} = begin
 	repr1 = enumAccRepr(test_operator, w, IA_A, length(channel))
 	repr2 = enumAccRepr(test_operator, w, IA_Ai, length(channel))
 	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
@@ -779,7 +779,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_PO, channel::Matr
 	repr2 = enumAccRepr(test_operator, w, IA_Oi, length(channel))
 	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_PO, channel::MatricialChannel{T,1}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::_Topo_PO, channel::MatricialChannel{T,1}) where {T} = begin
 	repr1 = enumAccRepr(test_operator, w, IA_O, length(channel))
 	repr2 = enumAccRepr(test_operator, w, IA_Oi, length(channel))
 	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
@@ -796,7 +796,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_TPP, channel::Mat
 	repr2 = enumAccRepr(test_operator, w, IA_E, length(channel))
 	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_TPP, channel::MatricialChannel{T,1}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::_Topo_TPP, channel::MatricialChannel{T,1}) where {T} = begin
 	repr1 = enumAccRepr(test_operator, w, IA_B, length(channel))
 	repr2 = enumAccRepr(test_operator, w, IA_E, length(channel))
 	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
@@ -813,7 +813,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::_Topo_TPPi, channel::Ma
 	repr2 = enumAccRepr(test_operator, w, IA_Ei, length(channel))
 	max(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval, r::_Topo_TPPi, channel::MatricialChannel{T,1}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::_Topo_TPPi, channel::MatricialChannel{T,1}) where {T} = begin
 	repr1 = enumAccRepr(test_operator, w, IA_Bi, length(channel))
 	repr2 = enumAccRepr(test_operator, w, IA_Ei, length(channel))
 	min(yieldRepr(test_operator, repr1, channel), yieldRepr(test_operator, repr2, channel))
@@ -925,7 +925,7 @@ struct _Virtual_Enlarge <: AbstractRelation end; const Virtual_Enlarge = _Virtua
 enlargeInterval(w::Interval, X::Integer) = Interval(max(1,w.x-1),min(w.y+1,X+1))
 
 enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_Virtual_Enlarge,  X::Integer) = _ReprMin(enlargeInterval(w,X))
-enumAccRepr(test_operator::_TestOpLes, w::Interval, ::_Virtual_Enlarge,  X::Integer) = _ReprMax(enlargeInterval(w,X))
+enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_Virtual_Enlarge,  X::Integer) = _ReprMax(enlargeInterval(w,X))
 
 
 # Topo2D2Topo1D(::_Topo_DC) = [
@@ -1040,7 +1040,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_DC, channel::Ma
 				 yieldRepr(test_operator, repry2, channel),
 				 yieldRepr(test_operator, repry2, channel))
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_Topo_DC, channel::MatricialChannel{T,2}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_DC, channel::MatricialChannel{T,2}) where {T} = begin
 	reprx1 = enumAccRepr2D(test_operator, w, RelationAll, IA_L,         size(channel)..., _ReprMin)
 	reprx2 = enumAccRepr2D(test_operator, w, RelationAll, IA_Li,        size(channel)..., _ReprMin)
 	repry1 = enumAccRepr2D(test_operator, w, IA_L,     Virtual_Enlarge, size(channel)..., _ReprMin)
@@ -1074,7 +1074,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_EC, channel::Ma
 	extr = map(w->yieldRepr(test_operator, _ReprMax(w), channel), reprs)
 	maximum([extr..., typemin(T)])
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_Topo_EC, channel::MatricialChannel{T,2}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_EC, channel::MatricialChannel{T,2}) where {T} = begin
 	X,Y = size(channel)
 	reprs = [
 		((w.x.x-1 >= 1)   ? [Interval2D(Interval(w.x.x-1,w.x.x),enlargeInterval(w.y,Y))] : Interval2D[])...,
@@ -1197,7 +1197,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_PO, channel::Ma
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, rx2,    RelationId, size(channel)..., _ReprFake), channel, 1),
 	))
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_Topo_PO, channel::MatricialChannel{T,2}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_PO, channel::MatricialChannel{T,2}) where {T} = begin
 	x_singleton = ! (w.x.x < w.x.y-1)
 	y_singleton = ! (w.y.x < w.y.y-1)
 	if x_singleton && y_singleton
@@ -1240,7 +1240,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_TPP, channel::M
 	extr = map(w->yieldRepr(test_operator, _ReprMax(w), channel), reprs)
 	maximum([extr..., typemin(T)])
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_Topo_TPP, channel::MatricialChannel{T,2}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_TPP, channel::MatricialChannel{T,2}) where {T} = begin
 	reprs = if (w.x.x < w.x.y-1) && (w.y.x < w.y.y-1)
 			[Interval2D(Interval(w.x.x,w.x.x+1),w.y), Interval2D(Interval(w.x.y-1,w.x.y),w.y), Interval2D(w.x,Interval(w.y.x,w.y.x+1)), Interval2D(w.x,Interval(w.y.y-1,w.y.y))]
 		elseif (w.x.x < w.x.y-1) || (w.y.x < w.y.y-1)
@@ -1274,7 +1274,7 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_TPPi, channel::
 	extr = map(w->yieldRepr(test_operator, _ReprMin(w), channel), reprs)
 	maximum([extr..., typemin(T)])
 end
-WExtremeModal(test_operator::_TestOpLes, w::Interval2D, r::_Topo_TPPi, channel::MatricialChannel{T,2}) where {T} = begin
+WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_TPPi, channel::MatricialChannel{T,2}) where {T} = begin
 	X,Y = size(channel)
 	reprs = [
 		((w.x.x-1 >= 1)   ? [Interval2D(Interval(w.x.x-1,w.x.y),w.y)] : Interval2D[])...,
@@ -1300,7 +1300,7 @@ X = 4
 Y = 3
 while(true)
 	a = randn(4,4);
-	wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLes], x,a);
+	wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLeq], x,a);
 	# TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
 	x1 = rand(1:X);
 	x2 = x1+rand(1:(X+1-x1));
@@ -1329,7 +1329,7 @@ rel = ModalLogic.Topo_EC
 a = [253 670 577; 569 730 931; 633 850 679];
 X,Y = size(a)
 while(true)
-	wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLes], x,a);
+	wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLeq], x,a);
 	# TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
 	x1 = rand(1:X);
 	x2 = x1+rand(1:(X+1-x1));
@@ -1358,7 +1358,7 @@ rel = ModalLogic.Topo_EC
 a = [253 670 577; 569 730 931; 633 850 679];
 X,Y = size(a)
 while(true)
-wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLes], x,a);
+wextr = (x)->ModalLogic.WExtrema([ModalLogic.TestOpGeq, ModalLogic.TestOpLeq], x,a);
 # TODO try all rectangles, avoid randominzing like this... Also try all channel sizes
 x1 = 2
 x2 = 3
@@ -1402,6 +1402,8 @@ end
 # 	Point(::_firstWorld) = new(1)
 # 	Point(::_centeredWorld, X::Integer) = new(div(X,2)+1)
 # end
+
+# Note: with Points, < and >= is redundant
 
 # show(io::IO, r::Interval) = print(io, "($(x)×$(y))")
 

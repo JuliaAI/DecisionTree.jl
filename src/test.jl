@@ -118,9 +118,9 @@ kwargs = (
 	useRelationAll = false,
 	# useRelationAll = true,
 	# test_operators=[ModalLogic.TestOpGeq],
-	# test_operators=[ModalLogic.TestOpLes],
-	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
-	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes, ModalLogic.TestOpGeq075, ModalLogic.TestOpLes075],
+	# test_operators=[ModalLogic.TestOpLeq],
+	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq075, ModalLogic.TestOpLeq075],
 )
 
 # timeit = 2
@@ -137,7 +137,8 @@ T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(S
 
 
 # TODO test the same with window 3x5; also test with a specific initial world. One that allows During, for example, or one on the border
-relations = [ModalLogic.TopoRelations...,ModalLogic.IA2DRelations...,]
+relations = [ModalLogic.IA2DRelations...,ModalLogic.TopoRelations...,]
+# relations = [ModalLogic.TopoRelations...,ModalLogic.IA2DRelations...,]
 i_relation = 1
 while i_relation <= length(relations)
 	relation = relations[i_relation]
@@ -148,7 +149,7 @@ while i_relation <= length(relations)
 		initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,4),(1,6))),
 		useRelationId = false,
 		useRelationAll = false,
-		test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+		test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		ontology=Ontology(ModalLogic.Interval2D,[relation]),
 	)
 	T = testDataset(("PaviaDataset, 3x3 mod",                           traintestsplit(SampleLandCoverDataset(9*30, (3,5), "Pavia", rng = my_rng())...,0.8)), 0, args=args, kwargs=kwargs);
@@ -185,9 +186,9 @@ for min_purity_increase in [0.0, 0.02]
 				kwargs = (
 					initCondition=initCondition,
 					ontology=ontology,
-					# test_operators=[ModalLogic.TestOpLes],
-					test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
-					# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes, ModalLogic.TestOpGeq075, ModalLogic.TestOpLes075],
+					# test_operators=[ModalLogic.TestOpLeq],
+					test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+					# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq075, ModalLogic.TestOpLeq075],
 				)
 
 				T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
@@ -251,4 +252,4 @@ end
 # println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
 @assert SUM == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)
 
-# Test that T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs); with test_operators=[ModalLogic.TestOpLes] and without is equivalent
+# Test that T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs); with test_operators=[ModalLogic.TestOpLeq] and without is equivalent

@@ -35,7 +35,7 @@ function build_stump(
 		features    :: MatricialDataset{T,D},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
 		ontology    :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D}
 	
 	X = OntologicalDataset{T,D-2}(ontology,features)
@@ -79,7 +79,7 @@ function build_tree(
 		useRelationAll      :: Bool               = true,
 		useRelationId       :: Bool               = true,
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		loss                :: Function           = util.entropy,
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D}
 
