@@ -137,19 +137,21 @@ T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(S
 
 
 # TODO test the same with window 3x5; also test with a specific initial world. One that allows During, for example, or one on the border
-relations = [ModalLogic.IA2DRelations...,ModalLogic.TopoRelations...]
+relations = [ModalLogic.TopoRelations...,ModalLogic.IA2DRelations...,]
 i_relation = 1
 while i_relation <= length(relations)
 	relation = relations[i_relation]
+	# relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
 	println(relation)
 	kwargs = (
-		initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
+		# initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
+		initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,4),(1,6))),
 		useRelationId = false,
 		useRelationAll = false,
 		test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
 		ontology=Ontology(ModalLogic.Interval2D,[relation]),
 	)
-	T = testDataset(("PaviaDataset, 3x3 mod",                           traintestsplit(SampleLandCoverDataset(9*30, (3,5), "Pavia", n_variables = 1, rng = my_rng())...,0.8)), 0, args=args, kwargs=kwargs);
+	T = testDataset(("PaviaDataset, 3x3 mod",                           traintestsplit(SampleLandCoverDataset(9*30, (3,5), "Pavia", rng = my_rng())...,0.8)), 0, args=args, kwargs=kwargs);
 	println(T)
 	i_relation+=1
 end
