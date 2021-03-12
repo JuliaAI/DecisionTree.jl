@@ -1,28 +1,22 @@
-✔	Figure out why we reach "Uninformative split." when using Les only @done (21-03-10 17:21)
-✔	Fix compute-threshold and enumAccRepr so that it works with soft test operator as well! @done (21-03-12 14:03)
-✔	Rename TestOpLes to TestOpLeq @done (21-03-12 14:05)
+☐	Extend to >=alpha and <alpha; these operators are ordered, closed/not closed; maybe others are categorical, in general some are. Fix </>= thing. Fix is_closed/polarity
+☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 ☐	Create RCC5 ontology by joining n/tpp(i) into pp(i) (proper part) and dc/ec into dr (disjointness).
 ☐	Add Error catching+repeat with different log level, and keep going
 ☐	Add name of the labels to a dataset and confusion matrix.
-✔	Calculate per-class accuracy. @done (21-03-12 17:10)
-☐	Extend to >=alpha and <alpha; these operators are ordered, closed/not closed; maybe others are categorical, in general some are. Fix </>= thing. Fix is_closed/polarity
-☐	Test whether ordering thresholdDomain and then performing binary search is actually better
-☐	Try topological and interval algebra without tangential cases, or with tangential cases merged with other relations.
-☐	Determine whether it's faster to use SoglId or recalculate. (If SoglId is better, use it in WExtrema?)
+☐	Try topological without tangential cases, or with tangential cases merged with other relations.
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
-☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
-☐	Fix 3 pre-pruning stop conditions: a) purity>purity_threshold; b) min_sample_{leaf,split}>=threshold{absolute,relative}; c) purity gain < min_purity_gain. What if purity is just card(max_class)/card(all classes)? Why (best_purity / nt)? If ... maybe min_purity_increase needs to become min_info_gain
 ☐	Test adimensional case 1x1, & 2D case 3x3, 5x5, 7x7, with alfa=.8
 ☐	Fix naming style (e.g. variables, etc. Order of struct's members)
 ☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)
+☐	Test whether ordering thresholdDomain and then performing binary search is actually better
+☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
+☐	Determine whether it's faster to use SoglId or recalculate. (If SoglId is better, use it in WExtrema?)
 
 
 ☐	Add possibility of barely joining two relations with a disjunction (so you can get RCC5 from RCC8 relations)
 ☐	Add IA7, IA3, IA3^7, IA7^2 relations
 ☐	Use specific sampling on the image
 ☐	Valuta quale estensione di array e' bello tenere. Array piccoli e compatti? Array con nomi nelle dimensioni? Etc.
-✔	Create a dataset with many but tiny worlds. Even a completely random one. @done (21-03-12 14:07)
-✔	> doubles the time but doesn't seem to improve performances. Is this a bug? Try to come up with a dataset that shows if it works. If it's not a bug, maybe we should consider parametrizing on whether this is to be used or not. @done (21-03-12 14:07)
 ☐	Add point-based ontology, and test point-based + rectangle algebra?
 ☐	Clean initCondition and worldType code
 ☐	Parametrize worldTypes forcing things such as minimum size?
@@ -52,6 +46,12 @@
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✔	Calculate per-class accuracy. @done (21-03-12 17:10)
+	✔	Create a dataset with many but tiny worlds. Even a completely random one. @done (21-03-12 14:07)
+	✔	> doubles the time but doesn't seem to improve performances. Is this a bug? Try to come up with a dataset that shows if it works. If it's not a bug, maybe we should consider parametrizing on whether this is to be used or not. @done (21-03-12 14:07)
+	✔	Rename TestOpLes to TestOpLeq @done (21-03-12 14:05)
+	✔	Fix compute-threshold and enumAccRepr so that it works with soft test operator as well! @done (21-03-12 14:03)
+	✔	Figure out why we reach "Uninformative split." when using Les only @done (21-03-10 17:21)
 	✔	Test 5x5 @done (21-03-08 00:59)
 	✔	Now move the extremes computation to the outer algorithm scope, so that it happens BEFORE the whole computation. @done (21-03-08 00:59)
 	✔	Improve the computation of the extremes leveraging the structure of IA Frames. @done (21-03-08 00:59)
