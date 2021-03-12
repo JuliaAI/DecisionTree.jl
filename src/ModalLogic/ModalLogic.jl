@@ -53,7 +53,6 @@ show(io::IO, o::Ontology) = begin
 		print(io, "IA2DRelations_extended")
 	elseif issetequal(o.relationSet, RCC8Relations)
 		print(io, "RCC8")
-	else
 	elseif issetequal(o.relationSet, RCC5Relations)
 		print(io, "RCC5")
 	else

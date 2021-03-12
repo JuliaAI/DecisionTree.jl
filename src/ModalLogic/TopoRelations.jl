@@ -5,6 +5,7 @@
 
 # Topological relations
 abstract type _TopoRel <: AbstractRelation end
+# Relations for RCC8
 struct _Topo_DC     <: _TopoRel end; const Topo_DC     = _Topo_DC();     # Disconnected
 struct _Topo_EC     <: _TopoRel end; const Topo_EC     = _Topo_EC();     # Externally connected
 struct _Topo_PO     <: _TopoRel end; const Topo_PO     = _Topo_PO();     # Partially overlapping
@@ -12,6 +13,10 @@ struct _Topo_TPP    <: _TopoRel end; const Topo_TPP    = _Topo_TPP();    # Tange
 struct _Topo_TPPi   <: _TopoRel end; const Topo_TPPi   = _Topo_TPPi();   # Tangential proper part inverse
 struct _Topo_NTPP   <: _TopoRel end; const Topo_NTPP   = _Topo_NTPP();   # Non-tangential proper part
 struct _Topo_NTPPi  <: _TopoRel end; const Topo_NTPPi  = _Topo_NTPPi();  # Non-tangential proper part inverse
+# Coarser relations for RCC5
+struct _Topo_DR     <: _TopoRel end; const Topo_DR     = _Topo_DR();     # Disjointed
+struct _Topo_PP     <: _TopoRel end; const Topo_PP     = _Topo_PP();     # Proper part
+struct _Topo_PPi    <: _TopoRel end; const Topo_PPi    = _Topo_PPi();    # Proper part inverse
 
 display_rel_short(::_Topo_DC)    = "DC"
 display_rel_short(::_Topo_EC)    = "EC"
@@ -21,7 +26,11 @@ display_rel_short(::_Topo_TPPi)  = "T̅P̅P̅" # T̄P̄P̄
 display_rel_short(::_Topo_NTPP)  = "NTPP"
 display_rel_short(::_Topo_NTPPi) = "N̅T̅P̅P̅" # N̄T̄P̄P̄
 
-const TopoRelations = [Topo_DC, Topo_EC, Topo_PO, Topo_TPP, Topo_TPPi, Topo_NTPP, Topo_NTPPi]
+display_rel_short(::_Topo_DR)   = "DR"
+display_rel_short(::_Topo_PP)   = "PP"
+display_rel_short(::_Topo_PPi)  = "TP̅P̅"
+
+const RCC8Relations = [Topo_DC, Topo_EC, Topo_PO, Topo_TPP, Topo_TPPi, Topo_NTPP, Topo_NTPPi]
 
 topo2IARelations(::_Topo_DC)     = [IA_L,  IA_Li]
 topo2IARelations(::_Topo_EC)     = [IA_A,  IA_Ai]
@@ -30,6 +39,8 @@ topo2IARelations(::_Topo_TPP)    = [IA_B,  IA_E]
 topo2IARelations(::_Topo_TPPi)   = [IA_Bi, IA_Ei]
 topo2IARelations(::_Topo_NTPP)   = [IA_D]
 topo2IARelations(::_Topo_NTPPi)  = [IA_Di]
+
+TODO const RCC5Relations = [Topo_DR, Topo_PO, Topo_PP, Topo_PPi]
 
 # Enumerate accessible worlds from a single world
 enumAccBare(w::Interval, ::_Topo_DC,    X::Integer) = Iterators.flatten((enumAccBare(w, IA_L,  X), enumAccBare(w, IA_Li, X)))

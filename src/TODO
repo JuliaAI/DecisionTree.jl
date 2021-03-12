@@ -1,9 +1,10 @@
 ✔	Figure out why we reach "Uninformative split." when using Les only @done (21-03-10 17:21)
 ✔	Fix compute-threshold and enumAccRepr so that it works with soft test operator as well! @done (21-03-12 14:03)
 ✔	Rename TestOpLes to TestOpLeq @done (21-03-12 14:05)
-☐	Rename Topological relations to RCC8, and create RCC5 ontology by joining n/tpp(i) into pp(i) (proper part) and dc/ec into dr (disjointness).
+☐	Create RCC5 ontology by joining n/tpp(i) into pp(i) (proper part) and dc/ec into dr (disjointness).
 ☐	Add Error catching+repeat with different log level, and keep going
-☐	Add name of the labels to a dataset and confusion matrix. Calculate per-class accuracy.
+☐	Add name of the labels to a dataset and confusion matrix.
+✔	Calculate per-class accuracy. @done (21-03-12 17:10)
 ☐	Extend to >=alpha and <alpha; these operators are ordered, closed/not closed; maybe others are categorical, in general some are. Fix </>= thing. Fix is_closed/polarity
 ☐	Test whether ordering thresholdDomain and then performing binary search is actually better
 ☐	Try topological and interval algebra without tangential cases, or with tangential cases merged with other relations.
@@ -16,6 +17,7 @@
 ☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)
 
 
+☐	Add possibility of barely joining two relations with a disjunction (so you can get RCC5 from RCC8 relations)
 ☐	Add IA7, IA3, IA3^7, IA7^2 relations
 ☐	Use specific sampling on the image
 ☐	Valuta quale estensione di array e' bello tenere. Array piccoli e compatti? Array con nomi nelle dimensioni? Etc.

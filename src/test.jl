@@ -65,9 +65,13 @@ function testDataset((name,dataset), timeit::Integer = 2; debugging_level = Deci
 		preds = apply_tree(T_pruned, X_test);
 		cm = confusion_matrix(Y_test, preds)
 		# @test cm.accuracy > 0.99
-
-		print("  acc: ", round(cm.accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
-		display(cm.matrix)
+		println("  acc: ", round(cm.accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
+		for (i,row) in enumerate(eachrow(cm.matrix))
+			for val in row
+				print(lpad(val,3," "))
+			end
+			println("  " * "$(round(100*row[i]/sum(row), digits=2))%")
+		end
 
 		global_logger(ConsoleLogger(stderr, Logging.Info));
 
@@ -110,9 +114,9 @@ kwargs = (
 	# initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
 	# initCondition=DecisionTree.startWithRelationAll,
 	# ontology=getIntervalOntologyOfDim(Val(2)),
-	# ontology=Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.TopoRelations),Set([ModalLogic.Topo_PO]))),
+	# ontology=Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.RCC8Relations),Set([ModalLogic.Topo_PO]))),
 	# ontology=Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
-	ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+	ontology=getIntervalRCC8OntologyOfDim(Val(2)),
 	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
 	useRelationId = true,
 	# useRelationId = false,
@@ -131,7 +135,7 @@ for databatch in [1]
 	testDataset(datasets[databatch*3+1], timeit, debugging_level = Logging.Warn, args=args, kwargs=kwargs);
 	testDataset(datasets[databatch*3+2], timeit, debugging_level = Logging.Warn, args=args, kwargs=kwargs);
 
-	relations = [ModalLogic.TopoRelations, subsets(ModalLogic.TopoRelations,1)..., subsets(ModalLogic.TopoRelations,2)...]
+	relations = [ModalLogic.RCC8Relations, subsets(ModalLogic.RCC8Relations,1)..., subsets(ModalLogic.RCC8Relations,2)...]
 	i_relation = 1
 	while i_relation <= length(relations)
 		relation = relations[i_relation]
@@ -161,7 +165,7 @@ T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(S
 
 
 # TODO test the same with window 3x5; also test with a specific initial world. One that allows During, for example, or one on the border
-relations = [ModalLogic.TopoRelations...,ModalLogic.IA2DRelations...,]
+relations = [ModalLogic.RCC8Relations...,ModalLogic.IA2DRelations...,]
 i_relation = 1
 while i_relation <= length(relations)
 	relation = relations[i_relation]
@@ -198,7 +202,7 @@ T = testDataset(datasets[6], timeit, post_pruning_purity_thresholds = post_pruni
 timeit = 1
 for min_purity_increase in [0.0, 0.02]
 	for max_purity_split in [1.0, 0.9]
-		for ontology in [getIntervalTopologicalOntologyOfDim(Val(2)), getIntervalOntologyOfDim(Val(2))]
+		for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalOntologyOfDim(Val(2))]
 			for initCondition in [DecisionTree.startAtCenter,DecisionTree.startWithRelationAll]
 				args = (
 					max_depth=-1,
@@ -242,7 +246,7 @@ end
 # cm = confusion_matrix(Y_test, predict(model, X_test))
 # @test cm.accuracy > 0.99
 
-# for relations in [ModalLogic.TopoRelations, ModalLogic.IA2DRelations]
+# for relations in [ModalLogic.RCC8Relations, ModalLogic.IA2DRelations]
 # 	for (X,Y) in Iterators.product(4:6,4:9)
 # 		sum = 0
 # 		for rel in relations
@@ -264,7 +268,7 @@ end
 # S = [ModalLogic.Interval2D((2,3),(3,4))]
 # S = [ModalLogic.Interval2D((2,4),(2,4))]
 S = [ModalLogic.Interval2D((2,3),(2,3))]
-relations = ModalLogic.TopoRelations
+relations = ModalLogic.RCC8Relations
 (X,Y) = (3,3)
 SUM = 0
 for rel in relations
