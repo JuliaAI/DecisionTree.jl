@@ -31,6 +31,7 @@ display_rel_short(::_Topo_PP)   = "PP"
 display_rel_short(::_Topo_PPi)  = "TP̅P̅"
 
 const RCC8Relations = [Topo_DC, Topo_EC, Topo_PO, Topo_TPP, Topo_TPPi, Topo_NTPP, Topo_NTPPi]
+const RCC5Relations = [Topo_DR, Topo_PO, Topo_PP, Topo_PPi]
 
 topo2IARelations(::_Topo_DC)     = [IA_L,  IA_Li]
 topo2IARelations(::_Topo_EC)     = [IA_A,  IA_Ai]
@@ -40,7 +41,9 @@ topo2IARelations(::_Topo_TPPi)   = [IA_Bi, IA_Ei]
 topo2IARelations(::_Topo_NTPP)   = [IA_D]
 topo2IARelations(::_Topo_NTPPi)  = [IA_Di]
 
-TODO const RCC5Relations = [Topo_DR, Topo_PO, Topo_PP, Topo_PPi]
+RCC52RCC8Relations(::_Topo_DR)    = [Topo_DC, Topo_EC]
+RCC52RCC8Relations(::_Topo_PP)    = [Topo_TPP,  Topo_NTPP]
+RCC52RCC8Relations(::_Topo_PPi)   = [Topo_TPPi,  Topo_NTPPi]
 
 # Enumerate accessible worlds from a single world
 enumAccBare(w::Interval, ::_Topo_DC,    X::Integer) = Iterators.flatten((enumAccBare(w, IA_L,  X), enumAccBare(w, IA_Li, X)))

@@ -62,6 +62,48 @@ show(io::IO, o::Ontology) = begin
 end
 
 ################################################################################
+# BEGIN Helpers
+################################################################################
+
+# https://stackoverflow.com/questions/46671965/printing-variable-subscripts-in-julia/46674866
+# '₀'
+function subscriptnumber(i::Int)
+	join([
+		(if i < 0
+			[Char(0x208B)]
+		else [] end)...,
+		[Char(0x2080+d) for d in reverse(digits(abs(i)))]...
+	])
+end
+
+# https://www.w3.org/TR/xml-entity-names/020.html
+# '․', 'ₑ', '₋'
+function subscriptnumber(i::AbstractFloat)
+	char_to_subscript(ch) = begin
+		if ch == 'e'
+			'ₑ'
+		elseif ch == '.'
+			'․'
+		elseif ch == '.'
+			'․'
+		elseif ch == '-'
+			'₋'
+		else
+			subscriptnumber(parse(Int, ch))
+		end
+	end
+
+	try
+		join(map(char_to_subscript, [ch for ch in string(i)]))
+	catch
+		string(i)
+	end
+end
+################################################################################
+# END Helpers
+################################################################################
+
+################################################################################
 # BEGIN Matricial dataset
 ################################################################################
 
@@ -140,11 +182,27 @@ WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
 ################################################################################
 
 abstract type TestOperator end
+abstract type TestOperatorPositive <: TestOperator end
+abstract type TestOperatorNegative <: TestOperator end
+
+polarity(::TestOperatorPositive) = true
+polarity(::TestOperatorNegative) = false
+
+@inline bottom(::TestOperatorPositive, T::Type) = typemin(T)
+@inline bottom(::TestOperatorNegative, T::Type) = typemax(T)
+
+@inline opt(::TestOperatorPositive) = max
+@inline opt(::TestOperatorNegative) = min
+
+# Warning: I'm assuming all operators are "closed" (= not strict, like >= and <=)
+@inline evaluateThreshCondition(::TestOperatorPositive, t, gamma) = (t <= gamma)
+@inline evaluateThreshCondition(::TestOperatorNegative, t, gamma) = (t >= gamma)
+
 struct _TestOpNone  <: TestOperator end; const TestOpNone  = _TestOpNone();
 # >=
-struct _TestOpGeq  <: TestOperator end; const TestOpGeq  = _TestOpGeq();
+struct _TestOpGeq  <: TestOperatorPositive end; const TestOpGeq  = _TestOpGeq();
 # <
-struct _TestOpLeq  <: TestOperator end; const TestOpLeq  = _TestOpLeq();
+struct _TestOpLeq  <: TestOperatorNegative end; const TestOpLeq  = _TestOpLeq();
 
 dual_test_operator(::_TestOpGeq) = TestOpLeq
 dual_test_operator(::_TestOpLeq) = TestOpGeq
@@ -152,12 +210,10 @@ dual_test_operator(::_TestOpLeq) = TestOpGeq
 primary_test_operator(x::_TestOpGeq) = TestOpGeq # x
 primary_test_operator(x::_TestOpLeq) = TestOpGeq # dual_test_operator(x)
 
-polarity(x::_TestOpGeq) = true
-polarity(x::_TestOpLeq) = false
-
 # >=_α
-struct _TestOpGeqSoft  <: TestOperator
+struct _TestOpGeqSoft  <: TestOperatorPositive
   alpha :: AbstractFloat
+  _TestOpGeqSoft(a::T) where {T<:Real} = (a > 0 && a < 1) ? new(a) : error("Invalid instantiation for test operator: _TestOpGeqSoft($(a))")
 end;
 const TestOpGeq_95  = _TestOpGeqSoft((Rational(95,100)));
 const TestOpGeq_90  = _TestOpGeqSoft((Rational(90,100)));
@@ -165,8 +221,9 @@ const TestOpGeq_80  = _TestOpGeqSoft((Rational(80,100)));
 const TestOpGeq_75  = _TestOpGeqSoft((Rational(75,100)));
 
 # <_α
-struct _TestOpLeqSoft  <: TestOperator
+struct _TestOpLeqSoft  <: TestOperatorNegative
   alpha :: AbstractFloat
+  _TestOpLeqSoft(a::T) where {T<:Real} = (a > 0 && a < 1) ? new(a) : error("Invalid instantiation for test operator: _TestOpLeqSoft($(a))")
 end;
 const TestOpLeq_95  = _TestOpLeqSoft((Rational(95,100)));
 const TestOpLeq_90  = _TestOpLeqSoft((Rational(90,100)));
@@ -181,10 +238,6 @@ dual_test_operator(x::_TestOpLeqSoft) = _TestOpGeqSoft(1-alpha(x))
 
 primary_test_operator(x::_TestOpGeqSoft) = x
 primary_test_operator(x::_TestOpLeqSoft) = dual_test_operator(x)
-
-# TODO use
-polarity(x::_TestOpGeqSoft) = true
-polarity(x::_TestOpLeqSoft) = false
 
 # dual_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLeq_95
 # dual_test_operator(::_TestOpLeqSoft{Val{Rational(95,100)}}) = TestOpGeq_95
@@ -225,13 +278,15 @@ end
 
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) ⫺ $(featval)"
 display_propositional_test(test_operator::_TestOpLeq, lhs::String, featval::Number) = "$(lhs) ⫹ $(featval)"
-display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫺ $(featval)]"
-display_propositional_test(test_operator::_TestOpLeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫹ $(featval)]"
+display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(lhs) ⫺" * subscriptnumber(alpha(test_operator)*100) * " $(featval)"
+display_propositional_test(test_operator::_TestOpLeqSoft, lhs::String, featval::Number) = "$(lhs) ⫹" * subscriptnumber(alpha(test_operator)*100) * " $(featval)"
+# display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫺ $(featval)]"
+# display_propositional_test(test_operator::_TestOpLeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫹ $(featval)]"
 
-display_modal_test(modality::AbstractRelation, test_operator::ModalLogic.TestOperator, featid::Integer, featval::Number) = begin
+display_modal_test(modality::AbstractRelation, test_operator::TestOperator, featid::Integer, featval::Number) = begin
 	test = display_propositional_test(test_operator, "V$(featid)", featval)
-	if modality != ModalLogic.RelationId
-		"$(ModalLogic.display_existential_modality(modality)) ($test)"
+	if modality != RelationId
+		"$(display_existential_modality(modality)) ($test)"
 	else
 		"$test"
 	end
@@ -255,21 +310,49 @@ end
 	maximum(readWorld(w,channel))
 end
 
-
 # TODO improved version for Rational numbers
 # TODO check
 @inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	x = partialsort!(vals,1+floor(Int, (1.0-alpha(test_op))*length(vals)))
-	x,x
+	xmin = partialsort!(vals,1+floor(Int, alpha(test_op)*length(vals)); rev=true)
+	xmax = partialsort!(vals,1+floor(Int, (1-alpha(test_op))*length(vals)))
+	xmin,xmax
 end
 @inline WExtreme(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	partialsort!(vals,1+floor(Int, (1.0-alpha(test_op))*length(vals)))
+	partialsort!(vals,1+floor(Int, alpha(test_op)*length(vals)); rev=true)
 end
 @inline WExtreme(test_op::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	partialsort!(vals,1+floor(Int, (alpha(test_op))*length(vals)))
+	partialsort!(vals,1+floor(Int, alpha(test_op)*length(vals)))
+end
+
+WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	worlds = enumAcc(S, relation, channel)
+	extr = (typemin,typemax)
+	for w in worlds
+		e = WExtrema(test_operator, w, channel)
+		extr = (min(extr[1],e[1]), max(extr[2],e[2]))
+	end
+	extr
+end
+WExtremeModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	worlds = enumAcc(S, relation, channel)
+	v = typemin # TODO write with reduce
+	for w in worlds
+		e = WExtreme(test_operator, w, channel)
+		v = max(v,e)
+	end
+	e
+end
+WExtremeModal(test_operator::TestOperatorNegative, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	worlds = enumAcc(S, relation, channel)
+	v = typemax # TODO write with reduce
+	for w in worlds
+		e = WExtreme(test_operator, w, channel)
+		v = min(v,e)
+	end
+	e
 end
 
 # TODO remove
@@ -340,9 +423,9 @@ enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<
 
 # TODO parametrize on test operator (any test operator in this case)
 enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
-WExtremaModal(test_operator::ModalLogic._TestOpGeq, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+WExtremaModal(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
 	WExtrema(test_operator, w, channel)
-WExtremeModal(test_operator::Union{ModalLogic._TestOpGeq,ModalLogic._TestOpLeq}, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+WExtremeModal(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
 	WExtreme(test_operator, w, channel)
 
 display_rel_short(::_RelationId)  = "Id"
@@ -408,6 +491,8 @@ display_existential_modality(r) = "⟨" * display_rel_short(r) * "⟩"
 # @btime min3Extrema($xarr)
 minExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(min(fst,f),max(snd,s)), extr; init=(typemax(T),typemin(T)))
 maxExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(max(fst,f),min(snd,s)), extr; init=(typemin(T),typemax(T)))
+minExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = minExtrema(extr)
+maxExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = maxExtrema(extr)
 
 include("Interval.jl")
 include("IARelations.jl")

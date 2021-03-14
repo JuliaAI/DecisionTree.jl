@@ -216,9 +216,9 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_DC, channel::Ma
 	# 	readline()
 	# end
 	max(yieldRepr(test_operator, reprx1, channel),
-				 yieldRepr(test_operator, reprx2, channel),
-				 yieldRepr(test_operator, repry2, channel),
-				 yieldRepr(test_operator, repry2, channel))
+			 yieldRepr(test_operator, reprx2, channel),
+			 yieldRepr(test_operator, repry1, channel),
+			 yieldRepr(test_operator, repry2, channel))
 end
 WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_DC, channel::MatricialChannel{T,2}) where {T} = begin
 	reprx1 = enumAccRepr2D(test_operator, w, RelationAll, IA_L,         size(channel)..., _ReprMin)
@@ -226,9 +226,9 @@ WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_DC, channel::Ma
 	repry1 = enumAccRepr2D(test_operator, w, IA_L,     Virtual_Enlarge, size(channel)..., _ReprMin)
 	repry2 = enumAccRepr2D(test_operator, w, IA_Li,    Virtual_Enlarge, size(channel)..., _ReprMin)
 	min(yieldRepr(test_operator, reprx1, channel),
-				 yieldRepr(test_operator, reprx2, channel),
-				 yieldRepr(test_operator, repry1, channel),
-				 yieldRepr(test_operator, repry2, channel))
+			 yieldRepr(test_operator, reprx2, channel),
+			 yieldRepr(test_operator, repry1, channel),
+			 yieldRepr(test_operator, repry2, channel))
 end
 
 # EC: Just optimize the values on the outer boundary
@@ -343,12 +343,12 @@ WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_PO, channel::Ma
 	# repry1 = enumAccRepr2D(test_operator, w, RelationId, ry1,        size(channel)..., _ReprFake)
 	# repry2 = enumAccRepr2D(test_operator, w, RelationId, ry2,        size(channel)..., _ReprFake)
 
-	maxExtrema((
+	maxExtrema(
 		yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, RelationId, ry1,    size(channel)..., _ReprFake), channel, 2),
 		yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, RelationId, ry2,    size(channel)..., _ReprFake), channel, 2),
 		yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, rx1,    RelationId, size(channel)..., _ReprFake), channel, 1),
 		yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, rx2,    RelationId, size(channel)..., _ReprFake), channel, 1),
-	))
+	)
 end
 WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_PO, channel::MatricialChannel{T,2}) where {T} = begin
 	# if channel == [1620 1408 1343; 1724 1398 1252; 1177 1703 1367] && w.x.x==1 && w.x.y==3 && w.y.x==3 && w.y.y==4
@@ -370,12 +370,12 @@ WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, r::_Topo_PO, channel::Ma
 	rx1,rx2 = x_singleton ? (IA_Bi,IA_Ei) : (IA_O,IA_Oi)
 	ry1,ry2 = y_singleton ? (IA_Bi,IA_Ei) : (IA_O,IA_Oi)
 
-	max((
+	max(
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, RelationId, ry1,    size(channel)..., _ReprFake), channel, 2),
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, RelationId, ry2,    size(channel)..., _ReprFake), channel, 2),
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, rx1,    RelationId, size(channel)..., _ReprFake), channel, 1),
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, rx2,    RelationId, size(channel)..., _ReprFake), channel, 1),
-	))
+	)
 end
 WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_PO, channel::MatricialChannel{T,2}) where {T} = begin
 	x_singleton = ! (w.x.x < w.x.y-1)
@@ -387,16 +387,12 @@ WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, r::_Topo_PO, channel::Ma
 	rx1,rx2 = x_singleton ? (IA_Bi,IA_Ei) : (IA_O,IA_Oi)
 	ry1,ry2 = y_singleton ? (IA_Bi,IA_Ei) : (IA_O,IA_Oi)
 
-	reprx1 = enumAccRepr2D(test_operator, w, rx1,    RelationAll, size(channel)..., _ReprMax)
-	reprx2 = enumAccRepr2D(test_operator, w, rx2,    RelationAll, size(channel)..., _ReprMax)
-	repry1 = enumAccRepr2D(test_operator, w, RelationAll, ry1,        size(channel)..., _ReprMax)
-	repry2 = enumAccRepr2D(test_operator, w, RelationAll, ry2,        size(channel)..., _ReprMax)
-	min((
+	min(
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, RelationId, ry1,    size(channel)..., _ReprFake), channel, 2),
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, RelationId, ry2,    size(channel)..., _ReprFake), channel, 2),
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, rx1,    RelationId, size(channel)..., _ReprFake), channel, 1),
 		yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, rx2,    RelationId, size(channel)..., _ReprFake), channel, 1),
-	))
+	)
 end
 
 # TPP: Just optimize the values on the inner boundary

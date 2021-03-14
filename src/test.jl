@@ -1,4 +1,4 @@
-# julia-1.5.3
+# julia-1.5.4
 # julia
 
 
@@ -95,8 +95,8 @@ datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
 	("IndianPinesCorrectedDataset, 3x3",            traintestsplit(SampleLandCoverDataset(16*40, 3, "IndianPinesCorrected", rng = my_rng())...,0.5)),
 	("PaviaDataset, 5x5",                           traintestsplit(SampleLandCoverDataset(9*70,  5, "Pavia", rng = my_rng())...,0.5)),
 	("IndianPinesCorrectedDataset, 5x5",            traintestsplit(SampleLandCoverDataset(16*70, 5, "IndianPinesCorrected", rng = my_rng())...,0.5)),
-	("PaviaDataset, 7x7",                           traintestsplit(SampleLandCoverDataset(9*70,  7, "Pavia", rng = my_rng())...,0.5)),
-	("IndianPinesCorrectedDataset, 7x7",            traintestsplit(SampleLandCoverDataset(16*70, 7, "IndianPinesCorrected", rng = my_rng())...,0.5)),
+	# ("PaviaDataset, 7x7",                           traintestsplit(SampleLandCoverDataset(9*70,  7, "Pavia", rng = my_rng())...,0.5)),
+	# ("IndianPinesCorrectedDataset, 7x7",            traintestsplit(SampleLandCoverDataset(16*70, 7, "IndianPinesCorrected", rng = my_rng())...,0.5)),
 	# ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
 	# ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 ];
@@ -122,11 +122,21 @@ kwargs = (
 	# useRelationId = false,
 	useRelationAll = true,
 	# useRelationAll = true,
-	# test_operators=[ModalLogic.TestOpGeq],
+	test_operators=[ModalLogic.TestOpGeq],
 	# test_operators=[ModalLogic.TestOpLeq],
-	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq075, ModalLogic.TestOpLeq075],
 )
+# timeit = 2
+timeit = 0
+
+# T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
+
+T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
+T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
+T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
+
 
 timeit = 0
 
@@ -149,16 +159,6 @@ for databatch in [1]
 end
 
 exit()
-
-# timeit = 2
-timeit = 0
-
-T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
-T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
-
-T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
-T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
-T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 3, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);
 # T = testDataset(("PaviaDataset, sample", traintestsplit(SampleLandCoverDataset(9*5, 1, "Pavia", n_variables = 1, rng = my_rng())...,0.8)), timeit, args=args, kwargs=kwargs);

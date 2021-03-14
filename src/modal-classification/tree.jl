@@ -213,8 +213,11 @@ module treeclassifier
 				########################################################################
 				########################################################################
 
-				opGeqMaxThresh = fill(typemin(T), n_instances)
-				opLesMinThresh = fill(typemax(T), n_instances)
+				thresholds = Array{T,2}(undef, length(test_operators), n_instances)
+				for (i_test_operator,test_operator) in enumerate(test_operators)
+					@views cur_thr = thresholds[i_test_operator,:]
+					fill!(cur_thr, ModalLogic.bottom(test_operator, T))
+				end
 
 				# TODO optimize this!!
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
@@ -229,7 +232,7 @@ module treeclassifier
 					for w in worlds
 						sogl = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
 						@logmsg DTDetail " Sogl" w sogl
-						for i_test_operator in 1:length(test_operators) # TODO use correct indexing for test_operators
+						for (i_test_operator,test_operator) in enumerate(test_operators) # TODO use correct indexing for test_operators
 							# if relation == ModalLogic.Topo_TPP println("world ", w) end
 							# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
 							# (w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
@@ -237,14 +240,10 @@ module treeclassifier
 							# opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
 							# opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
 
-							# opExtremeThreshArr,optimizer = ModalLogic.polarity(test_operators[i_test_operator]) ? (opGeqMaxThresh,max) : (opLesMinThresh,min)
+							# opExtremeThreshArr,optimizer = ModalLogic.polarity(test_operator) ? (opGeqMaxThresh,max) : (opLesMinThresh,min)
 							# opExtremeThreshArr[i] = optimizer(opExtremeThreshArr[i], sogl[i_test_operator])
 
-							if ModalLogic.polarity(test_operators[i_test_operator])
-								opGeqMaxThresh[i] = max(opGeqMaxThresh[i], sogl[i_test_operator])
-							else
-								opLesMinThresh[i] = min(opLesMinThresh[i], sogl[i_test_operator])
-							end
+							thresholds[i_test_operator,i] = ModalLogic.opt(test_operator)(thresholds[i_test_operator,i], sogl[i_test_operator])
 						end
 						# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh ", opGeqMaxThresh[i]) end
 						# if relation == ModalLogic.Topo_TPP println("opLesMinThresh ", opLesMinThresh[i]) end
@@ -257,44 +256,13 @@ module treeclassifier
 				
 				# thresholdDomain = setdiff(union(Set(opGeqMaxThresh),Set(opLesMinThresh)),Set([typemin(T), typemax(T)]))
 
-				# println(opLesMinThresh)
+				# @logmsg DTDebug "Thresholds computed: " thresholds
 				# readline()
-
-				# @logmsg DTDebug "Thresholds computed: " opGeqMaxThresh opLesMinThresh thresholdDomain
-				# println(opGeqMaxThresh)
-				# println(opLesMinThresh)
-				# readline()
-
-				# if ! (all(opGeqMaxThresh .== opGeqMaxThresh_old) && all(opLesMinThresh .== opLesMinThresh_old))
-				# 	println("Thresholds computation is incorrect (relation=$(relation)):")
-				# 	# println("$(opGeqMaxThresh), $(opGeqMaxThresh_old)")
-				# 	# println("$(opLesMinThresh), $(opLesMinThresh_old)")
-				# 	for (i,tup) in enumerate(zip(opGeqMaxThresh, opGeqMaxThresh_old, opLesMinThresh, opLesMinThresh_old))
-				# 		if length(unique(tup[[1,2]])) > 1 && length(unique(tup[[2,3]])) > 1
-				# 			channel = ModalLogic.getChannel(Xf but remember this is not computed anymore, i)
-				# 			println("relation ", relation)
-				# 			println("instance ", i)
-				# 			println("Sf[i] ", Sf[i])
-				# 			println("channel ", channel)
-				# 			println("opGeqMaxThresh ", opGeqMaxThresh[i])
-				# 			println("opGeqMaxThresh_old ", opGeqMaxThresh_old[i])
-				# 			println("opLesMinThresh ", opLesMinThresh[i])
-				# 			println("opLesMinThresh_old ", opLesMinThresh_old[i])
-				# 		end
-				# 	end
-				# 	@assert all(opGeqMaxThresh .== opGeqMaxThresh_old) "opGeqMaxThresh computation is incorrect (relation=$(relation)):\n$(opGeqMaxThresh), $(opGeqMaxThresh_old)"
-				# 	@assert all(opLesMinThresh .== opLesMinThresh_old) "opLesMinThresh computation is incorrect (relation=$(relation)):\n$(opLesMinThresh), $(opLesMinThresh_old)"
-				# end
-
-				# @info "  (maxPeak,minPeak) $opLesMinThresh,$opGeqMaxThresh"
 
 
 				# Look for the correct test operator
-				for test_operator in test_operators
-					# if !ModalLogic.polarity(test_operator)
-						# continue
-					# end
-					thresholdArr = (ModalLogic.polarity(test_operator) ? opGeqMaxThresh : opLesMinThresh)
+				for (i_test_operator,test_operator) in enumerate(test_operators)
+					thresholdArr = thresholds[i_test_operator,:]
 					thresholdDomain = setdiff(Set(thresholdArr),Set([typemin(T), typemax(T)]))
 					# Look for thresholdArr 'a' for the propositions like "feature >= a"
 					for threshold in thresholdDomain
@@ -305,19 +273,7 @@ module treeclassifier
 						unsatisfied = fill(1, n_instances)
 						for i in 1:n_instances
 							# @logmsg DTDetail " instance $i/$n_instances ExtremeThresh ($(opGeqMaxThresh[i])/$(opLesMinThresh[i]))"
-							satisfied = true
-							# No world to go
-							# if thresholdArr[i] == typemax(T) || thresholdArr[i] == typemin(T) # opLesMinThresh[i] == typemax(T) # opGeqMaxThresh[i] == typemin(T) TODO (one is probably enough)
-							# 	# @logmsg DTDetail "   NO!"
-							# 	satisfied = false
-							# else
-							if ModalLogic.polarity(test_operator) && (threshold > thresholdArr[i])
-								# @logmsg DTDetail "   YES!!!"
-								satisfied = false
-							elseif ! (ModalLogic.polarity(test_operator)) && (threshold < thresholdArr[i])
-								# @logmsg DTDetail "   YES!!!"
-								satisfied = false
-							end
+							satisfied = ModalLogic.evaluateThreshCondition(test_operator, threshold, thresholdArr[i])
 							
 							if !satisfied
 								@logmsg DTDetail "NO"
@@ -402,9 +358,9 @@ module treeclassifier
 			end
 
 			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
-			# for i in 1:n_instances
-				# println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
-			# end
+			for i in 1:n_instances
+				println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
+			end
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 

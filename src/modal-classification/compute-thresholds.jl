@@ -3,14 +3,30 @@
 
 	@inline function readSogliole(
 		Sogliole            :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
-		w, i, relation_id, feature) where {NTO,T,WorldType<:AbstractWorld}
+		w::AbstractWorld,
+		i::Integer,
+		relation_id::Integer,
+		feature::Integer) where {NTO,T,WorldType<:AbstractWorld}
 		return Sogliole[i, relation_id, feature][w]
 	end
 
 	@inline function readSogliole(
 		Sogliole            :: AbstractArray{NTuple{NTO,T},N},
-		w, i, relation_id, feature) where {N,NTO,T}
+		w::ModalLogic.Interval2D,
+		i::Integer,
+		relation_id::Integer,
+		feature::Integer) where {N,NTO,T}
 		return Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
+	end
+
+	@inline function readSogliole(
+		Sogliole            :: AbstractArray{NTuple{NTO,T},N},
+		test_operator_id::Integer,
+		w::ModalLogic.Interval2D,
+		i::Integer,
+		relation_id::Integer,
+		feature::Integer) where {N,NTO,T}
+		return Sogliole[test_operator_id, w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
 	end
 
 	# function computeSogliole(
@@ -148,19 +164,6 @@
 		# 	return opExtremeThresh
 		end
 
-		get_thresholds_repr(SoglId, w, relation, channel) = begin
-			thresholds = T[]
-			# thresholds = similar(test_operators, T)
-			for (both,test_operator) in actual_test_operators
-				thresholds = if both
-						[thresholds..., WExtremaModal(test_operator, SoglId, w, relation, channel)...]
-					else
-						[thresholds..., WExtremeModal(test_operator, SoglId, w, relation, channel)]
-					end
-			end
-			Tuple(thresholds)
-		end
-
 		@inbounds for feature in 1:n_vars
 			@logmsg DTDebug "Feature $(feature)/$(n_vars)"
 			if feature == 1 || ((feature+1) % (floor(Int, ((n_vars)/5))+1)) == 0
@@ -203,22 +206,21 @@
 							[firstWorld]
 						end
 					for w in worlds
-						thresholds = get_thresholds_repr(SoglId, w, relation, channel)
+						thresholds  = Vector{T}(undef, length(test_operators))
 
-						# opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
-						# inverted,representatives = ModalLogic.enumAccRepr(w, relation, channel)
-						# for v in representatives
-						# # for v in ModalLogic.enumAcc([w], relation, channel)
-						# 	# (v_opGeqMaxThresh, v_opLesMinThresh) = get_thresholds(v, channel)
-						# 	(v_opGeqMaxThresh, v_opLesMinThresh) = SoglId[v.x.x, v.x.y, v.y.x, v.y.y]
-						# 	if inverted
-						# 		(v_opGeqMaxThresh, v_opLesMinThresh) = (v_opLesMinThresh, v_opGeqMaxThresh)
-						# 	end
-						# 	# @info "  ->World " v v_opGeqMaxThresh v_opLesMinThresh
-						# 	opGeqMaxThresh = max(opGeqMaxThresh, v_opGeqMaxThresh)
-						# 	opLesMinThresh = min(opLesMinThresh, v_opLesMinThresh)
-						# end # worlds
-						# thresholds = opGeqMaxThresh, opLesMinThresh
+						# TODO use SoglId
+						t=1
+						for (both,test_operator) in actual_test_operators
+							if both
+								thresholds[t:t+1] .= WExtremaModal(test_operator, SoglId, w, relation, channel)
+								t+=2
+							else
+								thresholds[t] = WExtremeModal(test_operator, SoglId, w, relation, channel)
+								t+=1
+							end
+						end
+						thresholds = Tuple(thresholds)
+
 						# Quale e' piu' veloce? TODO use SoglId in Wextrema?
 						# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.WExtremaRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "Wextrema different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
 

@@ -59,8 +59,6 @@ WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::R where R<:AbstractRela
 WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
 	yieldRepr(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
 
-
-
 # TODO optimize relationAll?
 # WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
 # 	# X = length(channel)

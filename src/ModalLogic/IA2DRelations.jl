@@ -92,7 +92,7 @@ const _IA2DRelMaximizer = Union{_RelationAll,_IA_L,_IA_Li,_IA_D}
 const _IA2DRelMinimizer = Union{_RelationId,_IA_O,_IA_Oi,_IA_Bi,_IA_Ei,_IA_Di}
 const _IA2DRelSingleVal = Union{_IA_A,_IA_Ai,_IA_B,_IA_E}
 
-@inline enumAccRepr2D(test_operator::_TestOpGeq, w::Interval2D, rx::R1 where R1<:AbstractRelation, ry::R2 where R2<:AbstractRelation, X::Integer, Y::Integer, _ReprConstructor::Type{rT}) where {rT<:_ReprTreatment} = begin
+@inline enumAccRepr2D(test_operator::TestOperator, w::Interval2D, rx::R1 where R1<:AbstractRelation, ry::R2 where R2<:AbstractRelation, X::Integer, Y::Integer, _ReprConstructor::Type{rT}) where {rT<:_ReprTreatment} = begin
 	x = enumAccRepr(test_operator, w.x, rx, X)
 	# println(x)
 	if x == _ReprNone{Interval}()
