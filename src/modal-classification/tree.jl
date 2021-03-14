@@ -506,14 +506,17 @@ module treeclassifier
 		end
 
 		# Fix test_operators order
+		test_operators = unique(test_operators)
 		ModalLogic.sort_test_operators!(test_operators)
 		
-		if length(test_operators) > 2
-			println("test_operators")
-			println(test_operators)
-			readline()
-		end
+		# if length(test_operators) > 2
+		# 	println("test_operators")
+		# 	println(test_operators)
+		# 	readline()
+		# end
 
+		# TODO check that length(channel_size(X)) == complexity(worldType)
+		
 		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
 		#  are complementary, and thus it is redundant to check both at the same node.
 		#  We avoid this by only keeping one of the two operators.

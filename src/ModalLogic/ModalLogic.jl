@@ -31,7 +31,15 @@ abstract type AbstractRelation end
 struct Ontology
 	worldType   :: Type{<:AbstractWorld}
 	relationSet :: AbstractVector{<:AbstractRelation}
-	Ontology(worldType, relationSet) = new(worldType, unique(relationSet))
+	Ontology(worldType, relationSet) = begin
+		relationSet = unique(relationSet)
+		for relation in relationSet
+			if !goesWith(worldType, relation)
+				error("Can't instantiate Ontology with worldType $(worldType) and relation $(relation)")
+			end
+		end
+		return new(worldType, relationSet)
+	end
 	# Ontology(worldType, relationSet) = new(worldType, relationSet)
 end
 
@@ -201,7 +209,7 @@ polarity(::TestOperatorNegative) = false
 struct _TestOpNone  <: TestOperator end; const TestOpNone  = _TestOpNone();
 # >=
 struct _TestOpGeq  <: TestOperatorPositive end; const TestOpGeq  = _TestOpGeq();
-# <
+# <=
 struct _TestOpLeq  <: TestOperatorNegative end; const TestOpLeq  = _TestOpLeq();
 
 dual_test_operator(::_TestOpGeq) = TestOpLeq
@@ -328,8 +336,8 @@ end
 end
 
 WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc(S, relation, channel)
-	extr = (typemin,typemax)
+	worlds = enumAcc([w], relation, channel)
+	extr = (typemin(T),typemax(T))
 	for w in worlds
 		e = WExtrema(test_operator, w, channel)
 		extr = (min(extr[1],e[1]), max(extr[2],e[2]))
@@ -337,22 +345,22 @@ WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::Abstr
 	extr
 end
 WExtremeModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc(S, relation, channel)
-	v = typemin # TODO write with reduce
+	worlds = enumAcc([w], relation, channel)
+	v = typemin(T) # TODO write with reduce
 	for w in worlds
 		e = WExtreme(test_operator, w, channel)
 		v = max(v,e)
 	end
-	e
+	v
 end
 WExtremeModal(test_operator::TestOperatorNegative, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc(S, relation, channel)
-	v = typemax # TODO write with reduce
+	worlds = enumAcc([w], relation, channel)
+	v = typemax(T) # TODO write with reduce
 	for w in worlds
 		e = WExtreme(test_operator, w, channel)
 		v = min(v,e)
 	end
-	e
+	v
 end
 
 # TODO remove

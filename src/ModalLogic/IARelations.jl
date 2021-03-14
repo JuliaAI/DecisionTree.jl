@@ -17,6 +17,8 @@ struct _IA_Ei <: _IARel end; const IA_Ei = _IA_Ei(); # Ends inverse
 struct _IA_Di <: _IARel end; const IA_Di = _IA_Di(); # During inverse
 struct _IA_Oi <: _IARel end; const IA_Oi = _IA_Oi(); # Overlaps inverse
 
+goesWith(::Type{Interval}, ::R where R<:_IARel) = true
+
 # TODO change name to display_rel_short
 display_rel_short(::_IA_A)  = "A"
 display_rel_short(::_IA_L)  = "L"

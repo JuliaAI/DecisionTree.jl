@@ -18,6 +18,9 @@ struct _Topo_DR     <: _TopoRel end; const Topo_DR     = _Topo_DR();     # Disjo
 struct _Topo_PP     <: _TopoRel end; const Topo_PP     = _Topo_PP();     # Proper part
 struct _Topo_PPi    <: _TopoRel end; const Topo_PPi    = _Topo_PPi();    # Proper part inverse
 
+goesWith(::Type{Interval}, ::_TopoRel) = true
+
+
 display_rel_short(::_Topo_DC)    = "DC"
 display_rel_short(::_Topo_EC)    = "EC"
 display_rel_short(::_Topo_PO)    = "PO"

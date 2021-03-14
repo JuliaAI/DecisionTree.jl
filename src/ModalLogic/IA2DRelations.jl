@@ -10,6 +10,8 @@ struct _IA2DRel{R1<:_IABase,R2<:_IABase} <: AbstractRelation
 	y :: R2
 end
 
+goesWith(::Type{Interval2D}, ::_IA2DRel) = true
+
 # Interval Algebra relations
                                                    const IA_IU  = _IA2DRel(RelationId  , RelationAll); const IA_IA  = _IA2DRel(RelationId  , IA_A); const IA_IL  = _IA2DRel(RelationId  , IA_L); const IA_IB  = _IA2DRel(RelationId  , IA_B); const IA_IE  = _IA2DRel(RelationId  , IA_E); const IA_ID  = _IA2DRel(RelationId  , IA_D); const IA_IO  = _IA2DRel(RelationId  , IA_O); const IA_IAi  = _IA2DRel(RelationId  , IA_Ai); const IA_ILi  = _IA2DRel(RelationId  , IA_Li); const IA_IBi  = _IA2DRel(RelationId  , IA_Bi); const IA_IEi  = _IA2DRel(RelationId  , IA_Ei); const IA_IDi  = _IA2DRel(RelationId  , IA_Di); const IA_IOi  = _IA2DRel(RelationId  , IA_Oi);
 const IA_UI  = _IA2DRel(RelationAll , RelationId);                                                     const IA_UA  = _IA2DRel(RelationAll , IA_A); const IA_UL  = _IA2DRel(RelationAll , IA_L); const IA_UB  = _IA2DRel(RelationAll , IA_B); const IA_UE  = _IA2DRel(RelationAll , IA_E); const IA_UD  = _IA2DRel(RelationAll , IA_D); const IA_UO  = _IA2DRel(RelationAll , IA_O); const IA_UAi  = _IA2DRel(RelationAll , IA_Ai); const IA_ULi  = _IA2DRel(RelationAll , IA_Li); const IA_UBi  = _IA2DRel(RelationAll , IA_Bi); const IA_UEi  = _IA2DRel(RelationAll , IA_Ei); const IA_UDi  = _IA2DRel(RelationAll , IA_Di); const IA_UOi  = _IA2DRel(RelationAll , IA_Oi);

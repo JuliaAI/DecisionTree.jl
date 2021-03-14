@@ -3,6 +3,8 @@
 # BEGIN 2D Topological relations
 ################################################################################
 
+goesWith(::Type{Interval2D}, ::_TopoRel) = true
+
 # More efficient implementations for edge cases
 # ?
 
