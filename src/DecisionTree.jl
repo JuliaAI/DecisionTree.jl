@@ -8,6 +8,16 @@ using LinearAlgebra
 import Random
 using Statistics
 
+using Logging
+using Logging: @logmsg
+# Log single algorithm overview (e.g. splits performed in decision tree building)
+const DTOverview = Logging.LogLevel(-500)
+# Log debug info
+const DTDebug = Logging.LogLevel(-1000)
+# Log more detailed debug info
+const DTDetail = Logging.LogLevel(-1500)
+
+
 export DTNode, DTLeaf, DTInternal,
 			 is_leaf, is_modal_node,
 			 num_nodes, height, modal_height,
@@ -15,7 +25,8 @@ export DTNode, DTLeaf, DTInternal,
        print_tree, prune_tree, apply_tree,
 			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
 			 #
-			 startWithRelationAll, startAtCenter
+			 startWithRelationAll, startAtCenter,
+			 DTOverview, DTDebug, DTDetail
 
 # ScikitLearn API
 export DecisionTreeClassifier,
@@ -37,6 +48,7 @@ using .ModalLogic
 abstract type _initCondition end
 struct _startWithRelationAll  <: _initCondition end; const startWithRelationAll  = _startWithRelationAll();
 struct _startAtCenter         <: _initCondition end; const startAtCenter         = _startAtCenter();
+struct _startAtWorld{wT<:AbstractWorld} <: _initCondition w::wT end;
 
 # Leaf node, holding the output decision
 struct DTLeaf{T} # TODO specify output type: Number, Label, String, Union{Number,Label,String}?
@@ -203,18 +215,6 @@ struct Modal∃TestFunction <: TestFunction end
 
 
 other stuff...
-
-struct OrderedPair
-	x::Real
-	y::Real
-	OrderedPair(x,y) = x >= y ? error("out of order") : new(x,y)
-end
-
-# A wrapper around DataFrame to add labels to data.
-type ClassificationDataset
-	data::DataFrame
-	labels::Array{Int,1}
-end
 
 # Inner node, holding the output decision
 struct DTInternal <: DTNode

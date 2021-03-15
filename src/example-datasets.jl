@@ -125,12 +125,15 @@ IndianPinesCorrectedDataset() = begin
 	(Indian_pines_corrected, Indian_pines_gt) = map(((x)->round.(Int,x)), (Indian_pines_corrected, Indian_pines_gt))
 end
 
-SampleLandCoverDataset(n_samples::Int, sample_size::Int, dataset::String; n_variables::Int = -1, flattened::Bool = false, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
-	@assert isodd(sample_size)
-	Xmap, Ymap = 	if dataset == "Pavia"
-									PaviaDataset()
+SampleLandCoverDataset(n_samples::Int, sample_size::Union{Int,NTuple{2,Int}}, dataset::String; n_variables::Int = -1, flattened::Bool = false, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
+	if typeof(sample_size) <: Int
+		sample_size = (sample_size, sample_size)
+	end
+	@assert isodd(sample_size[1]) && isodd(sample_size[2])
+	(Xmap, Ymap), class_labels = 	if dataset == "Pavia"
+									PaviaDataset(),["Asphalt", "Meadows", "Gravel", "Trees", "Painted metal sheets", "Bare Soil", "Bitumen", "Self-Blocking Bricks", "Shadows"]
 								elseif dataset == "IndianPinesCorrected"
-									IndianPinesCorrectedDataset()
+									IndianPinesCorrectedDataset(),["Alfalfa", "Corn-notill", "Corn-mintill", "Corn", "Grass-pasture", "Grass-trees", "Grass-pasture-mowed", "Hay-windrowed", "Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"]
 								else
 									error("Unknown land cover dataset")
 	end
@@ -147,30 +150,30 @@ SampleLandCoverDataset(n_samples::Int, sample_size::Int, dataset::String; n_vari
 
 	X,Y = size(Xmap)[1], size(Xmap)[2]
 	tot_variables = size(Xmap)[3]
-	inputs = Array{eltype(Xmap),4}(undef, sample_size, sample_size, n_samples, tot_variables)
+	inputs = Array{eltype(Xmap),4}(undef, sample_size[1], sample_size[2], n_samples, tot_variables)
 	labels = Vector{eltype(Ymap)}(undef, n_samples)
 	classCounts = Dict(i => 0 for i in existingLabels)
 	
 	for i in 1:n_samples
 		# print(i)
-		while (x = rand(rng, 1:(X-sample_size)+1);
-					y = rand(rng, 1:(Y-sample_size)+1);
-					label = Ymap[x+floor(Int,sample_size/2),y+floor(Int,sample_size/2)];
+		while (x = rand(rng, 1:(X-sample_size[1])+1);
+					y = rand(rng, 1:(Y-sample_size[2])+1);
+					label = Ymap[x+floor(Int,sample_size[1]/2),y+floor(Int,sample_size[2]/2)];
 					label == 0 || classCounts[label] == n_samples_per_label
 					)
 		end
-		# print( Xmap[x:x+sample_size-1,y:y+sample_size-1,:] )
+		# print( Xmap[x:x+sample_size[1]-1,y:y+sample_size[2]-1,:] )
 		# print( size(inputs[:,:,i,:]) )
 		# readline()
 		# print(label)
 		# print(classCounts)
-		inputs[:,:,i,:] .= Xmap[x:x+sample_size-1,y:y+sample_size-1,:]
+		inputs[:,:,i,:] .= Xmap[x:x+sample_size[1]-1,y:y+sample_size[2]-1,:]
 		labels[i] = label
 		classCounts[label] += 1
 		# readline()
 	end
 	if n_variables != -1
-		# new_inputs = Array{eltype(Xmap),4}(undef, sample_size, sample_size, n_samples, n_variables)
+		# new_inputs = Array{eltype(Xmap),4}(undef, sample_size[1], sample_size[2], n_samples, n_variables)
 		n_variables
 		inputs = inputs[:,:,:,1:floor(Int, tot_variables/n_variables):tot_variables]
 		# new_inputs[:,:,:,:] = inputs[:,:,:,:]
@@ -182,29 +185,31 @@ SampleLandCoverDataset(n_samples::Int, sample_size::Int, dataset::String; n_vari
 	inputs = inputs[:,:,sp,:]
 	
 	labels = reshape(transpose(reshape(labels, (n_samples_per_label,n_labels))), n_samples)
-	inputs = reshape(permutedims(reshape(inputs, (sample_size,sample_size,n_samples_per_label,n_labels,size(inputs, 4))), [1,2,4,3,5]), (sample_size,sample_size,n_samples,size(inputs, 4)))
+	inputs = reshape(permutedims(reshape(inputs, (sample_size[1],sample_size[2],n_samples_per_label,n_labels,size(inputs, 4))), [1,2,4,3,5]), (sample_size[1],sample_size[2],n_samples,size(inputs, 4)))
 
 	if flattened
-		inputs = reshape(inputs, (1,1,n_samples,(sample_size*sample_size*size(inputs, 4))))
+		inputs = reshape(inputs, (1,1,n_samples,(sample_size[1]*sample_size[2]*size(inputs, 4))))
 	end
-	inputs,labels
+	inputs,labels,class_labels
 end
 
-traintestsplit(X::MatricialDataset{D,3},Y,threshold) where D = begin
+traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold) where {D,T} = begin
+	(X,Y,class_labels) = data
 	spl = floor(Int, length(Y)*threshold)
 	X_train = X[:,1:spl,:]
 	Y_train = Y[1:spl]
 	X_test  = X[:,spl+1:end,:]
 	Y_test  = Y[spl+1:end]
-	(X_train,Y_train,X_test,Y_test)
+	(X_train,Y_train),(X_test,Y_test),class_labels
 end
 
-traintestsplit(X::MatricialDataset{D,4},Y,threshold) where D = begin
+traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVector{String}},threshold) where {D,T} = begin
+	(X,Y,class_labels) = data
 	spl = floor(Int, length(Y)*threshold)
 	X_train = X[:,:,1:spl,:]
 	Y_train = Y[1:spl]
 	X_test  = X[:,:,spl+1:end,:]
 	Y_test  = Y[spl+1:end]
-	(X_train,Y_train,X_test,Y_test)
+	(X_train,Y_train),(X_test,Y_test),class_labels
 end
 

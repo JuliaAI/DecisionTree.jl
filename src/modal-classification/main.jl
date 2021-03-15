@@ -35,7 +35,7 @@ function build_stump(
 		features    :: MatricialDataset{T,D},
 		weights     :: Union{Nothing, AbstractVector{U}} = nothing;
 		ontology    :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
+		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D}
 	
 	X = OntologicalDataset{T,D-2}(ontology,features)
@@ -48,10 +48,11 @@ function build_stump(
 		# max_features        = n_variables(X),
 		max_depth           = 1,
 		min_samples_leaf    = 1,
-		min_samples_split   = 2,
 		min_purity_increase = 0.0,
-		max_purity_split    = 1.0,
+		min_loss_at_leaf    = -Inf,
 		initCondition       = startWithRelationAll,
+		useRelationAll      = true,
+		useRelationId       = true,
 		test_operators      = test_operators,
 		rng                 = rng)
 
@@ -66,17 +67,17 @@ end
 
 function build_tree(
 		labels              :: AbstractVector{Label},
-		features            :: MatricialDataset{T,D},
-		# n_subfeatures       :: Int                = 0,
+		features            :: MatricialDataset{T,D};
+		loss                :: Function           = util.entropy,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
-		min_samples_split   :: Int                = 2,
 		min_purity_increase :: AbstractFloat      = 0.0,
-		max_purity_split    :: AbstractFloat      = 1.0;
+		min_loss_at_leaf    :: AbstractFloat      = -Inf,
 		initCondition       :: _initCondition     = startWithRelationAll,
+		useRelationAll      :: Bool               = true,
+		useRelationId       :: Bool               = true,
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLes],
-		loss                :: Function           = util.entropy,
+		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D}
 
 	# TODO disaccoppia dataset e ontologia di riferimento.
@@ -85,9 +86,6 @@ function build_tree(
 	if max_depth == -1
 		max_depth = typemax(Int)
 	end
-	# if n_subfeatures == 0
-		# n_subfeatures = n_variables(X)
-	# end
 
 	rng = mk_rng(rng)::Random.AbstractRNG
 	t = treeclassifier.fit(
@@ -95,13 +93,13 @@ function build_tree(
 		Y                   = labels,
 		W                   = nothing,
 		loss                = loss,
-		# max_features        = n_subfeatures,
 		max_depth           = max_depth,
 		min_samples_leaf    = min_samples_leaf,
-		min_samples_split   = min_samples_split,
 		min_purity_increase = min_purity_increase,
-		max_purity_split    = max_purity_split,
+		min_loss_at_leaf    = min_loss_at_leaf,
 		initCondition       = initCondition,
+		useRelationAll      = useRelationAll,
+		useRelationId       = useRelationId,
 		test_operators      = test_operators,
 		rng                 = rng)
 
@@ -164,12 +162,12 @@ function apply_tree(tree::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::Worl
 			@error " found featid == 0, TODO figure out where does this come from" tree
 			# apply_tree(tree.left, X, S)
 		else
-			@info "applying branch..."
+			@logmsg DTDetail "applying branch..."
 			satisfied = true
 			channel = ModalLogic.getInstanceFeature(Xi, tree.featid)
-			@info " S" S
+			@logmsg DTDetail " S" S
 			(satisfied,S) = ModalLogic.modalStep(S, tree.modality, channel, tree.test_operator, tree.featval)
-			@info " ->S'" S
+			@logmsg DTDetail " ->(satisfied,S')" satisfied S
 			apply_tree((satisfied ? tree.left : tree.right), Xi, S)
 		end
 	)
@@ -177,17 +175,19 @@ end
 
 # Apply tree with initialConditions to a dimensional dataset in matricial form
 function apply_tree(tree::DTree{S, T}, d::MatricialDataset{S,D}) where {S, T, D}
-	@info "apply_tree..."
-	n_samp = n_samples(d)
-	predictions = Array{T,1}(undef, n_samp)
-	for i in 1:n_samp
-		@info " instance $i/$n_samp"
+	@logmsg DTDetail "apply_tree..."
+	n_instances = n_samples(d)
+	predictions = Array{T,1}(undef, n_instances)
+	for i in 1:n_instances
+		@logmsg DTDetail " instance $i/$n_instances"
 		# TODO figure out: is it better to interpret the whole dataset at once, or instance-by-instance? The first one enables reusing training code
 		w0params =
 			if tree.initCondition == startWithRelationAll
 				[ModalLogic.emptyWorld]
 			elseif tree.initCondition == startAtCenter
 				[ModalLogic.centeredWorld, channel_size(d)...]
+			elseif typeof(tree.initCondition) <: _startAtWorld
+				[tree.initCondition.w]
 		end
 		predictions[i] = apply_tree(tree.root, ModalLogic.getInstance(d, i), WorldSet{tree.worldType}([tree.worldType(w0params...)]))
 	end

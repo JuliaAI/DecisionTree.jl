@@ -69,7 +69,7 @@ A103 >= 1649
  ✘ 9 : 24/24
 , DecisionTree._startAtCenter())
 
-julia> T = testDataset(datasets[2], false, args=args, kwargs=kwargs)                                                        
+julia> T = testDataset(datasets[2], false, args=args, kwargs=kwargs)
 Benchmarking dataset 'PaviaDataset'...
  n_samples = 216
 , DecisionTree._startAtCenter()) Purity threshold 1.0
@@ -175,7 +175,7 @@ A2 >= 446
  ✘ 9 : 5/7
 , DecisionTree._startAtCenter())
 
-julia> T = testDataset(datasets[3], false, args=args, kwargs=kwargs)                                                        
+julia> T = testDataset(datasets[3], false, args=args, kwargs=kwargs)
 Benchmarking dataset 'PaviaDataset'...
  n_samples = 216
 , DecisionTree._startAtCenter()) Purity threshold 1.0
@@ -596,8 +596,8 @@ Modal height:  5
  1  0  0  0  0  0  0  0  0  0  0  0  1  1  1  2
  1  0  1  0  0  0  0  0  0  0  0  0  1  1  1  1
 
- T = testDataset(datasets[6], false, args=args, kwargs=kwargs);     
-Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+ T = testDataset(datasets[6], false, args=args, kwargs=kwargs);
+ Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = ()
  train size = (3, 3, 384, 200)
@@ -699,12 +699,12 @@ Modal height:  8
  0  0  0  0  2  0  0  0  1  0  0  0  0  2  1  0
  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  5
 
-julia> kwargs = (                                                         
-				 initCondition=DecisionTree.startAtCenter,                        
-			 )                                                                  
-(initCondition = DecisionTree._startAtCenter(),)
+julia> kwargs = (
+				 initCondition=DecisionTree.startAtCenter,
+				 			 )
+				 			 (initCondition = DecisionTree._startAtCenter(),)
 
-julia> T = testDataset(datasets[6], false, args=args, kwargs=kwargs);     
+julia> T = testDataset(datasets[6], false, args=args, kwargs=kwargs);
 Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(),)
@@ -806,7 +806,7 @@ Modal height:  8
  0  0  0  0  1  0  0  0  0  0  0  0  0  4  1  0
  0  0  0  0  0  0  0  0  0  0  0  0  1  2  3  0
  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
- 
+
 
 Benchmarking dataset 'PaviaDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
@@ -970,7 +970,7 @@ Modal height:  7
  0  0  0  0  1  0  0  0  0  0  0  0  0  5  0  0
  0  0  0  0  0  0  0  0  0  0  0  0  0  1  5  0
  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
-T = testDataset(datasets[3], false, args=args, kwargs=kwargs);     
+T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
 Benchmarking dataset 'PaviaDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_NTPPi(), _Topo_EC(), _Topo_TPPi(), _Topo_PO(), _Topo_TPP(), _Topo_DC(), _Topo_NTPP()]))
@@ -1221,7 +1221,7 @@ Modal height:  6
 
 
 
-julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);    
+julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'PaviaDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
@@ -1252,7 +1252,7 @@ Stacktrace:
  [6] run_backend(::REPL.REPLBackend) at /home/gio/.julia/packages/Revise/moD4B/src/packagedef.jl:1221
  [7] top-level scope at none:0
 
-julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);    
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'PaviaDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
@@ -1283,7 +1283,7 @@ Stacktrace:
  [6] run_backend(::REPL.REPLBackend) at /home/gio/.julia/packages/Revise/moD4B/src/packagedef.jl:1221
  [7] top-level scope at none:0
 
-julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);    
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
@@ -1321,7 +1321,7 @@ Stacktrace:
  [6] run_backend(::REPL.REPLBackend) at /home/gio/.julia/packages/Revise/moD4B/src/packagedef.jl:1221
  [7] top-level scope at none:0
 
-julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);    
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_DC(), _Topo_TPP(), _Topo_NTPPi(), _Topo_NTPP(), _Topo_PO(), _Topo_EC(), _Topo_TPPi()]))
@@ -1351,16 +1351,16 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
   # ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
 ];^[[201~
 
-julia> using DecisionTree.ModalLogic                                  
+julia> using DecisionTree.ModalLogic
 
-julia> import Random                                                  
+julia> import Random
 
-julia> my_rng() = Random.MersenneTwister(1) # Random.GLOBAL_RNG       
+julia> my_rng() = Random.MersenneTwister(1) # Random.GLOBAL_RNG
 my_rng (generic function with 1 method)
 
-julia> using Logging                                                  
+julia> using Logging
 
-julia> using BenchmarkTools                                           
+julia> using BenchmarkTools
 ^[[200~args = (
   max_depth=-1,
   min_samples_leaf=4,
@@ -1369,17 +1369,17 @@ julia> using BenchmarkTools
   # max_purity_split=1.0, # TODO there's something wrong here, I think this sets min_purity_increase.
 )^[[201~
 
-julia> using ScikitLearnBase                                          
+julia> using ScikitLearnBase
 
-julia> using Statistics                                               
+julia> using Statistics
 
-julia> using Test                                                     
+julia> using Test
 
-julia> using Profile                                                  
+julia> using Profile
 
-julia> using PProf                                                    
+julia> using PProf
 
-julia> include("example-datasets.jl")                                 
+julia> include("example-datasets.jl")
 traintestsplit (generic function with 2 methods)
 
 julia> function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [], args = (), kwargs = ())
@@ -1387,46 +1387,46 @@ julia> function testDataset((name,dataset), timeit::Bool = true; post_pruning_pu
          global_logger(ConsoleLogger(stderr, Logging.Warn));
          length(dataset) == 4 || error(length(dataset))
          X_train, Y_train, X_test, Y_test = dataset
-         
+
          println("args = ", args)
          println("kwargs = ", kwargs)
 
          # println(" n_samples = $(size(X_train)[end-1])")
          println(" train size = $(size(X_train))")
          if timeit
-julia> function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [], args = (), kwargs = ())               
-         println("Benchmarking dataset '$name'...")                   
-         global_logger(ConsoleLogger(stderr, Logging.Warn));          
-         length(dataset) == 4 || error(length(dataset))               
-         X_train, Y_train, X_test, Y_test = dataset                   
-                                                                      
-         println("args = ", args)                                     
-         println("kwargs = ", kwargs)                                 
-                                                                      
-         # println(" n_samples = $(size(X_train)[end-1])")            
-         println(" train size = $(size(X_train))")                    
-         if timeit                                                    
-           @btime build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());                                                       
-         end                                                          
-                                                                      
-         # global_logger(ConsoleLogger(stderr, Logging.Info))         
-         T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());                                                              
-                                                                      
-         if !timeit                                                   
-           print(T)                                                   
-         end                                                          
-                                                                      
-         println(" test size = $(size(X_test))")                      
-         for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))                                  
-           println(" Purity threshold $pruning_purity_threshold")     
-                                                                      
-           global_logger(ConsoleLogger(stderr, Logging.Warn));        
-                                                                      
-           T_pruned = prune_tree(T, pruning_purity_threshold)         
-           preds = apply_tree(T_pruned, X_test);                      
-           cm = confusion_matrix(Y_test, preds)                       
-           # @test cm.accuracy > 0.99                                 
-                                                                      
+julia> function testDataset((name,dataset), timeit::Bool = true; post_pruning_purity_thresholds = [], args = (), kwargs = ())
+         println("Benchmarking dataset '$name'...")
+                  global_logger(ConsoleLogger(stderr, Logging.Warn));
+                  length(dataset) == 4 || error(length(dataset))
+                  X_train, Y_train, X_test, Y_test = dataset
+
+         println("args = ", args)
+                  println("kwargs = ", kwargs)
+
+         # println(" n_samples = $(size(X_train)[end-1])")
+                  println(" train size = $(size(X_train))")
+                  if timeit
+                    @btime build_tree($Y_train, $X_train, args...; kwargs..., rng = my_rng());
+                    end
+
+         # global_logger(ConsoleLogger(stderr, Logging.Info))
+                  T = build_tree(Y_train, X_train, args...; kwargs..., rng = my_rng());
+
+         if !timeit
+                    print(T)
+                    end
+
+         println(" test size = $(size(X_test))")
+                  for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))
+                    println(" Purity threshold $pruning_purity_threshold")
+
+           global_logger(ConsoleLogger(stderr, Logging.Warn));
+
+           T_pruned = prune_tree(T, pruning_purity_threshold)
+                      preds = apply_tree(T_pruned, X_test);
+                      cm = confusion_matrix(Y_test, preds)
+                      # @test cm.accuracy > 0.99
+
            print("  acc: ", round(cm.accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
            display(cm.matrix)
 
@@ -1440,59 +1440,59 @@ julia> function testDataset((name,dataset), timeit::Bool = true; post_pruning_pu
        end
 testDataset (generic function with 2 methods)
 
-julia> datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[       
-         # ("simpleDataset",traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng())...,0.8)),                                     
-         # ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng())...,0.8)),                                    
-         # ("Eduard-5",EduardDataset(5)),                             
-         # ("Eduard-10",EduardDataset(10)),                           
-         ("PaviaDataset, 1x1",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.8)),                             
-         ("PaviaDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", flattened = true, rng = my_rng())...,0.8)), 
-         ("PaviaDataset, 3x3",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", rng = my_rng())...,0.8)),                             
-         ("IndianPinesCorrectedDataset, 1x1",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                    
-         ("IndianPinesCorrectedDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(16*30, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                        
-         ("IndianPinesCorrectedDataset, 3x3",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                    
-         ("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),                             
-         ("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                    
-         # ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),                           
-         # ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),                                                                  
-       ];                                                             
-^[[200~kwargs = (
+julia> datasets = Tuple{String,Tuple{Array,Array,Array,Array}}[
+         # ("simpleDataset",traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng())...,0.8)),
+                  # ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng())...,0.8)),
+                  # ("Eduard-5",EduardDataset(5)),
+                  # ("Eduard-10",EduardDataset(10)),
+                  ("PaviaDataset, 1x1",traintestsplit(SampleLandCoverDataset(9*30, 1, "Pavia", rng = my_rng())...,0.8)),
+                  ("PaviaDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", flattened = true, rng = my_rng())...,0.8)),
+                  ("PaviaDataset, 3x3",traintestsplit(SampleLandCoverDataset(9*30, 3, "Pavia", rng = my_rng())...,0.8)),
+                  ("IndianPinesCorrectedDataset, 1x1",traintestsplit(SampleLandCoverDataset(16*30, 1, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+                  ("IndianPinesCorrectedDataset, 3x3 flattened",traintestsplit(SampleLandCoverDataset(16*30, 3, flattened = true, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+                  ("IndianPinesCorrectedDataset, 3x3",traintestsplit(SampleLandCoverDataset(16*30, 3, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+                  ("PaviaDataset, 5x5",traintestsplit(SampleLandCoverDataset(9*30, 5, "Pavia", rng = my_rng())...,0.8)),
+                  ("IndianPinesCorrectedDataset, 5x5",traintestsplit(SampleLandCoverDataset(16*30, 5, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+                  # ("PaviaDataset, 4x4",traintestsplit(SampleLandCoverDataset(9*30, 4, "Pavia", rng = my_rng())...,0.8)),
+                  # ("IndianPinesCorrectedDataset, 4x4",traintestsplit(SampleLandCoverDataset(16*30, 4, "IndianPinesCorrected", rng = my_rng())...,0.8)),
+                ];
+                ^[[200~kwargs = (
   initCondition=DecisionTree.startAtCenter,
   ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
   # test_operators=[ModalLogic.TestOpLes],
   # test_operators=[ModalLogic.TestOpGeq],
 )^[[201~
 
-julia> args = (                                                       
-         max_depth=-1,                                                
-         min_samples_leaf=4,                                          
-         min_samples_split=8,                                         
-         # min_purity_increase=0.02,                                  
-         # max_purity_split=1.0, # TODO there's something wrong here, I think this sets min_purity_increase.                                
-       )                                                              
-(max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+julia> args = (
+         max_depth=-1,
+                  min_samples_leaf=4,
+                  min_samples_split=8,
+                  # min_purity_increase=0.02,
+                  # max_purity_split=1.0, # TODO there's something wrong here, I think this sets min_purity_increase.
+                )
+                (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 
-julia> kwargs = (                                                     
-         initCondition=DecisionTree.startAtCenter,                    
-         ontology=getIntervalTopologicalOntologyOfDim(Val(2)),        
-         # test_operators=[ModalLogic.TestOpLes],                     
-         # test_operators=[ModalLogic.TestOpGeq],                     
-       )                                                              
-(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
+julia> kwargs = (
+         initCondition=DecisionTree.startAtCenter,
+                  ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+                  # test_operators=[ModalLogic.TestOpLes],
+                  # test_operators=[ModalLogic.TestOpGeq],
+                )
+                (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
 
-julia> kwargs = (                                                     
-         initCondition=DecisionTree.startAtCenter,                    
-         ontology=getIntervalTopologicalOntologyOfDim(Val(2)),        
-         # test_operators=[ModalLogic.TestOpLes],                     
-         # test_operators=[ModalLogic.TestOpGeq],                     
-       )                                                              
-(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
+julia> kwargs = (
+         initCondition=DecisionTree.startAtCenter,
+                  ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+                  # test_operators=[ModalLogic.TestOpLes],
+                  # test_operators=[ModalLogic.TestOpGeq],
+                )
+                (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
 
-julia> timeit = true                                                  
+julia> timeit = true
 true
 
 julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'PaviaDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
@@ -1516,7 +1516,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 nodes: (51, height: 9)
 
 julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'PaviaDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
@@ -1537,7 +1537,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 nodes: (45, height: 7)
 
 julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO(), _Topo_NTPP(), _Topo_EC()]))
@@ -1565,7 +1565,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 nodes: (97, height: 9)
 
 julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = On
@@ -1611,17 +1611,17 @@ poRel[_Topo_TPPi(), _Topo_NTPPi(), _Topo_TPP(), _Topo_DC(), _Topo_PO()
  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
 nodes: (81, height: 8)
 
-julia> kwargs = (                                                                                                                 
-         initCondition=DecisionTree.startAtCenter,                                                                                
-         # initCondition=DecisionTree.startWithRelationAll,                                                                       
-         ontology=getIntervalOntologyOfDim(Val(2))                                                                                
-         # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),                                                                  
-         # test_operators=[ModalLogic.TestOpLes],                                                                                 
-         # test_operators=[ModalLogic.TestOpGeq],                                                                                 
-       )                                                                                                                          
-(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L())  …  _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
+julia> kwargs = (
+         initCondition=DecisionTree.startAtCenter,
+                  # initCondition=DecisionTree.startWithRelationAll,
+                  ontology=getIntervalOntologyOfDim(Val(2))
+                  # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+                  # test_operators=[ModalLogic.TestOpLes],
+                  # test_operators=[ModalLogic.TestOpGeq],
+                )
+                (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L())  …  _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
 
-julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);                                                            
+julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'PaviaDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi}(_IA_Oi(), _IA_Oi()), _IA2DRel{_RelationId,_IA_D}(_RelationId(), _IA_D()), _IA2DRel{_IA_B,_IA_L}(_IA_B(), _IA_L()), _IA2DRel{_IA_D,_RelationId}(_IA_D(), _RelationId()), _IA2DRel{_IA_Li,_IA_Ai}(_IA_Li(), _IA_Ai()), _IA2DRel{_RelationId,_IA_E}(_RelationId(), _IA_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA_Bi(), _IA_Oi()), _IA2DRel{_IA_Di,_IA_A}(_IA_Di(), _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(), _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_RelationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), _IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), _IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
@@ -1641,7 +1641,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
  0  0  0  0  0  0  0  0  6
 nodes: (51, height: 9)
 
-julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);                                                            
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'PaviaDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi}(_IA_Oi(), _IA_Oi()), _IA2DRel{_RelationId,_IA_D}(_RelationId(), _IA_D()), _IA2DRel{_IA_B,_IA_L}(_IA_B(), _IA_L()), _IA2DRel{_IA_D,_RelationId}(_IA_D(), _RelationId()), _IA2DRel{_IA_Li,_IA_Ai}(_IA_Li(), _IA_Ai()), _IA2DRel{_RelationId,_IA_E}(_RelationId(), _IA_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA_Bi(), _IA_Oi()), _IA2DRel{_IA_Di,_IA_A}(_IA_Di(), _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(), _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_RelationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), _IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), _IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
@@ -1661,7 +1661,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
  0  0  0  0  0  0  0  0  6
 nodes: (35, height: 7)
 
-julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);                                                            
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi}(_IA_Oi(), _IA_Oi()), _IA2DRel{_RelationId,_IA_D}(_RelationId(), _IA_D()), _IA2DRel{_IA_B,_IA_L}(_IA_B(), _IA_L()), _IA2DRel{_IA_D,_RelationId}(_IA_D(), _RelationId()), _IA2DRel{_IA_Li,_IA_Ai}(_IA_Li(), _IA_Ai()), _IA2DRel{_RelationId,_IA_E}(_RelationId(), _IA_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA_Bi(), _IA_Oi()), _IA2DRel{_IA_Di,_IA_A}(_IA_Di(), _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(), _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_RelationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), _IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), _IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
@@ -1688,7 +1688,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
 nodes: (97, height: 9)
 
-julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);                                                            
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[_IA2DRel{_IA_O,_IA_A}(_IA_O(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Ai}(_IA_Ei(), _IA_Ai()), _IA2DRel{_IA_L,_IA_L}(_IA_L(), _IA_L()), _IA2DRel{_RelationId,_IA_Oi}(_RelationId(), _IA_Oi()), _IA2DRel{_IA_D,_IA_E}(_IA_D(), _IA_E()), _IA2DRel{_IA_Ei,_IA_D}(_IA_Ei(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Bi}(_IA_Bi(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_L}(_IA_Ai(), _IA_L()), _IA2DRel{_IA_Ei,_IA_Li}(_IA_Ei(), _IA_Li()), _IA2DRel{_IA_D,_IA_L}(_IA_D(), _IA_L()), _IA2DRel{_IA_L,_IA_B}(_IA_L(), _IA_B()), _IA2DRel{_IA_O,_IA_L}(_IA_O(), _IA_L()), _IA2DRel{_IA_Oi,_IA_D}(_IA_Oi(), _IA_D()), _IA2DRel{_IA_D,_IA_Ai}(_IA_D(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_O}(_IA_Oi(), _IA_O()), _IA2DRel{_IA_D,_IA_Li}(_IA_D(), _IA_Li()), _IA2DRel{_IA_Di,_IA_Ei}(_IA_Di(), _IA_Ei()), _IA2DRel{_IA_B,_IA_D}(_IA_B(), _IA_D()), _IA2DRel{_IA_Oi,_IA_Di}(_IA_Oi(), _IA_Di()), _IA2DRel{_IA_A,_IA_O}(_IA_A(), _IA_O()), _IA2DRel{_IA_Ai,_IA_Ei}(_IA_Ai(), _IA_Ei()), _IA2DRel{_IA_D,_IA_Di}(_IA_D(), _IA_Di()), _IA2DRel{_IA_O,_IA_D}(_IA_O(), _IA_D()), _IA2DRel{_IA_Bi,_IA_Ei}(_IA_Bi(), _IA_Ei()), _IA2DRel{_IA_A,_IA_Oi}(_IA_A(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Ei}(_IA_B(), _IA_Ei()), _IA2DRel{_IA_Bi,_IA_B}(_IA_Bi(), _IA_B()), _IA2DRel{_IA_Ai,_IA_E}(_IA_Ai(), _IA_E()), _IA2DRel{_IA_Ai,_RelationId}(_IA_Ai(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Bi}(_IA_Ai(), _IA_Bi()), _IA2DRel{_IA_Oi,_IA_L}(_IA_Oi(), _IA_L()), _IA2DRel{_IA_L,_IA_O}(_IA_L(), _IA_O()), _IA2DRel{_IA_A,_IA_A}(_IA_A(), _IA_A()), _IA2DRel{_IA_Di,_IA_Oi}(_IA_Di(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_A}(_IA_Bi(), _IA_A()), _IA2DRel{_IA_Oi,_RelationId}(_IA_Oi(), _RelationId()), _IA2DRel{_IA_Oi,_IA_E}(_IA_Oi(), _IA_E()), _IA2DRel{_IA_Di,_IA_Ai}(_IA_Di(), _IA_Ai()), _IA2DRel{_IA_A,_IA_Ai}(_IA_A(), _IA_Ai()), _IA2DRel{_IA_E,_RelationId}(_IA_E(), _RelationId()), _IA2DRel{_IA_Li,_IA_D}(_IA_Li(), _IA_D()), _IA2DRel{_IA_E,_IA_Ei}(_IA_E(), _IA_Ei()), _IA2DRel{_IA_B,_IA_A}(_IA_B(), _IA_A()), _IA2DRel{_IA_L,_IA_Ei}(_IA_L(), _IA_Ei()), _IA2DRel{_IA_Ei,_RelationId}(_IA_Ei(), _RelationId()), _IA2DRel{_IA_A,_IA_D}(_IA_A(), _IA_D()), _IA2DRel{_IA_Bi,_IA_E}(_IA_Bi(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Li}(_IA_Oi(), _IA_Li()), _IA2DRel{_IA_D,_IA_A}(_IA_D(), _IA_A()), _IA2DRel{_IA_E,_IA_Li}(_IA_E(), _IA_Li()), _IA2DRel{_IA_E,_IA_B}(_IA_E(), _IA_B()), _IA2DRel{_IA_Li,_IA_A}(_IA_Li(), _IA_A()), _IA2DRel{_IA_Di,_IA_B}(_IA_Di(), _IA_B()), _IA2DRel{_IA_Li,_IA_Li}(_IA_Li(), _IA_Li()), _IA2DRel{_IA_Li,_RelationId}(_IA_Li(), _RelationId()), _IA2DRel{_IA_Ei,_IA_Di}(_IA_Ei(), _IA_Di()), _IA2DRel{_IA_D,_IA_Oi}(_IA_D(), _IA_Oi()), _IA2DRel{_IA_Li,_IA_Ei}(_IA_Li(), _IA_Ei()), _IA2DRel{_IA_Oi,_IA_Oi
@@ -1698,9 +1698,9 @@ A_E()), _IA2DRel{_IA_Bi,_IA_Di}(_IA_Bi(), _IA_Di()), _IA2DRel{_IA_Bi,_IA_Oi}(_IA
  _IA_A()), _IA2DRel{_IA_Li,_IA_Di}(_IA_Li(), _IA_Di()), _IA2DRel{_IA_L,_IA_Oi}(_IA_L(), _IA_Oi()), _IA2DRel{_IA_D,_IA_Bi}(_IA_D(),
  _IA_Bi()), _IA2DRel{_RelationId,_IA_B}(_RelationId(), _IA_B()), _IA2DRel{_RelationId,_IA_Ei}(_RelationId(), _IA_Ei()), _IA2DRel{_
 IA_Ai,_IA_O}(_IA_Ai(), _IA_O()), _IA2DRel{_IA_Bi,_IA_D}(_IA_Bi(), _IA_D()), _IA2DRel{_IA_B,_IA_Ai}(_IA_B(), _IA_Ai()), _IA2DRel{_R
-elationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()), 
-_IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(), 
-_IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(), 
+elationId,_IA_Di}(_RelationId(), _IA_Di()), _IA2DRel{_IA_B,_IA_Li}(_IA_B(), _IA_Li()), _IA2DRel{_IA_Di,_IA_O}(_IA_Di(), _IA_O()),
+_IA2DRel{_IA_Bi,_IA_L}(_IA_Bi(), _IA_L()), _IA2DRel{_RelationId,_IA_Ai}(_RelationId(), _IA_Ai()), _IA2DRel{_IA_B,_IA_Oi}(_IA_B(),
+_IA_Oi()), _IA2DRel{_IA_Li,_IA_Bi}(_IA_Li(), _IA_Bi()), _IA2DRel{_IA_L,_IA_Li}(_IA_L(), _IA_Li()), _IA2DRel{_IA_A,_IA_L}(_IA_A(),
 _IA_L()), _IA2DRel{_IA_Ei,_IA_L}(_IA_Ei(), _IA_L()), _IA2DRel{_IA_Li,_IA_L}(_IA_Li(), _IA_L()), _IA2DRel{_IA_Bi,_IA_Li}(_IA_Bi(), _IA_Li()), _IA2DRel{_IA_B,_IA_Bi}(_IA_B(), _IA_Bi()), _IA2DRel{_IA_D,_IA_O}(_IA_D(), _IA_O()), _IA2DRel{_IA_O,_IA_Oi}(_IA_O(), _IA_Oi()), _IA2DRel{_IA_Bi,_IA_Ai}(_IA_Bi(), _IA_Ai()), _IA2DRel{_IA_L,_RelationId}(_IA_L(), _RelationId()), _IA2DRel{_IA_Di,_IA_D}(_IA_Di(), _IA_D()), _IA2DRel{_RelationId,_IA_Bi}(_RelationId(), _IA_Bi()), _IA2DRel{_IA_Ai,_IA_Oi}(_IA_Ai(), _IA_Oi()), _IA2DRel{_IA_Bi,_RelationId}(_IA_Bi(), _RelationId()), _IA2DRel{_IA_Di,_RelationId}(_IA_Di(), _RelationId()), _IA2DRel{_IA_Ei,_IA_O}(_IA_Ei(), _IA_O()), _IA2DRel{_IA_B,_IA_O}(_IA_B(), _IA_O()), _IA2DRel{_IA_Ei,_IA_A}(_IA_Ei(), _IA_A()), _IA2DRel{_IA_L,_IA_Bi}(_IA_L(), _IA_Bi()), _IA2DRel{_IA_A,_IA_Bi}(_IA_A(), _IA_Bi()), _IA2DRel{_IA_O,_IA_B}(_IA_O(), _IA_B()), _IA2DRel{_IA_Oi,_IA_B}(_IA_Oi(), _IA_B()), _IA2DRel{_IA_O,_IA_E}(_IA_O(), _IA_E()), _IA2DRel{_IA_Di,_IA_Bi}(_IA_Di(), _IA_Bi()), _IA2DRel{_RelationId,_IA_O}(_RelationId(), _IA_O()), _IA2DRel{_IA_B,_IA_E}(_IA_B(), _IA_E()), _IA2DRel{_IA_B,_IA_B}(_IA_B(), _IA_B()), _IA2DRel{_IA_A,_IA_Di}(_IA_A(), _IA_Di()), _IA2DRel{_IA_O,_IA_Di}(_IA_O(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_Ai}(_IA_Ai(), _IA_Ai()), _IA2DRel{_IA_E,_IA_E}(_IA_E(), _IA_E()), _IA2DRel{_IA_Oi,_IA_Ei}(_IA_Oi(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Ai}(_IA_E(), _IA_Ai()), _IA2DRel{_IA_Li,_IA_E}(_IA_Li(), _IA_E()), _IA2DRel{_IA_O,_RelationId}(_IA_O(), _RelationId()), _IA2DRel{_IA_E,_IA_Di}(_IA_E(), _IA_Di()), _IA2DRel{_IA_Ai,_IA_A}(_IA_Ai(), _IA_A()), _IA2DRel{_IA_Ei,_IA_Bi}(_IA_Ei(), _IA_Bi()), _IA2DRel{_IA_O,_IA_Bi}(_IA_O(), _IA_Bi()), _IA2DRel{_IA_E,_IA_O}(_IA_E(), _IA_O()), _IA2DRel{_IA_Ei,_IA_E}(_IA_Ei(), _IA_E()), _IA2DRel{_IA_Di,_IA_Li}(_IA_Di(), _IA_Li()), _IA2DRel{_IA_L,_IA_D}(_IA_L(), _IA_D()), _IA2DRel{_IA_E,_IA_Oi}(_IA_E(), _IA_Oi()), _IA2DRel{_IA_A,_IA_Li}(_IA_A(), _IA_Li()), _IA2DRel{_IA_O,_IA_O}(_IA_O(), _IA_O()), _IA2DRel{_IA_Li,_IA_Oi}(_IA_Li(), _IA_Oi()), _IA2DRel{_IA_B,_IA_Di}(_IA_B(), _IA_Di()), _IA2DRel{_RelationId,_IA_Li}(_RelationId(), _IA_Li()), _IA2DRel{_IA_L,_IA_Ai}(_IA_L(), _IA_Ai()), _IA2DRel{_IA_E,_IA_A}(_IA_E(), _IA_A()), _IA2DRel{_RelationId,_IA_L}(_RelationId(), _IA_L()), _IA2DRel{_IA_A,_IA_Ei}(_IA_A(), _IA_Ei()), _IA2DRel{_RelationId,_IA_A}(_RelationId(), _IA_A()), _IA2DRel{_IA_E,_IA_L}(_IA_E(), _IA_L()), _IA2DRel{_IA_Bi,_IA_O}(_IA_Bi(), _IA_O()), _IA2DRel{_IA_Di,_IA_L}(_IA_Di(), _IA_L()), _IA2DRel{_IA_Oi,_IA_A}(_IA_Oi(), _IA_A()), _IA2DRel{_IA_D,_IA_D}(_IA_D(), _IA_D()), _IA2DRel{_IA_Ai,_IA_B}(_IA_Ai(), _IA_B()), _IA2DRel{_IA_O,_IA_Li}(_IA_O(), _IA_Li()), _IA2DRel{_IA_Oi,_IA_Bi}(_IA_Oi(), _IA_Bi()), _IA2DRel{_IA_L,_IA_A}(_IA_L(), _IA_A()), _IA2DRel{_IA_B,_RelationId}(_IA_B(), _RelationId()), _IA2DRel{_IA_Ai,_IA_Li}(_IA_Ai(), _IA_Li()), _IA2DRel{_IA_A,_IA_B}(_IA_A(), _IA_B()), _IA2DRel{_IA_Ei,_IA_B}(_IA_Ei(), _IA_B()), _IA2DRel{_IA_Di,_IA_E}(_IA_Di(), _IA_E()), _IA2DRel{_IA_L,_IA_Di}(_IA_L(), _IA_Di()), _IA2DRel{_IA_Ei,_IA_Oi}(_IA_Ei(), _IA_Oi()), _IA2DRel{_IA_Ei,_IA_Ei}(_IA_Ei(), _IA_Ei()), _IA2DRel{_IA_E,_IA_Bi}(_IA_E(), _IA_Bi()), _IA2DRel{_IA_D,_IA_Ei}(_IA_D(), _IA_Ei()), _IA2DRel{_IA_Li,_IA_B}(_IA_Li(), _IA_B()), _IA2DRel{_IA_Ai,_IA_Di}(_IA_Ai(), _IA_Di()), _IA2DRel{_IA_L,_IA_E}(_IA_L(), _IA_E()), _IA2DRel{_IA_A,_RelationId}(_IA_A(), _RelationId()), _IA2DRel{_IA_E,_IA_D}(_IA_E(), _IA_D()), _IA2DRel{_IA_Li,_IA_O}(_IA_Li(), _IA_O()), _IA2DRel{_IA_O,_IA_Ai}(_IA_O(), _IA_Ai()), _IA2DRel{_IA_Oi,_IA_Ai}(_IA_Oi(), _IA_Ai()), _IA2DRel{_IA_O,_IA_Ei}(_IA_O(), _IA_Ei()), _IA2DRel{_IA_Ai,_IA_D}(_IA_Ai(), _IA_D()), _IA2DRel{_IA_A,_IA_E}(_IA_A(), _IA_E()), _IA2DRel{_IA_Di,_IA_Di}(_IA_Di(), _IA_Di()), _IA2DRel{_IA_D,_IA_B}(_IA_D(), _IA_B())]))
  train size = (3, 3, 384, 200)
   418.916 s (2366860732 allocations: 142.86 GiB)
@@ -1733,7 +1733,7 @@ Introduced Sogliole
 
 
 julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'PaviaDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = On
@@ -1761,7 +1761,7 @@ poRel[<DC>
  0  0  0  0  0  0  0  0  6
 nodes: (51, height: 9)
 
-julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);                                                            
+julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'PaviaDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[<DC>
@@ -1788,7 +1788,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
  0  0  0  0  0  0  0  0  6
 nodes: (45, height: 7)
 
-julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);                                                            
+julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._TopoRel[<DC>
@@ -1822,7 +1822,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
 nodes: (97, height: 9)
 
-julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);                                                            
+julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
 Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.Moda
@@ -1855,15 +1855,15 @@ lLogic._TopoRel[<DC>
  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  6
 nodes: (81, height: 8)
 
-julia> kwargs = (                                                     
-         initCondition=DecisionTree.startAtCenter,                    
-         # initCondition=DecisionTree.startWithRelationAll,           
-         ontology=getIntervalOntologyOfDim(Val(2))                    
-         # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),      
-         # test_operators=[ModalLogic.TestOpLes],                     
-         # test_operators=[ModalLogic.TestOpGeq],                     
-       )                                                              
-(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
+julia> kwargs = (
+         initCondition=DecisionTree.startAtCenter,
+                  # initCondition=DecisionTree.startWithRelationAll,
+                  ontology=getIntervalOntologyOfDim(Val(2))
+                  # ontology=getIntervalTopologicalOntologyOfDim(Val(2)),
+                  # test_operators=[ModalLogic.TestOpLes],
+                  # test_operators=[ModalLogic.TestOpGeq],
+                )
+                (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
 , <E,D>
 , <D,D>
 , <E,Id>
@@ -1886,7 +1886,7 @@ julia> kwargs = (
 ]))
 
 julia> T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'PaviaDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
@@ -2075,7 +2075,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 nodes: (51, height: 9)
 
 julia> T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'PaviaDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
@@ -2264,7 +2264,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 nodes: (37, height: 7)
 
 julia> T = testDataset(datasets[4], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
@@ -2460,7 +2460,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 nodes: (97, height: 9)
 
 julia> T = testDataset(datasets[6], timeit, args=args, kwargs=kwargs);
-                                                                      
+
 Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D, DecisionTree.ModalLogic._IA2DRel[<Ai,B>
@@ -2633,7 +2633,7 @@ kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(Dec
 , <Di,Oi>
 ]))
  train size = (3, 3, 384, 200)
- 
+
  test size = (3, 3, 96, 200)
 
 
@@ -2912,7 +2912,7 @@ Split 9 samples: V72 >= 2039 (purity -2.5020121176909393)
  0  0  0  0  0  0  0  0  6
 nodes: (51, height: 9)
 
-                                                             
+
 Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
 args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations))
@@ -2996,21 +2996,21 @@ args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
 kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLes()])
  train size = (3, 3, 216, 103)
 Computing Sogliole...
-Split 216 samples: <EC> (V9 >= 1073) (purity -351.00235084038457)                              
-Split 89 samples: <NTPPi> (V64 >= 315) (purity -71.26906304754931)                             
-Split 47 samples: V69 >= 325 (purity -1.021405182655144e-14)                                   
-Split 42 samples: V72 >= 1505 (purity -29.694820009090684)                                     
-Split 13 samples: <TPP> (V72 >= 1442) (purity -2.772588722239781)                              
-Split 29 samples: <TPP> (V27 >= 1259) (purity -9.386075711038778)                              
-Split 24 samples: <NTPP> (V100 >= 2418) (purity -2.772588722239781)                            
-Split 127 samples: <TPPi> (V99 >= 1693) (purity -159.25321618944832)                           
-Split 45 samples: <TPPi> (V19 >= 1304) (purity -25.017378478857044)                            
-Split 13 samples: <TPPi> (V35 >= 1360) (purity -2.249340578475233)                             
-Split 32 samples: <TPP> (V29 >= 1531) (purity -3.1394888625873)                                
-Split 9 samples: V1 >= 1409 (purity -2.249340578475233)                                        
-Split 82 samples: <DC> (V1 >= 2700) (purity -69.97723285064416)                                
-Split 58 samples: <TPP> (V77 >= 2446) (purity -44.57791224234647)                              
-Split 47 samples: <TPPi> (V9 >= 1341) (purity -25.937021688015413)                             
+Split 216 samples: <EC> (V9 >= 1073) (purity -351.00235084038457)
+Split 89 samples: <NTPPi> (V64 >= 315) (purity -71.26906304754931)
+Split 47 samples: V69 >= 325 (purity -1.021405182655144e-14)
+Split 42 samples: V72 >= 1505 (purity -29.694820009090684)
+Split 13 samples: <TPP> (V72 >= 1442) (purity -2.772588722239781)
+Split 29 samples: <TPP> (V27 >= 1259) (purity -9.386075711038778)
+Split 24 samples: <NTPP> (V100 >= 2418) (purity -2.772588722239781)
+Split 127 samples: <TPPi> (V99 >= 1693) (purity -159.25321618944832)
+Split 45 samples: <TPPi> (V19 >= 1304) (purity -25.017378478857044)
+Split 13 samples: <TPPi> (V35 >= 1360) (purity -2.249340578475233)
+Split 32 samples: <TPP> (V29 >= 1531) (purity -3.1394888625873)
+Split 9 samples: V1 >= 1409 (purity -2.249340578475233)
+Split 82 samples: <DC> (V1 >= 2700) (purity -69.97723285064416)
+Split 58 samples: <TPP> (V77 >= 2446) (purity -44.57791224234647)
+Split 47 samples: <TPPi> (V9 >= 1341) (purity -25.937021688015413)
 Split 26 samples: <DC> (V2 >= 1288) (purity -10.6722990086007)
 Split 22 samples: <DC> (V6 >= 1325) (purity -6.634653515415064)
 Split 18 samples: V1 >= 1710 (purity -2.249340578475233)
@@ -3125,3 +3125,1106 @@ initCondition: DecisionTree._startAtCenter()
  ✘ V69 >= 325
   ✔ 4 : 23/23
   ✘ 9 : 24/24
+
+
+T = testDataset(datasets[3], false, args=args, kwargs=kwargs);
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), test_operators = Decis
+ionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq()])
+ train size = (3, 3, 216, 103)
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/compute-thresholds.jl:92
+┌ LogLevel(-500):  Branch (216 samples) on condition: <> (V9 >= 1073), purity -1.625010883520299
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (89 samples) on condition: <NTPPi> (V64 >= 315), purity -0.8007759892983068
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (47 samples) on condition: V69 >= 325, purity -2.1732025162875404e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (42 samples) on condition: V72 >= 1505, purity -0.7070195240259687
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (13 samples) on condition: <> (V72 >= 1442), purity -0.21327605555690624
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (29 samples) on condition: <> (V27 >= 1259), purity -0.3236577831392682
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (24 samples) on condition: <NTPP> (V100 >= 2418), purity -0.11552453009332421
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (127 samples) on condition: <TPPi> (V99 >= 1693), purity -1.2539623322003806
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (45 samples) on condition: <TPPi> (V19 >= 1304), purity -0.5559417439746009
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (13 samples) on condition: <TPPi> (V35 >= 1360), purity -0.1730261983442487
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (32 samples) on condition: <> (V49 >= 1707), purity -0.0
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (82 samples) on condition: <> (V1 >= 2700), purity -0.8533808884224897
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (58 samples) on condition: <> (V77 >= 2446), purity -0.7685846938335599
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (47 samples) on condition: <TPPi> (V9 >= 1341), purity -0.5518515252769237
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (26 samples) on condition: <> (V2 >= 1288), purity -0.4104730387923346
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (22 samples) on condition: <DC> (V5 >= 1311), purity -0.3015751597915938
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (18 samples) on condition: V1 >= 1710, purity -0.12496336547084629
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (21 samples) on condition: <> (V28 >= 1988), purity -0.13202803439237054
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+┌ LogLevel(-500):  Branch (11 samples) on condition: <> (V1 >= 1628), purity -0.2520535202036165
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:339
+Decision Tree
+Leaves: 20
+Tot nodes: 39
+Height: 8
+Modal height:  7
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<> (V9 >= 1073)
+✔ <TPPi> (V99 >= 1693)
+│✔ <> (V1 >= 2700)
+││✔ 5 : 24/24
+││✘ <> (V77 >= 2446)
+││ ✔ <> (V1 >= 1628)
+││ │✔ 6 : 2/4
+││ │✘ 6 : 7/7
+││ ✘ <TPPi> (V9 >= 1341)
+││  ✔ <> (V28 >= 1988)
+││  │✔ 3 : 2/4
+││  │✘ 8 : 17/17
+││  ✘ <> (V2 >= 1288)
+││   ✔ <DC> (V5 >= 1311)
+││   │✔ V1 >= 1710
+││   ││✔ 3 : 3/4
+││   ││✘ 3 : 14/14
+││   │✘ 3 : 2/4
+││   ✘ 8 : 4/4
+│✘ <TPPi> (V19 >= 1304)
+│ ✔ <> (V49 >= 1707)
+│ │✔ 1 : 8/8
+│ │✘ 7 : 24/24
+│ ✘ <TPPi> (V35 >= 1360)
+│  ✔ 3 : 3/4
+│  ✘ 1 : 9/9
+✘ <NTPPi> (V64 >= 315)
+ ✔ V72 >= 1505
+ │✔ <> (V27 >= 1259)
+ ││✔ 6 : 4/5
+ ││✘ <NTPP> (V100 >= 2418)
+ ││ ✔ 2 : 20/20
+ ││ ✘ 2 : 2/4
+ │✘ <> (V72 >= 1442)
+ │ ✔ 6 : 9/9
+ │ ✘ 2 : 2/4
+ ✘ V69 >= 325
+  ✔ 4 : 23/23
+  ✘ 9 : 24/24
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 75.93% kappa: 72.92% 9×9 Array{Int64,2}:
+ 4  1  0  0  0  1  0  0  0
+ 0  1  0  2  0  3  0  0  0
+ 1  0  3  0  0  1  0  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  1  0  4  0
+ 0  0  0  0  0  0  1  0  5
+nodes: (39, height: 8)
+
+julia> T = testDataset(datasets[3], false, args=args, kwargs=kwargs)
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLes()])
+ train size = (3, 3, 216, 103)
+ ┌ LogLevel(-500):  Branch (216 samples) on condition: <> (V9 >= 1073), purity -1.625010883520299
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (89 samples) on condition: <NTPPi> (V64 >= 315), purity -0.8007759892983068
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (47 samples) on condition: V69 >= 325, purity -2.1732025162875404e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (42 samples) on condition: V72 >= 1505, purity -0.7070195240259687
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (13 samples) on condition: <> (V72 >= 1442), purity -0.21327605555690624
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (29 samples) on condition: <> (V27 >= 1259), purity -0.3236577831392682
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (24 samples) on condition: <NTPP> (V100 >= 2418), purity -0.11552453009332421
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (127 samples) on condition: <TPPi> (V99 >= 1693), purity -1.2539623322003806
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (45 samples) on condition: <TPPi> (V19 >= 1304), purity -0.5559417439746009
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (13 samples) on condition: <TPPi> (V35 >= 1360), purity -0.1730261983442487
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (32 samples) on condition: <> (V49 >= 1707), purity -0.0
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (82 samples) on condition: <> (V1 >= 2700), purity -0.8533808884224897
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (58 samples) on condition: <> (V77 >= 2446), purity -0.7685846938335599
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (47 samples) on condition: <TPPi> (V9 >= 1341), purity -0.5518515252769237
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (26 samples) on condition: <> (V2 >= 1288), purity -0.4104730387923346
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (22 samples) on condition: <DC> (V5 >= 1311), purity -0.3015751597915938
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (18 samples) on condition: V1 >= 1710, purity -0.12496336547084629
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (21 samples) on condition: <> (V28 >= 1988), purity -0.13202803439237054
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+┌ LogLevel(-500):  Branch (11 samples) on condition: <> (V1 >= 1628), purity -0.2520535202036165
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:340
+Decision Tree
+Leaves: 20
+Tot nodes: 39
+Height: 8
+Modal height:  7
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<> (V9 >= 1073)
+✔ <TPPi> (V99 >= 1693)
+│✔ <> (V1 >= 2700)
+││✔ 5 : 24/24
+││✘ <> (V77 >= 2446)
+││ ✔ <> (V1 >= 1628)
+││ │✔ 6 : 2/4
+││ │✘ 6 : 7/7
+││ ✘ <TPPi> (V9 >= 1341)
+││  ✔ <> (V28 >= 1988)
+││  │✔ 3 : 2/4
+││  │✘ 8 : 17/17
+││  ✘ <> (V2 >= 1288)
+││   ✔ <DC> (V5 >= 1311)
+││   │✔ V1 >= 1710
+││   ││✔ 3 : 3/4
+││   ││✘ 3 : 14/14
+││   │✘ 3 : 2/4
+││   ✘ 8 : 4/4
+│✘ <TPPi> (V19 >= 1304)
+│ ✔ <> (V49 >= 1707)
+│ │✔ 1 : 8/8
+│ │✘ 7 : 24/24
+│ ✘ <TPPi> (V35 >= 1360)
+│  ✔ 3 : 3/4
+│  ✘ 1 : 9/9
+✘ <NTPPi> (V64 >= 315)
+ ✔ V72 >= 1505
+ │✔ <> (V27 >= 1259)
+ ││✔ 6 : 4/5
+ ││✘ <NTPP> (V100 >= 2418)
+ ││ ✔ 2 : 20/20
+ ││ ✘ 2 : 2/4
+ │✘ <> (V72 >= 1442)
+ │ ✔ 6 : 9/9
+ │ ✘ 2 : 2/4
+ ✘ V69 >= 325
+  ✔ 4 : 23/23
+  ✘ 9 : 24/24
+ 142.821 s (1524216251 allocations: 73.29 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 75.93% kappa: 72.92% 9×9 Array{Int64,2}:
+ 4  1  0  0  0  1  0  0  0
+ 0  1  0  2  0  3  0  0  0
+ 1  0  3  0  0  1  0  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  1  0  0  1  0  4  0
+ 0  0  0  0  0  0  1  0  5
+nodes: (39, height: 8)
+Decision Tree
+Leaves: 20
+Tot nodes: 39
+Height: 8
+Modal height:  7
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+
+
+Found a problem which was causing the only use of >= and not <
+
+If we allow <> at each node:
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLes()])
+ train size = (3, 3, 216, 103)
+┌ LogLevel(-500):  Branch (216 samples) on condition: <> (V9 >= 1073), purity -1.625010883520299
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (89 samples) on condition: <> (V64 < 315), purity -0.8007759892983068
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (42 samples) on condition: <> (V72 < 1505), purity -0.7070195240259687
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (29 samples) on condition: <> (V27 >= 1259), purity -0.3236577831392682
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (24 samples) on condition: V100 >= 2418, purity -0.11552453009332421
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (13 samples) on condition: <NTPP> (V1 >= 622), purity -0.21327605555690624
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (47 samples) on condition: V69 >= 433, purity -2.1732025162875404e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (127 samples) on condition: V86 < 1546, purity -1.2238306104652403
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (82 samples) on condition: V1 >= 2700, purity -0.8312025688710774
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (58 samples) on condition: V76 >= 2452, purity -0.7435712386065986
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (49 samples) on condition: <TPPi> (V20 < 1472), purity -0.6409508749121988
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (15 samples) on condition: V23 < 1459, purity -0.18483924814931874
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (34 samples) on condition: V8 >= 1235, purity -0.4382143184111928
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (18 samples) on condition: <> (V1 < 770), purity -0.4243427788632086
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (9 samples) on condition: <TPPi> (V2 < 989), purity -0.46209812037329684
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (45 samples) on condition: <NTPPi> (V3 < 1476), purity -0.3910240713765156
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (25 samples) on condition: V73 < 1366, purity -0.26759596951150955
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+Decision Tree
+Leaves: 18
+Tot nodes: 35
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<> (V9 >= 1073)
+✔ V86 < 1546
+│✔ <NTPPi> (V3 < 1476)
+││✔ 7 : 20/20
+││✘ V73 < 1366
+││ ✔ 1 : 18/18
+││ ✘ 7 : 4/7
+│✘ V1 >= 2700
+│ ✔ 5 : 24/24
+│ ✘ V76 >= 2452
+│  ✔ 6 : 9/9
+│  ✘ <TPPi> (V20 < 1472)
+│   ✔ V8 >= 1235
+│   │✔ 3 : 16/16
+│   │✘ <> (V1 < 770)
+│   │ ✔ <TPPi> (V2 < 989)
+│   │ │✔ 8 : 2/4
+│   │ │✘ 3 : 5/5
+│   │ ✘ 8 : 9/9
+│   ✘ V23 < 1459
+│    ✔ 8 : 2/4
+│    ✘ 8 : 11/11
+✘ <> (V64 < 315)
+ ✔ V69 >= 433
+ │✔ 4 : 23/23
+ │✘ 9 : 24/24
+ ✘ <> (V72 < 1505)
+  ✔ <NTPP> (V1 >= 622)
+  │✔ 2 : 2/4
+  │✘ 6 : 9/9
+  ✘ <> (V27 >= 1259)
+   ✔ 6 : 4/5
+   ✘ V100 >= 2418
+    ✔ 2 : 20/20
+    ✘ 2 : 2/4
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 77.78% kappa: 75.0% 9×9 Array{Int64,2}:
+ 5  1  0  0  0  0  0  0  0
+ 0  2  0  2  0  2  0  0  0
+ 0  0  3  0  0  1  0  2  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  6  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  2  0  0  1  0  3  0
+ 1  0  0  0  0  0  0  0  5
+nodes: (35, height: 8)
+Decision Tree
+Leaves: 18
+Tot nodes: 35
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<> (V9 >= 1073)
+✔ V86 < 1546
+│✔ <NTPPi> (V3 < 1476)
+││✔ 7 : 20/20
+││✘ V73 < 1366
+││ ✔ 1 : 18/18
+││ ✘ 7 : 4/7
+│✘ V1 >= 2700
+│ ✔ 5 : 24/24
+│ ✘ V76 >= 2452
+│  ✔ 6 : 9/9
+│  ✘ <TPPi> (V20 < 1472)
+│   ✔ V8 >= 1235
+│   │✔ 3 : 16/16
+│   │✘ <> (V1 < 770)
+│   │ ✔ <TPPi> (V2 < 989)
+│   │ │✔ 8 : 2/4
+│   │ │✘ 3 : 5/5
+│   │ ✘ 8 : 9/9
+│   ✘ V23 < 1459
+│    ✔ 8 : 2/4
+│    ✘ 8 : 11/11
+✘ <> (V64 < 315)
+ ✔ V69 >= 433
+ │✔ 4 : 23/23
+ │✘ 9 : 24/24
+ ✘ <> (V72 < 1505)
+  ✔ <NTPP> (V1 >= 622)
+  │✔ 2 : 2/4
+  │✘ 6 : 9/9
+  ✘ <> (V27 >= 1259)
+   ✔ 6 : 4/5
+   ✘ V100 >= 2418
+    ✔ 2 : 20/20
+    ✘ 2 : 2/4
+
+Otherwise:
+
+ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/compute-thresholds.jl:168
+┌ LogLevel(-500):  Branch (216 samples) on condition: <EC> (V9 >= 1073), purity -1.625010883520299
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (89 samples) on condition: <EC> (V64 < 315), purity -0.8007759892983068
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (42 samples) on condition: <EC> (V72 < 1505), purity -0.7070195240259687
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (29 samples) on condition: <EC> (V27 >= 1259), purity -0.3236577831392682
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (24 samples) on condition: V100 >= 2418, purity -0.11552453009332421
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (13 samples) on condition: <PO> (V2 >= 708), purity -0.21327605555690624
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (47 samples) on condition: V69 >= 433, purity -2.1732025162875404e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (127 samples) on condition: V86 < 1546, purity -1.2238306104652403
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (82 samples) on condition: V1 >= 2700, purity -0.8312025688710774
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (58 samples) on condition: V76 >= 2452, purity -0.7435712386065986
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (49 samples) on condition: <TPPi> (V20 < 1472), purity -0.6200874939729268
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (16 samples) on condition: V23 < 1459, purity -0.17328679513998632
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (33 samples) on condition: V8 >= 1235, purity -0.4360066395044511
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (17 samples) on condition: <TPP> (V15 >= 1365), purity -0.44930411879633847
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (8 samples) on condition: V1 < 1009, purity -0.34657359027997264
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (9 samples) on condition: V1 < 1026, purity -0.24992673094169257
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (45 samples) on condition: <TPPi> (V81 < 1354), purity -0.41847017146476667
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (30 samples) on condition: <EC> (V3 >= 1341), purity -0.22299664125959165
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+Decision Tree
+Leaves: 19
+Tot nodes: 37
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 70.37% kappa: 66.67% 9×9 Array{Int64,2}:
+ 5  1  0  0  0  0  0  0  0
+ 0  2  0  2  0  2  0  0  0
+ 0  0  3  0  0  1  0  2  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  0  0  0  5  0  0  0
+ 3  0  0  0  0  0  3  0  0
+ 0  0  2  0  0  1  0  3  0
+ 1  0  0  0  0  0  0  0  5
+nodes: (37, height: 8)
+Decision Tree
+Leaves: 19
+Tot nodes: 37
+Height: 8
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<EC> (V9 >= 1073)
+✔ V86 < 1546
+│✔ <TPPi> (V81 < 1354)
+││✔ 1 : 15/15
+││✘ <EC> (V3 >= 1341)
+││ ✔ 1 : 4/7
+││ ✘ 7 : 23/23
+│✘ V1 >= 2700
+│ ✔ 5 : 24/24
+│ ✘ V76 >= 2452
+│  ✔ 6 : 9/9
+│  ✘ <TPPi> (V20 < 1472)
+│   ✔ V8 >= 1235
+│   │✔ 3 : 16/16
+│   │✘ <TPP> (V15 >= 1365)
+│   │ ✔ V1 < 1026
+│   │ │✔ 8 : 5/5
+│   │ │✘ 8 : 3/4
+│   │ ✘ V1 < 1009
+│   │  ✔ 3 : 4/4
+│   │  ✘ 3 : 2/4
+│   ✘ V23 < 1459
+│    ✔ 8 : 2/4
+│    ✘ 8 : 12/12
+✘ <EC> (V64 < 315)
+ ✔ V69 >= 433
+ │✔ 4 : 23/23
+ │✘ 9 : 24/24
+ ✘ <EC> (V72 < 1505)
+  ✔ <PO> (V2 >= 708)
+  │✔ 2 : 2/4
+  │✘ 6 : 9/9
+  ✘ <EC> (V27 >= 1259)
+   ✔ 6 : 4/5
+   ✘ V100 >= 2418
+    ✔ 2 : 20/20
+    ✘ 2 : 2/4
+
+
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,TopoRelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLes()])
+ train size = (3, 3, 216, 103)
+┌ LogLevel(-500):  Branch (216 samples) on condition: <EC> (V9 >= 1073), purity -1.625010883520299
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (89 samples) on condition: <EC> (V64 < 315), purity -0.8007759892983068
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (42 samples) on condition: <EC> (V72 < 1505), purity -0.7070195240259687
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (29 samples) on condition: <EC> (V27 >= 1259), purity -0.3236577831392682
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (24 samples) on condition: V100 >= 2418, purity -0.11552453009332421
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (13 samples) on condition: <PO> (V2 >= 708), purity -0.21327605555690624
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (47 samples) on condition: V69 >= 433, purity -2.1732025162875404e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (127 samples) on condition: <DC> (V96 < 1529), purity -1.2238306104652403
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (82 samples) on condition: V1 >= 2700, purity -0.8312025688710774
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (58 samples) on condition: V76 >= 2452, purity -0.7435712386065986
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (49 samples) on condition: <TPPi> (V20 < 1472), purity -0.6200874939729268
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (16 samples) on condition: <TPP> (V23 < 1459), purity -0.17328679513998632
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (33 samples) on condition: V8 >= 1235, purity -0.4360066395044511
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (17 samples) on condition: <TPP> (V15 >= 1365), purity -0.44930411879633847
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (8 samples) on condition: <EC> (V1 < 770), purity -0.34657359027997264
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (9 samples) on condition: V1 >= 1345, purity -0.24992673094169257
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (45 samples) on condition: <TPPi> (V81 < 1354), purity -0.41847017146476667
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (30 samples) on condition: <TPP> (V18 >= 1340), purity -0.252122067613353
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+┌ LogLevel(-500):  Branch (25 samples) on condition: V1 >= 1496, purity -0.08997362313900932
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:341
+Decision Tree
+Leaves: 20
+Tot nodes: 39
+Height: 8
+Modal height:  5
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<EC> (V9 >= 1073)
+✔ <DC> (V96 < 1529)
+│✔ <TPPi> (V81 < 1354)
+││✔ 1 : 15/15
+││✘ <TPP> (V18 >= 1340)
+││ ✔ V1 >= 1496
+││ │✔ 7 : 3/4
+││ │✘ 7 : 21/21
+││ ✘ 1 : 3/5
+│✘ V1 >= 2700
+│ ✔ 5 : 24/24
+│ ✘ V76 >= 2452
+│  ✔ 6 : 9/9
+│  ✘ <TPPi> (V20 < 1472)
+│   ✔ V8 >= 1235
+│   │✔ 3 : 16/16
+│   │✘ <TPP> (V15 >= 1365)
+│   │ ✔ V1 >= 1345
+│   │ │✔ 8 : 3/4
+│   │ │✘ 8 : 5/5
+│   │ ✘ <EC> (V1 < 770)
+│   │  ✔ 3 : 4/4
+│   │  ✘ 3 : 2/4
+│   ✘ <TPP> (V23 < 1459)
+│    ✔ 8 : 2/4
+│    ✘ 8 : 12/12
+✘ <EC> (V64 < 315)
+ ✔ V69 >= 433
+ │✔ 4 : 23/23
+ │✘ 9 : 24/24
+ ✘ <EC> (V72 < 1505)
+  ✔ <PO> (V2 >= 708)
+  │✔ 2 : 2/4
+  │✘ 6 : 9/9
+  ✘ <EC> (V27 >= 1259)
+   ✔ 6 : 4/5
+   ✘ V100 >= 2418
+    ✔ 2 : 20/20
+    ✘ 2 : 2/4
+ 143.443 s (1616260691 allocations: 77.54 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0
+  acc: 72.22% kappa: 68.75% 9×9 Array{Int64,2}:
+ 4  1  0  0  0  0  1  0  0
+ 0  2  0  2  0  2  0  0  0
+ 0  0  3  0  0  1  0  2  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  1  0  0  0  5  0  0  0
+ 1  0  0  0  0  0  5  0  0
+ 0  0  2  0  0  1  0  3  0
+ 1  0  0  0  0  0  0  0  5
+nodes: (39, height: 8)
+Decision Tree
+Leaves: 20
+Tot nodes: 39
+Height: 8
+Modal height:  5
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+
+
+  1.884 s (31778454 allocations: 1.49 GiB)
+
+
+
+  Benchmarking dataset 'PaviaDataset, 3x3'...
+    args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+    kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,AbstractRelation[]), useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLes()])
+     train size = (3, 3, 216, 103)                                                                                                                          └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/compute-thresholds.jl:189
+       1.864 s (31778454 allocations: 1.49 GiB)
+      ┌ LogLevel(-500):  Branch (216 samples) on condition: <> (V9 >= 1073), purity -1.625010883520299
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+    ┌ LogLevel(-500):  Branch (89 samples) on condition: <> (V64 < 315), purity -0.8007759892983068
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+    ┌ LogLevel(-500):  Branch (42 samples) on condition: <> (V72 < 1505), purity -0.7070195240259687
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+    ┌ LogLevel(-500):  Branch (29 samples) on condition: <> (V27 >= 1259), purity -0.3236577831392682
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+    ┌ LogLevel(-500):  Branch (24 samples) on condition: V100 >= 2418, purity -0.11552453009332421
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+    ┌ LogLevel(-500):  Branch (13 samples) on condition: V5 >= 705, purity -0.21327605555690624
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+    ┌ LogLevel(-500):  Branch (47 samples) on condition: V69 >= 433, purity -2.1732025162875404e-16
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+    ┌ LogLevel(-500):  Branch (127 samples) on condition: V86 < 1546, purity -1.2238306104652403
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (82 samples) on condition: V1 >= 2700, purity -0.8312025688710774
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (58 samples) on condition: V76 >= 2452, purity -0.7435712386065986
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (49 samples) on condition: V21 >= 1542, purity -0.695797732074463
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (13 samples) on condition: V1 >= 1416, purity -0.1730261983442487
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (36 samples) on condition: V47 < 1916, purity -0.5687613927318138
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (18 samples) on condition: V9 >= 1487, purity -0.4243427788632086
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (12 samples) on condition: V9 < 1564, purity -0.0
+    └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (18 samples) on condition: V41 >= 1777, purity -0.12496336547084629
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (45 samples) on condition: V67 < 1251, purity -0.46104061083107634
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (31 samples) on condition: <> (V3 >= 1341), purity -0.28887880360050594
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  ┌ LogLevel(-500):  Branch (9 samples) on condition: V5 >= 1368, purity -0.5860667599923023
+  └ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:346
+  Decision Tree
+    Leaves: 20
+    Tot nodes: 39
+    Height: 8
+    Modal height:  4
+    worldType: DecisionTree.ModalLogic.Interval2D
+    initCondition: DecisionTree._startAtCenter()
+    <> (V9 >= 1073)
+    ✔ V86 < 1546
+    │✔ V67 < 1251
+    ││✔ 1 : 14/14
+    ││✘ <> (V3 >= 1341)
+    ││ ✔ V5 >= 1368
+    ││ │✔ 1 : 4/4
+    ││ │✘ 7 : 2/5
+    ││ ✘ 7 : 22/22
+    │✘ V1 >= 2700
+    │ ✔ 5 : 24/24
+    │ ✘ V76 >= 2452
+    │  ✔ 6 : 9/9
+    │  ✘ V21 >= 1542
+    │   ✔ V47 < 1916
+    │   │✔ V41 >= 1777
+    │   ││✔ 8 : 14/14
+    │   ││✘ 1 : 3/4
+    │   │✘ V9 >= 1487
+    │   │ ✔ V9 < 1564
+    │   │ │✔ 8 : 8/8
+    │   │ │✘ 3 : 4/4
+    │   │ ✘ 3 : 6/6
+    │   ✘ V1 >= 1416
+    │    ✔ 3 : 9/9
+    │    ✘ 3 : 3/4
+    ✘ <> (V64 < 315)
+     ✔ V69 >= 433
+      │✔ 4 : 23/23
+      │✘ 9 : 24/24
+      ✘ <> (V72 < 1505)
+       ✔ V5 >= 705
+        │✔ 2 : 2/4
+        │✘ 6 : 9/9
+        ✘ <> (V27 >= 1259)
+         ✔ 6 : 4/5
+          ✘ V100 >= 2418
+           ✔ 2 : 20/20
+            ✘ 2 : 2/4
+         test size = (3, 3, 54, 103)
+      Purity threshold 1.0
+       acc: 72.22% kappa: 68.75% 9×9 Array{Int64,2}:
+       4  1  0  0  0  0  1  0  0
+   0  2  0  2  0  2  0  0  0
+   2  0  1  0  0  1  0  2  0
+   0  0  0  6  0  0  0  0  0
+   0  0  0  0  6  0  0  0  0
+   0  0  0  0  0  6  0  0  0
+   2  0  0  0  0  0  4  0  0
+   0  0  0  0  0  1  0  5  0
+   1  0  0  0  0  0  0  0  5
+  nodes: (39, height: 8)
+  Decision Tree
+  Leaves: 20
+  Tot nodes: 39
+  Height: 8
+  Modal height:  4
+  worldType: DecisionTree.ModalLogic.Interval2D
+  initCondition: DecisionTree._startAtCenter()
+
+
+Optimized using Repr: enumAccRepr
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,IA2DRelations), useRelationAll = false, test_operators = [DecisionTree.ModalLogic._TestOpGeq()])
+Decision Tree
+Leaves: 18
+Tot nodes: 35
+Height: 7
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<Ei,A> (V13 >= 846)
+✔ <Id,Ei> (V85 >= 1689)
+│✔ V1 >= 1758
+││✔ 5 : 24/24
+││✘ <B,E> (V89 >= 2251)
+││ ✔ 6 : 5/6
+││ ✘ <O,Id> (V12 >= 1358)
+││  ✔ 8 : 16/16
+││  ✘ <A,Id> (V4 >= 1135)
+││   ✔ 3 : 17/17
+││   ✘ <A,E> (V1 >= 1261)
+││    ✔ 3 : 3/4
+││    ✘ 8 : 5/5
+│✘ <E,Id> (V17 >= 1255)
+│ ✔ <A,Id> (V42 >= 1578)
+│ │✔ V1 >= 1073
+│ ││✔ 1 : 4/4
+│ ││✘ 1 : 3/4
+│ │✘ 7 : 24/24
+│ ✘ <O,Ei> (V47 >= 1366)
+│  ✔ 3 : 4/5
+│  ✘ 1 : 16/16
+✘ <A,A> (V54 >= 454)
+ ✔ <Ai,Id> (V101 >= 2533)
+ │✔ <Di,Li> (V1 >= 423)
+ ││✔ 2 : 15/15
+ ││✘ 2 : 2/4
+ │✘ <Ai,Id> (V1 >= 1021)
+ │ ✔ 2 : 3/4
+ │ ✘ <Id,Li> (V2 >= 490)
+ │  ✔ 6 : 16/16
+ │  ✘ 2 : 3/4
+ ✘ <Ai,Bi> (V28 >= 329)
+  ✔ 4 : 24/24
+  ✘ 9 : 24/24
+ test size = (3, 3, 54, 103)
+  Purity threshold 1.0
+   acc: 68.52% kappa: 64.58% 9×9 Array{Int64,2}:
+   5  0  0  0  0  0  1  0  0
+ 0  1  0  2  0  3  0  0  0
+ 0  0  1  0  0  0  1  4  0
+ 0  0  0  5  0  0  0  0  1
+ 0  0  0  0  6  0  0  0  0
+ 0  3  0  0  0  3  0  0  0
+ 0  0  0  0  0  0  6  0  0
+ 0  0  2  0  0  0  0  4  0
+ 0  0  0  0  0  0  0  0  6
+ nodes: (35, height: 7)
+
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4, min_samples_split = 8)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,DecisionTree.ModalLogic._TopoRel[<TPP>, <TPPi>, <NTPP>, <NTPPi>, <DC>, <EC>]), useRelationAll = false, test_operators = [DecisionTree.ModalLogic._TestOpGeq()])
+ train size = (3, 3, 216, 103)
+  19.180 s (259996686 allocations: 12.06 GiB)
+ test size = (3, 3, 54, 103)
+ Purity threshold 1.0     
+  acc: 74.07% kappa: 70.83% 9×9 Array{Int64,2}:
+ 4  1  0  0  0  1  0  0  0
+ 0  1  0  2  0  3  0  0  0
+ 1  0  3  0  0  1  0  1  0
+ 0  0  0  6  0  0  0  0  0
+ 0  0  0  0  6  0  0  0  0
+ 0  0  0  0  0  6  0  0  0
+ 1  0  0  0  0  0  5  0  0
+ 0  0  1  0  0  1  0  4  0                   
+ 1  0  0  0  0  0  0  0  5                  
+nodes: (41, height: 8)
+Decision Tree         
+Leaves: 21           
+Tot nodes: 41
+Height: 8              
+Modal height:  7       
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+<EC> (V9 >= 1073)       
+✔ <TPPi> (V99 >= 1702)   
+│✔ <TPP> (V1 >= 2700)
+││✔ 5 : 24/24   
+││✘ <TPP> (V77 >= 2446) 
+││ ✔ <TPP> (V1 >= 1328) 
+││ │✔ 6 : 7/7     
+││ │✘ 6 : 2/4   
+││ ✘ <TPPi> (V9 >= 1345)
+││  ✔ <TPP> (V28 >= 1988)
+││  │✔ 3 : 2/4
+││  │✘ 8 : 17/17       
+││  ✘ <TPP> (V2 >= 1303)
+││   ✔ <DC> (V3 >= 1270)
+││   │✔ V1 >= 1710
+││   ││✔ 3 : 3/4
+││   ││✘ 3 : 13/13
+││   │✘ 3 : 2/4         
+││   ✘ 8 : 4/5
+│✘ <TPPi> (V19 >= 1304)
+│ ✔ <TPP> (V29 >= 1531)
+│ │✔ V1 >= 1409
+│ ││✔ 1 : 3/4          
+│ ││✘ 1 : 5/5
+│ │✘ 7 : 23/23            
+│ ✘ <TPPi> (V35 >= 1360)
+│  ✔ 3 : 3/4 
+│  ✘ 1 : 9/9           
+✘ <NTPPi> (V64 >= 315)
+ ✔ V72 >= 1513
+ │✔ <TPP> (V27 >= 1259)
+ ││✔ 6 : 4/5 
+ ││✘ <NTPP> (V100 >= 2418)
+ ││ ✔ 2 : 20/20                                                     
+ ││ ✘ 2 : 2/4                                                       
+ │✘ <TPP> (V72 >= 1442)
+ │ ✔ 6 : 9/9                                                        
+ │ ✘ 2 : 2/4                                                        
+ ✘ V69 >= 325                                                       
+  ✔ 4 : 23/23                                                       
+  ✘ 9 : 24/24                                                       
+
+
+
+Softened 85%:
+(0.73 acc)
+ 29  2  2  0  0  0  2  0  0  82.86%
+  0 17  1  2  0 15  0  0  0  48.57%
+  1  0 30  0  0  0  1  3  0  85.71%
+  0  6  0 27  0  1  0  0  1  77.14%
+  1  0  0  0 32  0  0  2  0  91.43%
+  0 14  1  0  0 20  0  0  0  57.14%
+  8  0  2  0  0  0 24  1  0  68.57%
+  0  0 16  0  0  0  0 19  0  54.29%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+Softened Geq85%:
+acc: 70.48% kappa: 66.79% 
+ 30  2  1  0  0  0  1  1  0  85.71%
+  0 15  0  1  0 18  0  1  0  42.86%
+  5  1 17  0  0  0  1 11  0  48.57%
+  0  2  0 32  0  1  0  0  0  91.43%
+  1  0  0  0 32  0  0  2  0  91.43%
+  0 13  1  0  0 20  0  1  0  57.14%
+  6  0  2  0  0  0 26  1  0  74.29%
+  2  0 14  0  0  0  0 19  0  54.29%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+Softened (GeqorLeq?)75%
+  acc: 75.87% kappa: 72.86% 
+ 28  2  1  0  0  0  4  0  0  80.0%
+  0 22  0  2  0 10  0  1  0  62.86%
+  5  1 22  0  0  0  1  6  0  62.86%
+  0  6  0 27  0  2  0  0  0  77.14%
+  1  0  0  0 32  0  0  2  0  91.43%
+  1  8  1  0  0 25  0  0  0  71.43%
+  6  0  0  0  0  0 29  0  0  82.86%
+  2  0 10  0  0  0  1 22  0  62.86%
+  1  0  0  2  0  0  0  0 32  91.43%
+
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V11 ⫺ 834
+✔ ⟨⟩ (V103 ⫹ 1526)
+│✔ V66 ⫹ 1214
+││✔ ⟨DC⟩ (V23 ⫹ 1213)
+│││✔ 1 : 27/27
+│││✘ V1 ⫺ 2037
+│││ ✔ 5 : 1/1
+│││ ✘ 7 : 1/1
+││✘ ⟨T̅P̅P̅⟩ (V19 ⫺ 1304)
+││ ✔ ⟨T̅P̅P̅⟩ (V1 ⫹ 1340)
+││ │✔ 7 : 34/34
+││ │✘ 1 : 3/3
+││ ✘ V1 ⫹ 941
+││  ✔ 3 : 5/5
+││  ✘ 1 : 2/2
+│✘ ⟨⟩ (V1 ⫺ 2700)
+│ ✔ 5 : 34/34
+│ ✘ ⟨T̅P̅P̅⟩ (V103 ⫺ 2236)
+│  ✔ ⟨PO⟩ (V76 ⫺ 2435)
+│  │✔ 6 : 11/11
+│  │✘ ⟨⟩ (V1 ⫺ 1586)
+│  │ ✔ 3 : 1/1
+│  │ ✘ 2 : 2/2
+│  ✘ ⟨T̅P̅P̅⟩ (V20 ⫹ 1508)
+│   ✔ ⟨TPP⟩ (V2 ⫺ 1303)
+│   │✔ ⟨T̅P̅P̅⟩ (V3 ⫹ 1193)
+│   ││✔ V1 ⫺ 1265
+│   │││✔ 3 : 1/1
+│   │││✘ 8 : 2/2
+│   ││✘ 3 : 21/21
+│   │✘ V26 ⫹ 1588
+│   │ ✔ 8 : 7/7
+│   │ ✘ 3 : 2/2
+│   ✘ ⟨⟩ (V52 ⫺ 2223)
+│    ✔ V1 ⫺ 1582
+│    │✔ 3 : 5/5
+│    │✘ V1 ⫺ 1450
+│    │ ✔ 8 : 1/1
+│    │ ✘ 1 : 1/1
+│    ✘ ⟨⟩ (V7 ⫺ 1398)
+│     ✔ 8 : 25/25
+│     ✘ 1 : 2/2
+✘ ⟨⟩ (V69 ⫹ 776)
+ ✔ ⟨PO⟩ (V69 ⫹ 269)
+ │✔ 9 : 35/35
+ │✘ 4 : 32/32
+ ✘ ⟨⟩ (V94 ⫹ 2470)
+  ✔ V4 ⫺ 721
+  │✔ V73 ⫹ 1877
+  ││✔ 2 : 8/8
+  ││✘ 6 : 2/2
+  │✘ V103 ⫺ 2524
+  │ ✔ 2 : 2/2
+  │ ✘ V3 ⫺ 907
+  │  ✔ 2 : 1/1
+  │  ✘ 6 : 20/20
+  ✘ ⟨⟩ (V74 ⫺ 2666)
+   ✔ 4 : 3/3
+   ✘ V8 ⫺ 755
+    ✔ 6 : 2/2
+    ✘ 2 : 22/22
+ test size = (3, 3, 315, 103)
+ Purity threshold 1.0
+  acc: 71.11% kappa: 67.5% 
+ 28  2  5  0  0  0  0  0  0  80.0%
+  0 15  0  1  0 19  0  0  0  42.86%
+  4  0 19  0  0  0  0 12  0  54.29%
+  0  3  0 31  0  0  0  0  1  88.57%
+  2  0  2  0 31  0  0  0  0  88.57%
+  0 14  0  0  0 21  0  0  0  60.0%
+  1  0  4  0  0  0 30  0  0  85.71%
+  2  1 14  0  0  0  0 18  0  51.43%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+
+
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.85), DecisionTree.ModalLogic._TestOpLeqSoft(0.85)])
+ train size = (3, 3, 315, 103)
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V11 ⫺₈₅ 834
+✔ ⟨N̅T̅P̅P̅⟩ (V92 ⫺₈₅ 1579)
+│✔ ⟨⟩ (V1 ⫺₈₅ 2700)
+││✔ 5 : 35/35
+││✘ ⟨⟩ (V82 ⫺₈₅ 2691)
+││ ✔ V1 ⫺₈₅ 1075
+││ │✔ 6 : 11/11
+││ │✘ 2 : 1/1
+││ ✘ ⟨NTPP⟩ (V20 ⫺₈₅ 1523)
+││  ✔ ⟨⟩ (V52 ⫺₈₅ 2223)
+││  │✔ V1 ⫺₈₅ 1582
+││  ││✔ 3 : 5/5
+││  ││✘ V1 ⫺₈₅ 1450
+││  ││ ✔ 8 : 1/1
+││  ││ ✘ 1 : 1/1
+││  │✘ ⟨⟩ (V7 ⫺₈₅ 1398)
+││  │ ✔ 8 : 24/24
+││  │ ✘ 1 : 2/2
+││  ✘ ⟨⟩ (V2 ⫺₈₅ 1303)
+││   ✔ V10 ⫹₈₅ 1269
+││   │✔ 3 : 17/17
+││   │✘ ⟨⟩ (V6 ⫺₈₅ 1537)
+││   │ ✔ 3 : 5/5
+││   │ ✘ ⟨⟩ (V7 ⫺₈₅ 1404)
+││   │  ✔ 8 : 5/5
+││   │  ✘ V3 ⫺₈₅ 1332
+││   │   ✔ 3 : 3/3
+││   │   ✘ 8 : 1/1
+││   ✘ ⟨NTPP⟩ (V1 ⫺₈₅ 1254)
+││    ✔ 2 : 1/1
+││    ✘ 8 : 4/4
+│✘ ⟨N̅T̅P̅P̅⟩ (V90 ⫺₈₅ 1340)
+│ ✔ ⟨NTPP⟩ (V20 ⫺₈₅ 1266)
+│ │✔ ⟨EC⟩ (V1 ⫹₈₅ 979)
+│ ││✔ 7 : 33/33
+│ ││✘ 1 : 1/1
+│ │✘ ⟨NTPP⟩ (V2 ⫺₈₅ 1114)
+│ │ ✔ 1 : 3/3
+│ │ ✘ ⟨⟩ (V3 ⫺₈₅ 1277)
+│ │  ✔ 3 : 5/5
+│ │  ✘ 7 : 2/2
+│ ✘ 1 : 28/28
+✘ ⟨⟩ (V69 ⫹₈₅ 776)
+ ✔ ⟨NTPP⟩ (V69 ⫹₈₅ 295)
+ │✔ 9 : 35/35
+ │✘ 4 : 32/32
+ ✘ ⟨⟩ (V94 ⫹₈₅ 2470)
+  ✔ V4 ⫺₈₅ 721
+  │✔ V73 ⫹₈₅ 1877
+  ││✔ 2 : 8/8
+  ││✘ 6 : 2/2
+  │✘ V103 ⫺₈₅ 2524
+  │ ✔ 2 : 2/2
+  │ ✘ V3 ⫺₈₅ 907
+  │  ✔ 2 : 1/1
+  │  ✘ 6 : 20/20
+  ✘ ⟨⟩ (V74 ⫺₈₅ 2666)
+   ✔ 4 : 3/3
+   ✘ V8 ⫺₈₅ 755
+    ✔ 6 : 2/2
+    ✘ 2 : 22/22
+ test size = (3, 3, 315, 103)
+ Purity threshold 1.0
+  acc: 70.48% kappa: 66.79% 
+ 30  2  1  0  0  0  1  1  0  85.71%
+  0 15  0  1  0 18  0  1  0  42.86%
+  5  1 17  0  0  0  1 11  0  48.57%
+  0  2  0 32  0  1  0  0  0  91.43%
+  1  0  0  0 32  0  0  2  0  91.43%
+  0 13  1  0  0 20  0  1  0  57.14%
+  6  0  2  0  0  0 26  1  0  74.29%
+  2  0 14  0  0  0  0 19  0  54.29%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+RCC5:
+
+Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 8
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V11 ⫺ 834
+✔ ⟨⟩ (V103 ⫹ 1526)
+│✔ V66 ⫹ 1214
+││✔ ⟨DR⟩ (V80 ⫹ 1344)
+│││✔ 1 : 27/27
+│││✘ V1 ⫺ 2037
+│││ ✔ 5 : 1/1
+│││ ✘ 7 : 1/1
+││✘ ⟨P̅P̅⟩ (V19 ⫺ 1304)
+││ ✔ ⟨P̅P̅⟩ (V1 ⫹ 1340)
+││ │✔ 7 : 34/34
+││ │✘ 1 : 3/3
+││ ✘ V1 ⫹ 941
+││  ✔ 3 : 5/5
+││  ✘ 1 : 2/2
+│✘ ⟨⟩ (V1 ⫺ 2700)
+│ ✔ 5 : 34/34
+│ ✘ ⟨P̅P̅⟩ (V103 ⫺ 2236)
+│  ✔ ⟨PO⟩ (V76 ⫺ 2435)
+│  │✔ 6 : 11/11
+│  │✘ ⟨⟩ (V1 ⫺ 1586)
+│  │ ✔ 3 : 1/1
+│  │ ✘ 2 : 2/2
+│  ✘ ⟨P̅P̅⟩ (V20 ⫹ 1508)
+│   ✔ ⟨PP⟩ (V2 ⫺ 1303)
+│   │✔ ⟨P̅P̅⟩ (V3 ⫹ 1193)
+│   ││✔ V1 ⫺ 1265
+│   │││✔ 3 : 1/1
+│   │││✘ 8 : 2/2
+│   ││✘ 3 : 21/21
+│   │✘ V26 ⫹ 1588
+│   │ ✔ 8 : 7/7
+│   │ ✘ 3 : 2/2
+│   ✘ ⟨⟩ (V52 ⫺ 2223)
+│    ✔ V1 ⫺ 1582
+│    │✔ 3 : 5/5
+│    │✘ V1 ⫺ 1450
+│    │ ✔ 8 : 1/1
+│    │ ✘ 1 : 1/1
+│    ✘ ⟨⟩ (V7 ⫺ 1398)
+│     ✔ 8 : 25/25
+│     ✘ 1 : 2/2
+✘ ⟨⟩ (V69 ⫹ 776)
+ ✔ ⟨PO⟩ (V69 ⫹ 269)
+ │✔ 9 : 35/35
+ │✘ 4 : 32/32
+ ✘ ⟨⟩ (V94 ⫹ 2470)
+  ✔ V4 ⫺ 721
+  │✔ V73 ⫹ 1877
+  ││✔ 2 : 8/8
+  ││✘ 6 : 2/2
+  │✘ V103 ⫺ 2524
+  │ ✔ 2 : 2/2
+  │ ✘ V3 ⫺ 907
+  │  ✔ 2 : 1/1
+  │  ✘ 6 : 20/20
+  ✘ ⟨⟩ (V74 ⫺ 2666)
+   ✔ 4 : 3/3
+   ✘ V8 ⫺ 755
+    ✔ 6 : 2/2
+    ✘ 2 : 22/22
+ test size = (3, 3, 315, 103)
+ Purity threshold 1.0
+RESULT: PaviaDataset, 3x3       (max_depth = -1, min_samples_leaf = 4)  (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC5), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])   1.0     71.11%  67.5%
+ 28  2  5  0  0  0  0  0  0  80.0%
+  0 15  0  1  0 19  0  0  0  42.86%
+  4  0 19  0  0  0  0 12  0  54.29%
+  0  3  0 31  0  0  0  0  1  88.57%
+  2  0  2  0 31  0  0  0  0  88.57%
+  0 14  0  0  0 21  0  0  0  60.0%
+  1  0  4  0  0  0 30  0  0  85.71%
+  2  1 14  0  0  0  0 18  0  51.43%
+  1  0  0  3  0  0  0  0 31  88.57%
