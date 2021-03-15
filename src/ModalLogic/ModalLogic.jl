@@ -75,7 +75,7 @@ end
 
 # https://stackoverflow.com/questions/46671965/printing-variable-subscripts-in-julia/46674866
 # '₀'
-function subscriptnumber(i::Int)
+subscriptnumber(i::Int) = begin
 	join([
 		(if i < 0
 			[Char(0x208B)]
@@ -83,10 +83,9 @@ function subscriptnumber(i::Int)
 		[Char(0x2080+d) for d in reverse(digits(abs(i)))]...
 	])
 end
-
 # https://www.w3.org/TR/xml-entity-names/020.html
 # '․', 'ₑ', '₋'
-function subscriptnumber(i::AbstractFloat)
+subscriptnumber(s::AbstractString) = begin
 	char_to_subscript(ch) = begin
 		if ch == 'e'
 			'ₑ'
@@ -102,11 +101,14 @@ function subscriptnumber(i::AbstractFloat)
 	end
 
 	try
-		join(map(char_to_subscript, [ch for ch in string(i)]))
+		join(map(char_to_subscript, [string(ch) for ch in s]))
 	catch
-		string(i)
+		s
 	end
 end
+
+subscriptnumber(i::AbstractFloat) = subscriptnumber(string(i))
+
 ################################################################################
 # END Helpers
 ################################################################################
@@ -203,8 +205,8 @@ polarity(::TestOperatorNegative) = false
 @inline opt(::TestOperatorNegative) = min
 
 # Warning: I'm assuming all operators are "closed" (= not strict, like >= and <=)
-@inline evaluateThreshCondition(::TestOperatorPositive, t, gamma) = (t <= gamma)
-@inline evaluateThreshCondition(::TestOperatorNegative, t, gamma) = (t >= gamma)
+@inline evaluateThreshCondition(::TestOperatorPositive, t::T, gamma::T) where {T} = (t <= gamma)
+@inline evaluateThreshCondition(::TestOperatorNegative, t::T, gamma::T) where {T} = (t >= gamma)
 
 struct _TestOpNone  <: TestOperator end; const TestOpNone  = _TestOpNone();
 # >=
@@ -225,6 +227,7 @@ struct _TestOpGeqSoft  <: TestOperatorPositive
 end;
 const TestOpGeq_95  = _TestOpGeqSoft((Rational(95,100)));
 const TestOpGeq_90  = _TestOpGeqSoft((Rational(90,100)));
+const TestOpGeq_85  = _TestOpGeqSoft((Rational(85,100)));
 const TestOpGeq_80  = _TestOpGeqSoft((Rational(80,100)));
 const TestOpGeq_75  = _TestOpGeqSoft((Rational(75,100)));
 
@@ -235,6 +238,7 @@ struct _TestOpLeqSoft  <: TestOperatorNegative
 end;
 const TestOpLeq_95  = _TestOpLeqSoft((Rational(95,100)));
 const TestOpLeq_90  = _TestOpLeqSoft((Rational(90,100)));
+const TestOpLeq_85  = _TestOpLeqSoft((Rational(85,100)));
 const TestOpLeq_80  = _TestOpLeqSoft((Rational(80,100)));
 const TestOpLeq_75  = _TestOpLeqSoft((Rational(75,100)));
 
@@ -253,6 +257,7 @@ primary_test_operator(x::_TestOpLeqSoft) = dual_test_operator(x)
 # dual_test_operator(::_TestOpLeqSoft{Val{Rational(90,100)}}) = TestOpGeq_90
 # dual_test_operator(::_TestOpGeqSoft{Val{Rational(80,100)}}) = TestOpLeq_80
 # dual_test_operator(::_TestOpLeqSoft{Val{Rational(80,100)}}) = TestOpGeq_80
+# ...
 # dual_test_operator(::_TestOpGeqSoft{Val{Rational(75,100)}}) = TestOpLeq_75
 # dual_test_operator(::_TestOpLeqSoft{Val{Rational(75,100)}}) = TestOpGeq_75
 
@@ -271,6 +276,7 @@ const all_ordered_test_operators = [
 		TestOpGeq_95, TestOpLeq_95,
 		TestOpGeq_90, TestOpLeq_90,
 		TestOpGeq_80, TestOpLeq_80,
+		TestOpGeq_85, TestOpLeq_85,
 		TestOpGeq_75, TestOpLeq_75,
 	]
 const all_test_operators_order = [
@@ -278,16 +284,22 @@ const all_test_operators_order = [
 		TestOpGeq_95, TestOpLeq_95,
 		TestOpGeq_90, TestOpLeq_90,
 		TestOpGeq_80, TestOpLeq_80,
+		TestOpGeq_85, TestOpLeq_85,
 		TestOpGeq_75, TestOpLeq_75,
 	]
 sort_test_operators!(x::Vector{TO}) where {TO<:TestOperator} = begin
 	intersect(all_test_operators_order, x)
 end
 
+display_test_operator(test_operator::_TestOpGeq) = "⫺"
+display_test_operator(test_operator::_TestOpLeq) = "⫹"
+display_test_operator(test_operator::_TestOpGeqSoft) = "⫺" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.'))
+display_test_operator(test_operator::_TestOpLeqSoft) = "⫹" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.'))
+
 display_propositional_test(test_operator::_TestOpGeq, lhs::String, featval::Number) = "$(lhs) ⫺ $(featval)"
 display_propositional_test(test_operator::_TestOpLeq, lhs::String, featval::Number) = "$(lhs) ⫹ $(featval)"
-display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(lhs) ⫺" * subscriptnumber(alpha(test_operator)*100) * " $(featval)"
-display_propositional_test(test_operator::_TestOpLeqSoft, lhs::String, featval::Number) = "$(lhs) ⫹" * subscriptnumber(alpha(test_operator)*100) * " $(featval)"
+display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(lhs) ⫺" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.')) * " $(featval)"
+display_propositional_test(test_operator::_TestOpLeqSoft, lhs::String, featval::Number) = "$(lhs) ⫹" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.')) * " $(featval)"
 # display_propositional_test(test_operator::_TestOpGeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫺ $(featval)]"
 # display_propositional_test(test_operator::_TestOpLeqSoft, lhs::String, featval::Number) = "$(alpha(test_operator)*100)% [$(lhs) ⫹ $(featval)]"
 
@@ -322,17 +334,17 @@ end
 # TODO check
 @inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	xmin = partialsort!(vals,1+floor(Int, alpha(test_op)*length(vals)); rev=true)
-	xmax = partialsort!(vals,1+floor(Int, (1-alpha(test_op))*length(vals)))
+	xmin = partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)); rev=true)
+	xmax = partialsort!(vals,ceil(Int, (1-alpha(test_op))*length(vals)))
 	xmin,xmax
 end
 @inline WExtreme(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	partialsort!(vals,1+floor(Int, alpha(test_op)*length(vals)); rev=true)
+	partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)); rev=true)
 end
 @inline WExtreme(test_op::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	partialsort!(vals,1+floor(Int, alpha(test_op)*length(vals)))
+	partialsort!(vals,ceil(Int, (1-alpha(test_op))*length(vals)))
 end
 
 WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
@@ -383,6 +395,32 @@ end
 		x <= featval || return false
 	end
 	return true
+end
+
+@inline TestCondition(test_operator::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
+	ys = 0
+	vals = readWorld(w,channel)
+	# print(vals, ": ")
+	for x in vals
+		if x >= featval
+			# print(x, ",")
+			ys+=1
+		end
+	end
+	# println()
+	# println(ys, (ys/length(vals)), (ys/length(vals)) >= test_operator.alpha)
+	(ys/length(vals)) >= test_operator.alpha
+end
+
+@inline TestCondition(test_operator::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
+	ys = 0
+	vals = readWorld(w,channel)
+	for x in vals
+		if x <= featval
+			ys+=1
+		end
+	end
+	(ys/length(vals)) >= test_operator.alpha
 end
 
 # Utility type for enhanced computation of thresholds
@@ -518,7 +556,10 @@ export genericIntervalOntology,
 				genericIntervalRCC8Ontology,
 				IntervalRCC8Ontology,
 				Interval2DRCC8Ontology,
-				getIntervalRCC8OntologyOfDim
+				getIntervalRCC8OntologyOfDim,
+				getIntervalRCC5OntologyOfDim,
+				IntervalRCC5Ontology,
+				Interval2DRCC5Ontology
 
 abstract type OntologyType end
 struct _genericIntervalOntology  <: OntologyType end; const genericIntervalOntology  = _genericIntervalOntology();  # After
@@ -528,6 +569,8 @@ const Interval2DOntology = Ontology(Interval2D,IA2DRelations)
 struct _genericIntervalRCC8Ontology  <: OntologyType end; const genericIntervalRCC8Ontology  = _genericIntervalRCC8Ontology();  # After
 const IntervalRCC8Ontology   = Ontology(Interval,RCC8Relations)
 const Interval2DRCC8Ontology = Ontology(Interval2D,RCC8Relations)
+const IntervalRCC5Ontology   = Ontology(Interval,RCC5Relations)
+const Interval2DRCC5Ontology = Ontology(Interval2D,RCC5Relations)
  
 getIntervalOntologyOfDim(::MatricialDataset{T,D}) where {T,D} = getIntervalOntologyOfDim(Val(D-2))
 getIntervalOntologyOfDim(::Val{1}) = IntervalOntology
@@ -536,5 +579,9 @@ getIntervalOntologyOfDim(::Val{2}) = Interval2DOntology
 getIntervalRCC8OntologyOfDim(::MatricialDataset{T,D}) where {T,D} = getIntervalRCC8OntologyOfDim(Val(D-2))
 getIntervalRCC8OntologyOfDim(::Val{1}) = IntervalRCC8Ontology
 getIntervalRCC8OntologyOfDim(::Val{2}) = Interval2DRCC8Ontology
+
+getIntervalRCC5OntologyOfDim(::MatricialDataset{T,D}) where {T,D} = getIntervalRCC5OntologyOfDim(Val(D-2))
+getIntervalRCC5OntologyOfDim(::Val{1}) = IntervalRCC5Ontology
+getIntervalRCC5OntologyOfDim(::Val{2}) = Interval2DRCC5Ontology
 
 end # module

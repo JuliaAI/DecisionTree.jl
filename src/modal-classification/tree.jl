@@ -77,13 +77,12 @@ module treeclassifier
 							W                   :: AbstractVector{U},        # the weight vector
 							S                   :: AbstractVector{WorldSet{WorldType}}, # the vector of current worlds (TODO AbstractVector{<:AbstractSet{X.ontology.worldType}})
 							
-							purity_function     :: Function,
+							loss_function       :: Function,
 							node                :: NodeMeta{T},              # the node to split
-							# max_features        :: Int,                      # number of features to consider
 							max_depth           :: Int,                      # the maximum depth of the resultant tree
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
+							min_loss_at_leaf    :: AbstractFloat,            # maximum purity allowed on a leaf
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
-							max_purity_split    :: AbstractFloat,            # maximum purity allowed on a split
 							test_operators      :: AbstractVector{<:ModalLogic.TestOperator},
 							
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
@@ -121,15 +120,17 @@ module treeclassifier
 		nt = sum(nc)
 		node.label = argmax(nc) # Assign the most likely label before the split
 
+		@logmsg DTOverview "node purity min_loss_at_leaf " loss_function(nc, nt) min_loss_at_leaf
+
 		@logmsg DTDebug "_split!(...) " n_instances region nt
 
 		# Check leaf conditions
 		if ((min_samples_leaf * 2 >  n_instances)
 		 || (nc[node.label]       == nt)
-		 || (nc[node.label] / nt  >= max_purity_split) # TODO this purity has to be the purity function, not the number of training samples.
+		 || (loss_function(nc, nt)  <= min_loss_at_leaf)
 		 || (max_depth            <= node.depth))
 			node.is_leaf = true
-			@logmsg DTDetail "leaf created: " (min_samples_leaf * 2 >  n_instances) (nc[node.label] == nt) (nc[node.label] / nt  >= max_purity_split) (max_depth <= node.depth)
+			@logmsg DTDetail "leaf created: " (min_samples_leaf * 2 >  n_instances) (nc[node.label] == nt) (loss_function(nc, nt)  <= min_loss_at_leaf) (max_depth <= node.depth)
 			return
 		end
 
@@ -296,10 +297,10 @@ module treeclassifier
 						if nl >= min_samples_leaf && n_instances - nl >= min_samples_leaf
 							unsplittable = false
 							# TODO figure out exactly what this purity is?
-							purity = -(nl * purity_function(ncl, nl) +
-								      	 nr * purity_function(ncr, nr))
-							if purity > best_purity__nt && !isapprox(purity, best_purity__nt)
-								best_purity__nt     = purity
+							purity__nt = -(nl * loss_function(ncl, nl) +
+								      	 nr * loss_function(ncr, nr))
+							if purity__nt > best_purity__nt && !isapprox(purity__nt, best_purity__nt)
+								best_purity__nt     = purity__nt
 								best_relation       = relation
 								best_feature        = feature
 								best_test_operator  = test_operator
@@ -317,11 +318,12 @@ module treeclassifier
 			end # for relation
 		end # for feature
 
+		@logmsg DTOverview "purity increase" best_purity__nt/nt loss_function(nc, nt) (best_purity__nt/nt + loss_function(nc, nt)) (best_purity__nt/nt - loss_function(nc, nt))
 		# If the split is good, partition and split according to the optimum
 		@inbounds if (unsplittable
-			|| (best_purity__nt/nt + purity_function(nc, nt) <= min_purity_increase)
+			|| (best_purity__nt/nt + loss_function(nc, nt) <= min_purity_increase)
 			)
-			@logmsg DTDebug " Leaf" unsplittable min_purity_increase (best_purity__nt/nt) purity_function(nc, nt) ((best_purity__nt/nt) + purity_function(nc, nt))
+			@logmsg DTDebug " Leaf" unsplittable min_purity_increase (best_purity__nt/nt) loss_function(nc, nt) ((best_purity__nt/nt) + loss_function(nc, nt))
 			node.is_leaf = true
 			return
 		else
@@ -358,9 +360,9 @@ module treeclassifier
 			end
 
 			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
-			for i in 1:n_instances
-				println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
-			end
+			# for i in 1:n_instances
+				# println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
+			# end
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
@@ -408,11 +410,11 @@ module treeclassifier
 			X                   :: OntologicalDataset{T, N},
 			Y                   :: AbstractVector{Label},
 			W                   :: AbstractVector{U},
-			# max_features        :: Int,
+			loss_function       :: Function,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
-			min_purity_increase :: AbstractFloat,
-			max_purity_split    :: AbstractFloat) where {T, U, N}
+			min_loss_at_leaf    :: AbstractFloat,
+			min_purity_increase :: AbstractFloat) where {T, U, N}
 			n_instances, n_vars = n_samples(X), n_variables(X)
 		if length(Y) != n_instances
 			throw("dimension mismatch between X and Y ($(size(X.domain)) vs $(size(Y))")
@@ -429,9 +431,9 @@ module treeclassifier
 		elseif min_samples_leaf < 1
 			throw("min_samples_leaf must be a positive integer "
 				* "(given $(min_samples_leaf))")
-		elseif max_purity_split > 1.0 || max_purity_split <= 0.0
-			throw("max_purity_split must be in (0,1]"
-				* "(given $(max_purity_split))")
+		elseif loss_function in [util.gini, util.zero_one] && (min_loss_at_leaf > 1.0 || min_loss_at_leaf <= 0.0)
+			throw("min_loss_at_leaf for loss $(loss_function) must be in (0,1]"
+				* "(given $(min_loss_at_leaf))")
 		end
 		# TODO check that X doesn't have nans, typemin(T), typemax(T), missings, nothing etc. ...
 	end
@@ -442,11 +444,10 @@ module treeclassifier
 			W                       :: AbstractVector{U},
 			loss                    :: Function,
 			n_classes               :: Int,
-			# max_features            :: Int,
 			max_depth               :: Int,
 			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
 			min_purity_increase     :: AbstractFloat,
-			max_purity_split        :: AbstractFloat,
+			min_loss_at_leaf        :: AbstractFloat,
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
@@ -516,7 +517,7 @@ module treeclassifier
 		# end
 
 		# TODO check that length(channel_size(X)) == complexity(worldType)
-		
+
 		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
 		#  are complementary, and thus it is redundant to check both at the same node.
 		#  We avoid this by only keeping one of the two operators.
@@ -558,11 +559,10 @@ module treeclassifier
 			_split!(
 				X, Y, W, S,
 				loss, node,
-				# max_features,
 				max_depth,
 				min_samples_leaf,
+				min_loss_at_leaf,
 				min_purity_increase,
-				max_purity_split,
 				test_operators,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, Sogliole,
@@ -591,12 +591,11 @@ module treeclassifier
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
 			loss = util.entropy     :: Function,
-			# max_features            :: Int, # TODO remove this parameter
 			max_depth               :: Int,
 			min_samples_leaf        :: Int,
 			min_samples_split       :: Int,
 			min_purity_increase     :: AbstractFloat,
-			max_purity_split        :: AbstractFloat, # TODO add this to scikit's interface.
+			min_loss_at_leaf        :: AbstractFloat, # TODO add this to scikit's interface.
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
@@ -622,22 +621,22 @@ module treeclassifier
 		# Check validity of the input
 		check_input(
 			X, Y, W,
-			# max_features,
+			loss,
 			max_depth,
 			min_samples_leaf,
+			min_loss_at_leaf,
 			min_purity_increase,
-			max_purity_split)
+			)
 
 		# Call core learning function
 		root, indX = _fit(
 			X, Y_, W,
 			loss,
 			length(labels),
-			# max_features,
 			max_depth,
 			min_samples_leaf,
 			min_purity_increase,
-			max_purity_split,
+			min_loss_at_leaf,
 			initCondition,
 			useRelationAll,
 			useRelationId,

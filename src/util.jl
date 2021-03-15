@@ -43,9 +43,14 @@ module util
 		return s / (n * n)
 	end
 
+	# a = [5,3,9,2]
+	# a = [0,0,9,0]
+	# DecisionTree.util.entropy(a, sum(a))
+	# maximum(a)/sum(a)
+	
 	# returns the entropy of ns/n, ns is an array of integers
 	# and entropy_terms are precomputed entropy terms
-	@inline function entropy(ns::AbstractVector{U}, n, entropy_terms) where {U <: Integer}
+	@inline function entropy(ns::AbstractVector{U}, n :: Integer, entropy_terms) where {U <: Integer}
 		s = 0.0
 		for k in ns
 			s += entropy_terms[k+1]
@@ -53,7 +58,7 @@ module util
 		return log(n) - s / n
 	end
 
-	@inline function entropy(ns :: AbstractVector{T}, n :: T) where {T <: Real}
+	@inline function entropy(ns :: AbstractVector{T}, n :: Integer) where {T <: Real}
 		s = 0.0
 		@simd for k in ns
 			if k > 0

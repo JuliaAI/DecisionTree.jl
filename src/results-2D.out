@@ -3945,3 +3945,286 @@ initCondition: DecisionTree._startAtCenter()
   ✔ 4 : 23/23                                                       
   ✘ 9 : 24/24                                                       
 
+
+
+Softened 85%:
+(0.73 acc)
+ 29  2  2  0  0  0  2  0  0  82.86%
+  0 17  1  2  0 15  0  0  0  48.57%
+  1  0 30  0  0  0  1  3  0  85.71%
+  0  6  0 27  0  1  0  0  1  77.14%
+  1  0  0  0 32  0  0  2  0  91.43%
+  0 14  1  0  0 20  0  0  0  57.14%
+  8  0  2  0  0  0 24  1  0  68.57%
+  0  0 16  0  0  0  0 19  0  54.29%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+Softened Geq85%:
+acc: 70.48% kappa: 66.79% 
+ 30  2  1  0  0  0  1  1  0  85.71%
+  0 15  0  1  0 18  0  1  0  42.86%
+  5  1 17  0  0  0  1 11  0  48.57%
+  0  2  0 32  0  1  0  0  0  91.43%
+  1  0  0  0 32  0  0  2  0  91.43%
+  0 13  1  0  0 20  0  1  0  57.14%
+  6  0  2  0  0  0 26  1  0  74.29%
+  2  0 14  0  0  0  0 19  0  54.29%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+Softened (GeqorLeq?)75%
+  acc: 75.87% kappa: 72.86% 
+ 28  2  1  0  0  0  4  0  0  80.0%
+  0 22  0  2  0 10  0  1  0  62.86%
+  5  1 22  0  0  0  1  6  0  62.86%
+  0  6  0 27  0  2  0  0  0  77.14%
+  1  0  0  0 32  0  0  2  0  91.43%
+  1  8  1  0  0 25  0  0  0  71.43%
+  6  0  0  0  0  0 29  0  0  82.86%
+  2  0 10  0  0  0  1 22  0  62.86%
+  1  0  0  2  0  0  0  0 32  91.43%
+
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V11 ⫺ 834
+✔ ⟨⟩ (V103 ⫹ 1526)
+│✔ V66 ⫹ 1214
+││✔ ⟨DC⟩ (V23 ⫹ 1213)
+│││✔ 1 : 27/27
+│││✘ V1 ⫺ 2037
+│││ ✔ 5 : 1/1
+│││ ✘ 7 : 1/1
+││✘ ⟨T̅P̅P̅⟩ (V19 ⫺ 1304)
+││ ✔ ⟨T̅P̅P̅⟩ (V1 ⫹ 1340)
+││ │✔ 7 : 34/34
+││ │✘ 1 : 3/3
+││ ✘ V1 ⫹ 941
+││  ✔ 3 : 5/5
+││  ✘ 1 : 2/2
+│✘ ⟨⟩ (V1 ⫺ 2700)
+│ ✔ 5 : 34/34
+│ ✘ ⟨T̅P̅P̅⟩ (V103 ⫺ 2236)
+│  ✔ ⟨PO⟩ (V76 ⫺ 2435)
+│  │✔ 6 : 11/11
+│  │✘ ⟨⟩ (V1 ⫺ 1586)
+│  │ ✔ 3 : 1/1
+│  │ ✘ 2 : 2/2
+│  ✘ ⟨T̅P̅P̅⟩ (V20 ⫹ 1508)
+│   ✔ ⟨TPP⟩ (V2 ⫺ 1303)
+│   │✔ ⟨T̅P̅P̅⟩ (V3 ⫹ 1193)
+│   ││✔ V1 ⫺ 1265
+│   │││✔ 3 : 1/1
+│   │││✘ 8 : 2/2
+│   ││✘ 3 : 21/21
+│   │✘ V26 ⫹ 1588
+│   │ ✔ 8 : 7/7
+│   │ ✘ 3 : 2/2
+│   ✘ ⟨⟩ (V52 ⫺ 2223)
+│    ✔ V1 ⫺ 1582
+│    │✔ 3 : 5/5
+│    │✘ V1 ⫺ 1450
+│    │ ✔ 8 : 1/1
+│    │ ✘ 1 : 1/1
+│    ✘ ⟨⟩ (V7 ⫺ 1398)
+│     ✔ 8 : 25/25
+│     ✘ 1 : 2/2
+✘ ⟨⟩ (V69 ⫹ 776)
+ ✔ ⟨PO⟩ (V69 ⫹ 269)
+ │✔ 9 : 35/35
+ │✘ 4 : 32/32
+ ✘ ⟨⟩ (V94 ⫹ 2470)
+  ✔ V4 ⫺ 721
+  │✔ V73 ⫹ 1877
+  ││✔ 2 : 8/8
+  ││✘ 6 : 2/2
+  │✘ V103 ⫺ 2524
+  │ ✔ 2 : 2/2
+  │ ✘ V3 ⫺ 907
+  │  ✔ 2 : 1/1
+  │  ✘ 6 : 20/20
+  ✘ ⟨⟩ (V74 ⫺ 2666)
+   ✔ 4 : 3/3
+   ✘ V8 ⫺ 755
+    ✔ 6 : 2/2
+    ✘ 2 : 22/22
+ test size = (3, 3, 315, 103)
+ Purity threshold 1.0
+  acc: 71.11% kappa: 67.5% 
+ 28  2  5  0  0  0  0  0  0  80.0%
+  0 15  0  1  0 19  0  0  0  42.86%
+  4  0 19  0  0  0  0 12  0  54.29%
+  0  3  0 31  0  0  0  0  1  88.57%
+  2  0  2  0 31  0  0  0  0  88.57%
+  0 14  0  0  0 21  0  0  0  60.0%
+  1  0  4  0  0  0 30  0  0  85.71%
+  2  1 14  0  0  0  0 18  0  51.43%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+
+
+
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (max_depth = -1, min_samples_leaf = 4)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.85), DecisionTree.ModalLogic._TestOpLeqSoft(0.85)])
+ train size = (3, 3, 315, 103)
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V11 ⫺₈₅ 834
+✔ ⟨N̅T̅P̅P̅⟩ (V92 ⫺₈₅ 1579)
+│✔ ⟨⟩ (V1 ⫺₈₅ 2700)
+││✔ 5 : 35/35
+││✘ ⟨⟩ (V82 ⫺₈₅ 2691)
+││ ✔ V1 ⫺₈₅ 1075
+││ │✔ 6 : 11/11
+││ │✘ 2 : 1/1
+││ ✘ ⟨NTPP⟩ (V20 ⫺₈₅ 1523)
+││  ✔ ⟨⟩ (V52 ⫺₈₅ 2223)
+││  │✔ V1 ⫺₈₅ 1582
+││  ││✔ 3 : 5/5
+││  ││✘ V1 ⫺₈₅ 1450
+││  ││ ✔ 8 : 1/1
+││  ││ ✘ 1 : 1/1
+││  │✘ ⟨⟩ (V7 ⫺₈₅ 1398)
+││  │ ✔ 8 : 24/24
+││  │ ✘ 1 : 2/2
+││  ✘ ⟨⟩ (V2 ⫺₈₅ 1303)
+││   ✔ V10 ⫹₈₅ 1269
+││   │✔ 3 : 17/17
+││   │✘ ⟨⟩ (V6 ⫺₈₅ 1537)
+││   │ ✔ 3 : 5/5
+││   │ ✘ ⟨⟩ (V7 ⫺₈₅ 1404)
+││   │  ✔ 8 : 5/5
+││   │  ✘ V3 ⫺₈₅ 1332
+││   │   ✔ 3 : 3/3
+││   │   ✘ 8 : 1/1
+││   ✘ ⟨NTPP⟩ (V1 ⫺₈₅ 1254)
+││    ✔ 2 : 1/1
+││    ✘ 8 : 4/4
+│✘ ⟨N̅T̅P̅P̅⟩ (V90 ⫺₈₅ 1340)
+│ ✔ ⟨NTPP⟩ (V20 ⫺₈₅ 1266)
+│ │✔ ⟨EC⟩ (V1 ⫹₈₅ 979)
+│ ││✔ 7 : 33/33
+│ ││✘ 1 : 1/1
+│ │✘ ⟨NTPP⟩ (V2 ⫺₈₅ 1114)
+│ │ ✔ 1 : 3/3
+│ │ ✘ ⟨⟩ (V3 ⫺₈₅ 1277)
+│ │  ✔ 3 : 5/5
+│ │  ✘ 7 : 2/2
+│ ✘ 1 : 28/28
+✘ ⟨⟩ (V69 ⫹₈₅ 776)
+ ✔ ⟨NTPP⟩ (V69 ⫹₈₅ 295)
+ │✔ 9 : 35/35
+ │✘ 4 : 32/32
+ ✘ ⟨⟩ (V94 ⫹₈₅ 2470)
+  ✔ V4 ⫺₈₅ 721
+  │✔ V73 ⫹₈₅ 1877
+  ││✔ 2 : 8/8
+  ││✘ 6 : 2/2
+  │✘ V103 ⫺₈₅ 2524
+  │ ✔ 2 : 2/2
+  │ ✘ V3 ⫺₈₅ 907
+  │  ✔ 2 : 1/1
+  │  ✘ 6 : 20/20
+  ✘ ⟨⟩ (V74 ⫺₈₅ 2666)
+   ✔ 4 : 3/3
+   ✘ V8 ⫺₈₅ 755
+    ✔ 6 : 2/2
+    ✘ 2 : 22/22
+ test size = (3, 3, 315, 103)
+ Purity threshold 1.0
+  acc: 70.48% kappa: 66.79% 
+ 30  2  1  0  0  0  1  1  0  85.71%
+  0 15  0  1  0 18  0  1  0  42.86%
+  5  1 17  0  0  0  1 11  0  48.57%
+  0  2  0 32  0  1  0  0  0  91.43%
+  1  0  0  0 32  0  0  2  0  91.43%
+  0 13  1  0  0 20  0  1  0  57.14%
+  6  0  2  0  0  0 26  1  0  74.29%
+  2  0 14  0  0  0  0 19  0  54.29%
+  1  0  0  3  0  0  0  0 31  88.57%
+
+RCC5:
+
+Decision Tree
+Leaves: 31
+Tot nodes: 61
+Height: 8
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V11 ⫺ 834
+✔ ⟨⟩ (V103 ⫹ 1526)
+│✔ V66 ⫹ 1214
+││✔ ⟨DR⟩ (V80 ⫹ 1344)
+│││✔ 1 : 27/27
+│││✘ V1 ⫺ 2037
+│││ ✔ 5 : 1/1
+│││ ✘ 7 : 1/1
+││✘ ⟨P̅P̅⟩ (V19 ⫺ 1304)
+││ ✔ ⟨P̅P̅⟩ (V1 ⫹ 1340)
+││ │✔ 7 : 34/34
+││ │✘ 1 : 3/3
+││ ✘ V1 ⫹ 941
+││  ✔ 3 : 5/5
+││  ✘ 1 : 2/2
+│✘ ⟨⟩ (V1 ⫺ 2700)
+│ ✔ 5 : 34/34
+│ ✘ ⟨P̅P̅⟩ (V103 ⫺ 2236)
+│  ✔ ⟨PO⟩ (V76 ⫺ 2435)
+│  │✔ 6 : 11/11
+│  │✘ ⟨⟩ (V1 ⫺ 1586)
+│  │ ✔ 3 : 1/1
+│  │ ✘ 2 : 2/2
+│  ✘ ⟨P̅P̅⟩ (V20 ⫹ 1508)
+│   ✔ ⟨PP⟩ (V2 ⫺ 1303)
+│   │✔ ⟨P̅P̅⟩ (V3 ⫹ 1193)
+│   ││✔ V1 ⫺ 1265
+│   │││✔ 3 : 1/1
+│   │││✘ 8 : 2/2
+│   ││✘ 3 : 21/21
+│   │✘ V26 ⫹ 1588
+│   │ ✔ 8 : 7/7
+│   │ ✘ 3 : 2/2
+│   ✘ ⟨⟩ (V52 ⫺ 2223)
+│    ✔ V1 ⫺ 1582
+│    │✔ 3 : 5/5
+│    │✘ V1 ⫺ 1450
+│    │ ✔ 8 : 1/1
+│    │ ✘ 1 : 1/1
+│    ✘ ⟨⟩ (V7 ⫺ 1398)
+│     ✔ 8 : 25/25
+│     ✘ 1 : 2/2
+✘ ⟨⟩ (V69 ⫹ 776)
+ ✔ ⟨PO⟩ (V69 ⫹ 269)
+ │✔ 9 : 35/35
+ │✘ 4 : 32/32
+ ✘ ⟨⟩ (V94 ⫹ 2470)
+  ✔ V4 ⫺ 721
+  │✔ V73 ⫹ 1877
+  ││✔ 2 : 8/8
+  ││✘ 6 : 2/2
+  │✘ V103 ⫺ 2524
+  │ ✔ 2 : 2/2
+  │ ✘ V3 ⫺ 907
+  │  ✔ 2 : 1/1
+  │  ✘ 6 : 20/20
+  ✘ ⟨⟩ (V74 ⫺ 2666)
+   ✔ 4 : 3/3
+   ✘ V8 ⫺ 755
+    ✔ 6 : 2/2
+    ✘ 2 : 22/22
+ test size = (3, 3, 315, 103)
+ Purity threshold 1.0
+RESULT: PaviaDataset, 3x3       (max_depth = -1, min_samples_leaf = 4)  (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC5), useRelationId = true, useRelationAll = true, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])   1.0     71.11%  67.5%
+ 28  2  5  0  0  0  0  0  0  80.0%
+  0 15  0  1  0 19  0  0  0  42.86%
+  4  0 19  0  0  0  0 12  0  54.29%
+  0  3  0 31  0  0  0  0  1  88.57%
+  2  0  2  0 31  0  0  0  0  88.57%
+  0 14  0  0  0 21  0  0  0  60.0%
+  1  0  4  0  0  0 30  0  0  85.71%
+  2  1 14  0  0  0  0 18  0  51.43%
+  1  0  0  3  0  0  0  0 31  88.57%

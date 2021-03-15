@@ -50,7 +50,7 @@ function build_stump(
 		min_samples_leaf    = 1,
 		min_samples_split   = 2,
 		min_purity_increase = 0.0,
-		max_purity_split    = 1.0,
+		min_loss_at_leaf    = -Inf,
 		initCondition       = startWithRelationAll,
 		useRelationAll      = true,
 		useRelationId       = true,
@@ -68,19 +68,18 @@ end
 
 function build_tree(
 		labels              :: AbstractVector{Label},
-		features            :: MatricialDataset{T,D},
-		# n_subfeatures       :: Int                = 0,
+		features            :: MatricialDataset{T,D};
+		loss                :: Function           = util.entropy,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
 		min_samples_split   :: Int                = 2,
 		min_purity_increase :: AbstractFloat      = 0.0,
-		max_purity_split    :: AbstractFloat      = 1.0;
+		min_loss_at_leaf    :: AbstractFloat      = -Inf,
 		initCondition       :: _initCondition     = startWithRelationAll,
 		useRelationAll      :: Bool               = true,
 		useRelationId       :: Bool               = true,
 		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-		loss                :: Function           = util.entropy,
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D}
 
 	# TODO disaccoppia dataset e ontologia di riferimento.
@@ -89,9 +88,6 @@ function build_tree(
 	if max_depth == -1
 		max_depth = typemax(Int)
 	end
-	# if n_subfeatures == 0
-		# n_subfeatures = n_variables(X)
-	# end
 
 	rng = mk_rng(rng)::Random.AbstractRNG
 	t = treeclassifier.fit(
@@ -99,12 +95,11 @@ function build_tree(
 		Y                   = labels,
 		W                   = nothing,
 		loss                = loss,
-		# max_features        = n_subfeatures,
 		max_depth           = max_depth,
 		min_samples_leaf    = min_samples_leaf,
 		min_samples_split   = min_samples_split,
 		min_purity_increase = min_purity_increase,
-		max_purity_split    = max_purity_split,
+		min_loss_at_leaf    = min_loss_at_leaf,
 		initCondition       = initCondition,
 		useRelationAll      = useRelationAll,
 		useRelationId       = useRelationId,

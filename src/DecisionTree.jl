@@ -216,18 +216,6 @@ struct Modal∃TestFunction <: TestFunction end
 
 other stuff...
 
-struct OrderedPair
-	x::Real
-	y::Real
-	OrderedPair(x,y) = x >= y ? error("out of order") : new(x,y)
-end
-
-# A wrapper around DataFrame to add labels to data.
-type ClassificationDataset
-	data::DataFrame
-	labels::Array{Int,1}
-end
-
 # Inner node, holding the output decision
 struct DTInternal <: DTNode
 	

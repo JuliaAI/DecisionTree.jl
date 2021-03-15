@@ -130,10 +130,10 @@ SampleLandCoverDataset(n_samples::Int, sample_size::Union{Int,NTuple{2,Int}}, da
 		sample_size = (sample_size, sample_size)
 	end
 	@assert isodd(sample_size[1]) && isodd(sample_size[2])
-	Xmap, Ymap = 	if dataset == "Pavia"
-									PaviaDataset()
+	(Xmap, Ymap), class_labels = 	if dataset == "Pavia"
+									PaviaDataset(),["Asphalt", "Meadows", "Gravel", "Trees", "Painted metal sheets", "Bare Soil", "Bitumen", "Self-Blocking Bricks", "Shadows"]
 								elseif dataset == "IndianPinesCorrected"
-									IndianPinesCorrectedDataset()
+									IndianPinesCorrectedDataset(),["Alfalfa", "Corn-notill", "Corn-mintill", "Corn", "Grass-pasture", "Grass-trees", "Grass-pasture-mowed", "Hay-windrowed", "Oats", "Soybean-notill", "Soybean-mintill", "Soybean-clean", "Wheat", "Woods", "Buildings-Grass-Trees-Drives", "Stone-Steel-Towers"]
 								else
 									error("Unknown land cover dataset")
 	end
@@ -190,24 +190,26 @@ SampleLandCoverDataset(n_samples::Int, sample_size::Union{Int,NTuple{2,Int}}, da
 	if flattened
 		inputs = reshape(inputs, (1,1,n_samples,(sample_size[1]*sample_size[2]*size(inputs, 4))))
 	end
-	inputs,labels
+	inputs,labels,class_labels
 end
 
-traintestsplit(X::MatricialDataset{D,3},Y,threshold) where D = begin
+traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold) where {D,T} = begin
+	(X,Y,class_labels) = data
 	spl = floor(Int, length(Y)*threshold)
 	X_train = X[:,1:spl,:]
 	Y_train = Y[1:spl]
 	X_test  = X[:,spl+1:end,:]
 	Y_test  = Y[spl+1:end]
-	(X_train,Y_train,X_test,Y_test);
+	(X_train,Y_train),(X_test,Y_test),class_labels
 end
 
-traintestsplit(X::MatricialDataset{D,4},Y,threshold) where D = begin
+traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVector{String}},threshold) where {D,T} = begin
+	(X,Y,class_labels) = data
 	spl = floor(Int, length(Y)*threshold)
 	X_train = X[:,:,1:spl,:]
 	Y_train = Y[1:spl]
 	X_test  = X[:,:,spl+1:end,:]
 	Y_test  = Y[spl+1:end]
-	(X_train,Y_train,X_test,Y_test);
+	(X_train,Y_train),(X_test,Y_test),class_labels
 end
 
