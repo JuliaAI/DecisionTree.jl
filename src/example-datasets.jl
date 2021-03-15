@@ -2,8 +2,8 @@ using MAT
 import Base: getindex, values
 import Random
 
-data_dir = "/home/gio/Desktop/SpatialDecisionTree/"
-# data_dir = "./"
+# data_dir = "/home/gio/Desktop/SpatialDecisionTree/"
+data_dir = "/home/gpagliarini/ModalDecisionTrees/"
 
 readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
 	insts = Array{Array{Float64}}[]
