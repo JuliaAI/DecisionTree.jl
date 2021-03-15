@@ -67,6 +67,7 @@ kwargs = (
 # T = testDataset(("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", n_variables = 1, rng = my_rng()),0.8)), timeit, args=args, kwargs=kwargs);
 
 # T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
+# T = testDataset(datasets[2], timeit, debugging_level=DecisionTree.DTOverview, args=args, kwargs=kwargs);
 # T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 
 # exit()
@@ -105,36 +106,42 @@ kwargs = (
 # 	# end
 # end
 
+timeit = 0
+
 loss = DecisionTree.util.entropy
 min_samples_leaf = 2
-min_purity_increase = 0.05
+min_purity_increase = 0.01
 min_loss_at_leaf = 0.55
 
-selected_args = merge(args, (loss=loss,
-															min_samples_leaf=min_samples_leaf,
-															min_purity_increase=min_purity_increase,
-															min_loss_at_leaf=min_loss_at_leaf,
+selected_args = merge(args, (loss = loss,
+															min_samples_leaf = min_samples_leaf,
+															min_purity_increase = min_purity_increase,
+															min_loss_at_leaf = min_loss_at_leaf,
 															))
 
 for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOfDim(Val(2))]
 	for databatch in [0,1]
 		for useRelationAll in [true]
-			for startAtCenter in [DecisionTree.startAtCenter]
+			for initCondition in [DecisionTree.startAtCenter]
 				for test_operators in [[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq,
 																ModalLogic.TestOpGeq_60, ModalLogic.TestOpLeq_60,
 																ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70,
 																ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80,
 																ModalLogic.TestOpGeq_90, ModalLogic.TestOpLeq_90]]
-					for startAtCenter in [DecisionTree.startAtCenter]
-							selected_args
-							cur_args = selected_args
-							cur_kwargs = merge(kwargs, ())
-							testDataset(datasets[databatch*5+1], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
-							testDataset(datasets[databatch*5+2], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
-							testDataset(datasets[databatch*5+3], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
-							testDataset(datasets[databatch*5+4], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
-							testDataset(datasets[databatch*5+5], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
-					end
+						cur_args = selected_args
+						cur_kwargs = merge(kwargs, (
+							ontology = ontology,
+							useRelationAll = useRelationAll,
+							initCondition = startAtCenter,
+							test_operators = test_operators,
+							))
+						# testDataset(datasets[databatch*5+2], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+						# exit()
+						testDataset(datasets[databatch*5+1], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+						testDataset(datasets[databatch*5+2], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+						testDataset(datasets[databatch*5+3], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+						testDataset(datasets[databatch*5+4], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+						testDataset(datasets[databatch*5+5], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
 				end
 			end
 		end
