@@ -230,6 +230,8 @@ const TestOpGeq_90  = _TestOpGeqSoft((Rational(90,100)));
 const TestOpGeq_85  = _TestOpGeqSoft((Rational(85,100)));
 const TestOpGeq_80  = _TestOpGeqSoft((Rational(80,100)));
 const TestOpGeq_75  = _TestOpGeqSoft((Rational(75,100)));
+const TestOpGeq_70  = _TestOpGeqSoft((Rational(70,100)));
+const TestOpGeq_60  = _TestOpGeqSoft((Rational(60,100)));
 
 # <_α
 struct _TestOpLeqSoft  <: TestOperatorNegative
@@ -241,6 +243,8 @@ const TestOpLeq_90  = _TestOpLeqSoft((Rational(90,100)));
 const TestOpLeq_85  = _TestOpLeqSoft((Rational(85,100)));
 const TestOpLeq_80  = _TestOpLeqSoft((Rational(80,100)));
 const TestOpLeq_75  = _TestOpLeqSoft((Rational(75,100)));
+const TestOpLeq_70  = _TestOpLeqSoft((Rational(70,100)));
+const TestOpLeq_60  = _TestOpLeqSoft((Rational(60,100)));
 
 alpha(x::_TestOpGeqSoft) = x.alpha
 alpha(x::_TestOpLeqSoft) = x.alpha
@@ -278,6 +282,8 @@ const all_ordered_test_operators = [
 		TestOpGeq_80, TestOpLeq_80,
 		TestOpGeq_85, TestOpLeq_85,
 		TestOpGeq_75, TestOpLeq_75,
+		TestOpGeq_70, TestOpLeq_70,
+		TestOpGeq_60, TestOpLeq_60,
 	]
 const all_test_operators_order = [
 		TestOpGeq, TestOpLeq,
@@ -286,6 +292,8 @@ const all_test_operators_order = [
 		TestOpGeq_80, TestOpLeq_80,
 		TestOpGeq_85, TestOpLeq_85,
 		TestOpGeq_75, TestOpLeq_75,
+		TestOpGeq_70, TestOpLeq_70,
+		TestOpGeq_60, TestOpLeq_60,
 	]
 sort_test_operators!(x::Vector{TO}) where {TO<:TestOperator} = begin
 	intersect(all_test_operators_order, x)

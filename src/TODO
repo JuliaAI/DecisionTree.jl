@@ -5,12 +5,13 @@
 ✔	Add name of the labels to a dataset and confusion matrix. @done (21-03-15 12:14)
 ✔	Fix purity=-entropy and losses @done (21-03-15 14:55)
 ☐	Play with parameters:
-	- window size: [1x1, 3x3, 5x5, 3x3 flattened, 5x5 flattened]
-	- test operators: [<=,>=,and _6,_7,_8,_9]
 	- relation set: [RCC8, RCC5]
-	- Two datasets: PaviaU, Indian Pines
-	- initCondition: startAtCenter # Prossimamente: [startAtCenter, startWithRelationAll]
+	- Two datasets: [PaviaU, Indian Pines]
 	- useRelationAll: 0 # [0, 1]
+	- initCondition: startAtCenter # Prossimamente: [startAtCenter, startWithRelationAll]
+	- window size: [1x1, 3x3, 5x5, 3x3 flattened, 5x5 flattened]
+	- test operators fixed: [(<=,>=,and _6,_7,_8,_9)]
+	Fix these:
 	- loss = [entropy]
 	- min_samples_leaf = [2, 4, 6]
 	- min_purity_increase = [0.001, 0.005, 0.01, 0.05, 0.15, 0.25, 0.5]

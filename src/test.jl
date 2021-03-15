@@ -13,10 +13,12 @@ datasets = Tuple{String,Tuple{Tuple{Array,Vector},Tuple{Array,Vector},Vector{Str
 	("PaviaDataset, 1x1",                           traintestsplit(SampleLandCoverDataset(9*70,  1, "Pavia", rng = my_rng()),0.5)),
 	("PaviaDataset, 3x3 flattened",                 traintestsplit(SampleLandCoverDataset(9*70,  3, "Pavia", flattened = true, rng = my_rng()),0.5)),
 	("PaviaDataset, 3x3",                           traintestsplit(SampleLandCoverDataset(9*70,  3, "Pavia", rng = my_rng()),0.5)),
-	("IndianPinesCorrectedDataset, 1x1",            traintestsplit(SampleLandCoverDataset(16*40, 1, "IndianPinesCorrected", rng = my_rng()),0.5)),
-	("IndianPinesCorrectedDataset, 3x3 flattened",  traintestsplit(SampleLandCoverDataset(16*40, 3, flattened = true, "IndianPinesCorrected", rng = my_rng()),0.5)),
-	("IndianPinesCorrectedDataset, 3x3",            traintestsplit(SampleLandCoverDataset(16*40, 3, "IndianPinesCorrected", rng = my_rng()),0.5)),
+	("PaviaDataset, 5x5 flattened",                 traintestsplit(SampleLandCoverDataset(9*70,  5, "Pavia", flattened = true, rng = my_rng()),0.5)),
 	("PaviaDataset, 5x5",                           traintestsplit(SampleLandCoverDataset(9*70,  5, "Pavia", rng = my_rng()),0.5)),
+	("IndianPinesCorrectedDataset, 1x1",            traintestsplit(SampleLandCoverDataset(16*40, 1, "IndianPinesCorrected", rng = my_rng()),0.5)),
+	("IndianPinesCorrectedDataset, 3x3 flattened",  traintestsplit(SampleLandCoverDataset(16*40, 3, "IndianPinesCorrected", flattened = true, rng = my_rng()),0.5)),
+	("IndianPinesCorrectedDataset, 3x3",            traintestsplit(SampleLandCoverDataset(16*40, 3, "IndianPinesCorrected", rng = my_rng()),0.5)),
+	("IndianPinesCorrectedDataset, 5x5 flattened",  traintestsplit(SampleLandCoverDataset(16*40, 5, "IndianPinesCorrected", flattened = true, rng = my_rng()),0.5)),
 	("IndianPinesCorrectedDataset, 5x5",            traintestsplit(SampleLandCoverDataset(16*70, 5, "IndianPinesCorrected", rng = my_rng()),0.5)),
 	# ("PaviaDataset, 7x7",                           traintestsplit(SampleLandCoverDataset(9*70,  7, "Pavia", rng = my_rng()),0.5)),
 	# ("IndianPinesCorrectedDataset, 7x7",            traintestsplit(SampleLandCoverDataset(16*70, 7, "IndianPinesCorrected", rng = my_rng()),0.5)),
@@ -36,28 +38,28 @@ args = (
 
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 kwargs = (
-	initCondition=DecisionTree.startAtCenter,
-	# initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
-	# initCondition=DecisionTree.startWithRelationAll,
+	initCondition = DecisionTree.startAtCenter,
+	# initCondition = DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
+	# initCondition = DecisionTree.startWithRelationAll,
 	
-	# ontology=getIntervalOntologyOfDim(Val(2)),
-	# ontology=Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.RCC8Relations),Set([ModalLogic.Topo_PO]))),
-	# ontology=Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
-	ontology=getIntervalRCC8OntologyOfDim(Val(2)),
-	# ontology=getIntervalRCC5OntologyOfDim(Val(2)),
+	# ontology = getIntervalOntologyOfDim(Val(2)),
+	# ontology = Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.RCC8Relations),Set([ModalLogic.Topo_PO]))),
+	# ontology = Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
+	ontology = getIntervalRCC8OntologyOfDim(Val(2)),
+	# ontology = getIntervalRCC5OntologyOfDim(Val(2)),
 
 	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
 	useRelationId = true,
 	# useRelationId = false,
 	# useRelationAll = true,
 	useRelationAll = false,
-	# test_operators=[ModalLogic.TestOpGeq],
-	# test_operators=[ModalLogic.TestOpLeq],
-	test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
-	# test_operators=[ModalLogic.TestOpGeq_75, ModalLogic.TestOpLeq_75],
-	# test_operators=[ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
-	# test_operators=[ModalLogic.TestOpGeq_75],
+	# test_operators = [ModalLogic.TestOpGeq],
+	# test_operators = [ModalLogic.TestOpLeq],
+	test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
+	# test_operators = [ModalLogic.TestOpGeq_75, ModalLogic.TestOpLeq_75],
+	# test_operators = [ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
+	# test_operators = [ModalLogic.TestOpGeq_75],
 )
 # timeit = 2
 # timeit = 0
@@ -69,40 +71,74 @@ kwargs = (
 
 # exit()
 
-timeit = 0
+# timeit = 0
 
 # for databatch in [0,1]
-for databatch in [0,1]
-	for loss in [DecisionTree.util.entropy]
-		for min_samples_leaf in [1, 2, 4, 6]
-			for min_purity_increase in [0.01, 0.05]
-				for min_loss_at_leaf in [0.4, 0.45, 0.5, 0.55, 0.6]
+# 	for loss in [DecisionTree.util.entropy]
+# 		for min_samples_leaf in [1, 2, 4, 6]
+# 			for min_purity_increase in [0.01, 0.05]
+# 				for min_loss_at_leaf in [0.4, 0.45, 0.5, 0.55, 0.6]
+# 					cur_args = merge(args, (loss=loss,
+# 																	min_samples_leaf=min_samples_leaf,
+# 																	min_purity_increase=min_purity_increase,
+# 																	min_loss_at_leaf=min_loss_at_leaf,
+# 																	))
+# 					cur_kwargs = merge(kwargs, ())
+# 					testDataset(datasets[databatch*5+1], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+# 					# testDataset(datasets[databatch*3+2], timeit, debugging_level = Logging.Warn, args=args, kwargs=kwargs);
 
-					cur_args = merge(args, (loss=loss,
-																	min_samples_leaf=min_samples_leaf,
-																	min_purity_increase=min_purity_increase,
-																	min_loss_at_leaf=min_loss_at_leaf,
-																	))
-					cur_kwargs = merge(kwargs, ())
-					testDataset(datasets[databatch*3+1], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
-					# testDataset(datasets[databatch*3+2], timeit, debugging_level = Logging.Warn, args=args, kwargs=kwargs);
+# 				end
+# 			end
+# 		end
+# 	end
 
+# 	# relations = [ModalLogic.RCC8Relations, subsets(ModalLogic.RCC8Relations,1), subsets(ModalLogic.RCC8Relations,2)...]
+# 	# i_relation = 1
+# 	# while i_relation <= length(relations)
+# 		# relation = relations[i_relation]
+# 		# # relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
+# 		# println(relation)
+# 		# cur_kwargs = merge(kwargs, (ontology=Ontology(ModalLogic.Interval2D,relation),))
+# 		# T = testDataset(datasets[databatch*3+3], timeit, debugging_level = Logging.Warn, args=args, kwargs=cur_kwargs);
+# 		# println(T)
+# 		# i_relation+=1
+# 	# end
+# end
+
+loss = DecisionTree.util.entropy
+min_samples_leaf = 2
+min_purity_increase = 0.05
+min_loss_at_leaf = 0.55
+
+selected_args = merge(args, (loss=loss,
+															min_samples_leaf=min_samples_leaf,
+															min_purity_increase=min_purity_increase,
+															min_loss_at_leaf=min_loss_at_leaf,
+															))
+
+for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOfDim(Val(2))]
+	for databatch in [0,1]
+		for useRelationAll in [true]
+			for startAtCenter in [DecisionTree.startAtCenter]
+				for test_operators in [[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq,
+																ModalLogic.TestOpGeq_60, ModalLogic.TestOpLeq_60,
+																ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70,
+																ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80,
+																ModalLogic.TestOpGeq_90, ModalLogic.TestOpLeq_90]]
+					for startAtCenter in [DecisionTree.startAtCenter]
+							selected_args
+							cur_args = selected_args
+							cur_kwargs = merge(kwargs, ())
+							testDataset(datasets[databatch*5+1], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+							testDataset(datasets[databatch*5+2], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+							testDataset(datasets[databatch*5+3], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+							testDataset(datasets[databatch*5+4], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+							testDataset(datasets[databatch*5+5], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
+					end
 				end
 			end
 		end
 	end
-
-	# relations = [ModalLogic.RCC8Relations, subsets(ModalLogic.RCC8Relations,1), subsets(ModalLogic.RCC8Relations,2)...]
-	# i_relation = 1
-	# while i_relation <= length(relations)
-		# relation = relations[i_relation]
-		# # relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
-		# println(relation)
-		# cur_kwargs = merge(kwargs, (ontology=Ontology(ModalLogic.Interval2D,relation),))
-		# T = testDataset(datasets[databatch*3+3], timeit, debugging_level = Logging.Warn, args=args, kwargs=cur_kwargs);
-		# println(T)
-		# i_relation+=1
-	# end
 end
 
 exit()
