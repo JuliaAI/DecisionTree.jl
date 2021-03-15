@@ -294,7 +294,7 @@ module treeclassifier
 						@logmsg DTDebug "  (n_left,n_right) = ($nl,$nr)"
 
 						# Honor min_samples_leaf
-						if nl >= min_samples_leaf && n_instances - nl >= min_samples_leaf
+						if nl >= min_samples_leaf && (n_instances - nl) >= min_samples_leaf
 							unsplittable = false
 							# TODO figure out exactly what this purity is?
 							purity__nt = -(nl * loss_function(ncl, nl) +
@@ -434,6 +434,16 @@ module treeclassifier
 		elseif loss_function in [util.gini, util.zero_one] && (min_loss_at_leaf > 1.0 || min_loss_at_leaf <= 0.0)
 			throw("min_loss_at_leaf for loss $(loss_function) must be in (0,1]"
 				* "(given $(min_loss_at_leaf))")
+		elseif loss_function in [util.entropy]
+			min_loss_at_leaf_thresh = 0.75 # min_purity_increase 0.01
+			min_purity_increase_thresh = 0.5
+			if (min_loss_at_leaf >= min_loss_at_leaf_thresh)
+				println("Warning! It is advised to use min_loss_at_leaf<$(min_loss_at_leaf_thresh) with loss $(loss_function)"
+					* "(given $(min_loss_at_leaf))")
+			elseif (min_purity_increase >= min_purity_increase_thresh)
+				println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
+					* "(given $(min_purity_increase))")
+			end
 		end
 		# TODO check that X doesn't have nans, typemin(T), typemax(T), missings, nothing etc. ...
 	end
@@ -593,7 +603,6 @@ module treeclassifier
 			loss = util.entropy     :: Function,
 			max_depth               :: Int,
 			min_samples_leaf        :: Int,
-			min_samples_split       :: Int,
 			min_purity_increase     :: AbstractFloat,
 			min_loss_at_leaf        :: AbstractFloat, # TODO add this to scikit's interface.
 			initCondition           :: DecisionTree._initCondition,
@@ -607,8 +616,6 @@ module treeclassifier
 
 		# Translate labels to categorical form
 		labels, Y_ = util.assign(Y)
-
-		min_samples_leaf = min(min_samples_leaf, div(min_samples_split, 2))
 
 		# Use unary weights if no weight is supplied
 		if W == nothing

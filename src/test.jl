@@ -74,9 +74,9 @@ timeit = 0
 # for databatch in [0,1]
 for databatch in [0,1]
 	for loss in [DecisionTree.util.entropy]
-		for min_samples_leaf in [2, 4, 6]
-			for min_purity_increase in [0.001, 0.005, 0.01, 0.05, 0.15, 0.5]
-				for min_loss_at_leaf in [0.15, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
+		for min_samples_leaf in [1, 2, 4, 6]
+			for min_purity_increase in [0.01, 0.05]
+				for min_loss_at_leaf in [0.4, 0.45, 0.5, 0.55, 0.6]
 
 					cur_args = merge(args, (loss=loss,
 																	min_samples_leaf=min_samples_leaf,
