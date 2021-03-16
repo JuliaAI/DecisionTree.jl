@@ -120,7 +120,7 @@ module treeclassifier
 		nt = sum(nc)
 		node.label = argmax(nc) # Assign the most likely label before the split
 
-		@logmsg DTOverview "node purity min_loss_at_leaf " loss_function(nc, nt) min_loss_at_leaf
+		# @logmsg DTOverview "node purity min_loss_at_leaf " loss_function(nc, nt) min_loss_at_leaf
 
 		@logmsg DTDebug "_split!(...) " n_instances region nt
 
@@ -231,6 +231,7 @@ module treeclassifier
 							[firstWorld]
 						end
 					for w in worlds
+						# TODO maybe read the specific value of Sogliole referred to the test_operator?
 						sogl = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
 						@logmsg DTDetail " Sogl" w sogl
 						for (i_test_operator,test_operator) in enumerate(test_operators) # TODO use correct indexing for test_operators
@@ -318,7 +319,7 @@ module treeclassifier
 			end # for relation
 		end # for feature
 
-		@logmsg DTOverview "purity increase" best_purity__nt/nt loss_function(nc, nt) (best_purity__nt/nt + loss_function(nc, nt)) (best_purity__nt/nt - loss_function(nc, nt))
+		# @logmsg DTOverview "purity increase" best_purity__nt/nt loss_function(nc, nt) (best_purity__nt/nt + loss_function(nc, nt)) (best_purity__nt/nt - loss_function(nc, nt))
 		# If the split is good, partition and split according to the optimum
 		@inbounds if (unsplittable
 			|| (best_purity__nt/nt + loss_function(nc, nt) <= min_purity_increase)
@@ -368,6 +369,7 @@ module treeclassifier
 
 			if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 				errStr = "Something's wrong with the optimization steps.\n"
+				errStr *= "Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
 				if length(unique(unsatisfied_flags)) == 1
 					errStr *= "Uninformative split.\n$(unsatisfied_flags)\n"
 				end

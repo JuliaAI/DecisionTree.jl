@@ -135,8 +135,8 @@ for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOf
 							initCondition = startAtCenter,
 							test_operators = test_operators,
 							))
-						# testDataset(datasets[databatch*5+2], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
-						# exit()
+						testDataset(datasets[databatch*5+3], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+						exit()
 						testDataset(datasets[databatch*5+1], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
 						testDataset(datasets[databatch*5+2], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
 						testDataset(datasets[databatch*5+3], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
