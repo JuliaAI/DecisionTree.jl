@@ -123,11 +123,15 @@ for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOf
 	for databatch in [0,1]
 		for useRelationAll in [true]
 			for initCondition in [DecisionTree.startAtCenter]
-				for test_operators in [[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq,
-																ModalLogic.TestOpGeq_60, ModalLogic.TestOpLeq_60,
-																ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70,
-																ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80,
-																ModalLogic.TestOpGeq_90, ModalLogic.TestOpLeq_90]]
+				for test_operators in [
+						# [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq,
+						# 	ModalLogic.TestOpGeq_60, ModalLogic.TestOpLeq_60,
+						# 	ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70,
+						# 	ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80,
+						# 	ModalLogic.TestOpGeq_90, ModalLogic.TestOpLeq_90],
+						# [ModalLogic.TestOpLeq_90,ModalLogic.TestOpLeq_80],
+						[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+																]
 						cur_args = selected_args
 						cur_kwargs = merge(kwargs, (
 							ontology = ontology,
@@ -135,8 +139,9 @@ for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOf
 							initCondition = startAtCenter,
 							test_operators = test_operators,
 							))
-						# testDataset(datasets[databatch*5+2], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
-						# exit()
+						# testDataset(("PaviaDataset, 3x3", traintestsplit(SampleLandCoverDataset(9*30,  3, "Pavia", n_variables = 10, rng = my_rng()),0.8)), timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+						testDataset(datasets[databatch*5+3], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+						exit()
 						testDataset(datasets[databatch*5+1], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
 						testDataset(datasets[databatch*5+2], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);
 						testDataset(datasets[databatch*5+3], timeit, debugging_level = Logging.Warn, args=cur_args, kwargs=cur_kwargs);

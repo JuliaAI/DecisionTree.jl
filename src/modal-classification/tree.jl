@@ -97,9 +97,9 @@ module treeclassifier
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							Sf                  :: AbstractVector{WorldSet{WorldType}},
-							# Sogliole            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,NTuple{NTO,T}}}}},
-							# Sogliole            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
-							Sogliole            :: AbstractArray{NTuple{NTO,T},L},
+							# Gammas            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,NTuple{NTO,T}}}}},
+							# Gammas            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
+							Gammas            :: AbstractArray{NTuple{NTO,T},L},
 							# TODO Ef                  :: AbstractArray{T},
 							
 							rng                 :: Random.AbstractRNG,
@@ -120,7 +120,7 @@ module treeclassifier
 		nt = sum(nc)
 		node.label = argmax(nc) # Assign the most likely label before the split
 
-		@logmsg DTOverview "node purity min_loss_at_leaf " loss_function(nc, nt) min_loss_at_leaf
+		# @logmsg DTOverview "node purity min_loss_at_leaf " loss_function(nc, nt) min_loss_at_leaf
 
 		@logmsg DTDebug "_split!(...) " n_instances region nt
 
@@ -223,7 +223,7 @@ module treeclassifier
 				# TODO optimize this!!
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 				for i in 1:n_instances
-					# TODO slice Sogliole in Sogliolef?
+					# TODO slice Gammas in Gammasf?
 					@logmsg DTDetail " Instance $(i)/$(n_instances)" indX[i + r_start]
 					worlds = if (relation != ModalLogic.RelationAll)
 							Sf[i]
@@ -231,20 +231,21 @@ module treeclassifier
 							[firstWorld]
 						end
 					for w in worlds
-						sogl = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
-						@logmsg DTDetail " Sogl" w sogl
+						# TODO maybe read the specific value of Gammas referred to the test_operator?
+						cur_gammas = readGammas(Gammas, w, indX[i + r_start], relation_id, feature)
+						@logmsg DTDetail " cur_gammas" w cur_gammas
 						for (i_test_operator,test_operator) in enumerate(test_operators) # TODO use correct indexing for test_operators
 							# if relation == ModalLogic.Topo_TPP println("world ", w) end
 							# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
-							# (w_opGeqMaxThresh,w_opLesMinThresh) = readSogliole(Sogliole, w, indX[i + r_start], relation_id, feature)
+							# (w_opGeqMaxThresh,w_opLesMinThresh) = readGammas(Gammas, w, indX[i + r_start], relation_id, feature)
 							# @logmsg DTDetail "w_opGeqMaxThresh,w_opLesMinThresh " w w_opGeqMaxThresh w_opLesMinThresh
 							# opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
 							# opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
 
 							# opExtremeThreshArr,optimizer = ModalLogic.polarity(test_operator) ? (opGeqMaxThresh,max) : (opLesMinThresh,min)
-							# opExtremeThreshArr[i] = optimizer(opExtremeThreshArr[i], sogl[i_test_operator])
+							# opExtremeThreshArr[i] = optimizer(opExtremeThreshArr[i], cur_gammas[i_test_operator])
 
-							thresholds[i_test_operator,i] = ModalLogic.opt(test_operator)(thresholds[i_test_operator,i], sogl[i_test_operator])
+							thresholds[i_test_operator,i] = ModalLogic.opt(test_operator)(thresholds[i_test_operator,i], cur_gammas[i_test_operator])
 						end
 						# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh ", opGeqMaxThresh[i]) end
 						# if relation == ModalLogic.Topo_TPP println("opLesMinThresh ", opLesMinThresh[i]) end
@@ -318,7 +319,7 @@ module treeclassifier
 			end # for relation
 		end # for feature
 
-		@logmsg DTOverview "purity increase" best_purity__nt/nt loss_function(nc, nt) (best_purity__nt/nt + loss_function(nc, nt)) (best_purity__nt/nt - loss_function(nc, nt))
+		# @logmsg DTOverview "purity increase" best_purity__nt/nt loss_function(nc, nt) (best_purity__nt/nt + loss_function(nc, nt)) (best_purity__nt/nt - loss_function(nc, nt))
 		# If the split is good, partition and split according to the optimum
 		@inbounds if (unsplittable
 			|| (best_purity__nt/nt + loss_function(nc, nt) <= min_purity_increase)
@@ -360,19 +361,20 @@ module treeclassifier
 			end
 
 			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
-			# for i in 1:n_instances
-				# println("$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])")
-			# end
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
 			if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 				errStr = "Something's wrong with the optimization steps.\n"
+				errStr *= "Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
 				if length(unique(unsatisfied_flags)) == 1
 					errStr *= "Uninformative split.\n$(unsatisfied_flags)\n"
 				end
 				if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags)
 					errStr *= "Different unsatisfied and best_unsatisfied:\ncomputed: $(best_unsatisfied)\n$(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
+				end
+				for i in 1:n_instances
+					errStr *= "$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])\n";
 				end
 				throw(Base.ErrorException(errStr))
 			end
@@ -543,18 +545,18 @@ module treeclassifier
 		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
 		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )
 
-		# Calculate Sogliole
+		# Calculate Gammas
 		# TODO expand for generic test operators
-		# TODO test with array-only Sogliole = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
-		# TODO try something like Sogliole = fill(No: Dict{X.ontology.worldType,NTuple{NTO,T}}(), n_instances, n_variables(X))
+		# TODO test with array-only Gammas = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
+		# TODO try something like Gammas = fill(No: Dict{X.ontology.worldType,NTuple{NTO,T}}(), n_instances, n_variables(X))
 		
 		# TODO improve code leveraging world/dimensional dataset structure
 
-		# Sogliole = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,NTuple{NTO,T}}}}}(undef, n_variables(X))
+		# Gammas = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,NTuple{NTO,T}}}}}(undef, n_variables(X))
 		
 		# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
-		Sogliole = computeSogliole(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-		# Sogliole = @btime computeSogliole($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
+		Gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+		# Gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)
@@ -575,7 +577,7 @@ module treeclassifier
 				min_purity_increase,
 				test_operators,
 				indX,
-				nc, ncl, ncr, Xf, Yf, Wf, Sf, Sogliole,
+				nc, ncl, ncr, Xf, Yf, Wf, Sf, Gammas,
 				rng,
 				relationSet,
 				(onlyUseRelationAll ? [relationAll_id] : allAvailableRelation_ids)

@@ -220,6 +220,9 @@ dual_test_operator(::_TestOpLeq) = TestOpGeq
 primary_test_operator(x::_TestOpGeq) = TestOpGeq # x
 primary_test_operator(x::_TestOpLeq) = TestOpGeq # dual_test_operator(x)
 
+siblings(::_TestOpGeq) = []
+siblings(::_TestOpLeq) = []
+
 # >=_α
 struct _TestOpGeqSoft  <: TestOperatorPositive
   alpha :: AbstractFloat
@@ -249,51 +252,34 @@ const TestOpLeq_60  = _TestOpLeqSoft((Rational(60,100)));
 alpha(x::_TestOpGeqSoft) = x.alpha
 alpha(x::_TestOpLeqSoft) = x.alpha
 
-dual_test_operator(x::_TestOpGeqSoft) = _TestOpLeqSoft(1-alpha(x))
-dual_test_operator(x::_TestOpLeqSoft) = _TestOpGeqSoft(1-alpha(x))
+dual_test_operator(x::_TestOpGeqSoft) = TestOpNone
+dual_test_operator(x::_TestOpLeqSoft) = TestOpNone
+# TODO fix
+# dual_test_operator(x::_TestOpGeqSoft) = error("If you use $(x), need to write WExtremaModal for the primal test operator.")
+# dual_test_operator(x::_TestOpLeqSoft) = error("If you use $(x), need to write WExtremaModal for the primal test operator.")
 
 primary_test_operator(x::_TestOpGeqSoft) = x
 primary_test_operator(x::_TestOpLeqSoft) = dual_test_operator(x)
 
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(95,100)}}) = TestOpLeq_95
-# dual_test_operator(::_TestOpLeqSoft{Val{Rational(95,100)}}) = TestOpGeq_95
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(90,100)}}) = TestOpLeq_90
-# dual_test_operator(::_TestOpLeqSoft{Val{Rational(90,100)}}) = TestOpGeq_90
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(80,100)}}) = TestOpLeq_80
-# dual_test_operator(::_TestOpLeqSoft{Val{Rational(80,100)}}) = TestOpGeq_80
-# ...
-# dual_test_operator(::_TestOpGeqSoft{Val{Rational(75,100)}}) = TestOpLeq_75
-# dual_test_operator(::_TestOpLeqSoft{Val{Rational(75,100)}}) = TestOpGeq_75
+const SoftenedOperators = [
+											TestOpGeq_95, TestOpLeq_95,
+											TestOpGeq_90, TestOpLeq_90,
+											TestOpGeq_80, TestOpLeq_80,
+											TestOpGeq_85, TestOpLeq_85,
+											TestOpGeq_75, TestOpLeq_75,
+											TestOpGeq_70, TestOpLeq_70,
+											TestOpGeq_60, TestOpLeq_60,
+										]
 
-
-# alpha(::_TestOpGeqSoft{Val{Rational(95,100)}}) = Rational(95,100)
-# alpha(::_TestOpLeqSoft{Val{Rational(95,100)}}) = Rational(95,100)
-# alpha(::_TestOpGeqSoft{Val{Rational(90,100)}}) = Rational(90,100)
-# alpha(::_TestOpLeqSoft{Val{Rational(90,100)}}) = Rational(90,100)
-# alpha(::_TestOpGeqSoft{Val{Rational(80,100)}}) = Rational(80,100)
-# alpha(::_TestOpLeqSoft{Val{Rational(80,100)}}) = Rational(80,100)
-# alpha(::_TestOpGeqSoft{Val{Rational(75,100)}}) = Rational(75,100)
-# alpha(::_TestOpLeqSoft{Val{Rational(75,100)}}) = Rational(75,100)
+siblings(x::Union{_TestOpGeqSoft,_TestOpLeqSoft}) = SoftenedOperators
 
 const all_ordered_test_operators = [
 		TestOpGeq, TestOpLeq,
-		TestOpGeq_95, TestOpLeq_95,
-		TestOpGeq_90, TestOpLeq_90,
-		TestOpGeq_80, TestOpLeq_80,
-		TestOpGeq_85, TestOpLeq_85,
-		TestOpGeq_75, TestOpLeq_75,
-		TestOpGeq_70, TestOpLeq_70,
-		TestOpGeq_60, TestOpLeq_60,
+		SoftenedOperators...
 	]
 const all_test_operators_order = [
 		TestOpGeq, TestOpLeq,
-		TestOpGeq_95, TestOpLeq_95,
-		TestOpGeq_90, TestOpLeq_90,
-		TestOpGeq_80, TestOpLeq_80,
-		TestOpGeq_85, TestOpLeq_85,
-		TestOpGeq_75, TestOpLeq_75,
-		TestOpGeq_70, TestOpLeq_70,
-		TestOpGeq_60, TestOpLeq_60,
+		SoftenedOperators...
 	]
 sort_test_operators!(x::Vector{TO}) where {TO<:TestOperator} = begin
 	intersect(all_test_operators_order, x)
@@ -340,19 +326,26 @@ end
 
 # TODO improved version for Rational numbers
 # TODO check
-@inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
-	vals = vec(readWorld(w,channel))
-	xmin = partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)); rev=true)
-	xmax = partialsort!(vals,ceil(Int, (1-alpha(test_op))*length(vals)))
-	xmin,xmax
-end
-@inline WExtreme(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
-	vals = vec(readWorld(w,channel))
+@inline test_op_partialsort!(test_op::_TestOpGeqSoft, vals::Vector{T}) where {T} = 
 	partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)); rev=true)
-end
-@inline WExtreme(test_op::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline test_op_partialsort!(test_op::_TestOpLeqSoft, vals::Vector{T}) where {T} = 
+	partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)))
+
+# TODO think about this:
+# @inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+# 	vals = vec(readWorld(w,channel))
+# 	xmin = test_op_partialsort!(test_op,vec(readWorld(w,channel)))
+# 	xmin = partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)); rev=true)
+# 	xmax = partialsort!(vals,ceil(Int, (alpha(test_op))*length(vals)))
+# 	xmin,xmax
+# end
+@inline WExtreme(test_op::Union{_TestOpGeqSoft,_TestOpLeqSoft}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	partialsort!(vals,ceil(Int, (1-alpha(test_op))*length(vals)))
+	test_op_partialsort!(test_op,vals)
+end
+@inline WExtremeMany(test_ops::Vector{<:Union{_TestOpGeqSoft,_TestOpLeqSoft}}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+	vals = vec(readWorld(w,channel))
+	[test_op_partialsort!(test_op,vals) for test_op in test_ops]
 end
 
 WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
@@ -381,6 +374,10 @@ WExtremeModal(test_operator::TestOperatorNegative, w::WorldType, relation::Abstr
 		v = min(v,e)
 	end
 	v
+end
+
+WExtremeModalMany(test_ops::Vector{<:ModalLogic.TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	[WExtremeModal(test_op, w, relation, channel) for test_op in test_ops]
 end
 
 # TODO remove
