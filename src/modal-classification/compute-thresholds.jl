@@ -1,35 +1,35 @@
 	
-	# readSogliole: read a specific value of the Sogliole array
+	# readGammas: read a specific value of the Gammas array
 
-	@inline function readSogliole(
-		Sogliole            :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
+	@inline function readGammas(
+		Gammas            :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
 		w::AbstractWorld,
 		i::Integer,
 		relation_id::Integer,
 		feature::Integer) where {NTO,T,WorldType<:AbstractWorld}
-		return Sogliole[i, relation_id, feature][w]
+		return Gammas[i, relation_id, feature][w]
 	end
 
-	@inline function readSogliole(
-		Sogliole            :: AbstractArray{NTuple{NTO,T},N},
+	@inline function readGammas(
+		Gammas            :: AbstractArray{NTuple{NTO,T},N},
 		w::ModalLogic.Interval2D,
 		i::Integer,
 		relation_id::Integer,
 		feature::Integer) where {N,NTO,T}
-		return Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
+		return Gammas[w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
 	end
 
-	@inline function readSogliole(
-		Sogliole            :: AbstractArray{NTuple{NTO,T},N},
+	@inline function readGammas(
+		Gammas            :: AbstractArray{NTuple{NTO,T},N},
 		test_operator_id::Integer,
 		w::ModalLogic.Interval2D,
 		i::Integer,
 		relation_id::Integer,
 		feature::Integer) where {N,NTO,T}
-		return Sogliole[test_operator_id, w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
+		return Gammas[test_operator_id, w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
 	end
 
-	# function computeSogliole(
+	# function computeGammas(
 	# 		X                  :: OntologicalDataset{T, N},
 	# 		worldType          :: Type{WorldType},
 	# 		# test_operators     :: AbstractVector{<:ModalLogic.TestOperator},
@@ -39,7 +39,7 @@
 	# 	) where {T, N, WorldType<:AbstractWorld}
 	# 	n_instances = n_samples(X)
 	# 	n_vars = n_variables(X)
-	# 	Sogliole = Array{Dict{X.ontology.worldType,NTuple{NTO,T}}, 3}(undef, n_instances, length(relationSet), n_vars)
+	# 	Gammas = Array{Dict{X.ontology.worldType,NTuple{NTO,T}}, 3}(undef, n_instances, length(relationSet), n_vars)
 	# 	@inbounds for feature in 1:n_vars
 	# 		println("feature $(feature)/$(n_vars)")
 			
@@ -50,12 +50,12 @@
 
 	# 			# Propositional, local
 	# 			relation_id = relationId_id
-	# 			Sogliole[i,relation_id,feature] = Dict{X.ontology.worldType,NTuple{NTO,T}}()
+	# 			Gammas[i,relation_id,feature] = Dict{X.ontology.worldType,NTuple{NTO,T}}()
 	# 			@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
 	# 			for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
 	# 				# opGeqMaxThresh, opLesMinThresh = ModalLogic.WMin(w, channel), ModalLogic.WMax(w, channel)
 	# 				opGeqMaxThresh, opLesMinThresh = ModalLogic.WExtrema(w, channel)
-	# 				Sogliole[i,relation_id,feature][w] = (opGeqMaxThresh, opLesMinThresh)
+	# 				Gammas[i,relation_id,feature][w] = (opGeqMaxThresh, opLesMinThresh)
 	# 			end
 
 	# 			# Modal
@@ -63,30 +63,30 @@
 	# 				relation = relationSet[relation_id]
 	# 				# println("relation $(relation)")
 	# 				# @info "Relation " relation_id relation
-	# 				Sogliole[i,relation_id,feature] = Dict{X.ontology.worldType,NTuple{NTO,T}}()
+	# 				Gammas[i,relation_id,feature] = Dict{X.ontology.worldType,NTuple{NTO,T}}()
 	# 				# For each world w and each relation R, compute the peaks of v worlds, with w<R>v
 	# 				for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
 	# 					# @info "World " w 
 	# 					opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
 	# 					for v in ModalLogic.enumAccRepr(w, relation, channel)
 	# 					# for v in ModalLogic.enumAcc([w], relation, channel)
-	# 						(v_opGeqMaxThresh, v_opLesMinThresh) = Sogliole[i,relationId_id,feature][v]
+	# 						(v_opGeqMaxThresh, v_opLesMinThresh) = Gammas[i,relationId_id,feature][v]
 	# 						# @info "  ->World " v v_opGeqMaxThresh v_opLesMinThresh
 	# 						opGeqMaxThresh = max(opGeqMaxThresh, v_opGeqMaxThresh)
 	# 						opLesMinThresh = min(opLesMinThresh, v_opLesMinThresh)
 	# 					end # worlds
 	# 					@info "World " relation_id relation w opGeqMaxThresh opLesMinThresh
-	# 					Sogliole[i,relation_id,feature][w] = (opGeqMaxThresh, opLesMinThresh)
+	# 					Gammas[i,relation_id,feature][w] = (opGeqMaxThresh, opLesMinThresh)
 	# 				end
 	# 			end # relation
 
 	# 		end # instances
 	# 	end # feature
-	# 	@info "Done." Sogliole[:,[1,relation_ids...],:]
-	# 	Sogliole
+	# 	@info "Done." Gammas[:,[1,relation_ids...],:]
+	# 	Gammas
 	# end
 
-	function computeSogliole(
+	function computeGammas(
 			X                  :: OntologicalDataset{T, N},
 			worldType          :: Type{ModalLogic.Interval2D},
 			test_operators     :: AbstractVector{<:ModalLogic.TestOperator},
@@ -98,31 +98,46 @@
 		n_vars = n_variables(X)
 		x,y = channel_size(X)
 
-		# Prepare Sogliole array
-		Sogliole = Array{NTuple{length(test_operators),T}, 7}(undef, x, x+1, y, y+1, n_instances, length(relationSet), n_vars)
-		@logmsg DTDebug "Computing Sogliole for Interval2D datasets..." size(X) n_instances n_vars x y test_operators relationSet relationId_id relation_ids size(Sogliole)
+		# Prepare Gammas array
+		Gammas = Array{NTuple{length(test_operators),T}, 7}(undef, x, x+1, y, y+1, n_instances, length(relationSet), n_vars)
+		@logmsg DTDebug "Computing Gammas for Interval2D datasets..." size(X) n_instances n_vars x y test_operators relationSet relationId_id relation_ids size(Gammas)
 
 		firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 
 		# With sorted test_operators
-		actual_test_operators = Tuple{Bool,ModalLogic.TestOperator}[]
-		nonprimary_test_operators = ModalLogic.TestOperator[]
-		for i_test_operator in 1:length(test_operators)
+		actual_test_operators = Tuple{Integer,Union{<:ModalLogic.TestOperator,Vector{<:ModalLogic.TestOperator}}}[]
+		already_inserted_test_operators = ModalLogic.TestOperator[]
+		i_test_operator = 1
+		while i_test_operator <= length(test_operators)
 			test_operator = test_operators[i_test_operator]
+			# println(i_test_operator, test_operators[i_test_operator])
 			# @logmsg DTDebug "" test_operator
 			# readline()
-			if test_operator in nonprimary_test_operators
+			if test_operator in already_inserted_test_operators
 				# Skip test_operator
-			elseif length(test_operators) >= i_test_operator+1 && ModalLogic.dual_test_operator(test_operator) == test_operators[i_test_operator+1]
-				push!(actual_test_operators, (true,ModalLogic.primary_test_operator(test_operator)))
-				push!(nonprimary_test_operators,test_operators[i_test_operator+1])
+			elseif length(test_operators) >= i_test_operator+1 && ModalLogic.dual_test_operator(test_operator) != ModalLogic.TestOpNone && ModalLogic.dual_test_operator(test_operator) == test_operators[i_test_operator+1]
+				push!(actual_test_operators, (1,ModalLogic.primary_test_operator(test_operator))) # "prim/dual"
+				push!(already_inserted_test_operators,test_operators[i_test_operator+1])
 			else
-				push!(actual_test_operators, (false,test_operator))
+				siblings_present = intersect(test_operators,ModalLogic.siblings(test_operator))
+				if length(siblings_present) > 1
+					# TODO test if this is actually better
+					push!(actual_test_operators, (2,siblings_present)) # "batch"
+					for sibling in siblings_present
+						push!(already_inserted_test_operators,sibling)
+					end
+				else
+					push!(actual_test_operators, (0,test_operator)) # "single"
+				end
 			end
+			i_test_operator+=1
 		end
 		
-		@inline WExtremaModal(test_operator::ModalLogic.TestOperator, SoglId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
-			# TODO use SoglId[w.x.x, w.x.y, w.y.x, w.y.y]...?
+		# print(actual_test_operators)
+		# readline()
+
+		@inline WExtremaModal(test_operator::ModalLogic.TestOperator, GammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+			# TODO use GammasId[w.x.x, w.x.y, w.y.x, w.y.y]...?
 			ModalLogic.WExtremaModal(test_operator, w, relation, channel)
 
 			# TODO fix this
@@ -143,12 +158,12 @@
 			# return (opGeqMaxThresh, opLesMinThresh)
 		end
 
-		@inline WExtremeModal(test_operator::ModalLogic.TestOperator, SoglId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+		@inline WExtremeModal(test_operator::ModalLogic.TestOperator, GammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 			ModalLogic.WExtremeModal(test_operator, w, relation, channel)
 		# 	# TODO fix this
 		# 	accrepr = ModalLogic.enumAccRepr(test_operator, w, relation, channel)
 			
-		# 	# TODO use SoglId[w.x.x, w.x.y, w.y.x, w.y.y]
+		# 	# TODO use GammasId[w.x.x, w.x.y, w.y.x, w.y.y]
 		# 	# accrepr::Tuple{Bool,AbstractWorldSet{<:AbstractWorld}}
 		# 	inverted, representatives = accrepr
 		# 	TODO inverted...
@@ -162,6 +177,11 @@
 		# 		opExtremeThresh = optimizer(opExtremeThresh, _wextreme)
 		# 	end
 		# 	return opExtremeThresh
+		end
+
+		@inline WExtremeModalMany(test_operators::Vector{<:Union{ModalLogic._TestOpGeqSoft,ModalLogic._TestOpLeqSoft}}, GammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+			# TODO use GammasId[w.x.x, w.x.y, w.y.x, w.y.y]...?
+			ModalLogic.WExtremeModalMany(test_operators, w, relation, channel)
 		end
 
 		@inbounds for feature in 1:n_vars
@@ -182,23 +202,27 @@
 					@logmsg DTDetail "World" w
 					thresholds = T[]
 					# thresholds = similar(test_operators, T)
-					for (both,test_operator) in actual_test_operators
-						thresholds = if both
-								[thresholds..., ModalLogic.WExtrema(test_operator, w, channel)...]
-							else
+					for (mode,test_operator) in actual_test_operators
+						thresholds = if mode == 0
 								[thresholds..., ModalLogic.WExtreme(test_operator, w, channel)]
+							elseif mode == 1
+								[thresholds..., ModalLogic.WExtrema(test_operator, w, channel)...]
+							elseif mode == 2
+								[thresholds..., ModalLogic.WExtremeMany(test_operator, w, channel)...]
+							else
+								error("Unexpected mode flag for test_operator $(test_operator): $(mode)\n$(test_operators)")
 							end
 					end
 					# TODO make the tuple part of the array.
-					Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i,relationId_id,feature] = Tuple(thresholds)
+					Gammas[w.x.x, w.x.y, w.y.x, w.y.y, i,relationId_id,feature] = Tuple(thresholds)
 				end # world
 
-				@views SoglId = Sogliole[:,:,:,:, i,relationId_id,feature]
+				@views GammasId = Gammas[:,:,:,:, i,relationId_id,feature]
 				# Modal
 				for relation_id in relation_ids
 					relation = relationSet[relation_id]
 					@logmsg DTDebug "Relation $(relation) (id: $(relation_id))" # "/$(length(relation_ids))"
-					@views Sogl = Sogliole[:,:,:,:, i,relation_id,feature]
+					@views GammasRel = Gammas[:,:,:,:, i,relation_id,feature]
 					# For each world w and each relation, compute the thresholds of all v worlds, with w<R>v
 					worlds = if relation != ModalLogic.RelationAll
 							ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
@@ -208,33 +232,38 @@
 					for w in worlds
 						thresholds  = Vector{T}(undef, length(test_operators))
 
-						# TODO use SoglId
+						# TODO use GammasId
 						t=1
-						for (both,test_operator) in actual_test_operators
-							if both
-								thresholds[t:t+1] .= WExtremaModal(test_operator, SoglId, w, relation, channel)
-								t+=2
-							else
-								thresholds[t] = WExtremeModal(test_operator, SoglId, w, relation, channel)
+						for (mode,test_operator) in actual_test_operators
+							if mode == 0
+								thresholds[t] = WExtremeModal(test_operator, GammasId, w, relation, channel)
 								t+=1
+							elseif mode == 1
+								thresholds[t:t+1] .= WExtremaModal(test_operator, GammasId, w, relation, channel)
+								t+=2
+							elseif mode == 2
+								thresholds[t:t+length(test_operator)-1] .= WExtremeModalMany(test_operator, GammasId, w, relation, channel)
+								t+=length(test_operator)
+							else
+								error("Unexpected mode flag for test_operator $(test_operator): $(mode)\n$(test_operators)")
 							end
 						end
 						thresholds = Tuple(thresholds)
 
-						# Quale e' piu' veloce? TODO use SoglId in Wextrema?
+						# Quale e' piu' veloce? TODO use GammasId in Wextrema?
 						# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.WExtremaRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "Wextrema different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
 
 						@logmsg DTDetail "World" w relation thresholds
-						Sogl[w.x.x, w.x.y, w.y.x, w.y.y] = thresholds
+						GammasRel[w.x.x, w.x.y, w.y.x, w.y.y] = thresholds
 					end # world
 				end # relation
 
 				# w = firstWorld
-				# println(Sogliole[w.x.x, w.x.y, w.y.x, w.y.y, i,2,feature])
+				# println(Gammas[w.x.x, w.x.y, w.y.x, w.y.y, i,2,feature])
 				# readline()
 
 			end # instances
 		end # feature
-		@logmsg DTDebug "Done computing Sogliole" # Sogliole[:,[1,relation_ids...],:]
-		Sogliole
+		@logmsg DTDebug "Done computing Gammas" # Gammas[:,[1,relation_ids...],:]
+		Gammas
 	end
