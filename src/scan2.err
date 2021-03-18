@@ -1,0 +1,60 @@
+┌ Warning: Package DecisionTree does not have Logging in its dependencies:
+│ - If you have DecisionTree checked out for development and have
+│   added Logging as a dependency but haven't updated your primary
+│   environment's manifest file, try `Pkg.resolve()`.
+│ - Otherwise you may need to report an issue with DecisionTree
+└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.
+┌ Warning: Package DecisionTree does not have Logging in its dependencies:
+│ - If you have DecisionTree checked out for development and have
+│   added Logging as a dependency but haven't updated your primary
+│   environment's manifest file, try `Pkg.resolve()`.
+│ - Otherwise you may need to report an issue with DecisionTree
+└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.
+┌ Warning: Package DecisionTree does not have Logging in its dependencies:
+│ - If you have DecisionTree checked out for development and have
+│   added Logging as a dependency but haven't updated your primary
+│   environment's manifest file, try `Pkg.resolve()`.
+│ - Otherwise you may need to report an issue with DecisionTree
+└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.
+ Activating environment at `~/.julia/dev/DecisionTree/Project.toml`
+ERROR: LoadError: Something's wrong with the optimization steps.
+Different unsatisfied and best_unsatisfied:
+computed: [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1]
+27
+actual: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1]
+14
+
+Stacktrace:
+ [1] _split!(::OntologicalDataset{Int64,2,4}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Array{DecisionTree.ModalLogic.Interval2D,1},1}, ::typeof(DecisionTree.util.entropy), ::DecisionTree.treeclassifier.NodeMeta{Int64}, ::Int64, ::Int64, ::Float64, ::Float64, ::Array{DecisionTree.ModalLogic.TestOperator,1}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Int64,3}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Array{DecisionTree.ModalLogic.Interval2D,1},1}, ::Array{NTuple{10,Int64},7}, ::Random.MersenneTwister, ::Array{AbstractRelation,1}, ::Array{Int64,1}) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/tree.jl:377
+ [2] _fit(::OntologicalDataset{Int64,2,4}, ::Array{Int64,1}, ::Array{Int64,1}, ::Function, ::Int64, ::Int64, ::Int64, ::Float64, ::Float64, ::DecisionTree._startAtCenter, ::Bool, ::Bool, ::Array{DecisionTree.ModalLogic.TestOperator,1}, ::Random.MersenneTwister) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/tree.jl:569
+ [3] fit(; X::OntologicalDataset{Int64,2,4}, Y::Array{Int64,1}, W::Nothing, loss::Function, max_depth::Int64, min_samples_leaf::Int64, min_purity_increase::Float64, min_loss_at_leaf::Float64, initCondition::DecisionTree._startAtCenter, useRelationAll::Bool, useRelationId::Bool, test_operators::Array{DecisionTree.ModalLogic.TestOperator,1}, rng::Random.MersenneTwister) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/tree.jl:639
+ [4] build_tree(::Array{Int64,1}, ::Array{Int64,4}; loss::Function, max_depth::Int64, min_samples_leaf::Int64, min_purity_increase::Float64, min_loss_at_leaf::Float64, initCondition::DecisionTree._startAtCenter, useRelationAll::Bool, useRelationId::Bool, ontology::Ontology, test_operators::Array{DecisionTree.ModalLogic.TestOperator,1}, rng::Random.MersenneTwister) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/main.jl:91
+ [5] (::var"#go#21"{Array{Any,1},NamedTuple{(:loss, :min_samples_leaf, :min_purity_increase, :min_loss_at_leaf),Tuple{typeof(DecisionTree.util.entropy),Int64,Float64,Float64}},NamedTuple{(:initCondition, :ontology, :useRelationId, :useRelationAll, :test_operators),Tuple{DecisionTree._startAtCenter,Ontology,Bool,Bool,Array{DecisionTree.ModalLogic.TestOperator,1}}},Int64,String,Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1},Array{String,1}})() at /home/gpagliarini/.julia/dev/DecisionTree/src/test-header.jl:40
+ [6] testDataset(::Tuple{String,Tuple{Tuple{Array{Int64,4},Array{Int64,1}},Tuple{Array{Int64,4},Array{Int64,1}},Array{String,1}}}, ::Int64; debugging_level::Base.CoreLogging.LogLevel, post_pruning_purity_thresholds::Array{Any,1}, args::NamedTuple{(:loss, :min_samples_leaf, :min_purity_increase, :min_loss_at_leaf),Tuple{typeof(DecisionTree.util.entropy),Int64,Float64,Float64}}, kwargs::NamedTuple{(:initCondition, :ontology, :useRelationId, :useRelationAll, :test_operators),Tuple{DecisionTree._startAtCenter,Ontology,Bool,Bool,Array{DecisionTree.ModalLogic.TestOperator,1}}}, error_catching::Bool) at /home/gpagliarini/.julia/dev/DecisionTree/src/test-header.jl:85
+ [7] top-level scope at /home/gpagliarini/.julia/dev/DecisionTree/src/test.jl:142
+ [8] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [9] include(::Module, ::String) at ./Base.jl:368
+ [10] exec_options(::Base.JLOptions) at ./client.jl:296
+ [11] _start() at ./client.jl:506
+in expression starting at /home/gpagliarini/.julia/dev/DecisionTree/src/test.jl:122
+ Activating environment at `~/.julia/dev/DecisionTree/Project.toml`
+ERROR: LoadError: Something's wrong with the optimization steps.
+Different unsatisfied and best_unsatisfied:
+computed: [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1]
+27
+actual: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1]
+14
+
+Stacktrace:
+ [1] _split!(::OntologicalDataset{Int64,2,4}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Array{DecisionTree.ModalLogic.Interval2D,1},1}, ::typeof(DecisionTree.util.entropy), ::DecisionTree.treeclassifier.NodeMeta{Int64}, ::Int64, ::Int64, ::Float64, ::Float64, ::Array{DecisionTree.ModalLogic.TestOperator,1}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Int64,3}, ::Array{Int64,1}, ::Array{Int64,1}, ::Array{Array{DecisionTree.ModalLogic.Interval2D,1},1}, ::Array{NTuple{10,Int64},7}, ::Random.MersenneTwister, ::Array{AbstractRelation,1}, ::Array{Int64,1}) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/tree.jl:377
+ [2] _fit(::OntologicalDataset{Int64,2,4}, ::Array{Int64,1}, ::Array{Int64,1}, ::Function, ::Int64, ::Int64, ::Int64, ::Float64, ::Float64, ::DecisionTree._startAtCenter, ::Bool, ::Bool, ::Array{DecisionTree.ModalLogic.TestOperator,1}, ::Random.MersenneTwister) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/tree.jl:569
+ [3] fit(; X::OntologicalDataset{Int64,2,4}, Y::Array{Int64,1}, W::Nothing, loss::Function, max_depth::Int64, min_samples_leaf::Int64, min_purity_increase::Float64, min_loss_at_leaf::Float64, initCondition::DecisionTree._startAtCenter, useRelationAll::Bool, useRelationId::Bool, test_operators::Array{DecisionTree.ModalLogic.TestOperator,1}, rng::Random.MersenneTwister) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/tree.jl:639
+ [4] build_tree(::Array{Int64,1}, ::Array{Int64,4}; loss::Function, max_depth::Int64, min_samples_leaf::Int64, min_purity_increase::Float64, min_loss_at_leaf::Float64, initCondition::DecisionTree._startAtCenter, useRelationAll::Bool, useRelationId::Bool, ontology::Ontology, test_operators::Array{DecisionTree.ModalLogic.TestOperator,1}, rng::Random.MersenneTwister) at /home/gpagliarini/.julia/dev/DecisionTree/src/modal-classification/main.jl:91
+ [5] (::var"#go#21"{Array{Any,1},NamedTuple{(:loss, :min_samples_leaf, :min_purity_increase, :min_loss_at_leaf),Tuple{typeof(DecisionTree.util.entropy),Int64,Float64,Float64}},NamedTuple{(:initCondition, :ontology, :useRelationId, :useRelationAll, :test_operators),Tuple{DecisionTree._startAtCenter,Ontology,Bool,Bool,Array{DecisionTree.ModalLogic.TestOperator,1}}},Int64,String,Array{Int64,4},Array{Int64,1},Array{Int64,4},Array{Int64,1},Array{String,1}})() at /home/gpagliarini/.julia/dev/DecisionTree/src/test-header.jl:40
+ [6] testDataset(::Tuple{String,Tuple{Tuple{Array{Int64,4},Array{Int64,1}},Tuple{Array{Int64,4},Array{Int64,1}},Array{String,1}}}, ::Int64; debugging_level::Base.CoreLogging.LogLevel, post_pruning_purity_thresholds::Array{Any,1}, args::NamedTuple{(:loss, :min_samples_leaf, :min_purity_increase, :min_loss_at_leaf),Tuple{typeof(DecisionTree.util.entropy),Int64,Float64,Float64}}, kwargs::NamedTuple{(:initCondition, :ontology, :useRelationId, :useRelationAll, :test_operators),Tuple{DecisionTree._startAtCenter,Ontology,Bool,Bool,Array{DecisionTree.ModalLogic.TestOperator,1}}}, error_catching::Bool) at /home/gpagliarini/.julia/dev/DecisionTree/src/test-header.jl:85
+ [7] top-level scope at /home/gpagliarini/.julia/dev/DecisionTree/src/test.jl:142
+ [8] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [9] include(::Module, ::String) at ./Base.jl:368
+ [10] exec_options(::Base.JLOptions) at ./client.jl:296
+ [11] _start() at ./client.jl:506
+in expression starting at /home/gpagliarini/.julia/dev/DecisionTree/src/test.jl:122

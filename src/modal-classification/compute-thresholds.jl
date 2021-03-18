@@ -179,7 +179,7 @@
 		# 	return opExtremeThresh
 		end
 
-		@inline WExtremeModalMany(test_operators::Vector{<:Union{ModalLogic._TestOpGeqSoft,ModalLogic._TestOpLeqSoft}}, GammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+		@inline WExtremeModalMany(test_operators::Vector{<:ModalLogic.TestOperator}, GammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 			# TODO use GammasId[w.x.x, w.x.y, w.y.x, w.y.y]...?
 			ModalLogic.WExtremeModalMany(test_operators, w, relation, channel)
 		end

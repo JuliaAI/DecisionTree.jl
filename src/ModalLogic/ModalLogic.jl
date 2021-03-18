@@ -353,7 +353,7 @@ end
 	vals = vec(readWorld(w,channel))
 	test_op_partialsort!(test_op,vals)
 end
-@inline WExtremeMany(test_ops::Vector{<:Union{_TestOpGeqSoft,_TestOpLeqSoft}}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline WExtremeMany(test_ops::Vector{<:TestOperator}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
 	[test_op_partialsort!(test_op,vals) for test_op in test_ops]
 end

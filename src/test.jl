@@ -59,7 +59,8 @@ rng_i = DecisionTree.mk_rng(124)
 # exit()
 
 timeit = 0
-log_level = Logging.Warn
+log_level = DecisionTree.DTOverview
+# log_level = Logging.Warn
 
 n_instances = 500
 

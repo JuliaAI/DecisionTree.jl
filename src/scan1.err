@@ -1,0 +1,876 @@
+┌ Warning: Package DecisionTree does not have Logging in its dependencies:
+│ - If you have DecisionTree checked out for development and have
+│   added Logging as a dependency but haven't updated your primary
+│   environment's manifest file, try `Pkg.resolve()`.
+│ - Otherwise you may need to report an issue with DecisionTree
+└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.
+ Activating environment at `~/.julia/dev/DecisionTree/Project.toml`
+ERROR: LoadError: UndefVarError: timeit not defined
+Stacktrace:
+ [1] top-level scope at /home/gpagliarini/.julia/dev/DecisionTree/src/test.jl:132
+ [2] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [3] include(::Module, ::String) at ./Base.jl:368
+ [4] exec_options(::Base.JLOptions) at ./client.jl:296
+ [5] _start() at ./client.jl:506
+in expression starting at /home/gpagliarini/.julia/dev/DecisionTree/src/test.jl:119
+┌ Warning: Package DecisionTree does not have Logging in its dependencies:
+│ - If you have DecisionTree checked out for development and have
+│   added Logging as a dependency but haven't updated your primary
+│   environment's manifest file, try `Pkg.resolve()`.
+│ - Otherwise you may need to report an issue with DecisionTree
+└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.
+Benchmarking dataset 'PaviaDataset, 1x1'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 315, 103)
+Decision Tree
+Leaves: 24
+Tot nodes: 47
+Height: 10
+Modal height:  0
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V9 ⫺ 919
+✔ V99 ⫺ 1693
+│✔ V11 ⫺ 1867
+││✔ 5 : 35/37
+││✘ V82 ⫺ 2270
+││ ✔ 6 : 8/9
+││ ✘ V15 ⫺ 1451
+││  ✔ 8 : 21/22
+││  ✘ V3 ⫺ 1270
+││   ✔ 3 : 11/12
+││   ✘ V94 ⫺ 2057
+││    ✔ 3 : 5/5
+││    ✘ V83 ⫺ 1801
+││     ✔ V20 ⫺ 1498
+││     │✔ V10 ⫺ 1350
+││     ││✔ 8 : 1/2
+││     ││✘ 3 : 2/2
+││     │✘ 8 : 11/11
+││     ✘ V70 ⫺ 1739
+││      ✔ 3 : 6/6
+││      ✘ 8 : 2/2
+│✘ V93 ⫺ 1353
+│ ✔ V85 ⫺ 1537
+│ │✔ V21 ⫺ 1309
+│ ││✔ V1 ⫺ 1073
+│ │││✔ V5 ⫺ 1312
+│ ││││✔ 3 : 2/2
+│ ││││✘ 7 : 6/6
+│ │││✘ 1 : 5/5
+│ ││✘ 3 : 7/7
+│ │✘ 7 : 29/34
+│ ✘ 1 : 17/17
+✘ V78 ⫺ 1293
+ ✔ V60 ⫺ 476
+ │✔ V14 ⫺ 850
+ ││✔ 2 : 7/9
+ ││✘ V21 ⫺ 447
+ ││ ✔ V93 ⫺ 2319
+ ││ │✔ V31 ⫺ 1158
+ ││ ││✔ 6 : 7/7
+ ││ ││✘ V79 ⫺ 2652
+ ││ ││ ✔ 6 : 3/3
+ ││ ││ ✘ 2 : 13/15
+ ││ │✘ 6 : 14/16
+ ││ ✘ 2 : 10/10
+ │✘ 4 : 33/37
+ ✘ 9 : 35/39
+ test size = (1, 1, 315, 103)
+ Purity threshold 1.0
+RESULT:	PaviaDataset, 1x1	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	73.97%	70.71%
+ 20  1  2  0  0  1  4  2  5  57.14%		Asphalt
+  0 17  1  6  0 11  0  0  0  48.57%		Meadows
+  0  1 22  0  0  0  3  9  0  62.86%		Gravel
+  0  1  0 31  0  3  0  0  0  88.57%		Trees
+  0  0  0  0 35  0  0  0  0  100.0%		Painted metal sheets
+  0 14  0  0  0 21  0  0  0  60.0%		Bare Soil
+  6  0  1  0  0  0 28  0  0  80.0%		Bitumen
+  0  0  8  0  0  3  0 24  0  68.57%		Self-Blocking Bricks
+  0  0  0  0  0  0  0  0 35  100.0%		Shadows
+Benchmarking dataset 'PaviaDataset, 3x3 flattened'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 315, 927)
+Decision Tree
+Leaves: 1
+Tot nodes: 1
+Height: 0
+Modal height:  0
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+7 : 35/315
+ test size = (1, 1, 315, 927)
+ Purity threshold 1.0
+RESULT:	PaviaDataset, 3x3 flattened	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	11.11%	0.0%
+  0  0  0  0  0  0 35  0  0  0.0%		Asphalt
+  0  0  0  0  0  0 35  0  0  0.0%		Meadows
+  0  0  0  0  0  0 35  0  0  0.0%		Gravel
+  0  0  0  0  0  0 35  0  0  0.0%		Trees
+  0  0  0  0  0  0 35  0  0  0.0%		Painted metal sheets
+  0  0  0  0  0  0 35  0  0  0.0%		Bare Soil
+  0  0  0  0  0  0 35  0  0  100.0%		Bitumen
+  0  0  0  0  0  0 35  0  0  0.0%		Self-Blocking Bricks
+  0  0  0  0  0  0 35  0  0  0.0%		Shadows
+Benchmarking dataset 'PaviaDataset, 3x3'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 315, 103)
+Decision Tree
+Leaves: 18
+Tot nodes: 35
+Height: 7
+Modal height:  5
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V11 ⫺ 834
+✔ ⟨EC⟩ (V103 ⫹ 1539)
+│✔ V66 ⫹ 1214
+││✔ 1 : 27/29
+││✘ ⟨EC⟩ (V18 ⫺ 1340)
+││ ✔ 7 : 34/37
+││ ✘ V1 ⫹ 941
+││  ✔ 3 : 5/5
+││  ✘ 1 : 2/2
+│✘ ⟨EC⟩ (V1 ⫺ 2700)
+│ ✔ 5 : 34/34
+│ ✘ ⟨T̅P̅P̅⟩ (V103 ⫺ 2236)
+│  ✔ ⟨PO⟩ (V76 ⫺ 2435)
+│  │✔ 6 : 11/11
+│  │✘ 2 : 2/3
+│  ✘ ⟨T̅P̅P̅⟩ (V20 ⫹ 1508)
+│   ✔ ⟨TPP⟩ (V2 ⫺ 1303)
+│   │✔ 3 : 22/24
+│   │✘ 8 : 7/9
+│   ✘ ⟨EC⟩ (V52 ⫺ 2223)
+│    ✔ V1 ⫺ 1582
+│    │✔ 3 : 5/5
+│    │✘ 8 : 1/2
+│    ✘ 8 : 25/27
+✘ ⟨EC⟩ (V69 ⫹ 776)
+ ✔ ⟨PO⟩ (V69 ⫹ 269)
+ │✔ 9 : 35/35
+ │✘ 4 : 32/32
+ ✘ ⟨EC⟩ (V94 ⫹ 2470)
+  ✔ V4 ⫺ 721
+  │✔ 2 : 8/10
+  │✘ 6 : 20/23
+  ✘ ⟨N̅T̅P̅P̅⟩ (V74 ⫹ 2640)
+   ✔ 2 : 22/24
+   ✘ 4 : 3/3
+ test size = (3, 3, 315, 103)
+ Purity threshold 1.0
+RESULT:	PaviaDataset, 3x3	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	73.97%	70.71%
+ 27  2  2  0  0  0  3  1  0  77.14%		Asphalt
+  0 19  0  1  0 15  0  0  0  54.29%		Meadows
+  1  0 22  0  0  0  3  9  0  62.86%		Gravel
+  0  3  0 31  0  0  0  0  1  88.57%		Trees
+  0  2  0  0 31  0  2  0  0  88.57%		Painted metal sheets
+  0 15  0  0  0 20  0  0  0  57.14%		Bare Soil
+  0  0  2  0  0  0 33  0  0  94.29%		Bitumen
+  0  2 14  0  0  0  0 19  0  54.29%		Self-Blocking Bricks
+  1  0  0  3  0  0  0  0 31  88.57%		Shadows
+Benchmarking dataset 'PaviaDataset, 5x5 flattened'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 315, 2575)
+Decision Tree
+Leaves: 1
+Tot nodes: 1
+Height: 0
+Modal height:  0
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+7 : 35/315
+ test size = (1, 1, 315, 2575)
+ Purity threshold 1.0
+RESULT:	PaviaDataset, 5x5 flattened	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	11.11%	0.0%
+  0  0  0  0  0  0 35  0  0  0.0%		Asphalt
+  0  0  0  0  0  0 35  0  0  0.0%		Meadows
+  0  0  0  0  0  0 35  0  0  0.0%		Gravel
+  0  0  0  0  0  0 35  0  0  0.0%		Trees
+  0  0  0  0  0  0 35  0  0  0.0%		Painted metal sheets
+  0  0  0  0  0  0 35  0  0  0.0%		Bare Soil
+  0  0  0  0  0  0 35  0  0  100.0%		Bitumen
+  0  0  0  0  0  0 35  0  0  0.0%		Self-Blocking Bricks
+  0  0  0  0  0  0 35  0  0  0.0%		Shadows
+Benchmarking dataset 'PaviaDataset, 5x5'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (5, 5, 315, 103)
+Decision Tree
+Leaves: 18
+Tot nodes: 35
+Height: 7
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V14 ⫺ 970
+✔ ⟨EC⟩ (V1 ⫺ 2523)
+│✔ 5 : 35/35
+│✘ ⟨EC⟩ (V103 ⫹ 1541)
+│ ✔ ⟨N̅T̅P̅P̅⟩ (V20 ⫺ 1252)
+│ │✔ 7 : 32/32
+│ │✘ ⟨DC⟩ (V32 ⫹ 793)
+│ │ ✔ ⟨DC⟩ (V3 ⫺ 1361)
+│ │ │✔ ⟨DC⟩ (V1 ⫺ 1704)
+│ │ ││✔ 3 : 1/2
+│ │ ││✘ 8 : 2/2
+│ │ │✘ 7 : 3/3
+│ │ ✘ 1 : 25/29
+│ ✘ ⟨EC⟩ (V73 ⫺ 2445)
+│  ✔ 6 : 9/9
+│  ✘ V15 ⫺ 1446
+│   ✔ 8 : 21/24
+│   ✘ ⟨DC⟩ (V14 ⫹ 1140)
+│    ✔ ⟨EC⟩ (V4 ⫺ 1374)
+│    │✔ 3 : 8/9
+│    │✘ 8 : 9/11
+│    ✘ 3 : 19/19
+✘ ⟨DC⟩ (V66 ⫹ 331)
+ ✔ ⟨PO⟩ (V75 ⫹ 348)
+ │✔ 9 : 35/35
+ │✘ 4 : 35/35
+ ✘ ⟨EC⟩ (V78 ⫹ 1400)
+  ✔ 1 : 7/9
+  ✘ ⟨DC⟩ (V102 ⫹ 2384)
+   ✔ V83 ⫺ 2338
+   │✔ 6 : 14/14
+   │✘ ⟨EC⟩ (V8 ⫹ 443)
+   │ ✔ 6 : 10/13
+   │ ✘ 2 : 7/7
+   ✘ 2 : 25/27
+ test size = (5, 5, 315, 103)
+ Purity threshold 1.0
+RESULT:	PaviaDataset, 5x5	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	80.32%	77.86%
+ 32  0  0  0  0  0  2  1  0  91.43%		Asphalt
+  0 26  0  0  0  9  0  0  0  74.29%		Meadows
+  8  0 16  0  0  0  0 11  0  45.71%		Gravel
+  0  4  0 28  0  2  0  0  1  80.0%		Trees
+  0  0  0  0 32  0  1  2  0  91.43%		Painted metal sheets
+  1  4  0  0  0 29  0  1  0  82.86%		Bare Soil
+  5  0  1  0  0  0 28  1  0  80.0%		Bitumen
+  0  0  4  0  0  0  0 31  0  88.57%		Self-Blocking Bricks
+  0  0  0  4  0  0  0  0 31  88.57%		Shadows
+Benchmarking dataset 'IndianPinesCorrectedDataset, 1x1'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 320, 200)
+Decision Tree
+Leaves: 40
+Tot nodes: 79
+Height: 9
+Modal height:  0
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V159 ⫺ 1289
+✔ V4 ⫺ 4879
+│✔ 16 : 19/19
+│✘ V74 ⫺ 4090
+│ ✔ V6 ⫺ 5511
+│ │✔ V106 ⫺ 1127
+│ ││✔ 2 : 5/5
+│ ││✘ V1 ⫺ 3675
+│ ││ ✔ 12 : 2/2
+│ ││ ✘ 3 : 5/5
+│ │✘ V196 ⫺ 1071
+│ │ ✔ 4 : 12/14
+│ │ ✘ 12 : 2/3
+│ ✘ V141 ⫺ 1427
+│  ✔ V105 ⫺ 1072
+│  │✔ V103 ⫺ 1096
+│  ││✔ V3 ⫺ 4497
+│  │││✔ V83 ⫺ 3171
+│  ││││✔ V8 ⫺ 5403
+│  │││││✔ 11 : 2/2
+│  │││││✘ 2 : 3/3
+│  ││││✘ V36 ⫺ 4807
+│  ││││ ✔ 3 : 2/2
+│  ││││ ✘ 10 : 4/4
+│  │││✘ 11 : 10/11
+│  ││✘ V61 ⫺ 3253
+│  ││ ✔ V1 ⫺ 2776
+│  ││ │✔ 11 : 1/2
+│  ││ │✘ 11 : 2/2
+│  ││ ✘ V2 ⫺ 4261
+│  ││  ✔ V75 ⫺ 2730
+│  ││  │✔ 12 : 4/4
+│  ││  │✘ 10 : 2/2
+│  ││  ✘ 10 : 3/3
+│  │✘ V57 ⫺ 3257
+│  │ ✔ 10 : 8/10
+│  │ ✘ 2 : 7/8
+│  ✘ V8 ⫺ 4996
+│   ✔ V193 ⫺ 1093
+│   │✔ 3 : 10/10
+│   │✘ 2 : 1/3
+│   ✘ V42 ⫺ 5281
+│    ✔ V1 ⫺ 2757
+│    │✔ 11 : 3/3
+│    │✘ 4 : 5/5
+│    ✘ V144 ⫺ 1048
+│     ✔ 10 : 2/3
+│     ✘ V30 ⫺ 2735
+│      ✔ 12 : 10/11
+│      ✘ 11 : 1/2
+✘ V116 ⫺ 1964
+ ✔ V79 ⫺ 1932
+ │✔ V6 ⫺ 4798
+ ││✔ V103 ⫺ 1105
+ │││✔ 8 : 14/17
+ │││✘ V9 ⫺ 4736
+ │││ ✔ 7 : 4/4
+ │││ ✘ 8 : 5/5
+ ││✘ 1 : 17/18
+ │✘ 7 : 16/17
+ ✘ V33 ⫺ 2826
+  ✔ V36 ⫺ 4050
+  │✔ V186 ⫺ 1083
+  ││✔ 9 : 19/22
+  ││✘ V199 ⫺ 1010
+  ││ ✔ V7 ⫺ 4513
+  ││ │✔ 15 : 10/11
+  ││ │✘ 6 : 4/4
+  ││ ✘ 6 : 15/16
+  │✘ V2 ⫺ 4111
+  │ ✔ 4 : 2/3
+  │ ✘ 13 : 20/21
+  ✘ V29 ⫺ 2324
+   ✔ V85 ⫺ 2916
+   │✔ 5 : 16/17
+   │✘ V1 ⫺ 3317
+   │ ✔ 14 : 1/2
+   │ ✘ 15 : 2/2
+   ✘ 14 : 18/23
+ test size = (1, 1, 320, 200)
+ Purity threshold 1.0
+RESULT:	IndianPinesCorrectedDataset, 1x1	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	60.31%	57.67%
+ 19  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  95.0%		Alfalfa
+  0  9  0  0  0  0  0  0  0  3  3  5  0  0  0  0  45.0%		Corn-notill
+  0  4  7  2  0  0  0  0  0  2  3  2  0  0  0  0  35.0%		Corn-mintill
+  0  2  1 11  0  0  0  0  0  2  0  3  0  0  0  1  55.0%		Corn
+  0  0  0  0 18  0  1  0  0  0  0  0  0  1  0  0  90.0%		Grass-pasture
+  0  0  0  0  0 17  0  0  1  0  0  0  0  0  2  0  85.0%		Grass-trees
+  0  0  0  0  0  0 20  0  0  0  0  0  0  0  0  0  100.0%		Grass-pasture-mowed
+  4  0  0  0  0  0  5  6  0  0  0  5  0  0  0  0  30.0%		Hay-windrowed
+  0  0  0  0  2  0  0  0 16  0  0  0  0  0  2  0  80.0%		Oats
+  0  4  1  0  0  0  1  0  0  7  6  1  0  0  0  0  35.0%		Soybean-notill
+  0  2  2  0  1  0  0  0  0  7  6  2  0  0  0  0  30.0%		Soybean-mintill
+  0  2  3  3  0  0  0  0  0  3  2  5  2  0  0  0  25.0%		Soybean-clean
+  0  0  0  0  0  0  0  0  0  0  0  0 19  1  0  0  95.0%		Wheat
+  0  0  0  0  4  0  0  0  0  0  0  0  0 15  1  0  75.0%		Woods
+  0  0  0  1  5  0  0  0  0  0  0  0  2  4  8  0  40.0%		Buildings-Grass-Trees-Drives
+  0  3  0  0  0  0  3  0  4  0  0  0  0  0  0 10  50.0%		Stone-Steel-Towers
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3 flattened'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 320, 1800)
+Decision Tree
+Leaves: 90
+Tot nodes: 179
+Height: 11
+Modal height:  0
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V178 ⫺ 2813
+✔ V253 ⫺ 3265
+│✔ V714 ⫺ 1885
+││✔ V1697 ⫺ 1087
+│││✔ V30 ⫺ 4112
+││││✔ 8 : 5/5
+││││✘ V5 ⫺ 3327
+││││ ✔ 9 : 4/4
+││││ ✘ 11 : 1/2
+│││✘ V80 ⫺ 4858
+│││ ✔ V21 ⫺ 4403
+│││ │✔ V1 ⫺ 2761
+│││ ││✔ 11 : 1/2
+│││ ││✘ 2 : 2/2
+│││ │✘ 3 : 4/4
+│││ ✘ V366 ⫺ 5722
+│││  ✔ V329 ⫺ 5186
+│││  │✔ 6 : 5/5
+│││  │✘ 7 : 4/4
+│││  ✘ V10 ⫺ 4373
+│││   ✔ 5 : 2/2
+│││   ✘ 4 : 3/3
+││✘ V882 ⫺ 2601
+││ ✔ V736 ⫺ 2742
+││ │✔ V674 ⫺ 2791
+││ ││✔ V930 ⫺ 1042
+││ │││✔ V1205 ⫺ 1458
+││ ││││✔ V826 ⫺ 2928
+││ │││││✔ V1308 ⫺ 1050
+││ ││││││✔ 11 : 3/3
+││ ││││││✘ 12 : 9/9
+││ │││││✘ V37 ⫺ 4817
+││ │││││ ✔ 11 : 5/5
+││ │││││ ✘ V1 ⫺ 3715
+││ │││││  ✔ 9 : 2/2
+││ │││││  ✘ 10 : 2/2
+││ ││││✘ V1 ⫺ 3696
+││ ││││ ✔ 7 : 1/2
+││ ││││ ✘ 7 : 2/2
+││ │││✘ V774 ⫺ 2912
+││ │││ ✔ V743 ⫺ 2988
+││ │││ │✔ 9 : 6/7
+││ │││ │✘ 8 : 5/6
+││ │││ ✘ V19 ⫺ 4386
+││ │││  ✔ 10 : 8/9
+││ │││  ✘ 2 : 1/2
+││ ││✘ V748 ⫺ 3123
+││ ││ ✔ V4 ⫺ 2986
+││ ││ │✔ V2 ⫺ 3170
+││ ││ ││✔ 14 : 1/2
+││ ││ ││✘ 12 : 2/2
+││ ││ │✘ 11 : 3/3
+││ ││ ✘ V801 ⫺ 3105
+││ ││  ✔ 13 : 4/4
+││ ││  ✘ V11 ⫺ 4147
+││ ││   ✔ 3 : 2/2
+││ ││   ✘ 10 : 3/3
+││ │✘ V1101 ⫺ 1985
+││ │ ✔ V440 ⫺ 5867
+││ │ │✔ V5 ⫺ 2990
+││ │ ││✔ 13 : 2/3
+││ │ ││✘ 10 : 2/3
+││ │ │✘ V6 ⫺ 2760
+││ │ │ ✔ 12 : 4/4
+││ │ │ ✘ 2 : 1/2
+││ │ ✘ V117 ⫺ 4889
+││ │  ✔ V3 ⫺ 2742
+││ │  │✔ 16 : 4/4
+││ │  │✘ 14 : 2/2
+││ │  ✘ V7 ⫺ 3324
+││ │   ✔ 13 : 3/3
+││ │   ✘ 15 : 2/3
+││ ✘ V693 ⫺ 1716
+││  ✔ V198 ⫺ 3257
+││  │✔ V4 ⫺ 3202
+││  ││✔ 15 : 3/3
+││  ││✘ 1 : 2/3
+││  │✘ V2 ⫺ 2767
+││  │ ✔ 14 : 3/3
+││  │ ✘ 12 : 2/2
+││  ✘ V243 ⫺ 2839
+││   ✔ V8 ⫺ 3025
+││   │✔ 13 : 4/4
+││   │✘ 14 : 2/3
+││   ✘ V16 ⫺ 3881
+││    ✔ 16 : 6/6
+││    ✘ V8 ⫺ 2997
+││     ✔ 3 : 2/3
+││     ✘ 13 : 2/2
+│✘ V622 ⫺ 4583
+│ ✔ V1308 ⫺ 1028
+│ │✔ V89 ⫺ 4494
+│ ││✔ V1196 ⫺ 1890
+│ │││✔ V394 ⫺ 5235
+│ ││││✔ V43 ⫺ 4906
+│ │││││✔ 8 : 6/6
+│ │││││✘ V2 ⫺ 3322
+│ │││││ ✔ 8 : 2/2
+│ │││││ ✘ 7 : 6/6
+│ ││││✘ 9 : 3/3
+│ │││✘ V538 ⫺ 2726
+│ │││ ✔ V3 ⫺ 2731
+│ │││ │✔ 9 : 3/3
+│ │││ │✘ 8 : 2/2
+│ │││ ✘ V940 ⫺ 1062
+│ │││  ✔ V670 ⫺ 2747
+│ │││  │✔ 11 : 4/4
+│ │││  │✘ 12 : 3/3
+│ │││  ✘ 10 : 4/4
+│ ││✘ V13 ⫺ 4509
+│ ││ ✔ 7 : 2/2
+│ ││ ✘ 6 : 5/5
+│ │✘ V121 ⫺ 4142
+│ │ ✔ V227 ⫺ 3137
+│ │ │✔ V21 ⫺ 4137
+│ │ ││✔ V1 ⫺ 3194
+│ │ │││✔ 7 : 1/2
+│ │ │││✘ 7 : 2/2
+│ │ ││✘ 2 : 4/4
+│ │ │✘ V4 ⫺ 3012
+│ │ │ ✔ 3 : 4/5
+│ │ │ ✘ 13 : 4/5
+│ │ ✘ V909 ⫺ 1825
+│ │  ✔ V954 ⫺ 1099
+│ │  │✔ V3 ⫺ 3183
+│ │  ││✔ 3 : 2/3
+│ │  ││✘ V1 ⫺ 2607
+│ │  ││ ✔ 4 : 2/2
+│ │  ││ ✘ 16 : 1/2
+│ │  │✘ V1794 ⫺ 1004
+│ │  │ ✔ 5 : 5/6
+│ │  │ ✘ 6 : 6/7
+│ │  ✘ V816 ⫺ 3031
+│ │   ✔ 1 : 4/4
+│ │   ✘ V3 ⫺ 3168
+│ │    ✔ 2 : 2/2
+│ │    ✘ 4 : 2/2
+│ ✘ V1149 ⫺ 1998
+│  ✔ V254 ⫺ 2900
+│  │✔ V945 ⫺ 1046
+│  ││✔ V338 ⫺ 5579
+│  │││✔ 1 : 4/4
+│  │││✘ 4 : 4/4
+│  ││✘ V3 ⫺ 2765
+│  ││ ✔ 3 : 3/3
+│  ││ ✘ 2 : 4/4
+│  │✘ V7 ⫺ 3196
+│  │ ✔ V1 ⫺ 3177
+│  │ │✔ 4 : 2/2
+│  │ │✘ 6 : 2/2
+│  │ ✘ 5 : 4/5
+│  ✘ V543 ⫺ 3273
+│   ✔ V6 ⫺ 3148
+│   │✔ 16 : 3/3
+│   │✘ 1 : 4/4
+│   ✘ V782 ⫺ 2896
+│    ✔ V4 ⫺ 2759
+│    │✔ 14 : 5/5
+│    │✘ 15 : 6/7
+│    ✘ V19 ⫺ 4106
+│     ✔ 2 : 1/3
+│     ✘ 16 : 3/3
+✘ V823 ⫺ 3024
+ ✔ V273 ⫺ 3808
+ │✔ V242 ⫺ 2907
+ ││✔ 2 : 4/5
+ ││✘ V2 ⫺ 2579
+ ││ ✔ 5 : 5/5
+ ││ ✘ 6 : 1/2
+ │✘ V3 ⫺ 3002
+ │ ✔ 4 : 3/3
+ │ ✘ 1 : 5/5
+ ✘ V25 ⫺ 3941
+  ✔ V545 ⫺ 3256
+  │✔ V1 ⫺ 3316
+  ││✔ 5 : 1/2
+  ││✘ 14 : 2/2
+  │✘ 15 : 6/7
+  ✘ 16 : 2/3
+ test size = (1, 1, 320, 1800)
+ Purity threshold 1.0
+RESULT:	IndianPinesCorrectedDataset, 3x3 flattened	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	15.62%	10.0%
+  3  0  1  3  2  1  0  1  0  2  0  2  1  0  0  4  15.0%		Alfalfa
+  2  1  3  0  3  4  2  0  0  0  1  2  0  1  0  1  5.0%		Corn-notill
+  3  3  0  2  4  1  1  1  0  1  0  0  1  1  1  1  0.0%		Corn-mintill
+  3  1  0  2  2  2  0  1  1  0  0  1  2  3  1  1  10.0%		Corn
+  1  0  3  3  3  5  0  0  0  1  1  0  2  0  1  0  15.0%		Grass-pasture
+  1  0  0  3  4  7  1  0  0  0  1  0  1  0  1  1  35.0%		Grass-trees
+  1  1  2  1  0  6  1  2  1  1  2  1  0  1  0  0  5.0%		Grass-pasture-mowed
+  0  0  3  0  0  3  0  6  3  1  0  0  2  2  0  0  30.0%		Hay-windrowed
+  0  2  0  0  0  1  1  3  2  1  2  1  4  3  0  0  10.0%		Oats
+  0  0  2  0  0  0  0  2  5  3  4  2  1  0  1  0  15.0%		Soybean-notill
+  0  0  2  0  0  0  0  2  1  2  4  4  3  1  0  1  20.0%		Soybean-mintill
+  1  1  0  0  0  0  0  3  2  1  2  5  2  2  0  1  25.0%		Soybean-clean
+  0  0  1  2  1  0  0  1  1  0  1  3  4  1  2  3  20.0%		Wheat
+  0  2  0  2  0  0  0  0  1  2  0  0  3  3  5  2  15.0%		Woods
+  0  1  1  0  1  1  0  1  1  1  0  1  2  5  4  1  20.0%		Buildings-Grass-Trees-Drives
+  3  0  1  1  1  0  0  1  0  0  0  3  2  2  4  2  10.0%		Stone-Steel-Towers
+Benchmarking dataset 'IndianPinesCorrectedDataset, 3x3'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (3, 3, 320, 200)
+Decision Tree
+Leaves: 27
+Tot nodes: 53
+Height: 7
+Modal height:  6
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨T̅P̅P̅⟩ (V190 ⫺ 1098)
+✔ V2 ⫹ 4628
+│✔ ⟨TPP⟩ (V73 ⫺ 4271)
+││✔ ⟨EC⟩ (V82 ⫹ 2897)
+│││✔ ⟨EC⟩ (V107 ⫺ 1155)
+││││✔ 3 : 5/5
+││││✘ 4 : 14/16
+│││✘ V92 ⫹ 3016
+│││ ✔ 12 : 5/6
+│││ ✘ 2 : 10/10
+││✘ ⟨PO⟩ (V128 ⫹ 2077)
+││ ✔ ⟨TPP⟩ (V6 ⫺ 5019)
+││ │✔ ⟨DC⟩ (V48 ⫹ 4557)
+││ ││✔ 11 : 1/3
+││ ││✘ 3 : 13/13
+││ │✘ ⟨EC⟩ (V40 ⫹ 2917)
+││ │ ✔ 12 : 11/11
+││ │ ✘ ⟨DC⟩ (V1 ⫺ 3701)
+││ │  ✔ 11 : 2/2
+││ │  ✘ 10 : 2/2
+││ ✘ ⟨PO⟩ (V77 ⫺ 1772)
+││  ✔ ⟨DC⟩ (V3 ⫺ 4779)
+││  │✔ 2 : 2/3
+││  │✘ 11 : 13/15
+││  ✘ ⟨TPP⟩ (V88 ⫹ 3080)
+││   ✔ ⟨PO⟩ (V3 ⫹ 4317)
+││   │✔ 11 : 3/3
+││   │✘ 10 : 15/16
+││   ✘ ⟨TPP⟩ (V14 ⫹ 4780)
+││    ✔ 2 : 8/8
+││    ✘ 10 : 2/3
+│✘ 16 : 20/20
+✘ V100 ⫺ 2361
+ ✔ ⟨N̅T̅P̅P̅⟩ (V3 ⫺ 4135)
+ │✔ 8 : 20/23
+ │✘ V6 ⫺ 4854
+ │ ✔ 7 : 20/20
+ │ ✘ 1 : 17/17
+ ✘ ⟨EC⟩ (V16 ⫹ 3943)
+  ✔ V41 ⫺ 7316
+  │✔ ⟨DC⟩ (V27 ⫹ 2386)
+  ││✔ 14 : 20/20
+  ││✘ 5 : 15/17
+  │✘ ⟨DC⟩ (V1 ⫺ 3316)
+  │ ✔ 13 : 20/20
+  │ ✘ 15 : 15/15
+  ✘ ⟨EC⟩ (V166 ⫹ 1159)
+   ✔ 6 : 20/23
+   ✘ ⟨EC⟩ (V41 ⫺ 6160)
+    ✔ 9 : 20/20
+    ✘ ⟨EC⟩ (V1 ⫺ 3316)
+     ✔ 5 : 5/5
+     ✘ 4 : 4/4
+ test size = (3, 3, 320, 200)
+ Purity threshold 1.0
+RESULT:	IndianPinesCorrectedDataset, 3x3	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	70.94%	69.0%
+ 18  0  0  1  0  0  0  1  0  0  0  0  0  0  0  0  90.0%		Alfalfa
+  0 12  1  0  0  0  0  0  0  2  1  3  0  0  1  0  60.0%		Corn-notill
+  0  2  6  3  0  0  0  0  0  3  5  1  0  0  0  0  30.0%		Corn-mintill
+  0  3  4  8  0  0  0  0  0  0  0  5  0  0  0  0  40.0%		Corn
+  1  0  0  1 16  0  0  0  2  0  0  0  0  0  0  0  80.0%		Grass-pasture
+  0  0  0  2  0 17  0  0  0  0  0  0  0  0  1  0  85.0%		Grass-trees
+  8  0  0  0  0  0 12  0  0  0  0  0  0  0  0  0  60.0%		Grass-pasture-mowed
+  0  0  0  1  0  0  0 19  0  0  0  0  0  0  0  0  95.0%		Hay-windrowed
+  0  0  0  0  0  0  0  0 20  0  0  0  0  0  0  0  100.0%		Oats
+  0  1  2  0  0  0  0  0  0 13  0  4  0  0  0  0  65.0%		Soybean-notill
+  0  2  0  1  0  0  0  0  0  3 11  3  0  0  0  0  55.0%		Soybean-mintill
+  0  3  2  0  1  0  0  0  0  1  3 10  0  0  0  0  50.0%		Soybean-clean
+  0  0  0  0  0  0  0  0  0  0  0  0 19  0  1  0  95.0%		Wheat
+  0  0  0  0  3  0  0  0  0  0  0  0  2 15  0  0  75.0%		Woods
+  0  0  0  0  3  2  0  0  0  0  0  0  1  1 13  0  65.0%		Buildings-Grass-Trees-Drives
+  0  0  0  0  1  0  0  0  0  0  1  0  0  0  0 18  90.0%		Stone-Steel-Towers
+Benchmarking dataset 'IndianPinesCorrectedDataset, 5x5 flattened'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+ train size = (1, 1, 320, 5000)
+Decision Tree
+Leaves: 98
+Tot nodes: 195
+Height: 10
+Modal height:  0
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+V2175 ⫺ 2673
+✔ V2236 ⫺ 3144
+│✔ V1572 ⫺ 4077
+││✔ V2120 ⫺ 2929
+│││✔ V2386 ⫺ 2949
+││││✔ V3581 ⫺ 1041
+│││││✔ V3 ⫺ 3184
+││││││✔ V5 ⫺ 2826
+│││││││✔ 2 : 5/5
+│││││││✘ 13 : 2/3
+││││││✘ V2 ⫺ 3161
+││││││ ✔ V2 ⫺ 3199
+││││││ │✔ 5 : 2/2
+││││││ │✘ 6 : 1/2
+││││││ ✘ V2 ⫺ 2731
+││││││  ✔ 1 : 2/2
+││││││  ✘ 9 : 1/2
+│││││✘ V1 ⫺ 2719
+│││││ ✔ 7 : 8/9
+│││││ ✘ V1 ⫺ 2591
+│││││  ✔ 8 : 1/2
+│││││  ✘ 8 : 2/2
+││││✘ V2232 ⫺ 3123
+││││ ✔ V37 ⫺ 4245
+││││ │✔ 4 : 4/4
+││││ │✘ V1 ⫺ 2599
+││││ │ ✔ 10 : 1/2
+││││ │ ✘ 2 : 1/2
+││││ ✘ V2323 ⫺ 2891
+││││  ✔ V10 ⫺ 2994
+││││  │✔ 2 : 2/3
+││││  │✘ 1 : 3/3
+││││  ✘ 6 : 6/6
+│││✘ V2068 ⫺ 2913
+│││ ✔ V2590 ⫺ 1044
+│││ │✔ V7 ⫺ 3153
+│││ ││✔ 11 : 4/4
+│││ ││✘ 13 : 2/3
+│││ │✘ V4817 ⫺ 1051
+│││ │ ✔ 12 : 8/9
+│││ │ ✘ V40 ⫺ 4098
+│││ │  ✔ V9 ⫺ 2778
+│││ │  │✔ 1 : 2/2
+│││ │  │✘ 7 : 3/3
+│││ │  ✘ V4 ⫺ 3012
+│││ │   ✔ 8 : 2/2
+│││ │   ✘ 2 : 2/3
+│││ ✘ V2578 ⫺ 1038
+│││  ✔ V3 ⫺ 3023
+│││  │✔ V1 ⫺ 3151
+│││  ││✔ 2 : 1/2
+│││  ││✘ 7 : 2/2
+│││  │✘ V1 ⫺ 3194
+│││  │ ✔ 6 : 1/2
+│││  │ ✘ 6 : 2/2
+│││  ✘ V32 ⫺ 4134
+│││   ✔ V35 ⫺ 4238
+│││   │✔ V3 ⫺ 3197
+│││   ││✔ 9 : 2/2
+│││   ││✘ 10 : 2/2
+│││   │✘ V1 ⫺ 2759
+│││   │ ✔ 8 : 2/2
+│││   │ ✘ 11 : 1/2
+│││   ✘ V25 ⫺ 3023
+│││    ✔ 3 : 4/5
+│││    ✘ 14 : 4/4
+││✘ V1147 ⫺ 4194
+││ ✔ V1000 ⫺ 3977
+││ │✔ 15 : 5/6
+││ │✘ V17 ⫺ 3187
+││ │ ✔ 1 : 2/3
+││ │ ✘ V1 ⫺ 2756
+││ │  ✔ 13 : 1/2
+││ │  ✘ 12 : 2/2
+││ ✘ V16 ⫺ 3002
+││  ✔ V1 ⫺ 3202
+││  │✔ 16 : 2/2
+││  │✘ 11 : 3/3
+││  ✘ V1 ⫺ 3177
+││   ✔ 8 : 1/2
+││   ✘ 6 : 2/2
+│✘ V2139 ⫺ 3144
+│ ✔ V2301 ⫺ 3054
+│ │✔ V5 ⫺ 2775
+│ ││✔ 9 : 4/5
+│ ││✘ V1 ⫺ 2761
+│ ││ ✔ 11 : 1/2
+│ ││ ✘ 15 : 2/2
+│ │✘ V4369 ⫺ 1219
+│ │ ✔ V22 ⫺ 3007
+│ │ │✔ V11 ⫺ 3171
+│ │ ││✔ 12 : 2/2
+│ │ ││✘ 13 : 5/5
+│ │ │✘ 5 : 3/3
+│ │ ✘ V1603 ⫺ 4357
+│ │  ✔ 10 : 5/5
+│ │  ✘ V3 ⫺ 3143
+│ │   ✔ 15 : 2/2
+│ │   ✘ 11 : 1/2
+│ ✘ V4986 ⫺ 1014
+│  ✔ V838 ⫺ 3264
+│  │✔ V2249 ⫺ 2719
+│  ││✔ V905 ⫺ 5978
+│  │││✔ 8 : 3/3
+│  │││✘ V2208 ⫺ 3297
+│  │││ ✔ 3 : 4/4
+│  │││ ✘ 16 : 9/10
+│  ││✘ V1 ⫺ 3201
+│  ││ ✔ 10 : 2/2
+│  ││ ✘ 5 : 1/2
+│  │✘ V5 ⫺ 2775
+│  │ ✔ 4 : 3/3
+│  │ ✘ 2 : 1/3
+│  ✘ V2155 ⫺ 2761
+│   ✔ V1947 ⫺ 1574
+│   │✔ V2251 ⫺ 2739
+│   ││✔ V4964 ⫺ 1019
+│   │││✔ V172 ⫺ 4481
+│   ││││✔ V14 ⫺ 2760
+│   │││││✔ 14 : 6/6
+│   │││││✘ 11 : 2/2
+│   ││││✘ V6 ⫺ 2844
+│   ││││ ✔ 1 : 4/4
+│   ││││ ✘ 5 : 1/2
+│   │││✘ V654 ⫺ 2932
+│   │││ ✔ 15 : 5/6
+│   │││ ✘ V11 ⫺ 3025
+│   │││  ✔ 7 : 2/3
+│   │││  ✘ 16 : 2/3
+│   ││✘ V117 ⫺ 4272
+│   ││ ✔ V3 ⫺ 3142
+│   ││ │✔ 11 : 4/4
+│   ││ │✘ 5 : 1/2
+│   ││ ✘ 6 : 4/5
+│   │✘ V960 ⫺ 5643
+│   │ ✔ V50 ⫺ 3971
+│   │ │✔ 10 : 4/5
+│   │ │✘ V4 ⫺ 2744
+│   │ │ ✔ 13 : 2/3
+│   │ │ ✘ 3 : 2/2
+│   │ ✘ V1505 ⫺ 2633
+│   │  ✔ V905 ⫺ 5142
+│   │  │✔ 5 : 6/6
+│   │  │✘ 10 : 2/3
+│   │  ✘ V1 ⫺ 3175
+│   │   ✔ 4 : 2/2
+│   │   ✘ 4 : 1/2
+│   ✘ V926 ⫺ 5864
+│    ✔ V21 ⫺ 2759
+│    │✔ V1937 ⫺ 1582
+│    ││✔ 12 : 6/6
+│    ││✘ 1 : 2/3
+│    │✘ V1 ⫺ 3197
+│    │ ✔ 7 : 2/2
+│    │ ✘ 11 : 1/2
+│    ✘ V38 ⫺ 4364
+│     ✔ V3 ⫺ 3313
+│     │✔ 16 : 2/3
+│     │✘ 11 : 2/2
+│     ✘ 2 : 5/6
+✘ V2232 ⫺ 2616
+ ✔ V2430 ⫺ 2942
+ │✔ V3560 ⫺ 1143
+ ││✔ V4 ⫺ 3020
+ │││✔ 13 : 2/3
+ │││✘ V1 ⫺ 2843
+ │││ ✔ 2 : 2/2
+ │││ ✘ 2 : 1/2
+ ││✘ V3 ⫺ 2754
+ ││ ✔ V2582 ⫺ 1039
+ ││ │✔ V6 ⫺ 2585
+ ││ ││✔ 3 : 5/5
+ ││ ││✘ 1 : 2/2
+ ││ │✘ 8 : 5/6
+ ││ ✘ V1 ⫺ 2761
+ ││  ✔ V6 ⫺ 3021
+ ││  │✔ 4 : 2/2
+ ││  │✘ 9 : 2/2
+ ││  ✘ 14 : 2/3
+ │✘ V1501 ⫺ 3238
+ │ ✔ V2193 ⫺ 3225
+ │ │✔ 4 : 3/3
+ │ │✘ 9 : 8/9
+ │ ✘ V24 ⫺ 2745
+ │  ✔ 4 : 4/5
+ │  ✘ V3 ⫺ 2588
+ │   ✔ 5 : 3/3
+ │   ✘ 7 : 1/2
+ ✘ V906 ⫺ 5353
+  ✔ V15 ⫺ 3201
+  │✔ 16 : 1/2
+  │✘ 10 : 3/3
+  ✘ V8 ⫺ 3322
+   ✔ 14 : 2/2
+   ✘ 15 : 3/3
+ test size = (1, 1, 320, 5000)
+ Purity threshold 1.0
+RESULT:	IndianPinesCorrectedDataset, 5x5 flattened	(loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.05, min_loss_at_leaf = 0.55)	(initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])	1.0	5.31%	-1.0%
+  1  2  0  0  4  0  2  0  0  3  1  2  1  2  0  2  5.0%		Alfalfa
+  1  0  1  1  3  1  0  1  0  2  3  2  2  0  0  3  0.0%		Corn-notill
+  0  2  0  1  3  3  2  0  0  1  0  2  3  1  0  2  0.0%		Corn-mintill
+  0  1  1  2  6  1  1  0  1  2  1  0  0  0  2  2  10.0%		Corn
+  0  2  1  2  1  1  2  1  2  1  3  0  1  0  0  3  5.0%		Grass-pasture
+  0  1  1  1  3  1  1  0  0  2  3  3  1  1  0  2  5.0%		Grass-trees
+  0  3  1  1  3  1  0  1  1  3  4  1  0  0  0  1  0.0%		Grass-pasture-mowed
+  1  2  0  0  3  2  3  0  0  2  3  1  0  0  1  2  0.0%		Hay-windrowed
+  1  0  1  1  4  0  1  1  0  3  0  1  0  1  2  4  0.0%		Oats
+  1  2  0  1  1  0  1  2  1  1  3  1  1  1  2  2  5.0%		Soybean-notill
+  0  3  0  0  1  0  1  1  0  3  3  2  2  0  1  3
