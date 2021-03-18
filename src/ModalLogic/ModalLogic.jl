@@ -386,7 +386,7 @@ WExtremeModal(test_operator::TestOperatorNegative, w::WorldType, relation::Abstr
 	v
 end
 
-WExtremeModalMany(test_ops::Vector{<:ModalLogic.TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+WExtremeModalMany(test_ops::Vector{<:TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
 	[WExtremeModal(test_op, w, relation, channel) for test_op in test_ops]
 end
 

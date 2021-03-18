@@ -63,29 +63,29 @@ log_level = Logging.Warn
 
 n_instances = 500
 
-for dataset_name in ["IndianPines", "Pavia"]
-	for loss in [DecisionTree.util.entropy]
-		for min_samples_leaf in [1, 2, 4, 6]
-			for min_purity_increase in [0.01, 0.05]
-				for min_loss_at_leaf in [0.3, 0.5, 0.7]
-					cur_args = merge(args, (loss=loss,
-																	min_samples_leaf=min_samples_leaf,
-																	min_purity_increase=min_purity_increase,
-																	min_loss_at_leaf=min_loss_at_leaf,
-																	))
-					cur_kwargs = merge(kwargs, ())
+# for dataset_name in ["IndianPines", "Pavia"]
+# 	for loss in [DecisionTree.util.entropy]
+# 		for min_samples_leaf in [1, 2, 4, 6]
+# 			for min_purity_increase in [0.01, 0.05]
+# 				for min_loss_at_leaf in [0.3, 0.5, 0.7]
+# 					cur_args = merge(args, (loss=loss,
+# 																	min_samples_leaf=min_samples_leaf,
+# 																	min_purity_increase=min_purity_increase,
+# 																	min_loss_at_leaf=min_loss_at_leaf,
+# 																	))
+# 					cur_kwargs = merge(kwargs, ())
 
-					for i in 1:5
-						rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-						testDataset(("$(dataset_name), 1x1",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 n_instances,        1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-					end
-				end
-			end
-		end
-	end
-end
+# 					for i in 1:5
+# 						rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
+# 						testDataset(("$(dataset_name), 1x1",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 n_instances,        1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+# 					end
+# 				end
+# 			end
+# 		end
+# 	end
+# end
 
-exit()
+# exit()
 
 # relations = [ModalLogic.RCC8Relations, subsets(ModalLogic.RCC8Relations,1), subsets(ModalLogic.RCC8Relations,2)...]
 # i_relation = 1
@@ -100,17 +100,17 @@ exit()
 # end
 
 loss = DecisionTree.util.entropy
-min_samples_leaf = 2
+min_samples_leaf = 4
 min_purity_increase = 0.01
-min_loss_at_leaf = 0.55
+min_loss_at_leaf = 0.3
 
 selected_args = merge(args, (loss = loss,
 															min_samples_leaf = min_samples_leaf,
 															min_purity_increase = min_purity_increase,
 															min_loss_at_leaf = min_loss_at_leaf,
 															))
-# log_level = DecisionTree.DTOverview
-log_level = Logging.Warn
+log_level = DecisionTree.DTOverview
+# log_level = Logging.Warn
 
 timeit = 0
 
@@ -127,7 +127,7 @@ timeit = 0
 # for dataset_name in ["IndianPines", "Pavia"]
 # 	for i in 1:10
 # 		rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-# 		testDataset((dataset_name * ", 1x1",  traintestsplit(SampleLandCoverDataset(dataset_name,  500,  1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=selected_args, kwargs=kwargs, rng = rng_new);
+# 		testDataset((dataset_name * ", 1x1",  traintestsplit(SampleLandCoverDataset(dataset_name,  n_instances,  1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=selected_args, kwargs=kwargs, rng = rng_new);
 # 	end
 # end
 
@@ -182,11 +182,11 @@ for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOf
 
 							println("$(ontology)\t$(i)\t$(dataset_name)\t$(useRelationAll)\t$(initCondition)\t$(test_operators)")
 							rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-							testDataset(("$(dataset_name), 1x1",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 500,        1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							testDataset(("$(dataset_name), 1x1",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 n_instances,        1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
 							rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-							testDataset(("$(dataset_name), 3x3",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 500,        3,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							testDataset(("$(dataset_name), 3x3",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 n_instances,        3,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
 							rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-							testDataset(("$(dataset_name), 5x5",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 500,        5,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							testDataset(("$(dataset_name), 5x5",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 n_instances,        5,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
 							
 							# testDataset(datasets[databatch*5+1], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
 							# testDataset(datasets[databatch*5+2], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
