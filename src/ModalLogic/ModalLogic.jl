@@ -43,6 +43,8 @@ struct Ontology
 	# Ontology(worldType, relationSet) = new(worldType, relationSet)
 end
 
+strip_relations(ontology::Ontology) = Ontology(ontology.worldType,AbstractRelation[])
+
 # TODO improve, decouple from relationSets definitions
 # Actually, this will not work because relationSet does this collect(set(...)) thing... mh maybe better avoid that thing?
 show(io::IO, o::Ontology) = begin
@@ -140,6 +142,14 @@ channel_size(d::MatricialDataset{T,D})     where {T,D} = size(d)[1:end-2]
 @computed struct OntologicalDataset{T,N}
 	ontology  :: Ontology
 	domain    :: MatricialDataset{T,N+1+1}
+
+	OntologicalDataset(ontology, domain) = begin
+		if prod(channel_size(domain)) == 1
+			ontology = ModalLogic.strip_relations(ontology)
+		end
+		new(ontology, domain)
+	end
+
 end
 
 size(X::OntologicalDataset{T,N})             where {T,N} = size(X.domain)

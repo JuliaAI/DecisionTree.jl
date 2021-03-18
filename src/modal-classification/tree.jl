@@ -469,6 +469,18 @@ module treeclassifier
 		# Dataset sizes
 		n_instances = n_samples(X)
 
+		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
+		#  are complementary, and thus it is redundant to check both at the same node.
+		#  We avoid this by only keeping one of the two operators.
+		# TODO optimize this: use opposite_test_operator() to check pairs.
+		# TODO But first, check that TestOpGeq95 and TestOpLeq05 are actually complementary
+		if prod(channel_size(X)) == 1
+			if test_operators ⊆ ModalLogic.all_ordered_test_operators
+				test_operators = [ModalLogic.TestOpGeq]
+				# test_operators = filter(e->e ≠ ModalLogic.TestOpLeq,test_operators)
+			end
+		end
+
 		# Array memory for class counts
 		nc  = Vector{U}(undef, n_classes)
 		ncl = Vector{U}(undef, n_classes)
@@ -517,7 +529,7 @@ module treeclassifier
 		else
 			availableModalRelation_ids
 		end
-
+		
 		# Fix test_operators order
 		test_operators = unique(test_operators)
 		ModalLogic.sort_test_operators!(test_operators)
@@ -530,17 +542,7 @@ module treeclassifier
 
 		# TODO check that length(channel_size(X)) == complexity(worldType)
 
-		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
-		#  are complementary, and thus it is redundant to check both at the same node.
-		#  We avoid this by only keeping one of the two operators.
-		# TODO optimize this: use opposite_test_operator() to check pairs.
-		# TODO But first, check that TestOpGeq95 and TestOpLeq05 are actually complementary
-		if prod(channel_size(X)) == 1 && test_operators ⊆ ModalLogic.all_ordered_test_operators
-			test_operators = [ModalLogic.TestOpGeq]
-			# test_operators = filter(e->e ≠ ModalLogic.TestOpLeq,test_operators)
-		end
 
-		
 		# TODO use Ef = Dict(X.ontology.worldType,NTuple{NTO,T})
 		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
 		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )

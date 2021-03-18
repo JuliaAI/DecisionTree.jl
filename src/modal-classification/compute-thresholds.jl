@@ -184,7 +184,7 @@
 			ModalLogic.WExtremeModalMany(test_operators, w, relation, channel)
 		end
 
-		@inbounds for feature in 1:n_vars
+		@inbounds Threads.@threads for feature in 1:n_vars
 			@logmsg DTDebug "Feature $(feature)/$(n_vars)"
 			if feature == 1 || ((feature+1) % (floor(Int, ((n_vars)/5))+1)) == 0
 				@logmsg DTOverview "Feature $(feature)/$(n_vars)"
