@@ -20,7 +20,7 @@ using PProf
 
 include("example-datasets.jl")
 
-function testDataset((name,split_dataset), timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, post_pruning_purity_thresholds = [], args = (), kwargs = (), error_catching = false)
+function testDataset((name,split_dataset), timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, post_pruning_purity_thresholds = [], args = (), kwargs = (), error_catching = false, rng = my_rng())
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	length(split_dataset) == 3 || error(length(split_dataset))
@@ -37,11 +37,11 @@ function testDataset((name,split_dataset), timeit::Integer = 2; debugging_level 
 	
 	go() = begin
 		if timeit == 0
-			T = build_tree(Y_train, X_train; args..., kwargs..., rng = my_rng());
+			T = build_tree(Y_train, X_train; args..., kwargs..., rng = rng);
 		elseif timeit == 1
-			T = @time build_tree(Y_train, X_train; args..., kwargs..., rng = my_rng());
+			T = @time build_tree(Y_train, X_train; args..., kwargs..., rng = rng);
 		elseif timeit == 2
-			T = @btime build_tree($Y_train, $X_train; args..., kwargs..., rng = my_rng());
+			T = @btime build_tree($Y_train, $X_train; args..., kwargs..., rng = rng);
 		end
 		print(T)
 		
