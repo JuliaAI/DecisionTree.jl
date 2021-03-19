@@ -59,6 +59,7 @@ rng_i = DecisionTree.mk_rng(124)
 # exit()
 
 timeit = 0
+log_level = DecisionTree.DTOverview
 # log_level = Logging.Warn
 
 n_instances = 100
@@ -158,8 +159,8 @@ timeit = 0
 
 for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOfDim(Val(2))]
 	for i in 1:5
-		for window_size in [1,3,5]
-			for dataset_name in ["IndianPines", "Pavia"]
+		for window_size in [1,3] #,5]
+			for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre"] # "IndianPines", "Pavia"]
 				for useRelationAll in [true]
 					for initCondition in [DecisionTree.startAtCenter]
 						for test_operators in [
