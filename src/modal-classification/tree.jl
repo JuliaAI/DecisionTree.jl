@@ -15,61 +15,46 @@ module treeclassifier
 	using Logging: @logmsg
 	import Random
 
-	mutable struct NodeMeta{S<:Real} # {S,U}
-		features         :: Vector{Int}      # a list of features
-		region           :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
-		# worlds      :: AbstractVector{WorldSet{W}} # current set of worlds for each training instance
+	mutable struct NodeMeta{S<:Real,U}
+		region           :: UnitRange{Int}                   # a slice of the samples used to decide the split of the node
 		depth            :: Int
 		modal_depth      :: Int
-		is_leaf          :: Bool             # whether this is a leaf node, or a split one
-		label            :: Label            # most likely label
-		# split properties
-		split_at         :: Int              # index of samples
-		l                :: NodeMeta{S}      # left child
-		r                :: NodeMeta{S}      # right child
-		purity           :: AbstractFloat        # purity grade attained if this is a split; TODO generalize to weight type `U`
-		modality         :: R where R<:AbstractRelation # modal operator (e.g. RelationId for the propositional case)
-		feature          :: Int                      # feature used for splitting
-		test_operator    :: ModalLogic.TestOperator  # test_operator (e.g. <=)
-		threshold        :: S                        # threshold value
-		function NodeMeta{S}(
+		# worlds      :: AbstractVector{WorldSet{W}}         # current set of worlds for each training instance
+		purity           :: U                                # purity grade attained at training time
+		label            :: Label                            # most likely label
+		is_leaf          :: Bool                             # whether this is a leaf node, or a split one
+		# split node-only properties
+		split_at         :: Int                              # index of samples
+		l                :: NodeMeta{S,U}                    # left child
+		r                :: NodeMeta{S,U}                    # right child
+		modality         :: R where R<:AbstractRelation      # modal operator (e.g. RelationId for the propositional case)
+		feature          :: Int                              # feature used for splitting
+		test_operator    :: ModalLogic.TestOperator          # test_operator (e.g. <=)
+		threshold        :: S                                # threshold value
+		function NodeMeta{S,U}(
 				region      :: UnitRange{Int},
 				depth       :: Int,
 				modal_depth :: Int
-				) where S<:Real
-			node = new{S}()
+				) where {S<:Real,U}
+			node = new{S,U}()
 			node.region = region
 			node.depth = depth
 			node.modal_depth = modal_depth
+			node.purity = U(NaN)
 			node.is_leaf = false
 			node
 		end
 	end
 
 	struct Tree{S, T}
-		root           :: NodeMeta{S}
+		root           :: NodeMeta{S,Float64}
 		list           :: Vector{T}
 		labels         :: Vector{Label}
 		initCondition  :: DecisionTree._initCondition
 	end
 
-	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,1}, d::MatricialDataset{T,2}, idx::Integer, feature::Integer) where T = begin
-		@views ud[i] = ModalLogic.getFeature(d, idx, feature) # ::T
-	end
-	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,2}, d::MatricialDataset{T,3}, idx::Integer, feature::Integer) where T = begin
-		@views ud[:,i] = ModalLogic.getFeature(d, idx, feature) # ::AbstractArray{T,2}
-	end
-	@inline setfeature!(i::Integer, ud::MatricialUniDataset{T,3}, d::MatricialDataset{T,4}, idx::Integer, feature::Integer) where T = begin
-		@views ud[:,:,i] = ModalLogic.getFeature(d, idx, feature) # ::AbstractArray{T,3}
-	end
-	# TODO:
-	# @inline setfeature!(i::Integer, Xf::AbstractArray{T, M}, X::OntologicalDataset{T,N}, idx::Integer, feature::Integer) where {T,N,M} = begin
-		# Xf[i,[(:) for i in 1:N]...] = ModalLogic.getFeature(X, idx, feature)
-	# end
-
-	# find an optimal split satisfying the given constraints
-	# (e.g. max_depth, min_samples_leaf, min_purity_increase)
-	# TODO not using max_features, rng (which is still useful e.g. rand(rng, 1:10)) anymore
+	# Find an optimal local split satisfying the given constraints
+	#  (e.g. max_depth, min_samples_leaf, etc.)
 	# TODO move this function inside the caller function, and get rid of all parameters
 	function _split!(
 							X                   :: OntologicalDataset{T, N}, # the ontological dataset
@@ -78,7 +63,7 @@ module treeclassifier
 							S                   :: AbstractVector{WorldSet{WorldType}}, # the vector of current worlds (TODO AbstractVector{<:AbstractSet{X.ontology.worldType}})
 							
 							loss_function       :: Function,
-							node                :: NodeMeta{T},              # the node to split
+							node                :: NodeMeta{T,<:AbstractFloat}, # the node to split
 							max_depth           :: Int,                      # the maximum depth of the resultant tree
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
 							min_loss_at_leaf    :: AbstractFloat,            # maximum purity allowed on a leaf
@@ -93,21 +78,21 @@ module treeclassifier
 							ncl                 :: AbstractVector{U},   # ncl maintains the counts of labels on the left
 							ncr                 :: AbstractVector{U},   # ncr maintains the counts of labels on the right
 							
-							Xf                  :: MatricialUniDataset{T, M},
+							Xf                  :: MatricialUniDataset{T, M}, # Note that X and Xf are not used when using Gammas
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							Sf                  :: AbstractVector{WorldSet{WorldType}},
-							# Gammas            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,NTuple{NTO,T}}}}},
-							# Gammas            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
-							Gammas            :: AbstractArray{NTuple{NTO,T},L},
+							# gammas            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,NTuple{NTO,T}}}}},
+							# gammas            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
+							gammas            :: AbstractArray{NTuple{NTO,T},L},
 							# TODO Ef                  :: AbstractArray{T},
 							
-							rng                 :: Random.AbstractRNG,
 							relationSet         :: Vector{<:ModalLogic.AbstractRelation},
 							relation_ids        :: AbstractVector{Int},
+							rng                 :: Random.AbstractRNG,
 							) where {WorldType<:AbstractWorld, T, U, N, M, NTO, L}  # WT<:X.ontology.worldType
 
-		# Region of indx to use to perform the split
+		# Region of indX to use to perform the split
 		region = node.region
 		n_instances = length(region)
 		r_start = region.start - 1
@@ -118,19 +103,24 @@ module treeclassifier
 			@inbounds nc[Y[indX[i]]] += W[indX[i]]
 		end
 		nt = sum(nc)
+		node.purity = loss_function(nc, nt)
 		node.label = argmax(nc) # Assign the most likely label before the split
-
-		# @logmsg DTOverview "node purity min_loss_at_leaf " loss_function(nc, nt) min_loss_at_leaf
 
 		@logmsg DTDebug "_split!(...) " n_instances region nt
 
-		# Check leaf conditions
-		if ((min_samples_leaf * 2 >  n_instances)
-		 || (nc[node.label]       == nt)
-		 || (loss_function(nc, nt)  <= min_loss_at_leaf)
-		 || (max_depth            <= node.depth))
+		# Preemptive leaf conditions
+		if (
+			# If all the instances belong to the same class, make this a leaf
+			 (nc[node.label]       == nt)
+			# No binary split can honor min_samples_leaf if there aren't as many as
+			#  min_samples_leaf*2 instances in the first place
+			 || (min_samples_leaf * 2 >  n_instances)
+			# If the node is pure enough, avoid splitting # TODO rename purity to loss
+			 || (node.purity          <= min_loss_at_leaf)
+			# Honor maximum depth constraint
+			 || (max_depth            <= node.depth))
 			node.is_leaf = true
-			@logmsg DTDetail "leaf created: " (min_samples_leaf * 2 >  n_instances) (nc[node.label] == nt) (loss_function(nc, nt)  <= min_loss_at_leaf) (max_depth <= node.depth)
+			@logmsg DTDetail "leaf created: " (min_samples_leaf * 2 >  n_instances) (nc[node.label] == nt) (node.purity  <= min_loss_at_leaf) (max_depth <= node.depth)
 			return
 		end
 
@@ -141,21 +131,17 @@ module treeclassifier
 			Sf[i] = S[indX[i + r_start]]
 		end
 
-		# Optimization tracking variables
+		# Optimization-tracking variables
 		best_purity__nt = typemin(U)
 		best_relation = ModalLogic.RelationNone
 		best_feature = -1
 		best_test_operator = ModalLogic.TestOpNone
 		best_threshold = T(-1)
-		best_nl = -1 # TODO this is just for checking
-		best_unsatisfied = [] # TODO this is just for checking
-		# threshold_lo = ...
-		# threshold_hi = ...
 
-		# A node can be found to be unsplittable if no split honors the constraints (e.g. min_samples_leaf)
-		#  or, say, if every feature is constant (but frankly, that's quite unlikely...)
-		unsplittable = true
-
+		# TODO these are just for checking the consistency of gamma-optimizations
+		best_nl = -1
+		best_unsatisfied = []
+		
 		n_vars = n_variables(X)
 		
 		#####################
@@ -164,18 +150,6 @@ module treeclassifier
 		# For each variable
 		@inbounds for feature in 1:n_vars
 			@logmsg DTDebug "Testing feature $(feature)/$(n_vars)..."
-			# DEBUG: Uncomment this to stop at the first valid split encountered for any feature
-			# if !unsplittable
-			# 	break
-			# end
-			
-			# Gather all values needed for the current feature
-			# TODO note that Xf is almost not required animore...
-			# @simd for i in 1:n_instances
-			# 	# @logmsg DTDetail "Instance $(i)/$(n_instances)"
-			# 	# TODO make this a view? featureview?
-			# 	setfeature!(i, Xf, X.domain, indX[i + r_start], feature)
-			# end
 
 			## Test all conditions
 			# For each relational operator
@@ -223,7 +197,7 @@ module treeclassifier
 				# TODO optimize this!!
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 				for i in 1:n_instances
-					# TODO slice Gammas in Gammasf?
+					# TODO slice gammas in gammasf?
 					@logmsg DTDetail " Instance $(i)/$(n_instances)" indX[i + r_start]
 					worlds = if (relation != ModalLogic.RelationAll)
 							Sf[i]
@@ -231,13 +205,13 @@ module treeclassifier
 							[firstWorld]
 						end
 					for w in worlds
-						# TODO maybe read the specific value of Gammas referred to the test_operator?
-						cur_gammas = readGammas(Gammas, w, indX[i + r_start], relation_id, feature)
+						# TODO maybe read the specific value of gammas referred to the test_operator?
+						cur_gammas = readGammas(gammas, w, indX[i + r_start], relation_id, feature)
 						@logmsg DTDetail " cur_gammas" w cur_gammas
 						for (i_test_operator,test_operator) in enumerate(test_operators) # TODO use correct indexing for test_operators
 							# if relation == ModalLogic.Topo_TPP println("world ", w) end
 							# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
-							# (w_opGeqMaxThresh,w_opLesMinThresh) = readGammas(Gammas, w, indX[i + r_start], relation_id, feature)
+							# (w_opGeqMaxThresh,w_opLesMinThresh) = readGammas(gammas, w, indX[i + r_start], relation_id, feature)
 							# @logmsg DTDetail "w_opGeqMaxThresh,w_opLesMinThresh " w w_opGeqMaxThresh w_opLesMinThresh
 							# opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
 							# opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
@@ -296,8 +270,6 @@ module treeclassifier
 
 						# Honor min_samples_leaf
 						if nl >= min_samples_leaf && (n_instances - nl) >= min_samples_leaf
-							unsplittable = false
-							# TODO figure out exactly what this purity is?
 							purity__nt = -(nl * loss_function(ncl, nl) +
 								      	 nr * loss_function(ncr, nr))
 							if purity__nt > best_purity__nt && !isapprox(purity__nt, best_purity__nt)
@@ -306,11 +278,9 @@ module treeclassifier
 								best_feature        = feature
 								best_test_operator  = test_operator
 								best_threshold      = threshold
-								best_nl             = nl # TODO for checking consistency purposes only
-								best_unsatisfied    = unsatisfied # TODO for checking consistency purposes only
-								# TODO: At the end, we should take the average between current and last.
-								#  This requires thresholds to be sorted
-								# threshold_lo, threshold_hi  = last_f, curr_f
+								# TODO just for checking the consistency of optimizations
+								best_nl             = nl
+								best_unsatisfied    = unsatisfied
 								@logmsg DTDetail "  Found new optimum: " (best_purity__nt/nt) best_relation best_feature best_test_operator best_threshold
 							end
 						end
@@ -319,21 +289,15 @@ module treeclassifier
 			end # for relation
 		end # for feature
 
-		# @logmsg DTOverview "purity increase" best_purity__nt/nt loss_function(nc, nt) (best_purity__nt/nt + loss_function(nc, nt)) (best_purity__nt/nt - loss_function(nc, nt))
-		# If the split is good, partition and split according to the optimum
-		@inbounds if (unsplittable
-			|| (best_purity__nt/nt + loss_function(nc, nt) <= min_purity_increase)
-			)
-			@logmsg DTDebug " Leaf" unsplittable min_purity_increase (best_purity__nt/nt) loss_function(nc, nt) ((best_purity__nt/nt) + loss_function(nc, nt))
+		# @logmsg DTOverview "purity increase" best_purity__nt/nt node.purity (best_purity__nt/nt + node.purity) (best_purity__nt/nt - node.purity)
+		# If the best split is good, partition and split accordingly
+		@inbounds if (best_purity__nt == typemin(U)
+									|| (best_purity__nt/nt + node.purity <= min_purity_increase))
+			@logmsg DTDebug " Leaf" unsplittable min_purity_increase (best_purity__nt/nt) node.purity ((best_purity__nt/nt) + node.purity)
 			node.is_leaf = true
 			return
 		else
 			best_purity = best_purity__nt/nt
-			# try
-			# 	node.threshold = (threshold_lo + threshold_hi) / 2.0
-			# catch
-			# 	node.threshold = threshold_hi
-			# end
 
 			# split the samples into two parts:
 			# - ones that are > threshold
@@ -343,18 +307,15 @@ module treeclassifier
 			node.modality       = best_relation
 			node.feature        = best_feature
 			node.test_operator  = best_test_operator
+			# TODO the selected threshold should actually be the result of a loss interpolation around best_threshold
 			node.threshold      = best_threshold
 			
 			# Compute new world sets (= make a modal step)
-			# TODO remove the use of Xf
-			@simd for i in 1:n_instances
-				setfeature!(i, Xf, X.domain, indX[i + r_start], best_feature)
-			end
 
 			# TODO instead of using memory, here, just use two opposite indices and perform substitutions. indj = n_instances
 			unsatisfied_flags = fill(1, n_instances)
 			for i in 1:n_instances
-				channel = ModalLogic.getChannel(Xf, i)
+				channel = ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature)
 				@logmsg DTDetail " Instance $(i)/$(n_instances)" channel Sf[i]
 				(satisfied,S[indX[i + r_start]]) = ModalLogic.modalStep(Sf[i], best_relation, channel, best_test_operator, best_threshold)
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
@@ -364,6 +325,7 @@ module treeclassifier
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
+			# TODO consistency check
 			if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 				errStr = "Something's wrong with the optimization steps.\n"
 				errStr *= "Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
@@ -393,20 +355,19 @@ module treeclassifier
 			# node.split_at = searchsortedfirst(unsatisfied_flags, true)
 		end
 	end
+
 	# Split node at a previously-set node.split_at value.
 	# The children inherits some of the data
-	@inline function fork!(node::NodeMeta{S}) where S
+	@inline function fork!(node::NodeMeta{S,U}) where {S,U}
 		ind = node.split_at
 		region = node.region
 		depth = node.depth+1
-		mdepth = (node.modality == ModalLogic.RelationNone ? node.modal_depth : node.modal_depth+1)
+		mdepth = (node.modality == ModalLogic.RelationId ? node.modal_depth : node.modal_depth+1)
 		@logmsg DTDetail "fork!(...): " node ind region mdepth
 		# no need to copy because we will copy at the end
-		node.l = NodeMeta{S}(region[    1:ind], depth, mdepth)
-		node.r = NodeMeta{S}(region[ind+1:end], depth, mdepth)
+		node.l = NodeMeta{S,U}(region[    1:ind], depth, mdepth)
+		node.r = NodeMeta{S,U}(region[ind+1:end], depth, mdepth)
 	end
-
-	include("compute-thresholds.jl")
 
 	function check_input(
 			X                   :: OntologicalDataset{T, N},
@@ -446,9 +407,12 @@ module treeclassifier
 				println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
 					* "(given $(min_purity_increase))")
 			end
+		elseif nothing in X
+			throw("This algorithm doesn't allow nothing values.")
 		end
-		# TODO check that X doesn't have nans, typemin(T), typemax(T), missings, nothing etc. ...
 	end
+
+	include("compute-thresholds.jl")
 
 	function _fit(
 			X                       :: OntologicalDataset{T, N},
@@ -469,29 +433,7 @@ module treeclassifier
 		# Dataset sizes
 		n_instances = n_samples(X)
 
-		# Note: in the propositional case, some pairs of operators (e.g. <= and >)
-		#  are complementary, and thus it is redundant to check both at the same node.
-		#  We avoid this by only keeping one of the two operators.
-		# TODO optimize this: use opposite_test_operator() to check pairs.
-		# TODO But first, check that TestOpGeq95 and TestOpLeq05 are actually complementary
-		if prod(channel_size(X)) == 1
-			if test_operators ⊆ ModalLogic.all_ordered_test_operators
-				test_operators = [ModalLogic.TestOpGeq]
-				# test_operators = filter(e->e ≠ ModalLogic.TestOpLeq,test_operators)
-			end
-		end
-
-		# Array memory for class counts
-		nc  = Vector{U}(undef, n_classes)
-		ncl = Vector{U}(undef, n_classes)
-		ncr = Vector{U}(undef, n_classes)
-
-		# TODO We need to write on S, thus it cannot be a static array like X Y and W;
-		# Should belong inside each meta-node and then be copied? That's a waste of space(for each instance),
-		# We only need the worlds for the currentinstance set.
-		# What if it's not fixed size? Maybe it should be like the subset of indX[region], so that indX[region.start] is parallel to node.S[1]
-		# TODO make the initial entity and initial modality a training parameter?
-
+		# Initialize world sets
 		w0params =
 			if initCondition == startWithRelationAll
 				[ModalLogic.emptyWorld]
@@ -502,6 +444,11 @@ module treeclassifier
 		end
 		S = WorldSet{X.ontology.worldType}[[X.ontology.worldType(w0params...)] for i in 1:n_instances]
 
+		# Array memory for class counts
+		nc  = Vector{U}(undef, n_classes)
+		ncl = Vector{U}(undef, n_classes)
+		ncr = Vector{U}(undef, n_classes)
+
 		# Array memory for dataset
 		Xf = Array{T, N+1}(undef, channel_size(X)..., n_instances)
 		Yf = Vector{Label}(undef, n_instances)
@@ -509,15 +456,27 @@ module treeclassifier
 		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
 
 		# Binary relations (= unary modal operators)
-		# Note: the equality operator is the first, and is the one representing
-		#  the propositional case.
-		# TODO check what happens if ModalLogic.RelationAll o ModalLogic.RelationId is in X.ontology.relationSet (I mean... optimize that case)
-		relationSet = [ModalLogic.RelationId, ModalLogic.RelationAll, (X.ontology.relationSet)...]
+		# Note: the identity relation is the first, and it is the one representing
+		#  propositional splits.
+		
+		ontology_relations = X.ontology.relationSet
+		if ModalLogic.RelationId in ontology_relations
+			println("Warning! Found RelationId in ontology provided. Use useRelationId = true instead.")
+			ontology_relations = filter(e->e ≠ ModalLogic.RelationId, ontology_relations)
+			useRelationId = true
+		end
+
+		if ModalLogic.RelationAll in ontology_relations
+			println("Warning! Found RelationAll in ontology provided. Use useRelationAll = true instead.")
+			ontology_relations = filter(e->e ≠ ModalLogic.RelationAll, ontology_relations)
+			useRelationAll = true
+		end
+
+		relationSet = [ModalLogic.RelationId, ModalLogic.RelationAll, ontology_relations...]
 		relationId_id = 1
 		relationAll_id = 2
-		relation_ids = map((x)->x+2, 1:length(X.ontology.relationSet))
-		# TODO figure out if one should use this
-
+		relation_ids = map((x)->x+2, 1:length(ontology_relations))
+		
 		availableModalRelation_ids = if useRelationAll
 			[relationAll_id, relation_ids...]
 		else
@@ -530,42 +489,55 @@ module treeclassifier
 			availableModalRelation_ids
 		end
 		
+		## Optimizations for edge cases
+		
 		# Fix test_operators order
 		test_operators = unique(test_operators)
 		ModalLogic.sort_test_operators!(test_operators)
 		
-		# if length(test_operators) > 2
-		# 	println("test_operators")
-		# 	println(test_operators)
-		# 	readline()
-		# end
+		# Adimensional operators:
+		#  in the adimensional case, some pairs of operators (e.g. <= and >)
+		#  are complementary, and thus it is redundant to check both at the same node.
+		#  We avoid this by only keeping one of the two operators.
+		if prod(channel_size(X)) == 1
+			if test_operators ⊆ ModalLogic.all_ordered_test_operators
+				test_operators = [ModalLogic.TestOpGeq]
+				# test_operators = filter(e->e ≠ ModalLogic.TestOpGeq,test_operators)
+			end
+		end
 
-		# TODO check that length(channel_size(X)) == complexity(worldType)
+		# Softened operators:
+		#  when the biggest world only has a few values, softened operators fallback
+		#  to being hard operators
+		max_world_wratio = 1/prod(channel_size(X))
+		if ModalLogic.TestOpGeq in test_operators
+			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpGeqSoft || e.alpha < 1-max_world_wratio), test_operators)
+		end
+		if ModalLogic.TestOpLeq in test_operators
+			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
+		end
 
+		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
+			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
+		end
 
-		# TODO use Ef = Dict(X.ontology.worldType,NTuple{NTO,T})
-		# Fill with ModalLogic.enumAcc(Sf[i], ModalLogic.RelationAll, channel)... 
-		# TODO Ef = Array{T,1+worldTypeSize(X.ontology.worldType)}(undef, )
-
-		# Calculate Gammas
-		# TODO expand for generic test operators
-		# TODO test with array-only Gammas = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
-		# TODO try something like Gammas = fill(No: Dict{X.ontology.worldType,NTuple{NTO,T}}(), n_instances, n_variables(X))
+		# Calculate gammas
+		#  A gamma, for a given feature f, world w, relation X and test_operator ⋈, is 
+		#  the unique value γ for which w ⊨ <X> f ⋈ γ and:
+		#  if polarity(⋈) == true:      ∀ a > γ:    w ⊭ <X> f ⋈ a
+		#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
 		
-		# TODO improve code leveraging world/dimensional dataset structure
+		gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+		# gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
 
-		# Gammas = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,NTuple{NTO,T}}}}}(undef, n_variables(X))
-		
-		# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
-		Gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-		# Gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
+		# Let the core algorithm begin!
 
 		# Sample indices (array of indices that will be sorted and partitioned across the leaves)
 		indX = collect(1:n_instances)
 		# Create root node
-		root = NodeMeta{T}(1:n_instances, 0, 0)
+		root = NodeMeta{T,Float64}(1:n_instances, 0, 0)
 		# Stack of nodes to process
-		stack = Tuple{NodeMeta{T},Bool}[(root,(initCondition == startWithRelationAll))]
+		stack = Tuple{NodeMeta{T,Float64},Bool}[(root,(initCondition == startWithRelationAll))]
 		# The first iteration is treated sightly differently
 		@inbounds while length(stack) > 0
 			# Pop node and process it
@@ -579,10 +551,10 @@ module treeclassifier
 				min_purity_increase,
 				test_operators,
 				indX,
-				nc, ncl, ncr, Xf, Yf, Wf, Sf, Gammas,
-				rng,
+				nc, ncl, ncr, Xf, Yf, Wf, Sf, gammas,
 				relationSet,
-				(onlyUseRelationAll ? [relationAll_id] : allAvailableRelation_ids)
+				(onlyUseRelationAll ? [relationAll_id] : allAvailableRelation_ids),
+				rng,
 				)
 			# After processing, if needed, perform the split and push the two children for a later processing step
 			if !node.is_leaf
