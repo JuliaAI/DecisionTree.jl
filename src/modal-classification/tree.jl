@@ -15,6 +15,8 @@ module treeclassifier
 	using Logging: @logmsg
 	import Random
 
+	include("gammas.jl")
+	
 	mutable struct NodeMeta{S<:Real,U}
 		region           :: UnitRange{Int}                   # a slice of the samples used to decide the split of the node
 		depth            :: Int
@@ -411,8 +413,6 @@ module treeclassifier
 			throw("This algorithm doesn't allow nothing values.")
 		end
 	end
-
-	include("gammas.jl")
 
 	function _fit(
 			X                       :: OntologicalDataset{T, N},

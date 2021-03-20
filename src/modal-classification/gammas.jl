@@ -1,113 +1,63 @@
 
-# readGammas: read a specific value of the gammas array
+# gammas is a structure holding threshold values that are on the verge of truth of propositional split formulas.
 
-@inline function readGammas(
-	gammas            :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
-	w::AbstractWorld,
-	i::Integer,
-	relation_id::Integer,
-	feature::Integer) where {NTO,T,WorldType<:AbstractWorld}
-	return gammas[i, relation_id, feature][w]
-end
+# For generic worldTypes, gammas is an n-dim array of dictionaries indicized on the world itself.
+#  Instead, when the structure of a world is known, its attributes are unrolled as
+#  array dimensions; gammas then becomes an (n+k)-dim array,
+#  where k is the complexity of the worldType.
 
-@inline function readGammas(
-	gammas            :: AbstractArray{NTuple{NTO,T},N},
-	w::ModalLogic.Interval2D,
-	i::Integer,
-	relation_id::Integer,
-	feature::Integer) where {N,NTO,T}
-	return gammas[w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
-end
+# TODO test with array-only gammas = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
+# TODO try something like gammas = fill(No: Dict{X.ontology.worldType,NTuple{NTO,T}}(), n_instances, n_variables(X))
+# gammas = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,NTuple{NTO,T}}}}}(undef, n_variables(X))		
+# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
 
-@inline function readGammas(
-	gammas            :: AbstractArray{NTuple{NTO,T},N},
-	test_operator_id::Integer,
-	w::ModalLogic.Interval2D,
-	i::Integer,
-	relation_id::Integer,
-	feature::Integer) where {N,NTO,T}
-	return gammas[test_operator_id, w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO fix and generalize this
-end
+# TODO make the test_operators tuple part of the array. ?
 
-# function computeGammas(
-# 		X                  :: OntologicalDataset{T, N},
-# 		worldType          :: Type{WorldType},
-# 		# test_operators     :: AbstractVector{<:ModalLogic.TestOperator},
-# 		relationSet        :: Vector{<:ModalLogic.AbstractRelation},
-# 		relationId_id      :: Int,
-# 		relation_ids       :: AbstractVector{Int},
-# 	) where {T, N, WorldType<:AbstractWorld}
-# 	n_instances = n_samples(X)
-# 	n_vars = n_variables(X)
-# 	gammas = Array{Dict{X.ontology.worldType,NTuple{NTO,T}}, 3}(undef, n_instances, length(relationSet), n_vars)
-# 	@inbounds for feature in 1:n_vars
-# 		println("feature $(feature)/$(n_vars)")
-		
-# 		# Find the highest/lowest thresholds
+@inline initGammas(worldType::Type{AbstractWorld}, T::Type, channel_size::Tuple, n_test_operators::Integer, n_instances::Integer, n_relations::Integer, n_vars::Integer) =
+	Array{Dict{worldType,NTuple{n_test_operators,T}}, 3}(undef, n_instances, n_relations, n_vars)
+@inline initGammas(worldType::Type{ModalLogic.Interval2D}, T::Type, (X,Y)::NTuple{2,Integer}, n_test_operators::Integer, n_instances::Integer, n_relations::Integer, n_vars::Integer) =
+	Array{NTuple{n_test_operators,T}, 7}(undef, X, X+1, Y, Y+1, n_instances, n_relations, n_vars)
 
-# 		for i in 1:n_instances
-# 			# println("instance $(i)/$(n_samples)")
+@inline setGamma(gammas::Array{Dict{WorldType,NTuple{NTO,T}}, 3}, w::WorldType, i_instances::Integer, i_relations::Integer, i_vars::Integer, thresholds::NTuple{NTO,T}) where {WorldType<:AbstractWorld,NTO,T} =
+	gammas[i_instances, i_relations, i_vars][w] = thresholds
+@inline setGamma(gammas::Array{NTuple{NTO,T}, 7}, w::ModalLogic.Interval2D, i_instances::Integer, i_relations::Integer, i_vars::Integer, thresholds::NTuple{NTO,T}) where {NTO,T} =
+	gammas[w.x.x, w.x.y, w.y.x, w.y.y, i_instances, i_relations, i_vars] = thresholds
 
-# 			# Propositional, local
-# 			relation_id = relationId_id
-# 			gammas[i,relation_id,feature] = Dict{X.ontology.worldType,NTuple{NTO,T}}()
-# 			@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
-# 			for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
-# 				# opGeqMaxThresh, opLesMinThresh = ModalLogic.WMin(w, channel), ModalLogic.WMax(w, channel)
-# 				opGeqMaxThresh, opLesMinThresh = ModalLogic.WExtrema(w, channel)
-# 				gammas[i,relation_id,feature][w] = (opGeqMaxThresh, opLesMinThresh)
-# 			end
+@inline initGammaSlice(worldType::Type{AbstractWorld}, gammas::Array{Dict{WorldType,NTuple{NTO,T}}, 3}, n_instances::Integer, n_relations::Integer, n_vars::Integer) where {WorldType<:AbstractWorld,NTO,T} =
+	gammas[i_instances, i_relations, i_vars] = Dict{WorldType,NTuple{NTO,T}}()
+@inline initGammaSlice(worldType::Type{ModalLogic.Interval2D}, gammas::Array{NTuple{NTO,T}, 7}, n_instances::Integer, n_relations::Integer, n_vars::Integer) where {NTO,T} =
+	nothing
 
-# 			# Modal
-# 			for relation_id in relation_ids
-# 				relation = relationSet[relation_id]
-# 				# println("relation $(relation)")
-# 				# @info "Relation " relation_id relation
-# 				gammas[i,relation_id,feature] = Dict{X.ontology.worldType,NTuple{NTO,T}}()
-# 				# For each world w and each relation R, compute the peaks of v worlds, with w<R>v
-# 				for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
-# 					# @info "World " w 
-# 					opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
-# 					for v in ModalLogic.enumAccRepr(w, relation, channel)
-# 					# for v in ModalLogic.enumAcc([w], relation, channel)
-# 						(v_opGeqMaxThresh, v_opLesMinThresh) = gammas[i,relationId_id,feature][v]
-# 						# @info "  ->World " v v_opGeqMaxThresh v_opLesMinThresh
-# 						opGeqMaxThresh = max(opGeqMaxThresh, v_opGeqMaxThresh)
-# 						opLesMinThresh = min(opLesMinThresh, v_opLesMinThresh)
-# 					end # worlds
-# 					@info "World " relation_id relation w opGeqMaxThresh opLesMinThresh
-# 					gammas[i,relation_id,feature][w] = (opGeqMaxThresh, opLesMinThresh)
-# 				end
-# 			end # relation
+@inline sliceGamma(worldType::Type{AbstractWorld}, gammas::Array{Dict{WorldType,NTuple{NTO,T}}, 3}, i_instances::Integer, i_relations::Integer, i_vars::Integer) where {WorldType<:AbstractWorld,NTO,T} =
+	gammas[i_instances, i_relations, i_vars]
+@inline sliceGamma(worldType::Type{ModalLogic.Interval2D}, gammas::Array{NTuple{NTO,T}, 7}, i_instances::Integer, i_relations::Integer, i_vars::Integer) where {NTO,T} =
+	@view gammas[:,:,:,:, i_instances, i_relations, i_vars]
 
-# 		end # instances
-# 	end # feature
-# 	@info "Done." gammas[:,[1,relation_ids...],:]
-# 	gammas
-# end
+@inline setGammaSlice(gammasSlice::Dict{WorldType,NTuple{NTO,T}}, w::WorldType, thresholds::NTuple{NTO,T}) where {WorldType<:AbstractWorld,NTO,T} =
+	gammasSlice[w] = thresholds
+@inline setGammaSlice(gammasSlice::AbstractArray{NTuple{NTO,T}, 4}, w::ModalLogic.Interval2D, thresholds::NTuple{NTO,T}) where {NTO,T} =
+	gammasSlice[w.x.x, w.x.y, w.y.x, w.y.y] = thresholds
 
 function computeGammas(
 		X                  :: OntologicalDataset{T, N},
-		worldType          :: Type{ModalLogic.Interval2D},
+		worldType          :: Type{WorldType},
 		test_operators     :: AbstractVector{<:ModalLogic.TestOperator},
 		relationSet        :: Vector{<:ModalLogic.AbstractRelation},
 		relationId_id      :: Int,
 		relation_ids       :: AbstractVector{Int},
-	) where {T, N}
+	) where {T, N, WorldType<:AbstractWorld}
+	
 	n_instances = n_samples(X)
 	n_vars = n_variables(X)
-	x,y = channel_size(X)
-
-	# TODO test with array-only gammas = Array{T, 4}(undef, 2, n_worlds(X.ontology.worldType, channel_size(X)), n_instances, n_variables(X))
-	# TODO try something like gammas = fill(No: Dict{X.ontology.worldType,NTuple{NTO,T}}(), n_instances, n_variables(X))
-	# gammas = Vector{Dict{ModalLogic.AbstractRelation,Vector{Dict{X.ontology.worldType,NTuple{NTO,T}}}}}(undef, n_variables(X))		
-	# TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
+	n_relations = length(relationSet)
+	n_test_operators = length(test_operators)
 
 	# Prepare gammas array
-	gammas = Array{NTuple{length(test_operators),T}, 7}(undef, x, x+1, y, y+1, n_instances, length(relationSet), n_vars)
-	@logmsg DTDebug "Computing gammas for Interval2D datasets..." size(X) n_instances n_vars x y test_operators relationSet relationId_id relation_ids size(gammas)
+	gammas = initGammas(worldType, T, channel_size(X), n_test_operators, n_instances, n_relations, n_vars)
 
-	firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
+	@logmsg DTDebug "Computing gammas..." size(X) worldType channel_size(X) test_operators n_instances n_relations n_vars relationSet relationId_id relation_ids size(gammas)
+
+	firstWorld = worldType(ModalLogic.firstWorld)
 
 	# With sorted test_operators
 	actual_test_operators = Tuple{Integer,Union{<:ModalLogic.TestOperator,Vector{<:ModalLogic.TestOperator}}}[]
@@ -184,7 +134,7 @@ function computeGammas(
 	# 	return opExtremeThresh
 	end
 
-	@inline WExtremeModalMany(test_operators::Vector{<:TestOperator}, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+	@inline WExtremeModalMany(test_operators::Vector{<:ModalLogic.TestOperator}, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 		# TODO use gammasId[w.x.x, w.x.y, w.y.x, w.y.y]...?
 		ModalLogic.WExtremeModalMany(test_operators, w, relation, channel)
 	end
@@ -201,9 +151,10 @@ function computeGammas(
 			@logmsg DTDebug "Instance $(i)/$(n_instances)"
 
 			# Propositional, local
-			@views channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check @views
+			channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check that @views actually avoids copying
+			initGammaSlice(worldType, gammas, i, relationId_id, feature)
 			# println(channel)
-			for w in ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
+			for w in ModalLogic.enumAcc(worldType[], ModalLogic.RelationAll, channel)
 				@logmsg DTDetail "World" w
 				thresholds = T[]
 				# thresholds = similar(test_operators, T)
@@ -218,26 +169,28 @@ function computeGammas(
 							error("Unexpected mode flag for test_operator $(test_operator): $(mode)\n$(test_operators)")
 						end
 				end
-				# TODO make the tuple part of the array.
-				gammas[w.x.x, w.x.y, w.y.x, w.y.y, i,relationId_id,feature] = Tuple(thresholds)
+
+				setGamma(gammas, w, i, relationId_id, feature, Tuple(thresholds))
 			end # world
 
-			@views gammasId = gammas[:,:,:,:, i,relationId_id,feature]
+			@views gammasId = sliceGamma(worldType, gammas, i, relationId_id, feature)
 			# Modal
 			for relation_id in relation_ids
 				relation = relationSet[relation_id]
+				initGammaSlice(worldType, gammas, i, relation_id, feature)
 				@logmsg DTDebug "Relation $(relation) (id: $(relation_id))" # "/$(length(relation_ids))"
-				@views gammasRel = gammas[:,:,:,:, i,relation_id,feature]
+				# TOD Check if cur_gammas improves performances
+				@views cur_gammas = sliceGamma(worldType, gammas, i, relation_id, feature)
 				# For each world w and each relation, compute the thresholds of all v worlds, with w<R>v
 				worlds = if relation != ModalLogic.RelationAll
-						ModalLogic.enumAcc(X.ontology.worldType[], ModalLogic.RelationAll, channel)
+						ModalLogic.enumAcc(worldType[], ModalLogic.RelationAll, channel)
 					else
 						[firstWorld]
 					end
 				for w in worlds
 					thresholds  = Vector{T}(undef, length(test_operators))
 
-					# TODO use gammasId
+					# TODO use gammasId, TODO gammasId[v]
 					t=1
 					for (mode,test_operator) in actual_test_operators
 						if mode == 0
@@ -253,13 +206,13 @@ function computeGammas(
 							error("Unexpected mode flag for test_operator $(test_operator): $(mode)\n$(test_operators)")
 						end
 					end
-					thresholds = Tuple(thresholds)
-
 					# Quale e' piu' veloce? TODO use gammasId in Wextrema?
 					# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.WExtremaRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "Wextrema different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
 
-					@logmsg DTDetail "World" w relation thresholds
-					gammasRel[w.x.x, w.x.y, w.y.x, w.y.y] = thresholds
+					@logmsg DTDetail "World" w relation Tuple(thresholds)
+
+					# setGamma(gammas, w, i, relation_id, feature, Tuple(thresholds))
+					setGammaSlice(cur_gammas, w, Tuple(thresholds))
 				end # world
 			end # relation
 
@@ -271,4 +224,28 @@ function computeGammas(
 	end # feature
 	@logmsg DTDebug "Done computing gammas" # gammas[:,[1,relation_ids...],:]
 	gammas
+end
+
+
+# readGammas: read a specific value of the gammas array
+
+@inline function readGammas(
+	gammas     :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
+	w          :: WorldType,
+	i, relation_id, feature) where {NTO,T,WorldType<:AbstractWorld}
+	return gammas[i, relation_id, feature][w]
+end
+
+@inline function readGammas(
+	gammas     :: AbstractArray{NTuple{NTO,T},N},
+	w          :: ModalLogic.Interval,
+	i, relation_id, feature) where {N,NTO,T}
+	return gammas[w.x, w.y, i, relation_id, feature]
+end
+
+@inline function readGammas(
+	gammas     :: AbstractArray{NTuple{NTO,T},N},
+	w          :: ModalLogic.Interval2D,
+	i, relation_id, feature) where {N,NTO,T}
+	return gammas[w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature]
 end
