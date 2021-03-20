@@ -16,7 +16,7 @@
 	- min_samples_leaf = [2, 4, 6]
 	- min_purity_increase = [0.001, 0.005, 0.01, 0.05, 0.15, 0.25, 0.5]
 	- max_purity_leaf = [0.15, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
-☐	Preliminary scan on logic-agnostic parameters
+✔	Preliminary scan on logic-agnostic parameters @done (21-03-19 15:05)
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
 
 ☐	Add IA7, IA7^2 relations
@@ -28,6 +28,7 @@
 ☐	Fix naming style (e.g. variables, etc. Order of struct's members)
 
 
+☐	new hard operator valuesbetween(a,b) (doesn't make the tree more expressive, just maybe faster at capturing patterns)
 ☐	Optimize RCC5
 ☐	Custom pretty printing, instead of display_... See https://docs.julialang.org/en/v1/manual/types/#man-custom-pretty-printing
 ☐	Add possibility of barely joining two relations with a disjunction (so you can get RCC5 from RCC8 relations)
