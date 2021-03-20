@@ -38,6 +38,31 @@
 @inline setGammaSlice(gammasSlice::AbstractArray{NTuple{NTO,T}, 4}, w::ModalLogic.Interval2D, thresholds::NTuple{NTO,T}) where {NTO,T} =
 	gammasSlice[w.x.x, w.x.y, w.y.x, w.y.y] = thresholds
 
+# readGammas: read a specific value of the gammas array
+
+@inline function readGammas(
+	gammas     :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
+	w          :: WorldType,
+	i, relation_id, feature) where {NTO,T,WorldType<:AbstractWorld}
+	return gammas[i, relation_id, feature][w]
+end
+
+@inline function readGammas(
+	gammas     :: AbstractArray{NTuple{NTO,T},N},
+	w          :: ModalLogic.Interval,
+	i, relation_id, feature) where {N,NTO,T}
+	return gammas[w.x, w.y, i, relation_id, feature]
+end
+
+@inline function readGammas(
+	gammas     :: AbstractArray{NTuple{NTO,T},N},
+	w          :: ModalLogic.Interval2D,
+	i, relation_id, feature) where {N,NTO,T}
+	return gammas[w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature]
+end
+
+
+
 function computeGammas(
 		X                  :: OntologicalDataset{T, N},
 		worldType          :: Type{WorldType},
@@ -60,6 +85,7 @@ function computeGammas(
 	firstWorld = worldType(ModalLogic.firstWorld)
 
 	# With sorted test_operators
+	# TODO fix
 	actual_test_operators = Tuple{Integer,Union{<:ModalLogic.TestOperator,Vector{<:ModalLogic.TestOperator}}}[]
 	already_inserted_test_operators = ModalLogic.TestOperator[]
 	i_test_operator = 1
@@ -224,28 +250,4 @@ function computeGammas(
 	end # feature
 	@logmsg DTDebug "Done computing gammas" # gammas[:,[1,relation_ids...],:]
 	gammas
-end
-
-
-# readGammas: read a specific value of the gammas array
-
-@inline function readGammas(
-	gammas     :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
-	w          :: WorldType,
-	i, relation_id, feature) where {NTO,T,WorldType<:AbstractWorld}
-	return gammas[i, relation_id, feature][w]
-end
-
-@inline function readGammas(
-	gammas     :: AbstractArray{NTuple{NTO,T},N},
-	w          :: ModalLogic.Interval,
-	i, relation_id, feature) where {N,NTO,T}
-	return gammas[w.x, w.y, i, relation_id, feature]
-end
-
-@inline function readGammas(
-	gammas     :: AbstractArray{NTuple{NTO,T},N},
-	w          :: ModalLogic.Interval2D,
-	i, relation_id, feature) where {N,NTO,T}
-	return gammas[w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature]
 end
