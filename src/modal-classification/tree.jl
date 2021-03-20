@@ -412,7 +412,7 @@ module treeclassifier
 		end
 	end
 
-	include("compute-thresholds.jl")
+	include("gammas.jl")
 
 	function _fit(
 			X                       :: OntologicalDataset{T, N},
