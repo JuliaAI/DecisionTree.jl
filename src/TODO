@@ -19,6 +19,7 @@
 ✔	Preliminary scan on logic-agnostic parameters @done (21-03-19 15:05)
 ☐	Provare subset di classi buone. Devo vedere che classi sono, e vedere se nell'altro dataset ci sono le stesse e riprovare.
 
+☐	computation of softened operators takes too much time
 ☐	Add IA7, IA7^2 relations
 ☐	Check improvements with @inbounds
 ☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)
