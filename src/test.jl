@@ -117,7 +117,7 @@ log_level = DecisionTree.DTOverview
 
 timeit = 2
 scale_dataset = false
-scale_dataset = UInt8
+# scale_dataset = UInt8
 
 # datasets = [
 # 	("IndianPines, 1x1",  traintestsplit(SampleLandCoverDataset("IndianPines",  40,  1,                   rng = rng),0.8)),
@@ -164,7 +164,8 @@ for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOf
 	for i in 1:5
 		# for window_size in [3,1] #,5]
 		for window_size in [1,3] #,5]
-			for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre"] # "IndianPines", "Pavia"]
+			# for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre"] # "IndianPines", "Pavia"]
+			for dataset_name in ["IndianPines", "Pavia"] # , "Salinas", "Salinas-A", "PaviaCentre"]
 				for useRelationAll in [true]
 					for initCondition in [DecisionTree.startAtCenter]
 						for test_operators in [
