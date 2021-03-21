@@ -355,7 +355,7 @@ end
 end
 @inline WExtremeMany(test_ops::Vector{<:TestOperator}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
-	[test_op_partialsort!(test_op,vals) for test_op in test_ops]
+	(test_op_partialsort!(test_op,vals) for test_op in test_ops)
 end
 
 WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin

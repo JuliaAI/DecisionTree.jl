@@ -5,6 +5,16 @@ import Random
 data_dir = "/home/gio/Desktop/SpatialDecisionTree/"
 # data_dir = "/home/gpagliarini/ModalDecisionTrees/"
 
+mapArrayToDataType(type::Type, array::AbstractArray) = begin
+	minVal = minimum(array)
+	maxVal = maximum(array)
+	normalized_array = (array.-minVal)./(maxVal-minVal)
+	typemin(type) .+ round.(type, (big(typemax(type))-big(typemin(type)))*normalized_array)
+end
+
+scaleDataset(dataset::Tuple, type::Type = UInt8) =
+	(mapArrayToDataType(type, dataset[1]),dataset[2],dataset[3])
+
 readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
 	insts = Array{Array{Float64}}[]
 	labels = String[]
