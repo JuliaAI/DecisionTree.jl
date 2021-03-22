@@ -57,11 +57,35 @@ function testDataset(name::String, dataset::Tuple, split_threshold::AbstractFloa
 			T_pruned = prune_tree(T, pruning_purity_threshold)
 			preds = apply_tree(T_pruned, X_test);
 			cm = confusion_matrix(Y_test, preds)
-			# @test cm.accuracy > 0.99
+			# @test cm.overall_accuracy > 0.99
 			
-			println("RESULT:\t$(name)\t$(args)\t$(kwargs)\t$(pruning_purity_threshold)\t$(round(cm.accuracy*100, digits=2))%\t$(round(cm.kappa*100, digits=2))%")
+			function display_cm_as_row(cm::ConfusionMatrix)
+				"|\t" *
+				"$(round(cm.overall_accuracy*100, digits=2))%\t" *
+				"$(round(cm.mean_accuracy*100, digits=2))%\t" *
+				"$(round(cm.kappa*100, digits=2))%\t" *
+				# "$(round(DecisionTree.macro_F1(cm)*100, digits=2))%\t" *
+				"$(round.(cm.accuracies.*100, digits=2))%\t" *
+				"$(round.(cm.F1s.*100, digits=2))%\t" *
+				"$(round.(cm.sensitivities.*100, digits=2))%\t" *
+				"$(round.(cm.specificities.*100, digits=2))%\t" *
+				"$(round.(cm.PPVs.*100, digits=2))%\t" *
+				"$(round.(cm.NPVs.*100, digits=2))%\t" *
+				"||\t" *
+				"$(round(DecisionTree.macro_weighted_F1(cm)*100, digits=2))%\t" *
+				# "$(round(DecisionTree.macro_sensitivity(cm)*100, digits=2))%\t" *
+				"$(round(DecisionTree.macro_weighted_sensitivity(cm)*100, digits=2))%\t" *
+				# "$(round(DecisionTree.macro_specificity(cm)*100, digits=2))%\t" *
+				"$(round(DecisionTree.macro_weighted_specificity(cm)*100, digits=2))%\t" *
+				# "$(round(DecisionTree.mean_PPV(cm)*100, digits=2))%\t" *
+				"$(round(DecisionTree.macro_weighted_PPV(cm)*100, digits=2))%\t" *
+				# "$(round(DecisionTree.mean_NPV(cm)*100, digits=2))%\t" *
+				"$(round(DecisionTree.macro_weighted_NPV(cm)*100, digits=2))%\t"
+			end
+
+			println("RESULT:\t$(name)\t$(args)\t$(kwargs)\t$(pruning_purity_threshold)\t$(display_cm_as_row(cm))")
 			
-			# println("  accuracy: ", round(cm.accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
+			# println("  accuracy: ", round(cm.overall_accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
 			for (i,row) in enumerate(eachrow(cm.matrix))
 				for val in row
 					print(lpad(val,3," "))
