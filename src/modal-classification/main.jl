@@ -112,6 +112,7 @@ function build_tree(
 	end
 end
 
+# TODO fix this using specified purity
 function prune_tree(tree::DTNode{S, T}, max_purity_threshold::AbstractFloat = 1.0) where {S, T}
 	if max_purity_threshold >= 1.0
 		return tree

@@ -25,6 +25,8 @@ show(io::IO, w::Interval2D) = begin
 	print(io, ")")
 end
 
+worldTypeDimensionality(::Type{Interval2D}) = 2
+
 yieldReprs(test_operator::_TestOpGeq, repr::_ReprMax{Interval2D},  channel::MatricialChannel{T,2}) where {T} =
 	reverse(extrema(readWorld(repr.w, channel)))::NTuple{2,T}
 yieldReprs(test_operator::_TestOpGeq, repr::_ReprMin{Interval2D},  channel::MatricialChannel{T,2}) where {T} =

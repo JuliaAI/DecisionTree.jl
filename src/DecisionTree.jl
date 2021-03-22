@@ -132,7 +132,7 @@ modal_height(t::DTree) = modal_height(t.root)
 function print_tree(leaf::DTLeaf, depth=-1, indent=0, indent_guides=[])
 		matches = findall(leaf.values .== leaf.majority)
 		ratio = string(length(matches)) * "/" * string(length(leaf.values))
-		println("$(leaf.majority) : $(ratio)")
+		println("$(leaf.majority) : $(ratio)") # TODO print purity?
 end
 
 function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
@@ -141,7 +141,7 @@ function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
 				return
 		end
 
-		println(ModalLogic.display_modal_test(tree.modality, tree.test_operator, tree.featid, tree.featval))
+		println(ModalLogic.display_modal_test(tree.modality, tree.test_operator, tree.featid, tree.featval)) # TODO print purity?
 		# indent_str = " " ^ indent
 		indent_str = reduce(*, [i == 1 ? "│" : " " for i in indent_guides])
 		# print(indent_str * "╭✔")
