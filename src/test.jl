@@ -186,7 +186,7 @@ for (i_ontology,ontology) in enumerate([getIntervalRCC8OntologyOfDim(Val(2)), ge
 								# [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 																		]
 
-							if (window_size == 1 && i_ontology != 0)
+							if (window_size == 1 && i_ontology != 1)
 								continue
 							end
 
@@ -205,7 +205,7 @@ for (i_ontology,ontology) in enumerate([getIntervalRCC8OntologyOfDim(Val(2)), ge
 							# rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
 							rng_new = copy(rng_new)
 							dataset = SampleLandCoverDataset(dataset_name,                 n_instances,        window_size, flattened = flattened,                   rng = rng_new)
-							testDataset("$(dataset_name), $(window_size)x$(window_size)", dataset, 0.8, timeit, scale_dataset = scale_dataset, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							testDataset("$(dataset_name), $(window_size)x$(window_size)" * (if flattened " flattened" else "" end), dataset, 0.8, timeit, scale_dataset = scale_dataset, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
 							
 							# testDataset(datasets[databatch*5+1], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
 							# testDataset(datasets[databatch*5+2], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
