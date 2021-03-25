@@ -124,6 +124,7 @@ scale_dataset = false
 
 # n_instances = 1
 n_instances = 100
+# n_instances = 300
 # n_instances = 500
 
 # datasets = [
@@ -167,14 +168,16 @@ n_instances = 100
 # 	("IndianPines, 5x5 flattened",           traintestsplit(SampleLandCoverDataset("IndianPines",           indian_pines_instperclass, 5, flattened = true, rng = rng),0.8)),
 # ];
 
-for (i_ontology,ontology) in enumerate([getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOfDim(Val(2))])
-	for dataset_name in ["IndianPines", "Pavia", "Salinas", "Salinas-A", "PaviaCentre"]
-		for i in 1:10
+o_RCC8, o_RCC5 = getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOfDim(Val(2))
+
+	for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre", "Pavia", "IndianPines"]
+                rng_i = DecisionTree.mk_rng(1)
+		for i in 1:5
 			rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
 			# for window_size in [3,1] #,5]
-			for (window_size,flattened) in [(1,false),(3,true),(3,false)] #,5]
+			for (window_size,flattened,ontology) in [(3,false,o_RCC8),(1,false,o_RCC8),(3,true,o_RCC8),(3,false,o_RCC5)] #,5]
 				# for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre"] # "IndianPines", "Pavia"]
-				for useRelationAll in [true]
+				for useRelationAll in [false] # true]
 					for initCondition in [DecisionTree.startAtCenter]
 						for test_operators in [
 								[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq,
@@ -185,10 +188,6 @@ for (i_ontology,ontology) in enumerate([getIntervalRCC8OntologyOfDim(Val(2)), ge
 								# [ModalLogic.TestOpLeq_90,ModalLogic.TestOpLeq_80],
 								# [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 																		]
-
-							if (window_size == 1 && i_ontology != 1)
-								continue
-							end
 
 							cur_args = selected_args
 							cur_kwargs = merge(kwargs, (
@@ -218,7 +217,6 @@ for (i_ontology,ontology) in enumerate([getIntervalRCC8OntologyOfDim(Val(2)), ge
 			end
 		end
 	end
-end
 
 exit()
 

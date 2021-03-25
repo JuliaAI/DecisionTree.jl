@@ -2,8 +2,8 @@ using MAT
 import Base: getindex, values
 import Random
 
-data_dir = "/home/gio/Desktop/SpatialDecisionTree/"
-# data_dir = "/home/gpagliarini/ModalDecisionTrees/"
+# data_dir = "/home/gio/Desktop/SpatialDecisionTree/"
+data_dir = "/home/gpagliarini/ModalDecisionTrees/"
 
 mapArrayToDataType(type::Type, array::AbstractArray) = begin
 	minVal = minimum(array)
