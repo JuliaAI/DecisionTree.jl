@@ -26,8 +26,8 @@ kwargs = (
 	# ontology = getIntervalOntologyOfDim(Val(2)),
 	# ontology = Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.RCC8Relations),Set([ModalLogic.Topo_PO]))),
 	# ontology = Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
-	ontology = getIntervalRCC8OntologyOfDim(Val(1)),
-	# ontology = getIntervalRCC8OntologyOfDim(Val(2)),
+	# ontology = getIntervalRCC8OntologyOfDim(Val(1)),
+	ontology = getIntervalRCC8OntologyOfDim(Val(2)),
 	# ontology = getIntervalRCC5OntologyOfDim(Val(2)),
 
 	# ontology=Ontology(ModalLogic.Interval2D,ModalLogic.AbstractRelation[]),
