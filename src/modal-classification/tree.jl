@@ -430,6 +430,10 @@ module treeclassifier
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
 
+		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
+			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
+		end
+		
 		# Dataset sizes
 		n_instances = n_samples(X)
 
@@ -515,10 +519,6 @@ module treeclassifier
 		end
 		if ModalLogic.TestOpLeq in test_operators
 			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
-		end
-
-		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
-			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
 		end
 
 		# Calculate gammas
