@@ -56,7 +56,7 @@ readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
 end
 
 SplatEduardDataset(N) = begin
-	insts,classes = readDataset(data_dir * "datasets/test-da-Eduard/Train-$N.txt", Val(N))
+	insts,classes = readDataset(data_dir * "datasets/test-Eduard/Train-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
@@ -69,7 +69,7 @@ SplatEduardDataset(N) = begin
 
 	Y_train = map((x)-> parse(Int, x), classes)
 	
-	insts,classes = readDataset(data_dir * "datasets/test-da-Eduard/Test-$N.txt", Val(N))
+	insts,classes = readDataset(data_dir * "datasets/test-Eduard/Test-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
