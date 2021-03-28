@@ -40,6 +40,26 @@ end
 @inline setGammaSlice(gammasSlice::Dict{WorldType,NTuple{NTO,T}}, w::WorldType, i_test_operator::Integer, threshold::T) where {WorldType<:AbstractWorld,NTO,T} =
 	gammasSlice[w][i_test_operator] = threshold
 
+
+
+@inline initGammas(worldType::Type{ModalLogic.Interval}, T::Type, (X,)::NTuple{1,Integer}, n_test_operators::Integer, n_instances::Integer, n_relations::Integer, n_vars::Integer) =
+	Array{NTuple{n_test_operators,T}, 5}(undef, X, X+1, n_instances, n_relations, n_vars)
+@inline setGamma(gammas::Array{NTuple{NTO,T}, 5}, w::ModalLogic.Interval, i_instances::Integer, i_relations::Integer, i_vars::Integer, thresholds::NTuple{NTO,T}) where {NTO,T} =
+	gammas[w.x, w.y, i_instances, i_relations, i_vars] = thresholds
+@inline initGammaSlice(worldType::Type{ModalLogic.Interval}, gammas::Array{NTuple{NTO,T}, 5}, n_instances::Integer, n_relations::Integer, n_vars::Integer) where {NTO,T} =
+	nothing
+@inline sliceGammas(worldType::Type{ModalLogic.Interval}, gammas::Array{NTuple{NTO,T}, 5}, i_instances::Integer, i_relations::Integer, i_vars::Integer) where {NTO,T} =
+	@view gammas[:,:, i_instances, i_relations, i_vars]
+@inline setGammaSlice(gammasSlice::AbstractArray{NTuple{NTO,T}, 2}, w::ModalLogic.Interval, thresholds::NTuple{NTO,T}) where {NTO,T} =
+	gammasSlice[w.x, w.y] = thresholds
+@inline function readGamma(
+	gammas     :: AbstractArray{NTuple{NTO,T},N},
+	w          :: ModalLogic.Interval,
+	i, relation_id, feature) where {N,NTO,T}
+	gammas[w.x, w.y, i, relation_id, feature]
+end
+
+
 # TODO
 # @inline function readGamma(
 # 	gammas     :: AbstractArray{NTuple{NTO,T},N},

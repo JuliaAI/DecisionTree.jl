@@ -26,6 +26,7 @@ kwargs = (
 	# ontology = getIntervalOntologyOfDim(Val(2)),
 	# ontology = Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.RCC8Relations),Set([ModalLogic.Topo_PO]))),
 	# ontology = Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
+	# ontology = getIntervalRCC8OntologyOfDim(Val(1)),
 	ontology = getIntervalRCC8OntologyOfDim(Val(2)),
 	# ontology = getIntervalRCC5OntologyOfDim(Val(2)),
 
@@ -153,8 +154,8 @@ n_instances = 100
 # datasets = Tuple{String,Tuple{Tuple{Array,Vector},Tuple{Array,Vector},Vector{String}}}[
 # 	# ("simpleDataset",traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng()),0.8)),
 # 	# ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng()),0.8)),
-# 	# ("Eduard-5",EduardDataset(5)),
-# 	# ("Eduard-10",EduardDataset(10)),	
+# 	# ("Eduard-5",SplatEduardDataset(5)),
+# 	# ("Eduard-10",SplatEduardDataset(10)),	
 # 	#
 # 	("Pavia, 1x1",                           traintestsplit(SampleLandCoverDataset("Pavia",                 pavia_instperclass,        1,                   rng = rng),0.8)),
 # 	("Pavia, 3x3",                           traintestsplit(SampleLandCoverDataset("Pavia",                 pavia_instperclass,        3,                   rng = rng),0.8)),
@@ -222,7 +223,7 @@ exit()
 
 T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
-T = testDataset(("Pavia, 3x3",                           traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 1, rng = my_rng),0.8)), timeit, args=args, kwargs=kwargs);
+T = testDataset("Pavia, 3x3",                           traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 1, rng = my_rng),0.8), timeit, args=args, kwargs=kwargs);
 
 exit()
 

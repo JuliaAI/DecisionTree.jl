@@ -20,15 +20,23 @@ using PProf
 
 include("example-datasets.jl")
 
-function testDataset(name::String, dataset::Tuple, split_threshold::AbstractFloat, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], args = (), kwargs = (), error_catching = false, rng = my_rng())
+function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], args = (), kwargs = (), error_catching = false, rng = my_rng())
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
-	length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
-	if scale_dataset != false
-		dataset = scaleDataset(dataset, scale_dataset)
+	if split_threshold != false
+		length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
+		if scale_dataset != false
+			dataset = scaleDataset(dataset, scale_dataset)
+		end
+		(X_train, Y_train), (X_test, Y_test),class_labels = traintestsplit(dataset, split_threshold)
+	else
+		length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
+		(X_train, Y_train), (X_test, Y_test),class_labels = dataset 
+		if scale_dataset != false
+			(X_train, Y_train, class_labels) = scaleDataset((X_train, Y_train, class_labels))
+			(X_test, Y_test, class_labels) = scaleDataset((X_test, Y_test, class_labels))
+		end
 	end
-	(X_train, Y_train), (X_test, Y_test),class_labels = traintestsplit(dataset, split_threshold)
-	
 	println("args = ", args)
 	println("kwargs = ", kwargs)
 

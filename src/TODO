@@ -29,6 +29,7 @@
 ☐	Fix naming style (e.g. variables, etc. Order of struct's members)
 
 
+☐	Interpolate impurity function and find best threshold by interpolation
 ☐	new hard operator valuesbetween(a,b) (doesn't make the tree more expressive, just maybe faster at capturing patterns)
 ☐	Optimize RCC5
 ☐	Custom pretty printing, instead of display_... See https://docs.julialang.org/en/v1/manual/types/#man-custom-pretty-printing
