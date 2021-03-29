@@ -5,6 +5,12 @@ include("test-header.jl")
 
 rng = my_rng()
 
+forest_args = (
+	n_subfeatures = 1,
+	n_trees = 5,
+	#partial_sampling = 0.7,
+)
+
 args = (
 	loss = DecisionTree.util.entropy,
 	# loss = DecisionTree.util.gini,
@@ -78,4 +84,6 @@ n_instances = 100
 rng_i = DecisionTree.mk_rng(1)
 
 dataset = SplatEduardDataset(5)
-T = testDataset("Test", dataset, false, 0, debugging_level=log_level, args=selected_args, kwargs=kwargs);      
+
+T = testDataset("Test", dataset, false, 0, debugging_level=log_level, forest_args=forest_args, args=selected_args, kwargs=kwargs,
+	test_tree = false, test_forest = true);      

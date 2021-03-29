@@ -39,13 +39,13 @@ function build_stump(
 		rng         :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D}
 	
 	X = OntologicalDataset{T,D-2}(ontology,features)
-	
+
 	t = treeclassifier.fit(
 		X                   = X,
 		Y                   = labels,
 		W                   = weights,
 		loss                = treeclassifier.util.zero_one,
-		# max_features        = n_variables(X),
+		max_features        = n_variables(X),
 		max_depth           = 1,
 		min_samples_leaf    = 1,
 		min_purity_increase = 0.0,
@@ -69,6 +69,7 @@ function build_tree(
 		labels              :: AbstractVector{Label},
 		features            :: MatricialDataset{T,D};
 		loss                :: Function           = util.entropy,
+		n_subfeatures		:: Int				  = 0,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
 		min_purity_increase :: AbstractFloat      = 0.0,
@@ -83,6 +84,10 @@ function build_tree(
 	# TODO disaccoppia dataset e ontologia di riferimento.
 	X = OntologicalDataset{T,D-2}(ontology,features)
 
+	if n_subfeatures == 0
+		n_subfeatures = n_variables(features)
+	end
+
 	if max_depth == -1
 		max_depth = typemax(Int)
 	end
@@ -93,6 +98,7 @@ function build_tree(
 		Y                   = labels,
 		W                   = nothing,
 		loss                = loss,
+		max_features		= n_subfeatures,
 		max_depth           = max_depth,
 		min_samples_leaf    = min_samples_leaf,
 		min_purity_increase = min_purity_increase,
@@ -264,3 +270,103 @@ apply_tree_proba(tree::DTNode{S, T}, features::AbstractMatrix{S}, labels) where 
 	stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
 =#
+
+
+function build_forest(
+	labels              :: AbstractVector{T},
+	features            :: MatricialDataset{S,D},
+	n_subfeatures       = 0,
+	n_trees             = 100;
+	partial_sampling    = 0.7,
+	max_depth           = -1,
+	min_samples_leaf    = 1,
+	min_samples_split   = 2,
+	min_purity_increase = 0.0,
+	loss                :: Function           = util.entropy,
+	min_loss_at_leaf    :: AbstractFloat      = -Inf,
+	# TODO: these arguments should become the "args..." we were talking about
+	initCondition       :: _initCondition     = startWithRelationAll,
+	useRelationAll      :: Bool               = true,
+	useRelationId       :: Bool               = true,
+	ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
+	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	# END of "args..."
+	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, S, D}
+
+	if n_trees < 1
+		throw("the number of trees must be >= 1")
+	end
+	if !(0.0 < partial_sampling <= 1.0)
+		throw("partial_sampling must be in the range (0,1]")
+	end
+
+	if n_subfeatures == 0
+		n_features = n_variables(features)
+		n_subfeatures = floor(Int, sqrt(n_features))
+	end
+
+	t_samples = n_samples(features)
+	num_samples = floor(Int, partial_sampling * t_samples)
+
+	trees = Vector{Union{DTree{S,T},DTNode{S,T}}}(undef, n_trees)
+	cms = Vector{ConfusionMatrix}(undef, n_trees)
+
+	# TODO: Figure out why this is the only function which creates entropy terms by it-self
+	# entropy_terms = util.compute_entropy_terms(num_samples)
+	# loss = (ns, n) -> util.entropy(ns, n, entropy_terms)
+
+	# TODO: precompute gammas HERE!
+ 	# X = OntologicalDataset{T,D-2}(ontology,features)
+	# gammas = precompile_gammas!(X, test_operators)
+
+	Threads.@threads for i in 1:n_trees
+		inds = rand(rng, 1:t_samples, num_samples)
+		trees[i] = build_tree(
+			labels[inds],
+			features[:,inds,:], # TODO: generalize to all possible dimensions
+			n_subfeatures = n_subfeatures,
+			max_depth = max_depth,
+			min_samples_leaf = min_samples_leaf,
+			min_purity_increase = min_purity_increase,
+			loss = loss,
+			min_loss_at_leaf = min_loss_at_leaf,
+			#
+			initCondition = initCondition,
+			useRelationAll = useRelationAll,
+			useRelationId = useRelationId,
+			ontology = ontology,
+			test_operators = test_operators,
+			#
+			rng = rng)
+		# grab out-of-bag indices
+		oob_inds = setdiff(1:t_samples, inds)
+
+		tree_preds = apply_tree(trees[i], features[:,oob_inds,:])
+		cms[i] = confusion_matrix(labels[oob_inds], tree_preds)
+	end
+
+	return Forest{S, T}(trees, cms)
+end
+
+function apply_forest(forest::Forest{S,T}, features::MatricialDataset{S,D}; use_weigthed_trees::Bool = false) where {S, T, D}
+	@logmsg DTDetail "apply_forest..."
+	n_trees = length(forest)
+	n_instances = n_samples(features)
+
+	votes = Matrix{T}(undef, n_trees, n_instances)
+	for i in 1:n_trees
+		votes[i,:] = apply_tree(forest.trees[i], features)
+	end
+	
+	# TODO: generalize majority vote and mean beahviour
+	predictions = Array{T}(undef, n_instances)
+	for i in 1:n_instances
+		if T <: Float64
+			predictions[i] = mean(votes[:,i])
+		else
+			predictions[i] = majority_vote(votes[:,i])
+		end
+	end
+
+	return predictions
+end
