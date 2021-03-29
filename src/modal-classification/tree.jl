@@ -196,6 +196,8 @@ module treeclassifier
 					fill!(cur_thr, ModalLogic.bottom(test_operator, T))
 				end
 
+				@logmsg DTDebug "thresholds: " thresholds
+
 				# TODO optimize this!!
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 				for i in 1:n_instances
@@ -240,7 +242,7 @@ module treeclassifier
 
 				# Look for the correct test operator
 				for (i_test_operator,test_operator) in enumerate(test_operators)
-					thresholdArr = thresholds[i_test_operator,:]
+					thresholdArr = @views thresholds[i_test_operator,:]
 					thresholdDomain = setdiff(Set(thresholdArr),Set([typemin(T), typemax(T)]))
 					# Look for thresholdArr 'a' for the propositions like "feature >= a"
 					for threshold in thresholdDomain
@@ -295,7 +297,7 @@ module treeclassifier
 		# If the best split is good, partition and split accordingly
 		@inbounds if (best_purity__nt == typemin(U)
 									|| (best_purity__nt/nt + node.purity <= min_purity_increase))
-			@logmsg DTDebug " Leaf" unsplittable min_purity_increase (best_purity__nt/nt) node.purity ((best_purity__nt/nt) + node.purity)
+			@logmsg DTDebug " Leaf" best_purity__nt min_purity_increase (best_purity__nt/nt) node.purity ((best_purity__nt/nt) + node.purity)
 			node.is_leaf = true
 			return
 		else
@@ -481,7 +483,7 @@ module treeclassifier
 		relationAll_id = 2
 		relation_ids = map((x)->x+2, 1:length(ontology_relations))
 		
-		availableModalRelation_ids = if useRelationAll
+		availableModalRelation_ids = if useRelationAll || (initCondition == startWithRelationAll)
 			[relationAll_id, relation_ids...]
 		else
 			relation_ids
@@ -492,7 +494,7 @@ module treeclassifier
 		else
 			availableModalRelation_ids
 		end
-		
+
 		## Optimizations for edge cases
 		
 		# Fix test_operators order
