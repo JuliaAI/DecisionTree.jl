@@ -154,7 +154,7 @@ module treeclassifier
 		## Find best split ##
 		#####################
 		# For each variable
-		@inbounds for feature in 1:n_vars
+		@inbounds for feature in random_vars_inds
 			@logmsg DTDebug "Testing feature $(feature)/$(n_vars)..."
 
 			## Test all conditions
