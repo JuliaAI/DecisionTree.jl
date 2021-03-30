@@ -132,6 +132,30 @@ function majority_vote(labels::AbstractVector)
 	return top_vote
 end
 
+function best_score(labels::AbstractVector{T}, weights::Union{Nothing,Vector{Number}}) where {T}
+	if weights === nothing
+		return majority_vote(labels)
+	end
+
+	counts = Dict{T,AbstractFloat}()
+	for i in length(labels)
+		l = labels[i]
+		counts[l] = get(counts, l, 0) + weights[i]
+	end
+
+	top_vote = labels[1]
+	top_score = -1
+
+	for (k,v) in counts
+		if v > top_score
+			top_vote = k
+			top_score = v
+		end
+	end
+
+	return top_vote
+end
+
 ### Classification ###
 
 function confusion_matrix(actual::AbstractVector, predicted::AbstractVector)
