@@ -7,7 +7,7 @@ rng = my_rng()
 
 forest_args = (
 	n_subfeatures = 1,
-	n_trees = 5,
+	n_trees = 4,
 	#partial_sampling = 0.7,
 )
 
@@ -43,11 +43,11 @@ kwargs = (
 	useRelationAll = false,
 	# test_operators = [ModalLogic.TestOpGeq],
 	# test_operators = [ModalLogic.TestOpLeq],
-	test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
 	# test_operators = [ModalLogic.TestOpGeq_70],
-	# test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
+	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
 	# test_operators = [ModalLogic.TestOpGeq_75, ModalLogic.TestOpLeq_75],
 	# test_operators = [ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
 	# test_operators = [ModalLogic.TestOpGeq_75],
