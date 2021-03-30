@@ -17,14 +17,16 @@ args = (
 
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 kwargs = (
-	initCondition = DecisionTree.startAtCenter,
+	# initCondition = DecisionTree.startAtCenter,
 	# initCondition = DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
-	# initCondition = DecisionTree.startWithRelationAll,
+	initCondition = DecisionTree.startWithRelationAll,
 	
 	# ontology = getIntervalOntologyOfDim(Val(2)),
 	# ontology = Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.RCC8Relations),Set([ModalLogic.Topo_PO]))),
 	# ontology = Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
-	ontology = getIntervalRCC8OntologyOfDim(Val(1)),
+	ontology = getIntervalOntologyOfDim(Val(1)),
+	# ontology = Ontology(ModalLogic.Interval,[ModalLogic.Topo_PO]), # TODO fix error thrown here
+	# ontology = getIntervalRCC8OntologyOfDim(Val(1)),
 	# ontology = getIntervalRCC8OntologyOfDim(Val(2)),
 	# ontology = getIntervalRCC5OntologyOfDim(Val(2)),
 
@@ -36,7 +38,10 @@ kwargs = (
 	# test_operators = [ModalLogic.TestOpGeq],
 	# test_operators = [ModalLogic.TestOpLeq],
 	test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
+	# test_operators = [ModalLogic.TestOpGeq_70],
+	# test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
 	# test_operators = [ModalLogic.TestOpGeq_75, ModalLogic.TestOpLeq_75],
 	# test_operators = [ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
 	# test_operators = [ModalLogic.TestOpGeq_75],
@@ -54,8 +59,9 @@ selected_args = merge(args, (loss = loss,
 															min_purity_increase = min_purity_increase,
 															min_loss_at_leaf = min_loss_at_leaf,
 															))
-log_level = DecisionTree.DTOverview
 # log_level = Logging.Warn
+log_level = DecisionTree.DTOverview
+# log_level = DecisionTree.DTDebug
 
 # timeit = 2
 timeit = 0
@@ -72,4 +78,4 @@ n_instances = 100
 rng_i = DecisionTree.mk_rng(1)
 
 dataset = SplatEduardDataset(5)
-T = testDataset("Test", dataset, false, 0, args=args, kwargs=kwargs);      
+T = testDataset("Test", dataset, false, 0, debugging_level=log_level, args=selected_args, kwargs=kwargs);      
