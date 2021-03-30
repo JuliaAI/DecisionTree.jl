@@ -6,7 +6,7 @@
 
 module treeclassifier
 	
-	export fit
+	export fit, optimize_test_operators!, computeGammas
 
 	using ..ModalLogic
 	using ..DecisionTree
@@ -421,55 +421,16 @@ module treeclassifier
 		end
 	end
 
-	function _fit(
-			X                       :: OntologicalDataset{T, N},
-			Y                       :: AbstractVector{Label},
-			W                       :: AbstractVector{U},
-			loss                    :: Function,
-			n_classes               :: Int,
-			max_features			:: Int,
-			max_depth               :: Int,
-			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
-			min_purity_increase     :: AbstractFloat,
-			min_loss_at_leaf        :: AbstractFloat,
-			initCondition           :: DecisionTree._initCondition,
-			useRelationAll          :: Bool,
-			useRelationId           :: Bool,
-			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
-			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
-
-		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
-			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
-		end
-		
-		# Dataset sizes
-		n_instances = n_samples(X)
-
-		# Initialize world sets
-		w0params =
-			if initCondition == startWithRelationAll
-				[ModalLogic.emptyWorld]
-			elseif initCondition == startAtCenter
-				[ModalLogic.centeredWorld, channel_size(X)...]
-			elseif typeof(initCondition) <: DecisionTree._startAtWorld
-				[initCondition.w]
-		end
-		S = WorldSet{X.ontology.worldType}[[X.ontology.worldType(w0params...)] for i in 1:n_instances]
-
-		# Array memory for class counts
-		nc  = Vector{U}(undef, n_classes)
-		ncl = Vector{U}(undef, n_classes)
-		ncr = Vector{U}(undef, n_classes)
-
-		# Array memory for dataset
-		Xf = Array{T, N+1}(undef, channel_size(X)..., n_instances)
-		Yf = Vector{Label}(undef, n_instances)
-		Wf = Vector{U}(undef, n_instances)
-		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
-
+	function optimize_test_operators!(
+			X               :: OntologicalDataset{T, N},
+			initCondition   :: DecisionTree._initCondition,
+			test_operators  :: AbstractVector{<:ModalLogic.TestOperator}
+		) where {T, N}
 		# Binary relations (= unary modal operators)
 		# Note: the identity relation is the first, and it is the one representing
 		#  propositional splits.
+		useRelationId = false
+		useRelationAll = false
 		
 		ontology_relations = X.ontology.relationSet
 		if ModalLogic.RelationId in ontology_relations
@@ -529,14 +490,78 @@ module treeclassifier
 			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
 		end
 
-		# Calculate gammas
-		#  A gamma, for a given feature f, world w, relation X and test_operator ⋈, is 
-		#  the unique value γ for which w ⊨ <X> f ⋈ γ and:
-		#  if polarity(⋈) == true:      ∀ a > γ:    w ⊭ <X> f ⋈ a
-		#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
+		(
+			relationSet,
+			useRelationId, useRelationAll, 
+			relationId_id, relationAll_id,
+			availableModalRelation_ids, allAvailableRelation_ids
+		)
+	end
+
+	function _fit(
+			X                       :: OntologicalDataset{T, N},
+			Y                       :: AbstractVector{Label},
+			W                       :: AbstractVector{U},
+			loss                    :: Function,
+			n_classes               :: Int,
+			max_features			:: Int,
+			max_depth               :: Int,
+			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
+			min_purity_increase     :: AbstractFloat,
+			min_loss_at_leaf        :: AbstractFloat,
+			initCondition           :: DecisionTree._initCondition,
+			useRelationAll          :: Bool,
+			useRelationId           :: Bool,
+			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
+			rng = Random.GLOBAL_RNG :: Random.AbstractRNG;
+			gammas 					:: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = nothing) where {T, U, N, NTO, Ta}
+
+		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
+			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
+		end
 		
-		gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-		# gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
+		# Dataset sizes
+		n_instances = n_samples(X)
+
+		# Initialize world sets
+		w0params =
+			if initCondition == startWithRelationAll
+				[ModalLogic.emptyWorld]
+			elseif initCondition == startAtCenter
+				[ModalLogic.centeredWorld, channel_size(X)...]
+			elseif typeof(initCondition) <: DecisionTree._startAtWorld
+				[initCondition.w]
+		end
+		S = WorldSet{X.ontology.worldType}[[X.ontology.worldType(w0params...)] for i in 1:n_instances]
+
+		# Array memory for class counts
+		nc  = Vector{U}(undef, n_classes)
+		ncl = Vector{U}(undef, n_classes)
+		ncr = Vector{U}(undef, n_classes)
+
+		# Array memory for dataset
+		Xf = Array{T, N+1}(undef, channel_size(X)..., n_instances)
+		Yf = Vector{Label}(undef, n_instances)
+		Wf = Vector{U}(undef, n_instances)
+		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
+		
+		(
+			relationSet,
+			useRelationId, useRelationAll, 
+			relationId_id, relationAll_id,
+			availableModalRelation_ids, allAvailableRelation_ids
+		) = optimize_test_operators!(X, initCondition, test_operators)
+
+		if gammas === nothing
+			# Calculate gammas
+			#  A gamma, for a given feature f, world w, relation X and test_operator ⋈, is 
+			#  the unique value γ for which w ⊨ <X> f ⋈ γ and:
+			#  if polarity(⋈) == true:      ∀ a > γ:    w ⊭ <X> f ⋈ a
+			#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
+			
+			gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+			# gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
+		end
 
 		# Let the core algorithm begin!
 
@@ -585,6 +610,7 @@ module treeclassifier
 			X                       :: OntologicalDataset{T, N},
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
+			gammas					:: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = nothing,
 			loss = util.entropy     :: Function,
 			max_features			:: Int,
 			max_depth               :: Int,
@@ -595,7 +621,7 @@ module treeclassifier
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
+			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N, NTO, Ta}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
 		n_instances = n_samples(X)
@@ -604,7 +630,7 @@ module treeclassifier
 		labels, Y_ = util.assign(Y)
 
 		# Use unary weights if no weight is supplied
-		if W == nothing
+		if W === nothing
 			# TODO optimize w in the case of all-ones: write a subtype of AbstractVector:
 			#  AllOnesVector, so that getindex(W, i) = 1 and sum(W) = size(W).
 			#  This allows the compiler to optimize constants at compile-time
@@ -636,7 +662,8 @@ module treeclassifier
 			useRelationAll,
 			useRelationId,
 			test_operators,
-			rng)
+			rng;
+			gammas = gammas)
 
 		return Tree{T, S}(root, labels, indX, initCondition)
 	end
