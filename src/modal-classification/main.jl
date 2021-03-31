@@ -342,13 +342,11 @@ function build_forest(
 	min_purity_increase = 0.0,
 	loss                :: Function           = util.entropy,
 	min_loss_at_leaf    :: AbstractFloat      = -Inf,
-	# TODO: these arguments should become the "args..." we were talking about
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
 	ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	# END of "args..."
 	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, S, D}
 
 	if n_trees < 1
@@ -368,10 +366,6 @@ function build_forest(
 
 	trees = Vector{Union{DTree{S,T},DTNode{S,T}}}(undef, n_trees)
 	cms = Vector{ConfusionMatrix}(undef, n_trees)
-
-	# TODO: Figure out why this is the only function which creates entropy terms by it-self
-	# entropy_terms = util.compute_entropy_terms(num_samples)
-	# loss = (ns, n) -> util.entropy(ns, n, entropy_terms)
 
 	# Pre-compute Gammas for the forest
 	X = OntologicalDataset{S,D-2}(ontology,features)
@@ -400,13 +394,11 @@ function build_forest(
 			min_purity_increase = min_purity_increase,
 			loss = loss,
 			min_loss_at_leaf = min_loss_at_leaf,
-			#
 			initCondition = initCondition,
 			useRelationAll = useRelationAll,
 			useRelationId = useRelationId,
 			ontology = X.ontology,
 			test_operators = test_operators,
-			#
 			rng = rng)
 		# grab out-of-bag indices
 		oob_inds = setdiff(1:t_samples, inds)

@@ -416,7 +416,7 @@ module treeclassifier
 				println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
 					* "(given $(min_purity_increase))")
 			end
-		elseif nothing in X
+		elseif nothing in X.domain
 			throw("This algorithm doesn't allow nothing values.")
 		end
 	end
