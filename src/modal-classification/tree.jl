@@ -424,13 +424,13 @@ module treeclassifier
 	function optimize_test_operators!(
 			X               :: OntologicalDataset{T, N},
 			initCondition   :: DecisionTree._initCondition,
+			useRelationAll  :: Bool,
+			useRelationId	:: Bool,
 			test_operators  :: AbstractVector{<:ModalLogic.TestOperator}
 		) where {T, N}
 		# Binary relations (= unary modal operators)
 		# Note: the identity relation is the first, and it is the one representing
 		#  propositional splits.
-		useRelationId = false
-		useRelationAll = false
 		
 		ontology_relations = X.ontology.relationSet
 		if ModalLogic.RelationId in ontology_relations
@@ -550,7 +550,7 @@ module treeclassifier
 			useRelationId, useRelationAll, 
 			relationId_id, relationAll_id,
 			availableModalRelation_ids, allAvailableRelation_ids
-		) = optimize_test_operators!(X, initCondition, test_operators)
+		) = optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
 
 		if gammas === nothing
 			# Calculate gammas

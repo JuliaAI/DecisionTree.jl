@@ -373,13 +373,14 @@ function build_forest(
 	# entropy_terms = util.compute_entropy_terms(num_samples)
 	# loss = (ns, n) -> util.entropy(ns, n, entropy_terms)
 
+	# Pre-compute Gammas for the forest
 	X = OntologicalDataset{S,D-2}(ontology,features)
 	(
 		relationSet,
 		useRelationId, useRelationAll, 
 		relationId_id, relationAll_id,
 		availableModalRelation_ids, allAvailableRelation_ids
-	) = treeclassifier.optimize_test_operators!(X, initCondition, test_operators)
+	) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
 	gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 
 	# @views macro passa per riferimento features
