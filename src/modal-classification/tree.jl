@@ -514,7 +514,7 @@ module treeclassifier
 			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG;
-			gammas 					:: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = nothing) where {T, U, N, NTO, Ta}
+			gammas 					:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing) where {T, U, N, NTO, Ta}
 
 		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
 			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
@@ -610,7 +610,7 @@ module treeclassifier
 			X                       :: OntologicalDataset{T, N},
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
-			gammas					:: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+			gammas					:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
 			loss = util.entropy     :: Function,
 			max_features			:: Int,
 			max_depth               :: Int,

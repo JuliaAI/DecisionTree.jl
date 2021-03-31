@@ -34,7 +34,7 @@ function build_stump(
 		labels         :: AbstractVector{Label},
 		features       :: MatricialDataset{T,D},
 		weights        :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas 		   :: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = gammas,
+		gammas 		   :: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = gammas,
 		ontology       :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D, NTO, Ta}
@@ -54,7 +54,7 @@ function build_stump(
 		X	  		   :: OntologicalDataset{T, N},
 		Y     		   :: AbstractVector{Label},
 		W     		   :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas		   :: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+		gammas		   :: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
 		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, N, U, NTO, Ta}
 
@@ -88,7 +88,7 @@ function build_tree(
 		labels              :: AbstractVector{Label},
 		features            :: MatricialDataset{T,D};
 		loss                :: Function           = util.entropy,
-		gammas 				:: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+		gammas 				:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
 		n_subfeatures		:: Int				  = 0,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
@@ -128,7 +128,7 @@ function build_tree(
 	X                   :: OntologicalDataset{T, N},
 	Y                   :: AbstractVector{S},
 	W                   :: Union{Nothing, AbstractVector{U}};
-	gammas				:: Union{Array{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+	gammas				:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
 	n_subfeatures		:: Int				  = 0,
 	max_depth           :: Int                = -1,
@@ -383,15 +383,18 @@ function build_forest(
 	) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
 	gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 
-	# @views macro passa per riferimento features
-	# TODO: util.assign riga 604~
 	Threads.@threads for i in 1:n_trees
 		inds = rand(rng, 1:t_samples, num_samples)
+
+		v_labels = @views labels[inds]
+		v_features = @views X.domain[:,inds,:] # TODO: generalize to all possible dimensions
+		v_gammas = @views gammas[:,:,inds,:,:]
+
 		trees[i] = build_tree(
-			labels[inds],
-			X.domain[:,inds,:], # TODO: generalize to all possible dimensions
+			v_labels,
+			v_features, # TODO: generalize to all possible dimensions
 			n_subfeatures = n_subfeatures,
-			gammas = gammas[:,:,inds,:,:],
+			gammas = v_gammas,
 			max_depth = max_depth,
 			min_samples_leaf = min_samples_leaf,
 			min_purity_increase = min_purity_increase,
