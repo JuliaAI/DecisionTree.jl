@@ -377,6 +377,8 @@ function build_forest(
 	) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
 	gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 
+	oob_samples = Vector{Vector{Integer}}(undef, n_trees)
+
 	Threads.@threads for i in 1:n_trees
 		inds = rand(rng, 1:t_samples, num_samples)
 
@@ -401,37 +403,71 @@ function build_forest(
 			test_operators = test_operators,
 			rng = rng)
 		# grab out-of-bag indices
-		oob_inds = setdiff(1:t_samples, inds)
+		oob_samples[i] = setdiff(1:t_samples, inds)
 
-		tree_preds = apply_tree(trees[i], features[:,oob_inds,:])
-		cms[i] = confusion_matrix(labels[oob_inds], tree_preds)
+		tree_preds = apply_tree(trees[i], features[:,oob_samples[i],:])
+		cms[i] = confusion_matrix(labels[oob_samples[i]], tree_preds)
 	end
 
-	return Forest{S, T}(trees, cms)
+	oob_classified = Vector{Bool}()
+	# For each observation z_i, construct its random forest
+	# predictor by averaging (or majority voting) only those 
+	# trees corresponding to boot-strap samples in which z_i did not appear.
+	Threads.@threads for i in 1:t_samples
+		selected_trees = fill(false, n_trees)
+
+		# pick every tree trained without i-th sample
+		for j in 1:n_trees
+			if i in oob_samples[j] # if i is present in the j-th tree, selecte thi tree
+				selected_trees[j] = true
+			end
+		end
+		
+		index_of_trees_to_test_with = findall(selected_trees)
+
+		if length(index_of_trees_to_test_with) == 0
+			continue
+		end
+
+		v_features = @views features[:,[i],:]
+		v_labels = @views labels[[i]]
+
+		# TODO: optimization - no need to pass through ConfusionMatrix
+		pred = apply_forest(trees[index_of_trees_to_test_with], v_features)
+		cm = confusion_matrix(v_labels, pred)
+
+		push!(oob_classified, cm.overall_accuracy > 0.5)
+	end
+
+	oob_error = 1.0 - (length(findall(oob_classified)) / length(oob_classified))
+
+	return Forest{S, T}(trees, cms, oob_error)
 end
 
-function apply_forest(forest::Forest{S,T}, features::MatricialDataset{S,D}; use_weight::Bool = false) where {S, T, D}
+# use an array of trees to test features
+function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, features::MatricialDataset{S, D}) where {S, T, D}
 	@logmsg DTDetail "apply_forest..."
-	n_trees = length(forest)
+	n_trees = length(trees)
 	n_instances = n_samples(features)
 
 	votes = Matrix{T}(undef, n_trees, n_instances)
-	weights = Vector{Number}(undef, n_trees)
 	for i in 1:n_trees
-		votes[i,:] = apply_tree(forest.trees[i], features)
-		weights[i] =forest.cm[i].overall_accuracy
+		votes[i,:] = apply_tree(trees[i], features)
 	end
 
-	
 	predictions = Array{T}(undef, n_instances)
 	for i in 1:n_instances
 		if T <: Float64
-			# TODO: weighted mean
 			predictions[i] = mean(votes[:,i])
 		else
-			predictions[i] = best_score(votes[:,i], use_weight ? weights : nothing)
+			predictions[i] = majority_vote(votes[:,i])
 		end
 	end
 
 	return predictions
+end
+
+# use a proper forest to test features
+function apply_forest(forest::Forest{S,T}, features::MatricialDataset{S,D}) where {S, T, D}
+	apply_forest(forest.trees, features)
 end

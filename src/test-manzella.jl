@@ -7,7 +7,7 @@ rng = my_rng()
 
 forest_args = (
 	n_subfeatures = 1,
-	n_trees = 4,
+	n_trees = 5,
 	#partial_sampling = 0.7,
 )
 
@@ -56,9 +56,22 @@ kwargs = (
 )
 
 loss = DecisionTree.util.entropy
-min_samples_leaf = 4
+# the minimum number of samples each leaf needs to have
+min_samples_leaf = 1
+# apparently a lower value has reduced variancy and better accuracy!!! Awesome!
+
+# minimum purity needed for a split
 min_purity_increase = 0.01
-min_loss_at_leaf = 0.3
+
+
+# maximum purity allowed on a leaf
+min_loss_at_leaf = 0.4
+# apparently a higher value increases variance
+
+# Best values found for a single tree
+#min_samples_leaf = 1
+#min_purity_increase = 0.01
+#min_loss_at_leaf = 0.4
 
 selected_args = merge(args, (loss = loss,
 															min_samples_leaf = min_samples_leaf,
@@ -85,5 +98,6 @@ rng_i = DecisionTree.mk_rng(1)
 
 dataset = SplatEduardDataset(5)
 
-T = testDataset("Test", dataset, false, 0, debugging_level=log_level, forest_args=forest_args, args=selected_args, kwargs=kwargs,
-	test_tree = false, test_forest = true);      
+T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
+	forest_args=forest_args, args=selected_args, kwargs=kwargs,
+	test_tree = false, test_forest = true);

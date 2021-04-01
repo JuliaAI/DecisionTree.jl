@@ -136,6 +136,8 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 			println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * class_labels[i])
 		end
 
+		println("Forest OOB Error: $(round.(F.oob_error.*100, digits=2))%")
+
 		global_logger(ConsoleLogger(stderr, Logging.Info));
 		return (F, cm);
 	end

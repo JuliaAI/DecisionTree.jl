@@ -86,8 +86,9 @@ struct DTree{S<:Real, T<:Real}
 end
 
 struct Forest{S<:Real, T<:Real}
-	trees :: Vector{Union{DTree{S, T},DTNode{S, T}}}
-	cm    :: Vector{ConfusionMatrix}
+	trees 		:: Vector{Union{DTree{S, T},DTNode{S, T}}}
+	cm    		:: Vector{ConfusionMatrix}
+	oob_error 	:: AbstractFloat
 end
 
 is_leaf(l::DTLeaf) = true
