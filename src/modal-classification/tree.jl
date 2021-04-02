@@ -148,7 +148,7 @@ module treeclassifier
 		# at this point max_features can be = n_variables(X) or the selected number of features
 		n_vars = max_features
 		# array of indices of features/variables
-		random_vars_inds = Random.randperm(n_variables(X))[1:n_vars]
+		random_vars_inds = Random.randperm(rng, n_variables(X))[1:n_vars]
 		
 		#####################
 		## Find best split ##
