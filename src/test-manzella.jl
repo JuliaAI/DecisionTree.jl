@@ -58,17 +58,12 @@ kwargs = (
 loss = DecisionTree.util.entropy
 # the minimum number of samples each leaf needs to have
 min_samples_leaf = 1
-# apparently a lower value has reduced variancy and better accuracy!!! Awesome!
-
 # minimum purity needed for a split
 min_purity_increase = 0.01
-
-
 # maximum purity allowed on a leaf
 min_loss_at_leaf = 0.4
-# apparently a higher value increases variance
 
-# Best values found for a single tree
+# Best values found for a single tree and forest
 #min_samples_leaf = 1
 #min_purity_increase = 0.01
 #min_loss_at_leaf = 0.4
@@ -96,7 +91,7 @@ n_instances = 100
 # rng_i = DecisionTree.mk_rng(124)
 rng_i = DecisionTree.mk_rng(1)
 
-dataset = SplatEduardDataset(5)
+dataset = SplatEduardDataset(10)
 
 T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
 	forest_args=forest_args, args=selected_args, kwargs=kwargs,
