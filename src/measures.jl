@@ -132,13 +132,15 @@ function majority_vote(labels::AbstractVector)
 	return top_vote
 end
 
-function best_score(labels::AbstractVector{T}, weights::Union{Nothing,Vector{Number}}) where {T}
-	if weights === nothing
+function best_score(labels::AbstractVector{T}, weights::Union{Nothing,AbstractVector{N}}) where {T, N<:Real}
+	if isnothing(weights)
 		return majority_vote(labels)
 	end
 
+	@assert length(labels) === length(weights)
+
 	counts = Dict{T,AbstractFloat}()
-	for i in length(labels)
+	for i in 1:length(labels)
 		l = labels[i]
 		counts[l] = get(counts, l, 0) + weights[i]
 	end
