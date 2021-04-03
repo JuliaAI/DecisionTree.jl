@@ -34,7 +34,7 @@ function build_stump(
 		labels         :: AbstractVector{Label},
 		features       :: MatricialDataset{T,D},
 		weights        :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas 		   :: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = gammas,
+		gammas 		   :: Union{GammasType{NTO, Ta},Nothing} = gammas,
 		ontology       :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D, NTO, Ta}
@@ -54,7 +54,7 @@ function build_stump(
 		X	  		   :: OntologicalDataset{T, N},
 		Y     		   :: AbstractVector{Label},
 		W     		   :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas		   :: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+		gammas		   :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, N, U, NTO, Ta}
 
@@ -88,7 +88,7 @@ function build_tree(
 		labels              :: AbstractVector{Label},
 		features            :: MatricialDataset{T,D};
 		loss                :: Function           = util.entropy,
-		gammas 				:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+		gammas 				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
 		n_subfeatures		:: Int				  = 0,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
@@ -97,7 +97,7 @@ function build_tree(
 		initCondition       :: _initCondition     = startWithRelationAll,
 		useRelationAll      :: Bool               = true,
 		useRelationId       :: Bool               = true,
-		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D)),
+		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D, NTO, Ta}
 
@@ -128,7 +128,7 @@ function build_tree(
 	X                   :: OntologicalDataset{T, N},
 	Y                   :: AbstractVector{S},
 	W                   :: Union{Nothing, AbstractVector{U}};
-	gammas				:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+	gammas				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
 	n_subfeatures		:: Int				  = 0,
 	max_depth           :: Int                = -1,
@@ -169,7 +169,7 @@ function build_tree(
 
 	root = _convert(t.root, t.list, Y[t.labels])
 	# TODO remove This is in order to mantain compatibility
-	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N)) # was D-2 but N 0 D-2
+	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N)) # was D-2 but N = D-2
 		root
 	else
 		DTree{T, Label}(root, ontology.worldType, initCondition)

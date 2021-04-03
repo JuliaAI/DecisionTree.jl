@@ -516,7 +516,7 @@ module treeclassifier
 			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG;
-			gammas 					:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing) where {T, U, N, NTO, Ta}
+			gammas 					:: Union{GammasType{NTO, Ta},Nothing} = nothing) where {T, U, N, NTO, Ta}
 
 		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
 			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
@@ -554,7 +554,7 @@ module treeclassifier
 			availableModalRelation_ids, allAvailableRelation_ids
 		) = optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
 
-		if gammas === nothing
+		if isnothing(gammas)
 			# Calculate gammas
 			#  A gamma, for a given feature f, world w, relation X and test_operator ⋈, is 
 			#  the unique value γ for which w ⊨ <X> f ⋈ γ and:
@@ -612,7 +612,7 @@ module treeclassifier
 			X                       :: OntologicalDataset{T, N},
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
-			gammas					:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+			gammas					:: Union{GammasType{NTO, Ta},Nothing} = nothing,
 			loss = util.entropy     :: Function,
 			max_features			:: Int,
 			max_depth               :: Int,
@@ -632,7 +632,7 @@ module treeclassifier
 		labels, Y_ = util.assign(Y)
 
 		# Use unary weights if no weight is supplied
-		if W === nothing
+		if isnothing(W)
 			# TODO optimize w in the case of all-ones: write a subtype of AbstractVector:
 			#  AllOnesVector, so that getindex(W, i) = 1 and sum(W) = size(W).
 			#  This allows the compiler to optimize constants at compile-time
