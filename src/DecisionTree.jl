@@ -2,6 +2,8 @@ __precompile__()
 
 module DecisionTree
 
+include("measures.jl")
+
 import Base: length, show, convert, promote_rule, zero
 using DelimitedFiles
 using LinearAlgebra
@@ -22,6 +24,7 @@ export DTNode, DTLeaf, DTInternal,
 			 is_leaf, is_modal_node,
 			 num_nodes, height, modal_height,
 			 build_stump, build_tree,
+			 build_forest, apply_forest,
        print_tree, prune_tree, apply_tree,
 			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
 			 #
@@ -82,6 +85,12 @@ struct DTree{S<:Real, T<:Real}
 	initCondition :: _initCondition
 end
 
+struct Forest{S<:Real, T<:Real}
+	trees 		:: Vector{Union{DTree{S, T},DTNode{S, T}}}
+	cm    		:: Vector{ConfusionMatrix}
+	oob_error 	:: AbstractFloat
+end
+
 is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
 is_leaf(t::DTree) = is_leaf(t.root)
@@ -101,7 +110,6 @@ mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
 ##############################
 ########## Includes ##########
 
-include("measures.jl")
 include("load_data.jl")
 include("util.jl")
 include("modal-classification/main.jl")
@@ -118,6 +126,7 @@ num_nodes(t::DTree) = num_nodes(t.root)
 length(leaf::DTLeaf) = 1
 length(tree::DTInternal) = length(tree.left) + length(tree.right)
 length(t::DTree) = length(t.root)
+length(forest::Forest) = length(forest.trees)
 
 # Height
 height(leaf::DTLeaf) = 0

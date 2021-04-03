@@ -1,0 +1,59 @@
+Ontology(DecisionTree.ModalLogic.Interval2D,RCC8)	1	3	Salinas	false	DecisionTree._startAtCenter()	DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq(), DecisionTree.ModalLogic._TestOpGeqSoft(0.6), DecisionTree.ModalLogic._TestOpLeqSoft(0.6), DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7), DecisionTree.ModalLogic._TestOpGeqSoft(0.8), DecisionTree.ModalLogic._TestOpLeqSoft(0.8), DecisionTree.ModalLogic._TestOpGeqSoft(0.9), DecisionTree.ModalLogic._TestOpLeqSoft(0.9)]
+Benchmarking dataset 'Salinas, 3x3'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 4, min_purity_increase = 0.01, min_loss_at_leaf = 0.3)
+kwargs = (initCondition = DecisionTree._startAtCenter(), ontology = Ontology(DecisionTree.ModalLogic.Interval2D,RCC8), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq(), DecisionTree.ModalLogic._TestOpGeqSoft(0.6), DecisionTree.ModalLogic._TestOpLeqSoft(0.6), DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7), DecisionTree.ModalLogic._TestOpGeqSoft(0.8), DecisionTree.ModalLogic._TestOpLeqSoft(0.8), DecisionTree.ModalLogic._TestOpGeqSoft(0.9), DecisionTree.ModalLogic._TestOpLeqSoft(0.9)])
+ train size = (3, 3, 1280, 204)
+Decision Tree
+Leaves: 23
+Tot nodes: 45
+Height: 9
+Modal height:  4
+worldType: DecisionTree.ModalLogic.Interval2D
+initCondition: DecisionTree._startAtCenter()
+⟨N̅T̅P̅P̅⟩ (V135 ⫹₆₀ 601)
+✔ V120 ⫺₇₀ 443
+│✔ V38 ⫺ 1801
+││✔ V26 ⫺₆₀ 1307
+│││✔ V83 ⫺₈₀ 660
+││││✔ 8 : 17/18
+││││✘ V86 ⫺₈₀ 1293
+││││ ✔ ⟨TPP⟩ (V42 ⫺ 3404)
+││││ │✔ ⟨T̅P̅P̅⟩ (V37 ⫹₇₀ 1771)
+││││ ││✔ 15 : 11/12
+││││ ││✘ ⟨DC⟩ (V1 ⫺ 363)
+││││ ││ ✔ 8 : 11/11
+││││ ││ ✘ 8 : 2/4
+││││ │✘ 15 : 63/68
+││││ ✘ 8 : 6/6
+│││✘ 8 : 34/36
+││✘ 4 : 79/80
+│✘ V4 ⫺ 1040
+│ ✔ V19 ⫺ 1638
+│ │✔ 2 : 80/80
+│ │✘ 1 : 80/80
+│ ✘ V22 ⫺ 1262
+│  ✔ 16 : 80/80
+│  ✘ 7 : 80/80
+✘ ⟨N̅T̅P̅P̅⟩ (V106 ⫹₇₀ 389)
+ ✔ V40 ⫺₆₀ 2730
+ │✔ V88 ⫹₆₀ 1627
+ ││✔ 13 : 80/82
+ ││✘ 14 : 78/79
+ │✘ V173 ⫺₆₀ 465
+ │ ✔ V8 ⫺₆₀ 1724
+ │ │✔ 3 : 79/82
+ │ │✘ 12 : 80/80
+ │ ✘ V9 ⫺₆₀ 1846
+ │  ✔ 5 : 79/79
+ │  ✘ V1 ⫺ 305
+ │   ✔ 10 : 5/5
+ │   ✘ 10 : 1/4
+ ✘ ⟨N̅T̅P̅P̅⟩ (V184 ⫹₆₀ 402)
+  ✔ V4 ⫹ 1349
+  │✔ 10 : 65/68
+  │✘ 6 : 80/80
+  ✘ ⟨N̅T̅P̅P̅⟩ (V149 ⫹₆₀ 80)
+   ✔ 11 : 79/81
+   ✘ 9 : 79/85
+ test size = (3, 3, 320, 204)
+ Purity threshold 1.0

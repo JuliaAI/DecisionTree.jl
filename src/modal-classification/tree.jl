@@ -6,7 +6,7 @@
 
 module treeclassifier
 	
-	export fit
+	export fit, optimize_test_operators!, computeGammas
 
 	using ..ModalLogic
 	using ..DecisionTree
@@ -66,6 +66,7 @@ module treeclassifier
 							
 							loss_function       :: Function,
 							node                :: NodeMeta{T,<:AbstractFloat}, # the node to split
+							max_features		:: Int,						 # number of features to use to split
 							max_depth           :: Int,                      # the maximum depth of the resultant tree
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
 							min_loss_at_leaf    :: AbstractFloat,            # maximum purity allowed on a leaf
@@ -144,13 +145,16 @@ module treeclassifier
 		best_nl = -1
 		best_unsatisfied = []
 		
-		n_vars = n_variables(X)
+		# at this point max_features can be = n_variables(X) or the selected number of features
+		n_vars = max_features
+		# array of indices of features/variables
+		random_vars_inds = Random.randperm(rng, n_variables(X))[1:n_vars]
 		
 		#####################
 		## Find best split ##
 		#####################
 		# For each variable
-		@inbounds for feature in 1:n_vars
+		@inbounds for feature in random_vars_inds
 			@logmsg DTDebug "Testing feature $(feature)/$(n_vars)..."
 
 			## Test all conditions
@@ -196,6 +200,8 @@ module treeclassifier
 					fill!(cur_thr, ModalLogic.bottom(test_operator, T))
 				end
 
+				@logmsg DTDebug "thresholds: " thresholds
+
 				# TODO optimize this!!
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 				for i in 1:n_instances
@@ -240,7 +246,7 @@ module treeclassifier
 
 				# Look for the correct test operator
 				for (i_test_operator,test_operator) in enumerate(test_operators)
-					thresholdArr = thresholds[i_test_operator,:]
+					thresholdArr = @views thresholds[i_test_operator,:]
 					thresholdDomain = setdiff(Set(thresholdArr),Set([typemin(T), typemax(T)]))
 					# Look for thresholdArr 'a' for the propositions like "feature >= a"
 					for threshold in thresholdDomain
@@ -295,7 +301,7 @@ module treeclassifier
 		# If the best split is good, partition and split accordingly
 		@inbounds if (best_purity__nt == typemin(U)
 									|| (best_purity__nt/nt + node.purity <= min_purity_increase))
-			@logmsg DTDebug " Leaf" unsplittable min_purity_increase (best_purity__nt/nt) node.purity ((best_purity__nt/nt) + node.purity)
+			@logmsg DTDebug " Leaf" best_purity__nt min_purity_increase (best_purity__nt/nt) node.purity ((best_purity__nt/nt) + node.purity)
 			node.is_leaf = true
 			return
 		else
@@ -376,6 +382,7 @@ module treeclassifier
 			Y                   :: AbstractVector{Label},
 			W                   :: AbstractVector{U},
 			loss_function       :: Function,
+			max_features		:: Int,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
 			min_loss_at_leaf    :: AbstractFloat,
@@ -388,11 +395,11 @@ module treeclassifier
 		elseif max_depth < -1
 			throw("unexpected value for max_depth: $(max_depth) (expected:"
 				* " max_depth >= 0, or max_depth = -1 for infinite depth)")
-		# elseif n_vars < max_features
-			# throw("number of features $(n_vars) is less than the number "
-				# * "of max features $(max_features)")
-		# elseif max_features < 0
-			# throw("number of features $(max_features) must be >= zero ")
+		elseif n_vars < max_features
+			throw("number of features $(n_vars) is less than the number "
+				* "of max features $(max_features)")
+		elseif max_features < 0
+			throw("number of features $(max_features) must be >= zero ")
 		elseif min_samples_leaf < 1
 			throw("min_samples_leaf must be a positive integer "
 				* "(given $(min_samples_leaf))")
@@ -409,52 +416,18 @@ module treeclassifier
 				println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
 					* "(given $(min_purity_increase))")
 			end
-		elseif nothing in X
+		elseif nothing in X.domain
 			throw("This algorithm doesn't allow nothing values.")
 		end
 	end
 
-	function _fit(
-			X                       :: OntologicalDataset{T, N},
-			Y                       :: AbstractVector{Label},
-			W                       :: AbstractVector{U},
-			loss                    :: Function,
-			n_classes               :: Int,
-			max_depth               :: Int,
-			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
-			min_purity_increase     :: AbstractFloat,
-			min_loss_at_leaf        :: AbstractFloat,
-			initCondition           :: DecisionTree._initCondition,
-			useRelationAll          :: Bool,
-			useRelationId           :: Bool,
-			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
-			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, U, N}
-
-		# Dataset sizes
-		n_instances = n_samples(X)
-
-		# Initialize world sets
-		w0params =
-			if initCondition == startWithRelationAll
-				[ModalLogic.emptyWorld]
-			elseif initCondition == startAtCenter
-				[ModalLogic.centeredWorld, channel_size(X)...]
-			elseif typeof(initCondition) <: DecisionTree._startAtWorld
-				[initCondition.w]
-		end
-		S = WorldSet{X.ontology.worldType}[[X.ontology.worldType(w0params...)] for i in 1:n_instances]
-
-		# Array memory for class counts
-		nc  = Vector{U}(undef, n_classes)
-		ncl = Vector{U}(undef, n_classes)
-		ncr = Vector{U}(undef, n_classes)
-
-		# Array memory for dataset
-		Xf = Array{T, N+1}(undef, channel_size(X)..., n_instances)
-		Yf = Vector{Label}(undef, n_instances)
-		Wf = Vector{U}(undef, n_instances)
-		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
-
+	function optimize_test_operators!(
+			X               :: OntologicalDataset{T, N},
+			initCondition   :: DecisionTree._initCondition,
+			useRelationAll  :: Bool,
+			useRelationId	:: Bool,
+			test_operators  :: AbstractVector{<:ModalLogic.TestOperator}
+		) where {T, N}
 		# Binary relations (= unary modal operators)
 		# Note: the identity relation is the first, and it is the one representing
 		#  propositional splits.
@@ -477,7 +450,7 @@ module treeclassifier
 		relationAll_id = 2
 		relation_ids = map((x)->x+2, 1:length(ontology_relations))
 		
-		availableModalRelation_ids = if useRelationAll
+		availableModalRelation_ids = if useRelationAll || (initCondition == startWithRelationAll)
 			[relationAll_id, relation_ids...]
 		else
 			relation_ids
@@ -488,7 +461,7 @@ module treeclassifier
 		else
 			availableModalRelation_ids
 		end
-		
+
 		## Optimizations for edge cases
 		
 		# Fix test_operators order
@@ -517,18 +490,78 @@ module treeclassifier
 			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
 		end
 
+		(
+			relationSet,
+			useRelationId, useRelationAll, 
+			relationId_id, relationAll_id,
+			availableModalRelation_ids, allAvailableRelation_ids
+		)
+	end
+
+	function _fit(
+			X                       :: OntologicalDataset{T, N},
+			Y                       :: AbstractVector{Label},
+			W                       :: AbstractVector{U},
+			loss                    :: Function,
+			n_classes               :: Int,
+			max_features			:: Int,
+			max_depth               :: Int,
+			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
+			min_purity_increase     :: AbstractFloat,
+			min_loss_at_leaf        :: AbstractFloat,
+			initCondition           :: DecisionTree._initCondition,
+			useRelationAll          :: Bool,
+			useRelationId           :: Bool,
+			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
+			rng = Random.GLOBAL_RNG :: Random.AbstractRNG;
+			gammas 					:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing) where {T, U, N, NTO, Ta}
+
 		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
 			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
 		end
-
-		# Calculate gammas
-		#  A gamma, for a given feature f, world w, relation X and test_operator ⋈, is 
-		#  the unique value γ for which w ⊨ <X> f ⋈ γ and:
-		#  if polarity(⋈) == true:      ∀ a > γ:    w ⊭ <X> f ⋈ a
-		#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
 		
-		gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-		# gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
+		# Dataset sizes
+		n_instances = n_samples(X)
+
+		# Initialize world sets
+		w0params =
+			if initCondition == startWithRelationAll
+				[ModalLogic.emptyWorld]
+			elseif initCondition == startAtCenter
+				[ModalLogic.centeredWorld, channel_size(X)...]
+			elseif typeof(initCondition) <: DecisionTree._startAtWorld
+				[initCondition.w]
+		end
+		S = WorldSet{X.ontology.worldType}[[X.ontology.worldType(w0params...)] for i in 1:n_instances]
+
+		# Array memory for class counts
+		nc  = Vector{U}(undef, n_classes)
+		ncl = Vector{U}(undef, n_classes)
+		ncr = Vector{U}(undef, n_classes)
+
+		# Array memory for dataset
+		Xf = Array{T, N+1}(undef, channel_size(X)..., n_instances)
+		Yf = Vector{Label}(undef, n_instances)
+		Wf = Vector{U}(undef, n_instances)
+		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
+		
+		(
+			relationSet,
+			useRelationId, useRelationAll, 
+			relationId_id, relationAll_id,
+			availableModalRelation_ids, allAvailableRelation_ids
+		) = optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+
+		if gammas === nothing
+			# Calculate gammas
+			#  A gamma, for a given feature f, world w, relation X and test_operator ⋈, is 
+			#  the unique value γ for which w ⊨ <X> f ⋈ γ and:
+			#  if polarity(⋈) == true:      ∀ a > γ:    w ⊭ <X> f ⋈ a
+			#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
+			
+			gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+			# gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
+		end
 
 		# Let the core algorithm begin!
 
@@ -545,6 +578,7 @@ module treeclassifier
 			_split!(
 				X, Y, W, S,
 				loss, node,
+				max_features,
 				max_depth,
 				min_samples_leaf,
 				min_loss_at_leaf,
@@ -576,7 +610,9 @@ module treeclassifier
 			X                       :: OntologicalDataset{T, N},
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
+			gammas					:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
 			loss = util.entropy     :: Function,
+			max_features			:: Int,
 			max_depth               :: Int,
 			min_samples_leaf        :: Int,
 			min_purity_increase     :: AbstractFloat,
@@ -585,7 +621,7 @@ module treeclassifier
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N}
+			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N, NTO, Ta}
 
 		# Obtain the dataset's "outer size": number of samples and number of features
 		n_instances = n_samples(X)
@@ -594,7 +630,7 @@ module treeclassifier
 		labels, Y_ = util.assign(Y)
 
 		# Use unary weights if no weight is supplied
-		if W == nothing
+		if W === nothing
 			# TODO optimize w in the case of all-ones: write a subtype of AbstractVector:
 			#  AllOnesVector, so that getindex(W, i) = 1 and sum(W) = size(W).
 			#  This allows the compiler to optimize constants at compile-time
@@ -605,6 +641,7 @@ module treeclassifier
 		check_input(
 			X, Y, W,
 			loss,
+			max_features,
 			max_depth,
 			min_samples_leaf,
 			min_loss_at_leaf,
@@ -616,6 +653,7 @@ module treeclassifier
 			X, Y_, W,
 			loss,
 			length(labels),
+			max_features,
 			max_depth,
 			min_samples_leaf,
 			min_purity_increase,
@@ -624,7 +662,8 @@ module treeclassifier
 			useRelationAll,
 			useRelationId,
 			test_operators,
-			rng)
+			rng;
+			gammas = gammas)
 
 		return Tree{T, S}(root, labels, indX, initCondition)
 	end

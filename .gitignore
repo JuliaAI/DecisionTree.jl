@@ -4,3 +4,4 @@ makefile
 .DS_Store
 
 datasets/*
+!datasets/test-Eduard

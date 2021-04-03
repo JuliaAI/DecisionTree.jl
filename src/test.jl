@@ -26,6 +26,7 @@ kwargs = (
 	# ontology = getIntervalOntologyOfDim(Val(2)),
 	# ontology = Ontology(ModalLogic.Interval2D,setdiff(Set(ModalLogic.RCC8Relations),Set([ModalLogic.Topo_PO]))),
 	# ontology = Ontology(ModalLogic.Interval2D,[ModalLogic._IA2DRel(i,j) for j in [ModalLogic.IA_O,ModalLogic.IA_Oi] for i in [ModalLogic.IA_O,ModalLogic.IA_Oi]]),
+	# ontology = getIntervalRCC8OntologyOfDim(Val(1)),
 	ontology = getIntervalRCC8OntologyOfDim(Val(2)),
 	# ontology = getIntervalRCC5OntologyOfDim(Val(2)),
 
@@ -36,16 +37,17 @@ kwargs = (
 	useRelationAll = false,
 	# test_operators = [ModalLogic.TestOpGeq],
 	# test_operators = [ModalLogic.TestOpLeq],
-	test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+        test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
-	# test_operators = [ModalLogic.TestOpGeq_75, ModalLogic.TestOpLeq_75],
+	# test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
 	# test_operators = [ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
 	# test_operators = [ModalLogic.TestOpGeq_75],
 	# rng = my_rng,
 	# rng = DecisionTree.mk_rng(123),
 )
 
-rng_i = DecisionTree.mk_rng(124)
+# rng_i = DecisionTree.mk_rng(124)
+rng_i = DecisionTree.mk_rng(1)
 
 # timeit = 2
 # timeit = 0
@@ -58,12 +60,12 @@ rng_i = DecisionTree.mk_rng(124)
 
 # exit()
 
-timeit = 0
-log_level = DecisionTree.DTOverview
+# timeit = 0
+# log_level = DecisionTree.DTOverview
 # log_level = Logging.Warn
 
 # n_instances = 1
-n_instances = 100
+# n_instances = 100
 # n_instances = 500
 
 # for dataset_name in ["IndianPines", "Pavia"]
@@ -115,9 +117,16 @@ selected_args = merge(args, (loss = loss,
 log_level = DecisionTree.DTOverview
 # log_level = Logging.Warn
 
-timeit = 2
+# timeit = 2
+timeit = 0
 scale_dataset = false
 # scale_dataset = UInt8
+
+
+# n_instances = 1
+n_instances = 100
+# n_instances = 300
+# n_instances = 500
 
 # datasets = [
 # 	("IndianPines, 1x1",  traintestsplit(SampleLandCoverDataset("IndianPines",  40,  1,                   rng = rng),0.8)),
@@ -145,8 +154,8 @@ scale_dataset = false
 # datasets = Tuple{String,Tuple{Tuple{Array,Vector},Tuple{Array,Vector},Vector{String}}}[
 # 	# ("simpleDataset",traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng()),0.8)),
 # 	# ("simpleDataset2",traintestsplit(simpleDataset2(200,n_variables = 5,rng = my_rng()),0.8)),
-# 	# ("Eduard-5",EduardDataset(5)),
-# 	# ("Eduard-10",EduardDataset(10)),	
+# 	# ("Eduard-5",SplatEduardDataset(5)),
+# 	# ("Eduard-10",SplatEduardDataset(10)),	
 # 	#
 # 	("Pavia, 1x1",                           traintestsplit(SampleLandCoverDataset("Pavia",                 pavia_instperclass,        1,                   rng = rng),0.8)),
 # 	("Pavia, 3x3",                           traintestsplit(SampleLandCoverDataset("Pavia",                 pavia_instperclass,        3,                   rng = rng),0.8)),
@@ -160,13 +169,16 @@ scale_dataset = false
 # 	("IndianPines, 5x5 flattened",           traintestsplit(SampleLandCoverDataset("IndianPines",           indian_pines_instperclass, 5, flattened = true, rng = rng),0.8)),
 # ];
 
-for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOfDim(Val(2))]
-	for i in 1:5
-		# for window_size in [3,1] #,5]
-		for window_size in [1,3] #,5]
-			# for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre"] # "IndianPines", "Pavia"]
-			for dataset_name in ["IndianPines", "Pavia"] # , "Salinas", "Salinas-A", "PaviaCentre"]
-				for useRelationAll in [true]
+o_RCC8, o_RCC5 = getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOfDim(Val(2))
+
+	for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre", "Pavia", "IndianPines"]
+                rng_i = DecisionTree.mk_rng(1)
+		for i in 1:5
+			rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
+			# for window_size in [3,1] #,5]
+			for (window_size,flattened,ontology) in [(3,false,o_RCC8),(1,false,o_RCC8),(3,true,o_RCC8),(3,false,o_RCC5)] #,5]
+				# for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre"] # "IndianPines", "Pavia"]
+				for useRelationAll in [false] # true]
 					for initCondition in [DecisionTree.startAtCenter]
 						for test_operators in [
 								[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq,
@@ -177,40 +189,41 @@ for ontology in [getIntervalRCC8OntologyOfDim(Val(2)), getIntervalRCC5OntologyOf
 								# [ModalLogic.TestOpLeq_90,ModalLogic.TestOpLeq_80],
 								# [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 																		]
-								cur_args = selected_args
-								cur_kwargs = merge(kwargs, (
-									ontology = ontology,
-									useRelationAll = useRelationAll,
-									initCondition = startAtCenter,
-									test_operators = test_operators,
-									))
-								# testDataset(("Pavia, 3x3", traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 10, rng = rng_new),0.8)), timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
-								# testDataset(datasets[databatch*5+3], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
-								# exit()
 
-								println("$(ontology)\t$(i)\t$(window_size)\t$(dataset_name)\t$(useRelationAll)\t$(initCondition)\t$(test_operators)")
-								rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-								dataset = SampleLandCoverDataset(dataset_name,                 n_instances,        window_size,                   rng = rng_new)
-								testDataset("$(dataset_name), $(window_size)x$(window_size)", dataset, 0.8, timeit, scale_dataset = scale_dataset, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-								
-								# testDataset(datasets[databatch*5+1], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-								# testDataset(datasets[databatch*5+2], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-								# testDataset(datasets[databatch*5+3], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-								# testDataset(datasets[databatch*5+4], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-								# testDataset(datasets[databatch*5+5], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							cur_args = selected_args
+							cur_kwargs = merge(kwargs, (
+								ontology = ontology,
+								useRelationAll = useRelationAll,
+								initCondition = startAtCenter,
+								test_operators = test_operators,
+								))
+							# testDataset(("Pavia, 3x3", traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 10, rng = rng_new),0.8)), timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+							# testDataset(datasets[databatch*5+3], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+							# exit()
+
+							println("$(ontology)\t$(i)\t$(window_size)\t$(dataset_name)\t$(useRelationAll)\t$(initCondition)\t$(test_operators)")
+							# rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
+							rng_new = copy(rng_new)
+							dataset = SampleLandCoverDataset(dataset_name,                 n_instances,        window_size, flattened = flattened,                   rng = rng_new)
+							testDataset("$(dataset_name), $(window_size)x$(window_size)" * (if flattened " flattened" else "" end), dataset, 0.8, timeit, scale_dataset = scale_dataset, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							
+							# testDataset(datasets[databatch*5+1], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							# testDataset(datasets[databatch*5+2], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							# testDataset(datasets[databatch*5+3], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							# testDataset(datasets[databatch*5+4], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+							# testDataset(datasets[databatch*5+5], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
 						end
 					end
 				end
 			end
 		end
 	end
-end
 
 exit()
 
 T = testDataset(datasets[3], 0, args=args, kwargs=kwargs);
 T = testDataset(datasets[6], 0, args=args, kwargs=kwargs);
-T = testDataset(("Pavia, 3x3",                           traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 1, rng = my_rng),0.8)), timeit, args=args, kwargs=kwargs);
+T = testDataset("Pavia, 3x3",                           traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 1, rng = my_rng),0.8), timeit, args=args, kwargs=kwargs);
 
 exit()
 
@@ -298,7 +311,7 @@ end
 # X_train, Y_train, X_test, Y_test = traintestsplit(simpleDataset(200,n_variables = 50,rng = my_rng),0.8)
 # model = fit!(DecisionTreeClassifier(pruning_purity_threshold=pruning_purity_threshold), X_train, Y_train)
 # cm = confusion_matrix(Y_test, predict(model, X_test))
-# @test cm.accuracy > 0.99
+# @test cm.overall_accuracy > 0.99
 
 # for relations in [ModalLogic.RCC8Relations, ModalLogic.IA2DRelations]
 # 	for (X,Y) in Iterators.product(4:6,4:9)

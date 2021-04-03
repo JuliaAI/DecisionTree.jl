@@ -2,8 +2,7 @@ using MAT
 import Base: getindex, values
 import Random
 
-data_dir = "/home/gio/Desktop/SpatialDecisionTree/datasets/"
-# data_dir = "/home/gpagliarini/ModalDecisionTrees/"
+include("local.jl")
 
 mapArrayToDataType(type::Type, array::AbstractArray) = begin
 	minVal = minimum(array)
@@ -56,8 +55,8 @@ readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
 	# classes = collect(Set(map((a,b)->(b), insts)))
 end
 
-EduardDataset(N) = begin
-	insts,classes = readDataset(data_dir * "test-da-Eduard/Train-$N.txt", Val(N))
+SplatEduardDataset(N) = begin
+	insts,classes = readDataset(data_dir * "test-Eduard/Train-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
@@ -70,7 +69,7 @@ EduardDataset(N) = begin
 
 	Y_train = map((x)-> parse(Int, x), classes)
 	
-	insts,classes = readDataset(data_dir * "test-da-Eduard/Test-$N.txt", Val(N))
+	insts,classes = readDataset(data_dir * "test-Eduard/Test-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
@@ -83,7 +82,9 @@ EduardDataset(N) = begin
 
 	Y_test = map((x)-> parse(Int, x), classes)
 
-	(X_train,Y_train,X_test,Y_test)
+	class_labels = map(string, 1:15)
+
+	(X_train,Y_train),(X_test,Y_test),class_labels
 	# [val for i ∈ 1:3 for val ∈ ds.values[i][:,1]] <-- prendo tutti i valori del primo attributo
 	# sort!(collect(Set([val for i ∈ 1:3 for val ∈ ds.values[i][:,1]]))) <-- ordino il dominio
 	# size(ds.values[1])    <-- dimensione della prima serie

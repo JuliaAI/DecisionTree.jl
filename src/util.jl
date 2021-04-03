@@ -47,7 +47,7 @@ module util
 	# a = [0,0,9,0]
 	# DecisionTree.util.entropy(a, sum(a))
 	# maximum(a)/sum(a)
-	
+
 	# returns the entropy of ns/n, ns is an array of integers
 	# and entropy_terms are precomputed entropy terms
 	@inline function entropy(ns::AbstractVector{U}, n :: Integer, entropy_terms) where {U <: Integer}
