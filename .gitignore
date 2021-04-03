@@ -2,3 +2,5 @@
 styleguide.txt
 makefile
 .DS_Store
+
+datasets/*

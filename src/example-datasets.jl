@@ -2,7 +2,7 @@ using MAT
 import Base: getindex, values
 import Random
 
-data_dir = "/home/gio/Desktop/SpatialDecisionTree/"
+data_dir = "/home/gio/Desktop/SpatialDecisionTree/datasets/"
 # data_dir = "/home/gpagliarini/ModalDecisionTrees/"
 
 mapArrayToDataType(type::Type, array::AbstractArray) = begin
@@ -57,7 +57,7 @@ readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
 end
 
 EduardDataset(N) = begin
-	insts,classes = readDataset("datasets/test-da-Eduard/Train-$N.txt", Val(N))
+	insts,classes = readDataset(data_dir * "test-da-Eduard/Train-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
@@ -70,7 +70,7 @@ EduardDataset(N) = begin
 
 	Y_train = map((x)-> parse(Int, x), classes)
 	
-	insts,classes = readDataset("datasets/test-da-Eduard/Test-$N.txt", Val(N))
+	insts,classes = readDataset(data_dir * "test-da-Eduard/Test-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
@@ -88,6 +88,49 @@ EduardDataset(N) = begin
 	# sort!(collect(Set([val for i ∈ 1:3 for val ∈ ds.values[i][:,1]]))) <-- ordino il dominio
 	# size(ds.values[1])    <-- dimensione della prima serie
 end
+
+################################################################################
+################################################################################
+################################################################################
+# task 1: YES/NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+# - v1: USING COUGH
+# - v2: USING BREATH
+# task 2: YES_WITH_COUGH/NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+# - v1: USING COUGH
+# - v2: USING BREATH
+# task 3: YES_WITH_COUGH/NO_CLEAN_HISTORY_AND_LOW_PROBABILITY_WITH_ASTHMA_AND_COUGH_REPORTED
+# - v1: USING COUGH
+# - v2: USING BREATH
+
+KDDDataset(n_task,n_version) = begin
+	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
+	@assert n_version in [1,2] "KDDDataset: invalid n_version: {$n_version}"
+	
+	task_to_folders = [
+		[
+			["covidandroidnocough", "covidandroidwithcough", "covidwebnocough", "covidwebwithcough"],
+			["healthyandroidnosymp", "healthywebnosymp"]
+		],
+		[
+			["covidandroidwithcough", "covidwebwithcough"],
+			["healthyandroidwithcough", "healthywebwithcough"]
+		],
+		[
+			["covidandroidwithcough", "covidwebwithcough"],
+			["asthmaandroidwithcough", "asthmawebwithcough"]
+		],
+	]
+
+	folders_Y, folders_N = task_to_folders[n_tast]
+
+	# data_dir * "KDD"
+	error("TODO")
+end
+################################################################################
+################################################################################
+################################################################################
+
+
 
 simpleDataset(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	X = Array{Int,3}(undef, N, n_samp, 1);
@@ -124,32 +167,32 @@ simpleDataset2(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRN
 end
 
 IndianPinesDataset() = begin
-	X = matread(data_dir * "datasets/indian-pines/Indian_pines_corrected.mat")["indian_pines_corrected"]
-	Y = matread(data_dir * "datasets/indian-pines/Indian_pines_gt.mat")["indian_pines_gt"]
+	X = matread(data_dir * "indian-pines/Indian_pines_corrected.mat")["indian_pines_corrected"]
+	Y = matread(data_dir * "indian-pines/Indian_pines_gt.mat")["indian_pines_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 SalinasDataset() = begin
-	X = matread(data_dir * "datasets/salinas/Salinas_corrected.mat")["salinas_corrected"]
-	Y = matread(data_dir * "datasets/salinas/Salinas_gt.mat")["salinas_gt"]
+	X = matread(data_dir * "salinas/Salinas_corrected.mat")["salinas_corrected"]
+	Y = matread(data_dir * "salinas/Salinas_gt.mat")["salinas_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 SalinasADataset() = begin
-	X = matread(data_dir * "datasets/salinas-A/SalinasA_corrected.mat")["salinasA_corrected"]
-	Y = matread(data_dir * "datasets/salinas-A/SalinasA_gt.mat")["salinasA_gt"]
+	X = matread(data_dir * "salinas-A/SalinasA_corrected.mat")["salinasA_corrected"]
+	Y = matread(data_dir * "salinas-A/SalinasA_gt.mat")["salinasA_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 PaviaCentreDataset() = begin
-	X = matread(data_dir * "datasets/paviaC/Pavia.mat")["pavia"]
-	Y = matread(data_dir * "datasets/paviaC/Pavia_gt.mat")["pavia_gt"]
+	X = matread(data_dir * "paviaC/Pavia.mat")["pavia"]
+	Y = matread(data_dir * "paviaC/Pavia_gt.mat")["pavia_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 PaviaDataset() = begin
-	X = matread(data_dir * "datasets/paviaU/PaviaU.mat")["paviaU"]
-	Y = matread(data_dir * "datasets/paviaU/PaviaU_gt.mat")["paviaU_gt"]
+	X = matread(data_dir * "paviaU/PaviaU.mat")["paviaU"]
+	Y = matread(data_dir * "paviaU/PaviaU_gt.mat")["paviaU_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
