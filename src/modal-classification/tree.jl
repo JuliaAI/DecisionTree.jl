@@ -14,6 +14,7 @@ module treeclassifier
 	using BenchmarkTools
 	using Logging: @logmsg
 	import Random
+	import StatsBase
 
 	include("gammas.jl")
 
@@ -148,7 +149,8 @@ module treeclassifier
 		# at this point max_features can be = n_variables(X) or the selected number of features
 		n_vars = max_features
 		# array of indices of features/variables
-		random_vars_inds = Random.randperm(rng, n_variables(X))[1:n_vars]
+		# using "sample" function instead of "randperm" allow to insert weights for variables which may be wanted in the future 
+		random_vars_inds = StatsBase.sample(rng, Vector(1:n_variables(X)), n_vars, replace = false)
 		
 		#####################
 		## Find best split ##
