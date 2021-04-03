@@ -137,7 +137,7 @@ function best_score(labels::AbstractVector{T}, weights::Union{Nothing,AbstractVe
 		return majority_vote(labels)
 	end
 
-	@assert length(labels) === length(weights)
+	@assert length(labels) === length(weights) "Each label must have a corresponding weight: labels length is $(length(labels)) and weights length is $(length(weights))."
 
 	counts = Dict{T,AbstractFloat}()
 	for i in 1:length(labels)
