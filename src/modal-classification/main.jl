@@ -445,7 +445,7 @@ function build_forest(
 end
 
 # use an array of trees to test features
-function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, features::MatricialDataset{S, D}) where {S, T, D}
+function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, features::MatricialDataset{S, D}; tree_weights::Union{AbstractVector{N},Nothing} = nothing) where {S, T, D, N<:Real}
 	@logmsg DTDetail "apply_forest..."
 	n_trees = length(trees)
 	n_instances = n_samples(features)
@@ -458,9 +458,17 @@ function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, feat
 	predictions = Array{T}(undef, n_instances)
 	for i in 1:n_instances
 		if T <: Float64
-			predictions[i] = mean(votes[:,i])
+			if isnothing(tree_weights)
+				predictions[i] = mean(votes[:,i])
+			else
+				weighted_votes = Vector{N}()
+				for j in 1:length(votes[:,i])
+					weighted_votes = votes[j,i] * tree_weights[j]
+				end
+				predictions[i] = mean(weighted_votes)
+			end
 		else
-			predictions[i] = majority_vote(votes[:,i])
+			predictions[i] = best_score(votes[:,i], tree_weights)
 		end
 	end
 
@@ -468,6 +476,11 @@ function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, feat
 end
 
 # use a proper forest to test features
-function apply_forest(forest::Forest{S,T}, features::MatricialDataset{S,D}) where {S, T, D}
-	apply_forest(forest.trees, features)
+function apply_forest(forest::Forest{S,T}, features::MatricialDataset{S,D}; use_weighted_trees::Bool = false) where {S, T, D}
+	if use_weighted_trees
+		# TODO: choose HOW to weight a tree... overall_accuracy is just an example (maybe can be parameterized)
+		apply_forest(forest.trees, features, tree_weights = map(cm -> cm.overall_accuracy, forest.cm))
+	else
+		apply_forest(forest.trees, features)
+	end
 end
