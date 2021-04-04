@@ -7,7 +7,7 @@ rng = my_rng()
 
 forest_args = (
 	n_subfeatures = 1,
-	n_trees = 5,
+	n_trees = 100,
 	#partial_sampling = 0.7,
 )
 
@@ -112,10 +112,6 @@ Tcm = nothing
 F = nothing
 Fcm = nothing
 
-T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
-	forest_args=forest_args, args=selected_args, kwargs=kwargs,
-	test_tree = true, test_forest = true);
-
 function log_to_file(
 		filename,
 		min_samples_leaf,
@@ -185,4 +181,8 @@ if log_results_best_values
 		forest_kappa,
 		forest_oob_error
 	)
+else
+	T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
+		forest_args=forest_args, args=selected_args, kwargs=kwargs,
+		test_tree = true, test_forest = true);
 end
