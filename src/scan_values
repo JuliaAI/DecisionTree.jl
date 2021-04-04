@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+
+EXPERIMENT=02
+
+JULIA_EXECUTABLE=julia_1.5.4
+THREADS_COUNT=8
+JULIA_SCRIPT="./test-manzella.jl"
+TABLE_OUTPUT_FILE="./results-find-best-values/${EXPERIMENT}_results.csv"
+SCRIPT_OUTPUT="./results-find-best-values/${EXPERIMENT}_output.log"
+
+#MIN_SAMPLES_LEAF_VALUES=(5 4 3 2 1)
+#MIN_PURITY_INCREASE_VALUES=(0.15 0.1 0.05 0.025 0.01 0.005 0.001)
+#MIN_LOSS_AT_LEAF_VALUES=(0.5 0.45 0.4 0.35 0.3 0.25 0.2 0.15 0.1 0.05 0.0)
+
+MIN_SAMPLES_LEAF_VALUES=(1)
+MIN_PURITY_INCREASE_VALUES=(0.01 0.005 0.001)
+MIN_LOSS_AT_LEAF_VALUES=(0.25 0.2 0.15 0.1 0.05 0.0)
+DATASETS_VALUES=(5 10)
+
+# print header
+echo "min_samples_leaf,min_purity_increase,min_loss_at_leaf,tree_overall_accuracy,tree_mean_accuracy,tree_kappa,forest_overall_accuracy,forest_mean_accuracy,forest_kappa,oob_error" > ${TABLE_OUTPUT_FILE}
+echo "Run `date`" > ${SCRIPT_OUTPUT}
+
+_TOTAL_RUNS=`echo $((${#MIN_SAMPLES_LEAF_VALUES[@]} * ${#MIN_PURITY_INCREASE_VALUES[@]} * ${#MIN_LOSS_AT_LEAF_VALUES[@]} * ${#DATASETS_VALUES[@]}))`
+_CURRENT_RUN=1
+
+for dataset in "${DATASETS_VALUES[@]}"
+do
+    for min_samples_leaf in "${MIN_SAMPLES_LEAF_VALUES[@]}"
+    do
+        for min_purity_increase in "${MIN_PURITY_INCREASE_VALUES[@]}"
+        do
+            for min_loss_at_leaf in "${MIN_LOSS_AT_LEAF_VALUES[@]}"
+            do
+                echo "Run ${_CURRENT_RUN} / ${_TOTAL_RUNS}"
+
+                ${JULIA_EXECUTABLE} -t${THREADS_COUNT} ${JULIA_SCRIPT} ${min_samples_leaf} ${min_purity_increase} ${min_loss_at_leaf} ${dataset} ${TABLE_OUTPUT_FILE} >> ${SCRIPT_OUTPUT} 2>&1
+
+                _CURRENT_RUN=$((${_CURRENT_RUN} + 1))
+            done
+        done
+    done
+done
