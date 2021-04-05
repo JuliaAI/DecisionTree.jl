@@ -37,7 +37,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 			(X_test, Y_test, class_labels) = scaleDataset((X_test, Y_test, class_labels))
 		end
 	end
-	println("forest_args = ", forest_args)
+	# println("forest_args = ", forest_args)
 	println("args = ", args)
 	println("kwargs = ", kwargs)
 

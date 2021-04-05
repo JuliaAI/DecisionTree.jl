@@ -91,6 +91,43 @@ n_instances = 100
 # rng_i = DecisionTree.mk_rng(124)
 rng_i = DecisionTree.mk_rng(1)
 
+kwargs = (
+	#
+	ma_size = 10,
+	ma_step = 10,
+	# TODO: ma_window = gaussian(10,0.2),
+	rng=rng,
+)
+audio_kwargs = (
+	wintime = 0.025, # ms
+	steptime = 0.010, # ms
+	fbtype = :mel, # [:mel, :htkmel, :fcmel]
+	# window_f = hamming, # [hamming, (nwin)->tukey(nwin, 0.25)]
+	pre_emphasis = 0.97,
+	nbands = 40,
+	sumpower = false,
+	dither = false,
+	bwidth = 1.0,
+	# minfreq = 0.0,
+	# maxfreq = (sr)->(sr/2),
+	usecmp = false,
+)
+
+dataset = KDDDataset((1,1), audio_kwargs; kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((1,1), audio_kwargs; kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((1,1), audio_kwargs; kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((1,2), audio_kwargs; kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((2,1), audio_kwargs; kwargs...) # 26/8 -> 8/8
+# dataset = KDDDataset((2,2), audio_kwargs; kwargs...) # 46/8 -> 8/8
+# dataset = KDDDataset((3,1), audio_kwargs; kwargs...) # 46/13 -> 13/13
+# dataset = KDDDataset((3,2), audio_kwargs; kwargs...) # 46/13 -> 13/13
+
+(X_train, Y_train), (X_test, Y_test),class_labels = traintestsplit(dataset, 0.8)
+
+T = build_tree(Y_train, X_train; selected_args..., kwargs..., rng = rng);
+
+exit()
+
 dataset = SplatEduardDataset(10)
 
 T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
