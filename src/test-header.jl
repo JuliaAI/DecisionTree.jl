@@ -43,8 +43,8 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 	# println(" n_samples = $(size(X_train)[end-1])")
 	println(" train size = $(size(X_train))")
-	# global_logger(ConsoleLogger(stderr, Logging.Info))
-	global_logger(ConsoleLogger(stderr, debugging_level))
+	global_logger(ConsoleLogger(stderr, Logging.Info))
+	# global_logger(ConsoleLogger(stderr, debugging_level))
 	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
 
 	function display_cm_as_row(cm::ConfusionMatrix)
@@ -79,7 +79,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		elseif timeit == 2
 			T = @btime build_tree($Y_train, $X_train; $args..., $kwargs..., rng = $rng);
 		end
-		print(T)
+		#print(T)
 		
 		println(" test size = $(size(X_test))")
 		cm = nothing

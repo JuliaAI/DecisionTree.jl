@@ -29,7 +29,9 @@ export DTNode, DTLeaf, DTInternal,
 			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
 			 #
 			 startWithRelationAll, startAtCenter,
-			 DTOverview, DTDebug, DTDetail
+			 DTOverview, DTDebug, DTDetail,
+			 #
+			 GammasType
 
 # ScikitLearn API
 export DecisionTreeClassifier,
@@ -52,6 +54,13 @@ abstract type _initCondition end
 struct _startWithRelationAll  <: _initCondition end; const startWithRelationAll  = _startWithRelationAll();
 struct _startAtCenter         <: _initCondition end; const startAtCenter         = _startAtCenter();
 struct _startAtWorld{wT<:AbstractWorld} <: _initCondition w::wT end;
+
+const GammasType{NTO, T} =
+Union{
+	AbstractArray{Dict{WorldType,NTuple{NTO, T}}, 3},
+	AbstractArray{NTuple{NTO, T}, 5},
+	AbstractArray{NTuple{NTO, T}, 7}
+} where {WorldType<:AbstractWorld}
 
 # Leaf node, holding the output decision
 struct DTLeaf{T} # TODO specify output type: Number, Label, String, Union{Number,Label,String}?

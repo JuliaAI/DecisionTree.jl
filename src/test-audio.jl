@@ -7,7 +7,7 @@ rng = my_rng()
 
 forest_args = (
 	n_subfeatures = 1,
-	n_trees = 100,
+	n_trees = 5,
 	#partial_sampling = 0.7,
 )
 
@@ -63,20 +63,6 @@ min_purity_increase = 0.01
 # maximum purity allowed on a leaf
 min_loss_at_leaf = 0.4
 
-log_results_best_values = false
-repeat_test = 5
-log_file = "./results-find-best-values/results.csv"
-dataset_number = 5
-
-if length(ARGS) === 5
-	min_samples_leaf = parse(Int64, ARGS[1])
-	min_purity_increase = parse(Float64, ARGS[2])
-	min_loss_at_leaf = parse(Float64, ARGS[3])
-	dataset_number = parse(Int64, ARGS[4])
-	log_file = ARGS[5]
-	log_results_best_values = true
-end
-
 # Best values found for a single tree and forest
 #min_samples_leaf = 1
 #min_purity_increase = 0.01
@@ -105,84 +91,52 @@ n_instances = 100
 # rng_i = DecisionTree.mk_rng(124)
 rng_i = DecisionTree.mk_rng(1)
 
-dataset = SplatEduardDataset(dataset_number)
+dataset_kwargs = (
+	#
+	ma_size = 50,
+	ma_step = 50,
+	# TODO: ma_window = gaussian(10,0.2),
+	rng = rng,
+)
+audio_kwargs = (
+	wintime = 0.025, # ms             # 0.020-0.040
+	steptime = 0.010, # ms            # 0.010-0.015
+	fbtype = :mel, # [:mel, :htkmel, :fcmel]
+	# window_f = hamming, # [hamming, (nwin)->tukey(nwin, 0.25)]
+	pre_emphasis = 0.97,
+	nbands = 40,
+	sumpower = false,
+	dither = false,
+	bwidth = 1.0,
+	# minfreq = 0.0,
+	# maxfreq = (sr)->(sr/2),
+	usecmp = false,
+)
 
-T = nothing
-Tcm = nothing
-F = nothing
-Fcm = nothing
+dataset = KDDDataset((1,1), audio_kwargs; dataset_kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((1,1), audio_kwargs; dataset_kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((1,1), audio_kwargs; dataset_kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((1,2), audio_kwargs; dataset_kwargs...) # 110/137 -> 110/110
+# dataset = KDDDataset((2,1), audio_kwargs; dataset_kwargs...) # 26/8 -> 8/8
+# dataset = KDDDataset((2,2), audio_kwargs; dataset_kwargs...) # 46/8 -> 8/8
+# dataset = KDDDataset((3,1), audio_kwargs; dataset_kwargs...) # 46/13 -> 13/13
+# dataset = KDDDataset((3,2), audio_kwargs; dataset_kwargs...) # 46/13 -> 13/13
 
-function log_to_file(
-		filename,
-		min_samples_leaf,
-		min_purity_increase,
-		min_loss_at_leaf,
-		tree_overall_accuracy,
-		tree_mean_accuracy,
-		tree_kappa,
-		forest_overall_accuracy,
-		forest_mean_accuracy,
-		forest_kappa,
-		forest_oob_error
-	)
+# dataset = scaleDataset(dataset, UInt8)
 
-    file = open(filename, "a+")
-
-	write(file,
-		string(min_samples_leaf) * "," *
-		string(min_purity_increase) * "," *
-		string(min_loss_at_leaf) * "," *
-		string(round.(mean(tree_overall_accuracy).*100, digits=2)) * "," *
-		string(round.(mean(tree_mean_accuracy).*100, digits=2)) * "," *
-		string(round.(mean(tree_kappa).*100, digits=2)) * "," *
-		string(round.(mean(forest_overall_accuracy).*100, digits=2)) * "," *
-		string(round.(mean(forest_mean_accuracy).*100, digits=2)) * "," *
-		string(round.(mean(forest_kappa).*100, digits=2)) * "," *
-		string(round.(mean(forest_oob_error).*100, digits=2)) * "\n"
-	)
-
-	close(file)
-end
-
-if log_results_best_values
-	tree_overall_accuracy = []
-	tree_mean_accuracy = []
-	tree_kappa = []
-	forest_overall_accuracy = []
-	forest_mean_accuracy = []
-	forest_kappa = []
-	forest_oob_error = []
-
-	for i in 1:repeat_test
-
-		global T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
+testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,
 			forest_args=forest_args, args=selected_args, kwargs=kwargs,
 			test_tree = true, test_forest = true);
 
-		push!(tree_overall_accuracy, Tcm.overall_accuracy)
-		push!(tree_mean_accuracy, Tcm.mean_accuracy)
-		push!(tree_kappa, Tcm.kappa)
-		push!(forest_overall_accuracy, Fcm.overall_accuracy)
-		push!(forest_mean_accuracy, Fcm.mean_accuracy)
-		push!(forest_kappa, Fcm.kappa)
-		push!(forest_oob_error, F.oob_error)
-	end
+# (X_train, Y_train), (X_test, Y_test),class_labels = traintestsplit(dataset, 0.8)
 
-	log_to_file(
-		log_file,
-		min_samples_leaf,
-		min_purity_increase,
-		min_loss_at_leaf,
-		tree_overall_accuracy,
-		tree_mean_accuracy,
-		tree_kappa,
-		forest_overall_accuracy,
-		forest_mean_accuracy,
-		forest_kappa,
-		forest_oob_error
-	)
-else
-	T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
-		forest_args=forest_args, args=selected_args, kwargs=kwargs,
-		test_tree = true, test_forest = true);
-end
+# global_logger(ConsoleLogger(stderr, DecisionTree.DTOverview))
+
+# T = build_tree(Y_train, X_train; selected_args..., kwargs..., rng = rng);
+# preds = apply_tree(T, X_test)
+# cm = confusion_matrix(Y_test, preds)
+# print_tree(T)
+
+######################################################################
+######################################################################
+######################################################################

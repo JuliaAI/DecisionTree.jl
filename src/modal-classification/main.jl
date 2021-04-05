@@ -34,7 +34,7 @@ function build_stump(
 		labels         :: AbstractVector{Label},
 		features       :: MatricialDataset{T,D},
 		weights        :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas 		   :: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = gammas,
+		gammas 		   :: Union{GammasType{NTO, Ta},Nothing} = gammas,
 		ontology       :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D, NTO, Ta}
@@ -54,7 +54,7 @@ function build_stump(
 		X	  		   :: OntologicalDataset{T, N},
 		Y     		   :: AbstractVector{Label},
 		W     		   :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas		   :: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+		gammas		   :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, N, U, NTO, Ta}
 
@@ -88,7 +88,7 @@ function build_tree(
 		labels              :: AbstractVector{Label},
 		features            :: MatricialDataset{T,D};
 		loss                :: Function           = util.entropy,
-		gammas 				:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+		gammas 				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
 		n_subfeatures		:: Int				  = 0,
 		max_depth           :: Int                = -1,
 		min_samples_leaf    :: Int                = 1,
@@ -97,7 +97,7 @@ function build_tree(
 		initCondition       :: _initCondition     = startWithRelationAll,
 		useRelationAll      :: Bool               = true,
 		useRelationId       :: Bool               = true,
-		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D)),
+		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D, NTO, Ta}
 
@@ -128,7 +128,7 @@ function build_tree(
 	X                   :: OntologicalDataset{T, N},
 	Y                   :: AbstractVector{S},
 	W                   :: Union{Nothing, AbstractVector{U}};
-	gammas				:: Union{AbstractArray{NTuple{NTO,Ta}, 5},Nothing} = nothing,
+	gammas				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
 	n_subfeatures		:: Int				  = 0,
 	max_depth           :: Int                = -1,
@@ -169,7 +169,7 @@ function build_tree(
 
 	root = _convert(t.root, t.list, Y[t.labels])
 	# TODO remove This is in order to mantain compatibility
-	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N)) # was D-2 but N 0 D-2
+	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N)) # was D-2 but N = D-2
 		root
 	else
 		DTree{T, Label}(root, ontology.worldType, initCondition)
@@ -445,7 +445,7 @@ function build_forest(
 end
 
 # use an array of trees to test features
-function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, features::MatricialDataset{S, D}) where {S, T, D}
+function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, features::MatricialDataset{S, D}; tree_weights::Union{AbstractVector{N},Nothing} = nothing) where {S, T, D, N<:Real}
 	@logmsg DTDetail "apply_forest..."
 	n_trees = length(trees)
 	n_instances = n_samples(features)
@@ -458,9 +458,17 @@ function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, feat
 	predictions = Array{T}(undef, n_instances)
 	for i in 1:n_instances
 		if T <: Float64
-			predictions[i] = mean(votes[:,i])
+			if isnothing(tree_weights)
+				predictions[i] = mean(votes[:,i])
+			else
+				weighted_votes = Vector{N}()
+				for j in 1:length(votes[:,i])
+					weighted_votes = votes[j,i] * tree_weights[j]
+				end
+				predictions[i] = mean(weighted_votes)
+			end
 		else
-			predictions[i] = majority_vote(votes[:,i])
+			predictions[i] = best_score(votes[:,i], tree_weights)
 		end
 	end
 
@@ -468,6 +476,11 @@ function apply_forest(trees::AbstractVector{Union{DTree{S,T},DTNode{S,T}}}, feat
 end
 
 # use a proper forest to test features
-function apply_forest(forest::Forest{S,T}, features::MatricialDataset{S,D}) where {S, T, D}
-	apply_forest(forest.trees, features)
+function apply_forest(forest::Forest{S,T}, features::MatricialDataset{S,D}; use_weighted_trees::Bool = false) where {S, T, D}
+	if use_weighted_trees
+		# TODO: choose HOW to weight a tree... overall_accuracy is just an example (maybe can be parameterized)
+		apply_forest(forest.trees, features, tree_weights = map(cm -> cm.overall_accuracy, forest.cm))
+	else
+		apply_forest(forest.trees, features)
+	end
 end

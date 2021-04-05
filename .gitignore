@@ -1,4 +1,5 @@
 *.csv
+!src/results-find-best-values/*.csv
 styleguide.txt
 makefile
 .DS_Store
