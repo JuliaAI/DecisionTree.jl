@@ -5,6 +5,9 @@ import Random
 include("local.jl")
 include("wav2stft_time_series.jl")
 
+# Generate a new rng from a random pick from a given one.
+spawn_rng(rng) = Random.MersenneTwister(abs(rand(rng, Int)))
+
 mapArrayToDataType(type::Type, array::AbstractArray) = begin
 	minVal = minimum(array)
 	maxVal = maximum(array)
@@ -111,7 +114,7 @@ using JSON
 KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
 	@assert n_version in [1,2] "KDDDataset: invalid n_version: {$n_version}"
-	rng = DecisionTree.mk_rng(abs(rand(rng, Int)))
+	rng = spawn_rng(rng)
 
 	kdd_data_dir = data_dir * "KDD/"
 
