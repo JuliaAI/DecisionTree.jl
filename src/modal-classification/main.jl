@@ -454,13 +454,16 @@ function build_forest(
 
 	# Pre-compute Gammas for the forest
 	X = OntologicalDataset{S,D-2}(ontology,features)
-	(
-		relationSet,
-		useRelationId, useRelationAll, 
-		relationId_id, relationAll_id,
-		availableModalRelation_ids, allAvailableRelation_ids
-	) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
-	gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+	
+	if isnothing(gammas)
+		(
+			relationSet,
+			useRelationId, useRelationAll, 
+			relationId_id, relationAll_id,
+			availableModalRelation_ids, allAvailableRelation_ids
+		) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+		gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+	end
 
 	return build_forest(
 		X,
