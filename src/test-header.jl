@@ -20,7 +20,7 @@ using PProf
 
 include("example-datasets.jl")
 
-function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], forest_args = (), args = (), kwargs = (), test_tree = true, test_forest = false, error_catching = false, rng = my_rng())
+function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], forest_args = (), args = (), kwargs = (), test_tree = true, test_forest = false, precompute_gammas = true, error_catching = false, rng = my_rng())
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	if split_threshold != false
@@ -37,12 +37,42 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 			(X_test, Y_test, class_labels) = scaleDataset((X_test, Y_test, class_labels))
 		end
 	end
+
 	println("forest_args = ", forest_args)
 	println("args = ", args)
 	println("kwargs = ", kwargs)
 
-	# println(" n_samples = $(size(X_train)[end-1])")
-	println(" train size = $(size(X_train))")
+	X = OntologicalDataset{eltype(X_train),ndims(X_train)-2}(kwargs.ontology,X_train)
+	gammas = nothing
+
+	if precompute_gammas
+		relationSet = nothing
+		initCondition = kwargs.initCondition
+		useRelationAll = kwargs.useRelationAll
+		useRelationId = kwargs.useRelationId
+		relationId_id = nothing
+		relationAll_id = nothing
+		availableModalRelation_ids = nothing
+		allAvailableRelation_ids = nothing
+		test_operators = deepcopy(kwargs.test_operators)
+		(
+			relationSet,
+			useRelationId, useRelationAll, 
+			relationId_id, relationAll_id,
+			availableModalRelation_ids, allAvailableRelation_ids
+		) = DecisionTree.treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+
+		# update values
+		kwargs = merge(kwargs,
+			(initCondition = initCondition, useRelationAll = useRelationAll, useRelationId = useRelationId, test_operators = test_operators))
+
+		gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,kwargs.test_operators,relationSet,relationId_id,availableModalRelation_ids)
+		
+		println("(optimized) kwargs = ", kwargs)
+	end
+
+	# println(" n_samples = $(size(X.domain)[end-1])")
+	println(" train size = $(size(X.domain))")
 	global_logger(ConsoleLogger(stderr, Logging.Info))
 	# global_logger(ConsoleLogger(stderr, debugging_level))
 	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
@@ -73,11 +103,11 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 	go_tree() = begin
 		if timeit == 0
-			T = build_tree(Y_train, X_train; args..., kwargs..., rng = rng);
+			T = build_tree(Y_train, X.domain; args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 1
-			T = @time build_tree(Y_train, X_train; args..., kwargs..., rng = rng);
+			T = @time build_tree(Y_train, X.domain; args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 2
-			T = @btime build_tree($Y_train, $X_train; $args..., $kwargs..., rng = $rng);
+			T = @btime build_tree($Y_train, $X.domain; $args..., $kwargs..., gammas = gammas, rng = $rng);
 		end
 		print_tree(T)
 		
@@ -112,11 +142,11 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 	go_forest() = begin
 		if timeit == 0
-			F = build_forest(Y_train, X_train, forest_args...; args..., kwargs..., rng = rng);
+			F = build_forest(Y_train, X.domain, forest_args...; args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 1
-			F = @time build_forest(Y_train, X_train, forest_args...; args..., kwargs..., rng = rng);
+			F = @time build_forest(Y_train, X.domain, forest_args...; args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 2
-			F = @btime build_forest(Y_train, X_train, forest_args...; args..., kwargs..., rng = rng);
+			F = @btime build_forest($Y_train, $X.domain, $forest_args...; $args..., $kwargs..., gammas = gammas, rng = $rng);
 		end
 		print_forest(F)
 		
