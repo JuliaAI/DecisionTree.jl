@@ -14,6 +14,8 @@ args = (
 
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 modal_args = (
+	# n_subrelations = x -> ceil(sqrt(x)),
+	# n_subrelations = x -> ceil(k/2),
 	initCondition = DecisionTree.startWithRelationAll,
 	useRelationId = true,
 	useRelationAll = false,

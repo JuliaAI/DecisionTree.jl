@@ -72,6 +72,7 @@ module treeclassifier
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
 							min_loss_at_leaf    :: AbstractFloat,            # maximum purity allowed on a leaf
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
+							max_relations		:: Function,
 							test_operators      :: AbstractVector{<:ModalLogic.TestOperator},
 							
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
@@ -151,7 +152,10 @@ module treeclassifier
 		# array of indices of features/variables
 		# using "sample" function instead of "randperm" allow to insert weights for variables which may be wanted in the future 
 		random_vars_inds = StatsBase.sample(rng, Vector(1:n_variables(X)), n_vars, replace = false)
-		
+
+		# use a subset of relations
+		random_relations_ids = StatsBase.sample(rng, relation_ids, Int(max_relations(length(relation_ids))), replace = false)
+
 		#####################
 		## Find best split ##
 		#####################
@@ -161,7 +165,7 @@ module treeclassifier
 
 			## Test all conditions
 			# For each relational operator
-			for relation_id in relation_ids
+			for relation_id in random_relations_ids
 				relation = relationSet[relation_id]
 				@logmsg DTDebug "Testing relation $(relation) (id: $(relation_id))..." # "/$(length(relation_ids))"
 				########################################################################
@@ -511,6 +515,7 @@ module treeclassifier
 			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
 			min_purity_increase     :: AbstractFloat,
 			min_loss_at_leaf        :: AbstractFloat,
+			max_relations			:: Function,
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
@@ -585,6 +590,7 @@ module treeclassifier
 				min_samples_leaf,
 				min_loss_at_leaf,
 				min_purity_increase,
+				max_relations,
 				test_operators,
 				indX,
 				nc, ncl, ncr, Xf, Yf, Wf, Sf, gammas,
@@ -619,6 +625,7 @@ module treeclassifier
 			min_samples_leaf        :: Int,
 			min_purity_increase     :: AbstractFloat,
 			min_loss_at_leaf        :: AbstractFloat, # TODO add this to scikit's interface.
+			max_relations			:: Function,
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
@@ -660,6 +667,7 @@ module treeclassifier
 			min_samples_leaf,
 			min_purity_increase,
 			min_loss_at_leaf,
+			max_relations,
 			initCondition,
 			useRelationAll,
 			useRelationId,

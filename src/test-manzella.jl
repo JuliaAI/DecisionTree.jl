@@ -23,6 +23,9 @@ args = (
 
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 kwargs = (
+	n_subrelations = x -> ceil(sqrt(x)),
+	# n_subrelations = x -> ceil(k/2),
+
 	# initCondition = DecisionTree.startAtCenter,
 	# initCondition = DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
 	initCondition = DecisionTree.startWithRelationAll,
