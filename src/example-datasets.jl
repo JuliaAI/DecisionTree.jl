@@ -3,6 +3,10 @@ import Base: getindex, values
 import Random
 
 include("local.jl")
+include("wav2stft_time_series.jl")
+
+# Generate a new rng from a random pick from a given one.
+spawn_rng(rng) = Random.MersenneTwister(abs(rand(rng, Int)))
 
 mapArrayToDataType(type::Type, array::AbstractArray) = begin
 	minVal = minimum(array)
@@ -56,7 +60,7 @@ readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
 end
 
 SplatEduardDataset(N) = begin
-	insts,classes = readDataset(data_dir * "datasets/test-Eduard/Train-$N.txt", Val(N))
+	insts,classes = readDataset(data_dir * "test-Eduard/Train-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
@@ -69,7 +73,7 @@ SplatEduardDataset(N) = begin
 
 	Y_train = map((x)-> parse(Int, x), classes)
 	
-	insts,classes = readDataset(data_dir * "datasets/test-Eduard/Test-$N.txt", Val(N))
+	insts,classes = readDataset(data_dir * "test-Eduard/Test-$N.txt", Val(N))
 
 	n_samples = length(insts)
 	n_vars = 2
@@ -89,6 +93,122 @@ SplatEduardDataset(N) = begin
 	# sort!(collect(Set([val for i ∈ 1:3 for val ∈ ds.values[i][:,1]]))) <-- ordino il dominio
 	# size(ds.values[1])    <-- dimensione della prima serie
 end
+
+################################################################################
+################################################################################
+################################################################################
+# task 1: YES/NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+#   ( 66 user (141 sample) / 220 users (298 samples) in total)
+# - v1: USING COUGH
+# - v2: USING BREATH
+# task 2: YES_WITH_COUGH/NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+#   ( 23 user (54 sample) / 29 users (32 samples) in total)
+# - v1: USING COUGH
+# - v2: USING BREATH
+# task 3: YES_WITH_COUGH/NO_CLEAN_HISTORY_AND_LOW_PROBABILITY_WITH_ASTHMA_AND_COUGH_REPORTED
+#   ( 23 user (54 sample) / 18 users (20 samples) in total)
+# - v1: USING COUGH
+# - v2: USING BREATH
+
+using JSON
+KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
+	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
+	@assert n_version in [1,2] "KDDDataset: invalid n_version: {$n_version}"
+	rng = spawn_rng(rng)
+
+	kdd_data_dir = data_dir * "KDD/"
+
+	task_to_folders = [
+		[
+			["covidandroidnocough", "covidandroidwithcough", "covidwebnocough", "covidwebwithcough"],
+			["healthyandroidnosymp", "healthywebnosymp"],
+			["YES", "NO_CLEAN_HISTORY_AND_LOW_PROBABILITY"]
+		],
+		[
+			["covidandroidwithcough", "covidwebwithcough"],
+			["healthyandroidwithcough", "healthywebwithcough"],
+			["YES_WITH_COUGH", "NO_CLEAN_HISTORY_AND_LOW_PROBABILITY"]
+		],
+		[
+			["covidandroidwithcough", "covidwebwithcough"],
+			["asthmaandroidwithcough", "asthmawebwithcough"],
+			["YES_WITH_COUGH", "NO_CLEAN_HISTORY_AND_LOW_PROBABILITY_WITH_ASTHMA_AND_COUGH_REPORTED"]
+		],
+	]
+
+	subfolder,file_prefix = (n_version == 1 ? ("cough","cough_") : ("breath","breaths_"))
+
+	folders_Y, folders_N, class_labels = task_to_folders[n_task]
+
+	files_map = JSON.parsefile(kdd_data_dir * "files.json")
+
+	function readFiles(folders)
+		# https://stackoverflow.com/questions/59562325/moving-average-in-julia
+		moving_average(vs::AbstractArray{T,1},n,st=1) where {T} = [sum(@view vs[i:(i+n-1)])/n for i in 1:st:(length(vs)-(n-1))]
+		moving_average(vs::AbstractArray{T,2},n,st=1) where {T} = mapslices((x)->(@views moving_average(x,n,st)), vs, dims=2)
+		# (sum(w) for w in partition(1:9, 3, 2))
+		# moving_average_np(vs,num_out_points,st) = moving_average(vs,length(vs)-num_out_points*st+1,st)
+		# moving_average_np(vs,num_out_points,o) = (w = length(vs)-num_out_points*(1-o/w)+1; moving_average(vs,w,1-o/w))
+		# moving_average_np(vs,t,o) = begin
+		# 	N = length(vs);
+		# 	s = floor(Int, (N+1)/(t+(1/(1-o))))
+		# 	w = ceil(Int, s/(1-o))
+		# 	# moving_average(vs,w,1-ceil(Int, o/w))
+		# end
+		n_samples = 0
+		timeseries = []
+		Threads.@threads for folder in folders
+			for samples in files_map[folder]
+				for filename in samples
+					if startswith(filename,file_prefix)
+						filepath = kdd_data_dir * "$folder/$subfolder/$filename"
+						ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
+						# println(size(wav2stft_time_series(filepath, audio_kwargs)))
+						# println(size(ts))
+						push!(timeseries, ts)
+						n_samples += 1
+					end
+				end
+				# break
+			end
+		end
+		# @assert n_samples == tot_n_samples "KDDDataset: unmatching tot_n_samples: {$n_samples} != {$tot_n_samples}"
+		timeseries
+	end
+
+	pos = readFiles(folders_Y)
+	neg = readFiles(folders_N)
+
+	println("POS={$(length(pos))}, NEG={$(length(neg))}")
+	n_per_class = min(length(pos), length(neg))
+
+	pos = pos[Random.randperm(rng, length(pos))[1:n_per_class]]
+	neg = neg[Random.randperm(rng, length(neg))[1:n_per_class]]
+
+	println("Balanced -> {$n_per_class}+{$n_per_class}")
+
+	# Stratify
+	timeseries = vec(hcat(pos,neg)')
+	Y = vec(hcat(ones(Int,length(pos)),zeros(Int,length(neg)))')
+	# timeseries = [pos..., neg...]
+	# println(size(timeseries[1]))
+
+	max_timepoints = maximum(size(ts, 1) for ts in timeseries)
+	nfreqs = unique(size(ts, 2) for ts in timeseries)
+	@assert length(nfreqs) == 1 "KDDDataset: length(nfreqs) != 1: {$nfreqs} != 1"
+	nfreqs = nfreqs[1]
+	X = zeros((max_timepoints, length(timeseries), nfreqs))
+	for (i,ts) in enumerate(timeseries)
+		# println(size(ts))
+		X[1:size(ts, 1),i,:] = ts
+	end
+	(X,Y,class_labels)
+end
+################################################################################
+################################################################################
+################################################################################
+
+
 
 simpleDataset(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	X = Array{Int,3}(undef, N, n_samp, 1);
@@ -125,32 +245,32 @@ simpleDataset2(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRN
 end
 
 IndianPinesDataset() = begin
-	X = matread(data_dir * "datasets/indian-pines/Indian_pines_corrected.mat")["indian_pines_corrected"]
-	Y = matread(data_dir * "datasets/indian-pines/Indian_pines_gt.mat")["indian_pines_gt"]
+	X = matread(data_dir * "indian-pines/Indian_pines_corrected.mat")["indian_pines_corrected"]
+	Y = matread(data_dir * "indian-pines/Indian_pines_gt.mat")["indian_pines_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 SalinasDataset() = begin
-	X = matread(data_dir * "datasets/salinas/Salinas_corrected.mat")["salinas_corrected"]
-	Y = matread(data_dir * "datasets/salinas/Salinas_gt.mat")["salinas_gt"]
+	X = matread(data_dir * "salinas/Salinas_corrected.mat")["salinas_corrected"]
+	Y = matread(data_dir * "salinas/Salinas_gt.mat")["salinas_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 SalinasADataset() = begin
-	X = matread(data_dir * "datasets/salinas-A/SalinasA_corrected.mat")["salinasA_corrected"]
-	Y = matread(data_dir * "datasets/salinas-A/SalinasA_gt.mat")["salinasA_gt"]
+	X = matread(data_dir * "salinas-A/SalinasA_corrected.mat")["salinasA_corrected"]
+	Y = matread(data_dir * "salinas-A/SalinasA_gt.mat")["salinasA_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 PaviaCentreDataset() = begin
-	X = matread(data_dir * "datasets/paviaC/Pavia.mat")["pavia"]
-	Y = matread(data_dir * "datasets/paviaC/Pavia_gt.mat")["pavia_gt"]
+	X = matread(data_dir * "paviaC/Pavia.mat")["pavia"]
+	Y = matread(data_dir * "paviaC/Pavia_gt.mat")["pavia_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
 PaviaDataset() = begin
-	X = matread(data_dir * "datasets/paviaU/PaviaU.mat")["paviaU"]
-	Y = matread(data_dir * "datasets/paviaU/PaviaU_gt.mat")["paviaU_gt"]
+	X = matread(data_dir * "paviaU/PaviaU.mat")["paviaU"]
+	Y = matread(data_dir * "paviaU/PaviaU_gt.mat")["paviaU_gt"]
 	(X, Y) = map(((x)->round.(Int,x)), (X, Y))
 end
 
@@ -277,6 +397,8 @@ SampleLandCoverDataset(dataset::String, n_samples_per_label::Int, sample_size::U
 	inputs,labels,[class_labels_map[y] for y in existingLabels]
 end
 
+# TODO note that these splitting functions simply cut the dataset in two,
+#  and they don't produce balanced cuts. To produce balanced cuts, one must manually stratify the dataset
 traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold) where {D,T} = begin
 	(X,Y,class_labels) = data
 	spl = floor(Int, length(Y)*threshold)

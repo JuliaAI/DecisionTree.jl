@@ -38,7 +38,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		end
 	end
 
-	println("forest_args = ", forest_args)
+	# println("forest_args = ", forest_args)
 	println("args = ", args)
 	println("kwargs = ", kwargs)
 
