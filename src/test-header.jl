@@ -79,7 +79,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		elseif timeit == 2
 			T = @btime build_tree($Y_train, $X_train; $args..., $kwargs..., rng = $rng);
 		end
-		#print(T)
+		print_tree(T)
 		
 		println(" test size = $(size(X_test))")
 		cm = nothing
@@ -118,6 +118,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		elseif timeit == 2
 			F = @btime build_forest(Y_train, X_train, forest_args...; args..., kwargs..., rng = rng);
 		end
+		print_forest(F)
 		
 		println(" test size = $(size(X_test))")
 		global_logger(ConsoleLogger(stderr, Logging.Warn));
