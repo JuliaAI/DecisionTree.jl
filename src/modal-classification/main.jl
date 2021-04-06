@@ -329,12 +329,12 @@ apply_tree_proba(tree::DTNode{S, T}, features::AbstractMatrix{S}, labels) where 
 
 =#
 
-
 function build_forest(
-	labels              :: AbstractVector{T},
-	features            :: MatricialDataset{S,D},
+	X                   :: OntologicalDataset{T, N},
+	Y                   :: AbstractVector{S},
 	n_subfeatures       = 0,
 	n_trees             = 100;
+	gammas				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	partial_sampling    = 0.7,
 	max_depth           = -1,
 	min_samples_leaf    = 1,
@@ -345,9 +345,8 @@ function build_forest(
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
-	ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, S, D}
+	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, N, S, NTO, Ta}
 
 	if n_trees < 1
 		throw("the number of trees must be >= 1")
@@ -357,32 +356,21 @@ function build_forest(
 	end
 
 	if n_subfeatures == 0
-		n_features = n_variables(features)
+		n_features = n_variables(X.domain)
 		n_subfeatures = floor(Int, sqrt(n_features))
 	end
 
-	t_samples = n_samples(features)
+	t_samples = n_samples(X.domain)
 	num_samples = floor(Int, partial_sampling * t_samples)
 
-	trees = Vector{Union{DTree{S,T},DTNode{S,T}}}(undef, n_trees)
+	trees = Vector{Union{DTree{T,S},DTNode{T,S}}}(undef, n_trees)
 	cms = Vector{ConfusionMatrix}(undef, n_trees)
-
-	# Pre-compute Gammas for the forest
-	X = OntologicalDataset{S,D-2}(ontology,features)
-	(
-		relationSet,
-		useRelationId, useRelationAll, 
-		relationId_id, relationAll_id,
-		availableModalRelation_ids, allAvailableRelation_ids
-	) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
-	gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-
 	oob_samples = Vector{Vector{Integer}}(undef, n_trees)
 
 	Threads.@threads for i in 1:n_trees
 		inds = rand(rng, 1:t_samples, num_samples)
 
-		v_labels = @views labels[inds]
+		v_labels = @views Y[inds]
 		v_features = @views X.domain[:,inds,:] # TODO: generalize to all possible dimensions
 		v_gammas = @views gammas[:,:,inds,:,:]
 
@@ -405,8 +393,8 @@ function build_forest(
 		# grab out-of-bag indices
 		oob_samples[i] = setdiff(1:t_samples, inds)
 
-		tree_preds = apply_tree(trees[i], features[:,oob_samples[i],:])
-		cms[i] = confusion_matrix(labels[oob_samples[i]], tree_preds)
+		tree_preds = apply_tree(trees[i], X.domain[:,oob_samples[i],:])
+		cms[i] = confusion_matrix(Y[oob_samples[i]], tree_preds)
 	end
 
 	oob_classified = Vector{Bool}()
@@ -429,8 +417,8 @@ function build_forest(
 			continue
 		end
 
-		v_features = @views features[:,[i],:]
-		v_labels = @views labels[[i]]
+		v_features = @views X.domain[:,[i],:]
+		v_labels = @views Y[[i]]
 
 		# TODO: optimization - no need to pass through ConfusionMatrix
 		pred = apply_forest(trees[index_of_trees_to_test_with], v_features)
@@ -441,7 +429,58 @@ function build_forest(
 
 	oob_error = 1.0 - (length(findall(oob_classified)) / length(oob_classified))
 
-	return Forest{S, T}(trees, cms, oob_error)
+	return Forest{T, S}(trees, cms, oob_error)
+end
+
+function build_forest(
+	labels              :: AbstractVector{T},
+	features            :: MatricialDataset{S,D},
+	n_subfeatures       = 0,
+	n_trees             = 100;
+	gammas				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
+	partial_sampling    = 0.7,
+	max_depth           = -1,
+	min_samples_leaf    = 1,
+	min_samples_split   = 2,
+	min_purity_increase = 0.0,
+	loss                :: Function           = util.entropy,
+	min_loss_at_leaf    :: AbstractFloat      = -Inf,
+	initCondition       :: _initCondition     = startWithRelationAll,
+	useRelationAll      :: Bool               = true,
+	useRelationId       :: Bool               = true,
+	ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
+	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, S, D, NTO, Ta}
+
+	# Pre-compute Gammas for the forest
+	X = OntologicalDataset{S,D-2}(ontology,features)
+	(
+		relationSet,
+		useRelationId, useRelationAll, 
+		relationId_id, relationAll_id,
+		availableModalRelation_ids, allAvailableRelation_ids
+	) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+	gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+
+	return build_forest(
+		X,
+		labels,
+		n_subfeatures,
+		n_trees,
+		gammas = gammas,
+		partial_sampling = partial_sampling,
+		max_depth = max_depth,
+		min_samples_leaf = min_samples_leaf,
+		min_samples_split = min_samples_split,
+		min_purity_increase = min_purity_increase,
+		loss = loss,
+		min_loss_at_leaf = min_loss_at_leaf,
+		initCondition = initCondition,
+		useRelationAll = useRelationAll,
+		useRelationId = useRelationId,
+		test_operators = test_operators,
+		rng = rng
+	)
 end
 
 # use an array of trees to test features
