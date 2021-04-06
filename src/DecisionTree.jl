@@ -25,7 +25,7 @@ export DTNode, DTLeaf, DTInternal,
 			 num_nodes, height, modal_height,
 			 build_stump, build_tree,
 			 build_forest, apply_forest,
-       print_tree, prune_tree, apply_tree,
+       print_tree, prune_tree, apply_tree, print_forest,
 			 ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
 			 #
 			 startWithRelationAll, startAtCenter,
@@ -146,6 +146,15 @@ height(t::DTree) = height(t.root)
 modal_height(leaf::DTLeaf) = 0
 modal_height(tree::DTInternal) = (is_modal_node(tree) ? 1 : 0) + max(modal_height(tree.left), modal_height(tree.right))
 modal_height(t::DTree) = modal_height(t.root)
+
+function print_forest(forest::Forest)
+	n_trees = length(forest)
+	for i in 1:n_trees
+		println("Tree $(i) / $(n_trees)")
+		print_tree(forest.trees[i])
+	end
+	println("Forest Out-Of-Bag Error: $(forest.oob_error)")
+end
 
 function print_tree(leaf::DTLeaf, depth=-1, indent=0, indent_guides=[])
 		matches = findall(leaf.values .== leaf.majority)
