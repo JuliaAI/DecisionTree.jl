@@ -74,6 +74,7 @@ function my_stft(x::Vector{T}, sr::Real=16000.0; wintime=0.025, steptime=0.01,
 	end
 	pspec = my_powspec(x, sr, wintime=wintime, steptime=steptime, dither=dither, window_f=window_f)
 	aspec = my_audspec(pspec, sr, nfilts=nbands, fbtype=fbtype, minfreq=minfreq, maxfreq=maxfreq, sumpower=sumpower, bwidth=bwidth)
+	log.(aspec)
 end
 
 merge_channels(samps) = vec(sum(samps, dims=2)/size(samps, 2))

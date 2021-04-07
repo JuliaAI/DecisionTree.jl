@@ -1,0 +1,66 @@
+foresta using only one frequency per split
+
+➜  src git:(mr-manzella) ✗ julia -i  -t4 test-audio.jl                 
+ Activating environment at `~/.julia/dev/DecisionTree/Project.toml`   
+[ Info: Precompiling DecisionTree [7806a523-6efd-50cb-b5f6-3fa6f1930dbb]                                                                    
+WARNING: import of Base.show into DecisionTree conflicts with an existing identifier; ignored.
+┌ Warning: Package DecisionTree does not have Logging in its dependencies:
+│ - If you have DecisionTree checked out for development and have
+│   added Logging as a dependency but haven't updated your primary
+│   environment's manifest file, try `Pkg.resolve()`.
+│ - Otherwise you may need to report an issue with DecisionTree
+└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.
+POS={110}, NEG={137}
+Balanced -> {110}+{110}
+Benchmarking dataset 'Test'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+kwargs = (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (19, 176, 40)
+ test size = (19, 44, 40)
+ Purity threshold 1.0
+RESULT: Test    (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)  (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])      1.0     |       59.09%  59.09%  18.18%  [59.09, 59.09]%       [60.87, 57.14]% [63.64, 54.55]% [54.55, 63.64]% [58.33, 60.0]%        [60.0, 58.33]%  ||      59.01%  59.09%  59.09%  59.1759.17%
+ 14  8  63.64%          YES
+ 10 12  54.55%          NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+
+
+Benchmarking dataset 'Test'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+kwargs = (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (19, 176, 40)
+ test size = (19, 44, 40)
+RESULT: Test    (n_subfeatures = 1, n_trees = 5)        (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)        (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])     65.91%   65.91%  31.82%  [65.91, 65.91]% [63.41, 68.09]% [59.09, 72.73]%       [72.73, 59.09]% [68.42, 64.0]%  [64.0, 68.42]%  ||      65.7565.91%   65.91%  66.21%  66.21%
+ 13  9  59.09%          YES
+  6 16  72.73%          NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+Forest OOB Error: 37.93%
+
+julia> T                                                              
+ERROR: UndefVarError: T not defined
+
+julia>                                                                
+➜  src git:(mr-manzella) ✗ julia -i -t4 test-audio.jl                 
+ Activating environment at `~/.julia/dev/DecisionTree/Project.toml`
+[ Info: Precompiling DecisionTree [7806a523-6efd-50cb-b5f6-3fa6f1930dbb]
+WARNING: import of Base.show into DecisionTree conflicts with an existing identifier; ignored.
+┌ Warning: Package DecisionTree does not have Logging in its dependencies:
+│ - If you have DecisionTree checked out for development and have
+│   added Logging as a dependency but haven't updated your primary
+│   environment's manifest file, try `Pkg.resolve()`.
+│ - Otherwise you may need to report an issue with DecisionTree
+└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.
+POS={110}, NEG={137}
+Balanced -> {110}+{110}
+Benchmarking dataset 'Test'...
+args = (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+kwargs = (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (19, 176, 40)
+ test size = (19, 44, 40)
+ Purity threshold 1.0
+RESULT: Test    (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)  (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])      1.0     |       70.45%  70.45%  40.91%  [70.45, 70.45]%       [68.29, 72.34]% [63.64, 77.27]% [77.27, 63.64]% [73.68, 68.0]%        [68.0, 73.68]%  ||      70.32%  70.45%  70.45%  70.8470.84%
+ 14  8  63.64%          YES
+  5 17  77.27%          NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+ test size = (19, 44, 40)
+RESULT: Test    (n_subfeatures = 1, n_trees = 5)        (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)        (initCondition = DecisionTree._startWithRelationAll(), ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), useRelationId = true, useRelationAll = false, test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])     47.73%   47.73%  -4.55%  [47.73, 47.73]% [48.89, 46.51]% [50.0, 45.45][45.45, 50.0]%   [47.83, 47.62]% [47.62, 47.83]% ||      47.7%   47.7347.73%   47.72%  47.72%
+ 11 11  50.0%           YES
+ 12 10  45.45%          NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
+Forest OOB Error: 45.18%
+               _

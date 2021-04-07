@@ -22,39 +22,47 @@ function _convert(
 end
 
 ################################################################################
+################################################################################
+################################################################################
 
-# TODO include adimensional case? Probably not in the dataset itself
-# buildOntologicalDataset(features :: MatricialDataset{T,3}) where {T} =
-	# OntologicalDataset{T,1}(ModalLogic.getIntervalOntologyOfDim(Val(1)),features)
-# buildOntologicalDataset(features :: MatricialDataset{T,4}) where {T} =
-	# OntologicalDataset{T,2}(ModalLogic.getIntervalOntologyOfDim(Val(2)),features)
+# Build models on (multi-dimensional) arrays
+function build_stump(
+	labels    :: AbstractVector{Label},
+	features  :: MatricialDataset{T,D},
+	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
+	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
+	kwargs...) where {T, U, D, NTO, Ta}
+	build_stump(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...)
+end
+
+function build_tree(
+	labels    :: AbstractVector{Label},
+	features  :: MatricialDataset{T,D},
+	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
+	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
+	kwargs...) where {T, D} =
+	build_tree(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...)
+end
+
+function build_forest(
+	labels    :: AbstractVector{Label},
+	features  :: MatricialDataset{T,D},
+	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
+	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
+	kwargs...) where {T, D} =
+	build_forest(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...))
+end
+
+################################################################################
+################################################################################
+################################################################################
 
 # Build a stump (tree with depth 1)
 function build_stump(
-		labels         :: AbstractVector{Label},
-		features       :: MatricialDataset{T,D},
-		weights        :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas 		   :: Union{GammasType{NTO, Ta},Nothing} = gammas,
-		ontology       :: Ontology            = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, U, D, NTO, Ta}
-	
-	X = OntologicalDataset{T,D-2}(ontology,features)
-
-	return build_stump(
-		X,
-		labels,
-		weights,
-		test_operators = test_operators,
-		rng = rng
-	)
-end
-
-function build_stump(
-		X	  		   :: OntologicalDataset{T, N},
-		Y     		   :: AbstractVector{Label},
-		W     		   :: Union{Nothing, AbstractVector{U}} = nothing;
-		gammas		   :: Union{GammasType{NTO, Ta},Nothing} = nothing,
+		X	  		       :: OntologicalDataset{T, N},
+		Y     		     :: AbstractVector{Label},
+		W     		     :: Union{Nothing,AbstractVector{U}} = nothing;
+		gammas		     :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, N, U, NTO, Ta}
 
@@ -85,60 +93,19 @@ function build_stump(
 	end
 end
 
-function build_tree(
-		labels              :: AbstractVector{Label},
-		features            :: MatricialDataset{T,D};
-		loss                :: Function           = util.entropy,
-		gammas 				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
-		n_subfeatures		:: Int				  = 0,
-		max_depth           :: Int                = -1,
-		min_samples_leaf    :: Int                = 1,
-		min_purity_increase :: AbstractFloat      = 0.0,
-		min_loss_at_leaf    :: AbstractFloat      = -Inf,
-		n_subrelations		:: Function			  = x -> x,
-		initCondition       :: _initCondition     = startWithRelationAll,
-		useRelationAll      :: Bool               = true,
-		useRelationId       :: Bool               = true,
-		ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-		test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-		rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, D, NTO, Ta}
-
-	# TODO disaccoppia dataset e ontologia di riferimento.
-	X = OntologicalDataset{T,D-2}(ontology,features)
-
-	return build_tree(
-		X,
-		labels,
-		nothing,
-		gammas = gammas,
-		loss = loss,
-		n_subfeatures = n_subfeatures,
-		max_depth = max_depth,
-		min_samples_leaf = min_samples_leaf,
-		min_purity_increase = min_purity_increase,
-		min_loss_at_leaf = min_loss_at_leaf,
-		n_subrelations = n_subrelations,
-		initCondition = initCondition,
-		useRelationAll = useRelationAll,
-		useRelationId = useRelationId,
-		test_operators = test_operators,
-		rng = rng
-	)
-end
-
-# build_tree starting from an OntologicalDataset
+# Build a tree on an OntologicalDataset
 function build_tree(
 	X                   :: OntologicalDataset{T, N},
 	Y                   :: AbstractVector{S},
-	W                   :: Union{Nothing, AbstractVector{U}};
-	gammas				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
+	W                   :: Union{Nothing,AbstractVector{U}} = nothing;
+	gammas			      	:: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
-	n_subfeatures		:: Int				  = 0,
+	n_subfeatures		    :: Int				        = 0,
 	max_depth           :: Int                = -1,
 	min_samples_leaf    :: Int                = 1,
 	min_purity_increase :: AbstractFloat      = 0.0,
 	min_loss_at_leaf    :: AbstractFloat      = -Inf,
-	n_subrelations		:: Function			  = x -> x,
+	n_subrelations		  :: Function			      = x -> x,
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
@@ -158,14 +125,14 @@ function build_tree(
 		X                   = X,
 		Y                   = Y,
 		W                   = W,
+		gammas              = gammas,
 		loss                = loss,
-		gammas				= gammas,
-		max_features		= n_subfeatures,
+		max_features        = n_subfeatures,
 		max_depth           = max_depth,
 		min_samples_leaf    = min_samples_leaf,
 		min_purity_increase = min_purity_increase,
 		min_loss_at_leaf    = min_loss_at_leaf,
-		max_relations		= n_subrelations,
+		max_relations		    = n_subrelations,
 		initCondition       = initCondition,
 		useRelationAll      = useRelationAll,
 		useRelationId       = useRelationId,
@@ -173,8 +140,8 @@ function build_tree(
 		rng                 = rng)
 
 	root = _convert(t.root, t.list, Y[t.labels])
-	# TODO remove This is in order to mantain compatibility
-	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N)) # was D-2 but N = D-2
+	# TODO remove This is in order to restore full compatibility with the rest of the package
+	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N))
 		root
 	else
 		DTree{T, Label}(root, ontology.worldType, initCondition)
@@ -365,6 +332,16 @@ function build_forest(
 		n_features = n_variables(X.domain)
 		n_subfeatures = floor(Int, sqrt(n_features))
 	end
+	
+	if isnothing(gammas)
+		(
+			relationSet,
+			useRelationId, useRelationAll, 
+			relationId_id, relationAll_id,
+			availableModalRelation_ids, allAvailableRelation_ids
+		) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+		gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+	end
 
 	t_samples = n_samples(X.domain)
 	num_samples = floor(Int, partial_sampling * t_samples)
@@ -382,7 +359,7 @@ function build_forest(
 
 		trees[i] = build_tree(
 			v_labels,
-			v_features, # TODO: generalize to all possible dimensions
+			v_features,
 			n_subfeatures = n_subfeatures,
 			gammas = v_gammas,
 			max_depth = max_depth,
@@ -437,62 +414,6 @@ function build_forest(
 	oob_error = 1.0 - (length(findall(oob_classified)) / length(oob_classified))
 
 	return Forest{T, S}(trees, cms, oob_error)
-end
-
-function build_forest(
-	labels              :: AbstractVector{T},
-	features            :: MatricialDataset{S,D},
-	n_subfeatures       :: Int = 0,
-	n_trees             :: Int = 100;
-	gammas				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
-	partial_sampling    = 0.7,
-	max_depth           = -1,
-	min_samples_leaf    = 1,
-	min_samples_split   = 2,
-	min_purity_increase = 0.0,
-	loss                :: Function           = util.entropy,
-	min_loss_at_leaf    :: AbstractFloat      = -Inf,
-	n_subrelations		:: Function			  = x -> x,
-	initCondition       :: _initCondition     = startWithRelationAll,
-	useRelationAll      :: Bool               = true,
-	useRelationId       :: Bool               = true,
-	ontology            :: Ontology           = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, S, D, NTO, Ta}
-
-	# Pre-compute Gammas for the forest
-	X = OntologicalDataset{S,D-2}(ontology,features)
-	
-	if isnothing(gammas)
-		(
-			relationSet,
-			useRelationId, useRelationAll, 
-			relationId_id, relationAll_id,
-			availableModalRelation_ids, allAvailableRelation_ids
-		) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
-		gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-	end
-
-	return build_forest(
-		X,
-		labels,
-		n_subfeatures,
-		n_trees,
-		gammas = gammas,
-		partial_sampling = partial_sampling,
-		max_depth = max_depth,
-		min_samples_leaf = min_samples_leaf,
-		min_samples_split = min_samples_split,
-		min_purity_increase = min_purity_increase,
-		loss = loss,
-		min_loss_at_leaf = min_loss_at_leaf,
-		n_subrelations = n_subrelations,
-		initCondition = initCondition,
-		useRelationAll = useRelationAll,
-		useRelationId = useRelationId,
-		test_operators = test_operators,
-		rng = rng
-	)
 end
 
 # use an array of trees to test features
