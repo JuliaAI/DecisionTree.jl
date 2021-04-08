@@ -1,5 +1,5 @@
-# julia -i -t4 test-manzella.jl
-# julia -i test-manzella.jl
+# julia -i -t4 test-audio.jl
+# julia -i test-audio.jl
 
 include("test-header.jl")
 
@@ -44,9 +44,10 @@ timeit = 0
 
 dataset_kwargs = (
 	#
-	ma_size = 50,   # [100, 50, 20, 10]
-	ma_step = 50,   # [ma_size, ma_size*.75, ma_size*.5]
+	ma_size = 40,   # [100, 50, 20, 10]
+	ma_step = 30,   # [ma_size, ma_size*.75, ma_size*.5]
 )
+
 audio_kwargs = (
 	wintime = 0.025, # in ms          # 0.020-0.040
 	steptime = 0.010, # in ms         # 0.010-0.015
@@ -62,27 +63,32 @@ audio_kwargs = (
 	# usecmp = false,
 )
 
-n_task = 2
-n_version = 1
+n_task = 1
+n_version = 2
 scale_dataset = false
 dataset = KDDDataset((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
-testDataset("Test", dataset, 0.8, 0,
-			debugging_level=log_level,
-			scale_dataset=scale_dataset,
-			forest_args=forest_args,
-			args=args,
-			kwargs=modal_args,
-			precompute_gammas = true,
-			test_tree = true,
-			test_forest = true,
-			);
+println(dataset[1] |> size)
 
-for scale_dataset in [false, UInt8]
-	for n_task in 1:3
+# testDataset("Test", dataset, 0.8, 0,
+# 			debugging_level=log_level,
+# 			scale_dataset=scale_dataset,
+# 			forest_args=forest_args,
+# 			args=args,
+# 			kwargs=modal_args,
+# 			precompute_gammas = true,
+# 			test_tree = true,
+# 			test_forest = true,
+# 			);
+
+scale_dataset = false
+
+for i in 1:10
+	for n_task in 1:1
 		for n_version in 1:2
 			dataset = KDDDataset((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
+			# (1,1) -> 994
 
-			testDataset("Test", dataset, 0.8, 0,
+			testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
 						debugging_level=log_level,
 						scale_dataset=scale_dataset,
 						forest_args=forest_args,

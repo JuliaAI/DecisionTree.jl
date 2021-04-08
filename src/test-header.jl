@@ -82,15 +82,15 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 	function display_cm_as_row(cm::ConfusionMatrix)
 		"|\t" *
 		"$(round(cm.overall_accuracy*100, digits=2))%\t" *
-		"$(round(cm.mean_accuracy*100, digits=2))%\t" *
+		# "$(round(cm.mean_accuracy*100, digits=2))%\t" *
 		"$(round(cm.kappa*100, digits=2))%\t" *
 		# "$(round(DecisionTree.macro_F1(cm)*100, digits=2))%\t" *
-		"$(round.(cm.accuracies.*100, digits=2))%\t" *
+		# "$(round.(cm.accuracies.*100, digits=2))%\t" *
 		"$(round.(cm.F1s.*100, digits=2))%\t" *
 		"$(round.(cm.sensitivities.*100, digits=2))%\t" *
-		"$(round.(cm.specificities.*100, digits=2))%\t" *
+		# "$(round.(cm.specificities.*100, digits=2))%\t" *
 		"$(round.(cm.PPVs.*100, digits=2))%\t" *
-		"$(round.(cm.NPVs.*100, digits=2))%\t" *
+		# "$(round.(cm.NPVs.*100, digits=2))%\t" *
 		"||\t" *
 		"$(round(DecisionTree.macro_weighted_F1(cm)*100, digits=2))%\t" *
 		# "$(round(DecisionTree.macro_sensitivity(cm)*100, digits=2))%\t" *
@@ -118,8 +118,6 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))
 			println(" Purity threshold $pruning_purity_threshold")
 			
-			old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
-
 			T_pruned = prune_tree(T, pruning_purity_threshold)
 			preds = apply_tree(T_pruned, X_test);
 			cm = confusion_matrix(Y_test, preds)
@@ -134,8 +132,6 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 				end
 				println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * class_labels[i])
 			end
-
-			global_logger(old_logger);
 
 			# println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 		end
@@ -153,7 +149,6 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		print_forest(F)
 		
 		println(" test size = $(size(X_test))")
-		old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
 
 		preds = apply_forest(F, X_test);
 		cm = confusion_matrix(Y_test, preds)
@@ -171,7 +166,6 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 		println("Forest OOB Error: $(round.(F.oob_error.*100, digits=2))%")
 
-		global_logger(old_logger);
 		return (F, cm);
 	end
 
@@ -181,12 +175,16 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		Tcm = nothing
 		Fcm = nothing
 
+		old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
+		
 		if test_tree
 		 	T, Tcm = go_tree()
 		end
 		if test_forest
 			F, Fcm = go_forest()
 		end
+
+		global_logger(old_logger);
 
 		T, F, Tcm, Fcm
 	end

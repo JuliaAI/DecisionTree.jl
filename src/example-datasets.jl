@@ -111,7 +111,7 @@ end
 # - v2: USING BREATH
 
 using JSON
-KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
+KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_points = -1, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
 	@assert n_version in [1,2] "KDDDataset: invalid n_version: {$n_version}"
 	rng = spawn_rng(rng)
@@ -163,8 +163,13 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, rng = Ran
 					if startswith(filename,file_prefix)
 						filepath = kdd_data_dir * "$folder/$subfolder/$filename"
 						ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
-						# println(size(wav2stft_time_series(filepath, audio_kwargs)))
 						# println(size(ts))
+						if max_points != -1 && size(ts,2)>max_points
+							ts = ts[:,1:max_points]
+						end
+						# println(size(ts))
+						# readline()
+						# println(size(wav2stft_time_series(filepath, audio_kwargs)))
 						push!(timeseries, ts)
 						n_samples += 1
 					end
@@ -192,7 +197,7 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, rng = Ran
 	Y = vec(hcat(ones(Int,length(pos)),zeros(Int,length(neg)))')
 	# timeseries = [pos..., neg...]
 	# println(size(timeseries[1]))
-
+	# println([size(ts, 1) for ts in timeseries])
 	max_timepoints = maximum(size(ts, 1) for ts in timeseries)
 	nfreqs = unique(size(ts, 2) for ts in timeseries)
 	@assert length(nfreqs) == 1 "KDDDataset: length(nfreqs) != 1: {$nfreqs} != 1"

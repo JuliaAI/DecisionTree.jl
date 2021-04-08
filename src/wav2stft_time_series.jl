@@ -68,13 +68,15 @@ end
 function my_stft(x::Vector{T}, sr::Real=16000.0; wintime=0.025, steptime=0.01,
               sumpower=false, pre_emphasis=0.97, dither=false, minfreq=0.0, maxfreq=sr/2,
               nbands=20, bwidth=1.0, fbtype=:htkmel,
-              usecmp=false, window_f=hamming) where {T<:AbstractFloat}
+              usecmp=false, window_f=hamming
+              # , do_log = false
+              ) where {T<:AbstractFloat}
 	if (pre_emphasis != 0)
 		x = filt(PolynomialRatio([1., -pre_emphasis], [1.]), x)
 	end
 	pspec = my_powspec(x, sr, wintime=wintime, steptime=steptime, dither=dither, window_f=window_f)
 	aspec = my_audspec(pspec, sr, nfilts=nbands, fbtype=fbtype, minfreq=minfreq, maxfreq=maxfreq, sumpower=sumpower, bwidth=bwidth)
-	log.(aspec)
+	# if do_log log.(aspec) else aspec end
 end
 
 merge_channels(samps) = vec(sum(samps, dims=2)/size(samps, 2))

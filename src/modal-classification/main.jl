@@ -299,6 +299,8 @@ function build_forest(
 	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, N, S, U, NTO, Ta}
 
+	rng = mk_rng(rng)
+	
 	if n_trees < 1
 		throw("the number of trees must be >= 1")
 	end
