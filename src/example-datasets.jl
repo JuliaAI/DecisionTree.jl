@@ -163,6 +163,8 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_point
 					if startswith(filename,file_prefix)
 						filepath = kdd_data_dir * "$folder/$subfolder/$filename"
 						ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
+						# Drop first point
+						ts = @views ts[:,2:end]
 						# println(size(ts))
 						if max_points != -1 && size(ts,2)>max_points
 							ts = ts[:,1:max_points]

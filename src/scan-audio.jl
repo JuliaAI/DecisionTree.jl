@@ -50,6 +50,7 @@ timeit = 0
 # timeit = 2
 
 scale_dataset = false
+# scale_dataset = UInt16
 
 # RUN
 for i in 1:10

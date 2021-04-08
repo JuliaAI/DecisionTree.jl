@@ -66,41 +66,42 @@ audio_kwargs = (
 n_task = 1
 n_version = 2
 scale_dataset = false
+# scale_dataset = UInt16
 dataset = KDDDataset((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
 println(dataset[1] |> size)
 
-# testDataset("Test", dataset, 0.8, 0,
-# 			debugging_level=log_level,
-# 			scale_dataset=scale_dataset,
-# 			forest_args=forest_args,
-# 			args=args,
-# 			kwargs=modal_args,
-# 			precompute_gammas = true,
-# 			test_tree = true,
-# 			test_forest = true,
-# 			);
+testDataset("Test", dataset, 0.8, 0,
+			debugging_level=log_level,
+			scale_dataset=scale_dataset,
+			forest_args=forest_args,
+			args=args,
+			kwargs=modal_args,
+			precompute_gammas = true,
+			test_tree = true,
+			test_forest = true,
+			);
 
-scale_dataset = false
+# scale_dataset = false
 
-for i in 1:10
-	for n_task in 1:1
-		for n_version in 1:2
-			dataset = KDDDataset((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
-			# (1,1) -> 994
+# for i in 1:10
+# 	for n_task in 1:1
+# 		for n_version in 1:2
+# 			dataset = KDDDataset((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
+# 			# (1,1) -> 994
 
-			testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
-						debugging_level=log_level,
-						scale_dataset=scale_dataset,
-						forest_args=forest_args,
-						args=args,
-						kwargs=modal_args,
-						test_tree = true,
-						test_forest = true,
-						);
+# 			testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
+# 						debugging_level=log_level,
+# 						scale_dataset=scale_dataset,
+# 						forest_args=forest_args,
+# 						args=args,
+# 						kwargs=modal_args,
+# 						test_tree = true,
+# 						test_forest = true,
+# 						);
 
-		end
-	end
-end
+# 		end
+# 	end
+# end
 
 
 # selected_args = merge(args, (loss = loss,
