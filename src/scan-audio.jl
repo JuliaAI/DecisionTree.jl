@@ -52,6 +52,27 @@ timeit = 0
 scale_dataset = false
 # scale_dataset = UInt16
 
+# TODO
+# TEST:
+# - decision tree
+# - RF with:
+# forest_args = []
+# for n_trees in [1,50,100]
+# 	for n_subfeatures in [0,nbands]
+# 		for n_subrelations in [x->x, x->ceil(x/2), x->ceil(sqrt(x))]
+
+# 			push!(forest_args, (
+# 				n_subfeatures = n_subfeatures,
+# 				n_trees = n_trees,
+# 				partial_sampling = 1.0,
+# 				n_subrelations=n_subrelations,
+# 				forest_tree_args...
+# 			))
+# 		end
+# 	end
+# end
+# nfreqs
+
 # RUN
 for i in 1:10
 	rng = spawn_rng(main_rng)
@@ -62,51 +83,29 @@ for i in 1:10
 			for nbands in [20,40,60]
 				for dataset_kwargs in [(
 		max_points = 30,
-		ma_size = 75,
-		ma_step = 50,
-	),(
-		max_points = 30,
 		ma_size = 25,
 		ma_step = 15,
 	),(
 		max_points = 30,
 		ma_size = 45,
 		ma_step = 30,
+	),(
+		max_points = 30,
+		ma_size = 75,
+		ma_step = 50,
 	)]
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
 					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
 
-					# TODO
-					# TEST:
-					# - decision tree
-					# - RF with:
-							# for n_trees in [1,50,100]
-								# for n_subfeatures in [0,nbands]
-									# for n_subrelations in [x->x, x->ceil(x/2), x->ceil(sqrt(x))]
-
-					# cur_modal_args = merge(modal_args, (
-						# n_trees=n_trees,
-						# n_subfeatures=n_subfeatures,))
-					
-					# forest_args = (
-					# 	n_subfeatures = n_subfeatures,
-					# 	n_trees = n_trees,
-					# 	partial_sampling = 1.0,
-					# 	n_subrelations=n_subrelations,
-					# ...forest_tree_args
-					# )
-
-					# nfreqs
-
-					# testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
-					# 			debugging_level=log_level,
-					# 			scale_dataset=scale_dataset,
-					# 			forest_args=forest_args,
-					# 			args=args,
-					# 			kwargs=cur_modal_args,
-					# 			test_tree = true,
-					# 			test_forest = true,
-					# 			);
+					testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
+								debugging_level  =   log_level,
+								scale_dataset    =   scale_dataset,
+								forest_args      =   forest_args,
+								tree_args        =   tree_args,
+								kwargs           =   modal_args,
+								test_tree        =   true,
+								test_forest      =   true,
+								);
 
 				end
 			end
