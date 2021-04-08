@@ -6,7 +6,7 @@ include("test-header.jl")
 rng = my_rng()
 
 forest_args = (
-	n_subfeatures = 1,
+	n_subfeatures = x -> ceil(Int, sqrt(x)),
 	n_trees = 100,
 	#partial_sampling = 0.7,
 )

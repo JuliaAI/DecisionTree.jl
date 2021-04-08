@@ -75,7 +75,7 @@ function build_tree(
 	W                   :: Union{Nothing,AbstractVector{U}} = nothing;
 	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
-	n_subfeatures       :: Int                = 0,
+	n_subfeatures       :: Function           = x -> x,
 	max_depth           :: Int                = -1,
 	min_samples_leaf    :: Int                = 1,
 	min_purity_increase :: AbstractFloat      = 0.0,
@@ -86,10 +86,6 @@ function build_tree(
 	useRelationId       :: Bool               = true,
 	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, N, S, U, NTO, Ta}
-
-	if n_subfeatures == 0
-		n_subfeatures = n_variables(X)
-	end
 
 	if max_depth == -1
 		max_depth = typemax(Int)
@@ -102,7 +98,7 @@ function build_tree(
 		W                   = W,
 		gammas              = gammas,
 		loss                = loss,
-		max_features        = n_subfeatures,
+		max_features        = n_subfeatures(n_variables(X)),
 		max_depth           = max_depth,
 		min_samples_leaf    = min_samples_leaf,
 		min_purity_increase = min_purity_increase,
@@ -287,7 +283,7 @@ function build_forest(
 	# Tree parameters
 	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
-	n_subfeatures       :: Int                = 0,
+	n_subfeatures       :: Function           = x -> ceil(Int, sqrt(x)),
 	max_depth           :: Int                = -1,
 	min_samples_leaf    :: Int                = 1,
 	min_purity_increase :: AbstractFloat      = 0.0,
@@ -307,11 +303,6 @@ function build_forest(
 	
 	if !(0.0 < partial_sampling <= 1.0)
 		throw("partial_sampling must be in the range (0,1]")
-	end
-
-	# n_subfeatures defaults to the square root of the total number of features
-	if n_subfeatures == 0
-		n_subfeatures = floor(Int, sqrt(n_variables(X.domain)))
 	end
 	
 	# precompute-gammas, since they are shared by all trees
