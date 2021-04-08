@@ -5,11 +5,15 @@ include("test-header.jl")
 
 rng = my_rng()
 
-forest_args = (
+forest_args = [(
 	n_subfeatures = x -> ceil(Int, sqrt(x)),
 	n_trees = 100,
 	#partial_sampling = 0.7,
-)
+),(
+	n_subfeatures = x -> ceil(Int, x / 2),
+	n_trees = 100,
+	#partial_sampling = 0.7,
+)]
 
 args = (
 	loss = DecisionTree.util.entropy,
@@ -159,8 +163,7 @@ if log_results_best_values
 	for i in 1:repeat_test
 
 		global T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
-			forest_args=forest_args, args=selected_args, kwargs=kwargs,
-			test_tree = true, test_forest = true);
+			forest_args=forest_args, args=selected_args, kwargs=kwargs);
 
 		push!(tree_overall_accuracy, Tcm.overall_accuracy)
 		push!(tree_mean_accuracy, Tcm.mean_accuracy)
@@ -186,6 +189,5 @@ if log_results_best_values
 	)
 else
 	T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
-		forest_args=forest_args, args=selected_args, kwargs=kwargs,
-		test_tree = true, test_forest = true);
+		forest_args=forest_args, args=selected_args, kwargs=kwargs);
 end

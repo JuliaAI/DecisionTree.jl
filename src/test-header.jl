@@ -20,7 +20,7 @@ using PProf
 
 include("example-datasets.jl")
 
-function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], forest_args = (), args = (), kwargs = (), test_tree = true, test_forest = false, precompute_gammas = true, error_catching = false, rng = my_rng())
+function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], forest_args = [], args = (), kwargs = (), precompute_gammas = true, error_catching = false, rng = my_rng())
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	if split_threshold != false
@@ -138,13 +138,13 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		return (T, cm);
 	end
 
-	go_forest() = begin
+	go_forest(f_args) = begin
 		if timeit == 0
-			F = build_forest(Y_train, X.domain; forest_args..., args..., kwargs..., gammas = gammas, rng = rng);
+			F = build_forest(Y_train, X.domain; f_args..., args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 1
-			F = @time build_forest(Y_train, X.domain; forest_args..., args..., kwargs..., gammas = gammas, rng = rng);
+			F = @time build_forest(Y_train, X.domain; f_args..., args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 2
-			F = @btime build_forest($Y_train, $X.domain; $forest_args..., $args..., $kwargs..., gammas = gammas, rng = $rng);
+			F = @btime build_forest($Y_train, $X.domain; $f_args..., $args..., $kwargs..., gammas = gammas, rng = $rng);
 		end
 		print_forest(F)
 		
@@ -154,7 +154,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		cm = confusion_matrix(Y_test, preds)
 		# @test cm.overall_accuracy > 0.99
 
-		println("RESULT:\t$(name)\t$(forest_args)\t$(args)\t$(kwargs)\t$(display_cm_as_row(cm))")
+		println("RESULT:\t$(name)\t$(f_args)\t$(args)\t$(kwargs)\t$(display_cm_as_row(cm))")
 
 		# println("  accuracy: ", round(cm.overall_accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
 		for (i,row) in enumerate(eachrow(cm.matrix))
@@ -171,17 +171,16 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 	go() = begin
 		T = nothing
-		F = nothing
+		F = []
 		Tcm = nothing
-		Fcm = nothing
+		Fcm = []
 
 		old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
 		
-		if test_tree
-		 	T, Tcm = go_tree()
-		end
-		if test_forest
-			F, Fcm = go_forest()
+		T, Tcm = go_tree()
+
+		for f_args in forest_args
+			F, Fcm = go_forest(f_args)
 		end
 
 		global_logger(old_logger);
