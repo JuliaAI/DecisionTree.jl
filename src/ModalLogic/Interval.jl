@@ -91,7 +91,7 @@ enumAccBare(w::Interval, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x,
 enumAcc(S::AbstractWorldSet{Interval}, r::_RelationAll, X::Integer) =
 	IterTools.imap(Interval, enumPairsIn(1, X+1))
 
-worldTypeSize(::Type{Interval}) = 2
+# worldTypeSize(::Type{Interval}) = 2
 n_worlds(::Type{Interval}, channel_size::Tuple{Integer}) = div(channel_size[1]*(channel_size[1]+1),2)
 
 print_world(w::Interval) = println("Interval [$(w.x),$(w.y)), length $(w.y-w.x)")

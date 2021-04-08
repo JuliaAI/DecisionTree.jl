@@ -43,6 +43,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 	println("kwargs = ", kwargs)
 
 	X = OntologicalDataset{eltype(X_train),ndims(X_train)-2}(kwargs.ontology,X_train)
+
 	gammas = nothing
 
 	if precompute_gammas
@@ -56,24 +57,25 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		allAvailableRelation_ids = nothing
 		test_operators = deepcopy(kwargs.test_operators)
 		(
-			relationSet,
+			# X,
+			test_operators, relationSet,
 			useRelationId, useRelationAll, 
 			relationId_id, relationAll_id,
 			availableModalRelation_ids, allAvailableRelation_ids
-		) = DecisionTree.treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+			) = DecisionTree.treeclassifier.optimize_tree_parameters!(X, initCondition, useRelationAll, useRelationId, test_operators)
 
 		# update values
 		kwargs = merge(kwargs,
 			(initCondition = initCondition, useRelationAll = useRelationAll, useRelationId = useRelationId, test_operators = test_operators))
 
-		gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,kwargs.test_operators,relationSet,relationId_id,availableModalRelation_ids)
+		gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 		
 		println("(optimized) kwargs = ", kwargs)
 	end
 
 	# println(" n_samples = $(size(X.domain)[end-1])")
 	println(" train size = $(size(X.domain))")
-	global_logger(ConsoleLogger(stderr, Logging.Info))
+	# global_logger(ConsoleLogger(stderr, Logging.Info))
 	# global_logger(ConsoleLogger(stderr, debugging_level))
 	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
 
@@ -116,7 +118,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))
 			println(" Purity threshold $pruning_purity_threshold")
 			
-			global_logger(ConsoleLogger(stderr, Logging.Warn));
+			old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
 
 			T_pruned = prune_tree(T, pruning_purity_threshold)
 			preds = apply_tree(T_pruned, X_test);
@@ -133,7 +135,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 				println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * class_labels[i])
 			end
 
-			global_logger(ConsoleLogger(stderr, Logging.Info));
+			global_logger(old_logger);
 
 			# println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 		end
@@ -142,16 +144,16 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 	go_forest() = begin
 		if timeit == 0
-			F = build_forest(Y_train, X.domain, forest_args...; args..., kwargs..., gammas = gammas, rng = rng);
+			F = build_forest(Y_train, X.domain; forest_args..., args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 1
-			F = @time build_forest(Y_train, X.domain, forest_args...; args..., kwargs..., gammas = gammas, rng = rng);
+			F = @time build_forest(Y_train, X.domain; forest_args..., args..., kwargs..., gammas = gammas, rng = rng);
 		elseif timeit == 2
-			F = @btime build_forest($Y_train, $X.domain, $forest_args...; $args..., $kwargs..., gammas = gammas, rng = $rng);
+			F = @btime build_forest($Y_train, $X.domain; $forest_args..., $args..., $kwargs..., gammas = gammas, rng = $rng);
 		end
 		print_forest(F)
 		
 		println(" test size = $(size(X_test))")
-		global_logger(ConsoleLogger(stderr, Logging.Warn));
+		old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
 
 		preds = apply_forest(F, X_test);
 		cm = confusion_matrix(Y_test, preds)
@@ -169,7 +171,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 		println("Forest OOB Error: $(round.(F.oob_error.*100, digits=2))%")
 
-		global_logger(ConsoleLogger(stderr, Logging.Info));
+		global_logger(old_logger);
 		return (F, cm);
 	end
 

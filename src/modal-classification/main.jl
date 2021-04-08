@@ -31,7 +31,7 @@ function build_stump(
 	features  :: MatricialDataset{T,D},
 	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
 	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-	kwargs...) where {T, U, D, NTO, Ta}
+	kwargs...) where {T, D, U}
 	build_stump(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...)
 end
 
@@ -40,7 +40,7 @@ function build_tree(
 	features  :: MatricialDataset{T,D},
 	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
 	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-	kwargs...) where {T, D} =
+	kwargs...) where {T, D, U}
 	build_tree(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...)
 end
 
@@ -49,8 +49,8 @@ function build_forest(
 	features  :: MatricialDataset{T,D},
 	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
 	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
-	kwargs...) where {T, D} =
-	build_forest(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...))
+	kwargs...) where {T, D, U}
+	build_forest(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...)
 end
 
 ################################################################################
@@ -62,35 +62,9 @@ function build_stump(
 		X	  		       :: OntologicalDataset{T, N},
 		Y     		     :: AbstractVector{Label},
 		W     		     :: Union{Nothing,AbstractVector{U}} = nothing;
-		gammas		     :: Union{GammasType{NTO, Ta},Nothing} = nothing,
-		test_operators :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-		rng            :: Random.AbstractRNG  = Random.GLOBAL_RNG) where {T, N, U, NTO, Ta}
-
-	t = treeclassifier.fit(
-		X                   = X,
-		Y                   = Y,
-		W                   = W,
-		loss                = treeclassifier.util.zero_one,
-		gammas 				= gammas,
-		max_features        = n_variables(X),
-		max_depth           = 1,
-		min_samples_leaf    = 1,
-		min_purity_increase = 0.0,
-		min_loss_at_leaf    = -Inf,
-		n_subrelations		= x -> x,
-		initCondition       = startWithRelationAll,
-		useRelationAll      = true,
-		useRelationId       = true,
-		test_operators      = test_operators,
-		rng                 = rng)
-
-	root = _convert(t.root, t.list, Y[t.labels])
-	# TODO remove This is in order to mantain compatibility
-	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N))
-		root
-	else
-		DTree{T, Label}(root, ontology.worldType, initCondition)
-	end
+		kwargs...) where {T, N, U}
+	@assert !haskey(kwargs, :max_depth) || kwargs.max_depth == 1 "build_stump doesn't allow max_depth != 1"
+	build_tree(X, Y, W; max_depth = 1, kwargs...)
 end
 
 # Build a tree on an OntologicalDataset
@@ -98,7 +72,7 @@ function build_tree(
 	X                   :: OntologicalDataset{T, N},
 	Y                   :: AbstractVector{S},
 	W                   :: Union{Nothing,AbstractVector{U}} = nothing;
-	gammas			      	:: Union{GammasType{NTO, Ta},Nothing} = nothing,
+	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
 	n_subfeatures		    :: Int				        = 0,
 	max_depth           :: Int                = -1,
@@ -120,7 +94,7 @@ function build_tree(
 		max_depth = typemax(Int)
 	end
 
-	rng = mk_rng(rng)::Random.AbstractRNG
+	rng = mk_rng(rng)
 	t = treeclassifier.fit(
 		X                   = X,
 		Y                   = Y,
@@ -144,7 +118,7 @@ function build_tree(
 	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N))
 		root
 	else
-		DTree{T, Label}(root, ontology.worldType, initCondition)
+		DTree{T, Label}(root, X.ontology.worldType, initCondition)
 	end
 end
 
@@ -304,42 +278,47 @@ apply_tree_proba(tree::DTNode{S, T}, features::AbstractMatrix{S}, labels) where 
 function build_forest(
 	X                   :: OntologicalDataset{T, N},
 	Y                   :: AbstractVector{S},
-	n_subfeatures       = 0,
-	n_trees             = 100;
-	gammas				:: Union{GammasType{NTO, Ta},Nothing} = nothing,
+	W                   :: Union{Nothing,AbstractVector{U}} = nothing;
+	# Forest parameters
+	n_trees             = 100,
 	partial_sampling    = 0.7,
-	max_depth           = -1,
-	min_samples_leaf    = 1,
-	min_samples_split   = 2,
-	min_purity_increase = 0.0,
+	# Tree parameters
+	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
+	n_subfeatures		    :: Int				        = 0,
+	max_depth           :: Int                = -1,
+	min_samples_leaf    :: Int                = 1,
+	min_purity_increase :: AbstractFloat      = 0.0,
 	min_loss_at_leaf    :: AbstractFloat      = -Inf,
-	n_subrelations		:: Function			  = x -> x,
+	n_subrelations		  :: Function			      = x -> x,
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
 	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, N, S, NTO, Ta}
+	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, N, S, U, NTO, Ta}
 
 	if n_trees < 1
 		throw("the number of trees must be >= 1")
 	end
+	
 	if !(0.0 < partial_sampling <= 1.0)
 		throw("partial_sampling must be in the range (0,1]")
 	end
 
+	# n_subfeatures defaults to the square root of the total number of features
 	if n_subfeatures == 0
-		n_features = n_variables(X.domain)
-		n_subfeatures = floor(Int, sqrt(n_features))
+		n_subfeatures = floor(Int, sqrt(n_variables(X.domain)))
 	end
 	
+	# precompute-gammas, since they are shared by all trees
 	if isnothing(gammas)
 		(
-			relationSet,
+			# X,
+			test_operators, relationSet,
 			useRelationId, useRelationAll, 
 			relationId_id, relationAll_id,
 			availableModalRelation_ids, allAvailableRelation_ids
-		) = treeclassifier.optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+		) = treeclassifier.optimize_tree_parameters!(X, initCondition, useRelationAll, useRelationId, test_operators)
 		gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 	end
 
@@ -354,8 +333,8 @@ function build_forest(
 		inds = rand(rng, 1:t_samples, num_samples)
 
 		v_labels = @views Y[inds]
-		v_features = @views X.domain[:,inds,:] # TODO: generalize to all possible dimensions
-		v_gammas = @views gammas[:,:,inds,:,:]
+		v_features = @views ModalLogic.sliceDomainByInstances(X.domain, inds)
+		v_gammas = @views treeclassifier.sliceGammasByInstances(X.ontology.worldType, gammas, inds)
 
 		trees[i] = build_tree(
 			v_labels,
@@ -377,7 +356,7 @@ function build_forest(
 		# grab out-of-bag indices
 		oob_samples[i] = setdiff(1:t_samples, inds)
 
-		tree_preds = apply_tree(trees[i], X.domain[:,oob_samples[i],:])
+		tree_preds = apply_tree(trees[i], @views ModalLogic.sliceDomainByInstances(X.domain, oob_samples[i]))
 		cms[i] = confusion_matrix(Y[oob_samples[i]], tree_preds)
 	end
 
@@ -401,7 +380,7 @@ function build_forest(
 			continue
 		end
 
-		v_features = @views X.domain[:,[i],:]
+		v_features = @views ModalLogic.sliceDomainByInstances(X.domain, [i])
 		v_labels = @views Y[[i]]
 
 		# TODO: optimization - no need to pass through ConfusionMatrix

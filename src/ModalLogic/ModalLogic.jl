@@ -27,6 +27,27 @@ Base.keys(g::Base.Generator) = g.iter
 abstract type AbstractWorld end
 abstract type AbstractRelation end
 
+# This constant is used to create the default world for each WorldType
+#  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
+struct _firstWorld end;    const firstWorld    = _firstWorld();
+struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
+struct _centeredWorld end; const centeredWorld = _centeredWorld();
+
+# One unique world
+struct OneWorld    <: AbstractWorld
+	OneWorld() = new()
+	OneWorld(w::_emptyWorld) = new()
+	OneWorld(w::_firstWorld) = new()
+	OneWorld(w::_centeredWorld) = new()
+end;
+
+show(io::IO, w::OneWorld) = begin
+	print(io, "−")
+end
+
+worldTypeDimensionality(::Type{OneWorld}) = 0
+print_world(::OneWorld) = println("−")
+
 # Concrete class for ontology models (world type + set of relations)
 struct Ontology
 	worldType   :: Type{<:AbstractWorld}
@@ -43,7 +64,7 @@ struct Ontology
 	# Ontology(worldType, relationSet) = new(worldType, relationSet)
 end
 
-strip_relations(ontology::Ontology) = Ontology(ontology.worldType,AbstractRelation[])
+strip_ontology(ontology::Ontology) = Ontology(OneWorld,AbstractRelation[])
 
 # TODO improve, decouple from relationSets definitions
 # Actually, this will not work because relationSet does this collect(set(...)) thing... mh maybe better avoid that thing?
@@ -143,12 +164,12 @@ channel_size(d::MatricialDataset{T,D})     where {T,D} = size(d)[1:end-2]
 	ontology  :: Ontology
 	domain    :: MatricialDataset{T,N+1+1}
 
-	OntologicalDataset(ontology, domain) = begin
-		if prod(channel_size(domain)) == 1
-			ontology = ModalLogic.strip_relations(ontology)
-		end
-		new(ontology, domain)
-	end
+	# OntologicalDataset(ontology, domain) = begin
+	# 	if prod(channel_size(domain)) == 1
+	# 		ontology = ModalLogic.strip_relations(ontology)
+	# 	end
+	# 	new(ontology, domain)
+	# end
 
 end
 
@@ -170,6 +191,14 @@ channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain
 @inline getFeature(d::MatricialDataset{T,2},      idx::Integer, feature::Integer) where T = @views d[      idx, feature]::T                     # N=0
 @inline getFeature(d::MatricialDataset{T,3},      idx::Integer, feature::Integer) where T = @views d[:,    idx, feature]::MatricialChannel{T,1} # N=1
 @inline getFeature(d::MatricialDataset{T,4},      idx::Integer, feature::Integer) where T = @views d[:, :, idx, feature]::MatricialChannel{T,2} # N=2
+
+@inline sliceDomainByInstances(d::MatricialDataset{T,2}, inds::AbstractVector{<:Integer}) where T = @views d[inds, :]         # N=0
+@inline sliceDomainByInstances(d::MatricialDataset{T,3}, inds::AbstractVector{<:Integer}) where T = @views d[:, inds, :]      # N=1
+@inline sliceDomainByInstances(d::MatricialDataset{T,4}, inds::AbstractVector{<:Integer}) where T = @views d[:, :, inds, :]   # N=2
+
+@inline strip_domain(d::MatricialDataset{T,2}) where T = d  # N=0
+@inline strip_domain(d::MatricialDataset{T,3}) where T = dropdims(d; dims=1)      # N=1
+@inline strip_domain(d::MatricialDataset{T,4}) where T = dropdims(d; dims=(1,2))  # N=2
 
 # TODO generalize as init_Xf(X::OntologicalDataset{T, N}) where T = Array{T, N+1}(undef, size(X)[3:end]..., n_samples(X))
 # Initialize MatricialUniDataset by slicing across the features dimension
@@ -282,6 +311,11 @@ const SoftenedOperators = [
 										]
 
 siblings(x::Union{_TestOpGeqSoft,_TestOpLeqSoft}) = SoftenedOperators
+
+const all_lowlevel_test_operators = [
+		TestOpGeq, TestOpLeq,
+		SoftenedOperators...
+	]
 
 const all_ordered_test_operators = [
 		TestOpGeq, TestOpLeq,
@@ -449,13 +483,6 @@ struct _ReprNone{worldType<:AbstractWorld} <: _ReprTreatment end
 ################################################################################
 # END Test operators
 ################################################################################
-
-
-# This constant is used to create the default world for each WorldType
-#  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
-struct _firstWorld end;    const firstWorld    = _firstWorld();
-struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
-struct _centeredWorld end; const centeredWorld = _centeredWorld();
 
 ## Enumerate accessible worlds
 

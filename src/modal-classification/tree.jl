@@ -6,7 +6,7 @@
 
 module treeclassifier
 	
-	export fit, optimize_test_operators!, computeGammas
+	export fit, optimize_tree_parameters!, computeGammas
 
 	using ..ModalLogic
 	using ..DecisionTree
@@ -67,12 +67,12 @@ module treeclassifier
 							
 							loss_function       :: Function,
 							node                :: NodeMeta{T,<:AbstractFloat}, # the node to split
-							max_features		:: Int,						 # number of features to use to split
+							max_features        :: Int,                      # number of features to use to split
 							max_depth           :: Int,                      # the maximum depth of the resultant tree
 							min_samples_leaf    :: Int,                      # the minimum number of samples each leaf needs to have
 							min_loss_at_leaf    :: AbstractFloat,            # maximum purity allowed on a leaf
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
-							max_relations		:: Function,
+							max_relations       :: Function,
 							test_operators      :: AbstractVector{<:ModalLogic.TestOperator},
 							
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
@@ -402,10 +402,10 @@ module treeclassifier
 			throw("unexpected value for max_depth: $(max_depth) (expected:"
 				* " max_depth >= 0, or max_depth = -1 for infinite depth)")
 		elseif n_vars < max_features
-			throw("number of features $(n_vars) is less than the number "
-				* "of max features $(max_features)")
+			throw("total number of features $(n_vars) is less than the number "
+				* "of features required at each split $(max_features)")
 		elseif max_features < 0
-			throw("number of features $(max_features) must be >= zero ")
+			throw("total number of features $(max_features) must be >= zero ")
 		elseif min_samples_leaf < 1
 			throw("min_samples_leaf must be a positive integer "
 				* "(given $(min_samples_leaf))")
@@ -427,18 +427,58 @@ module treeclassifier
 		end
 	end
 
-	function optimize_test_operators!(
+	function optimize_tree_parameters!(
 			X               :: OntologicalDataset{T, N},
 			initCondition   :: DecisionTree._initCondition,
 			useRelationAll  :: Bool,
-			useRelationId	:: Bool,
+			useRelationId	  :: Bool,
 			test_operators  :: AbstractVector{<:ModalLogic.TestOperator}
 		) where {T, N}
+
+		# Adimensional ontological datasets:
+		#  flatten to adimensional case + strip of all relations from the ontology
+		# TODO flattening X affects its ontology
+		# if prod(channel_size(X)) == 1
+		# 	X = OntologicalDataset{T, 0}(ModalLogic.strip_ontology(X.ontology), @views ModalLogic.strip_domain(X.domain))
+		# end
+
+		ontology_relations = deepcopy(X.ontology.relationSet)
+
+		# Fix test_operators order
+		test_operators = unique(test_operators)
+		ModalLogic.sort_test_operators!(test_operators)
+		
+		# Adimensional operators:
+		#  in the adimensional case, some pairs of operators (e.g. <= and >)
+		#  are complementary, and thus it is redundant to check both at the same node.
+		#  We avoid this by only keeping one of the two operators.
+		if prod(channel_size(X)) == 1
+			# No ontological relation
+			ontology_relations = []
+			if test_operators ⊆ ModalLogic.all_lowlevel_test_operators
+				test_operators = [ModalLogic.TestOpGeq]
+				# test_operators = filter(e->e ≠ ModalLogic.TestOpGeq,test_operators)
+			else
+				warn("Test operators set includes non-lowlevel test operators. Update this part of the code accordingly.")
+			end
+		end
+
+		# Softened operators:
+		#  when the biggest world only has a few values, softened operators fallback
+		#  to being hard operators
+		max_world_wratio = 1/prod(channel_size(X))
+		if ModalLogic.TestOpGeq in test_operators
+			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpGeqSoft || e.alpha < 1-max_world_wratio), test_operators)
+		end
+		if ModalLogic.TestOpLeq in test_operators
+			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
+		end
+
+
 		# Binary relations (= unary modal operators)
 		# Note: the identity relation is the first, and it is the one representing
 		#  propositional splits.
 		
-		ontology_relations = X.ontology.relationSet
 		if ModalLogic.RelationId in ontology_relations
 			println("Warning! Found RelationId in ontology provided. Use useRelationId = true instead.")
 			ontology_relations = filter(e->e ≠ ModalLogic.RelationId, ontology_relations)
@@ -454,12 +494,12 @@ module treeclassifier
 		relationSet = [ModalLogic.RelationId, ModalLogic.RelationAll, ontology_relations...]
 		relationId_id = 1
 		relationAll_id = 2
-		relation_ids = map((x)->x+2, 1:length(ontology_relations))
+		ontology_relation_ids = map((x)->x+2, 1:length(ontology_relations))
 		
 		availableModalRelation_ids = if useRelationAll || (initCondition == startWithRelationAll)
-			[relationAll_id, relation_ids...]
+			[relationAll_id, ontology_relation_ids...]
 		else
-			relation_ids
+			ontology_relation_ids
 		end
 
 		allAvailableRelation_ids = if useRelationId
@@ -468,36 +508,9 @@ module treeclassifier
 			availableModalRelation_ids
 		end
 
-		## Optimizations for edge cases
-		
-		# Fix test_operators order
-		test_operators = unique(test_operators)
-		ModalLogic.sort_test_operators!(test_operators)
-		
-		# Adimensional operators:
-		#  in the adimensional case, some pairs of operators (e.g. <= and >)
-		#  are complementary, and thus it is redundant to check both at the same node.
-		#  We avoid this by only keeping one of the two operators.
-		if prod(channel_size(X)) == 1
-			if test_operators ⊆ ModalLogic.all_ordered_test_operators
-				test_operators = [ModalLogic.TestOpGeq]
-				# test_operators = filter(e->e ≠ ModalLogic.TestOpGeq,test_operators)
-			end
-		end
-
-		# Softened operators:
-		#  when the biggest world only has a few values, softened operators fallback
-		#  to being hard operators
-		max_world_wratio = 1/prod(channel_size(X))
-		if ModalLogic.TestOpGeq in test_operators
-			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpGeqSoft || e.alpha < 1-max_world_wratio), test_operators)
-		end
-		if ModalLogic.TestOpLeq in test_operators
-			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
-		end
-
 		(
-			relationSet,
+			# X,
+			test_operators, relationSet,
 			useRelationId, useRelationAll, 
 			relationId_id, relationAll_id,
 			availableModalRelation_ids, allAvailableRelation_ids
@@ -510,12 +523,12 @@ module treeclassifier
 			W                       :: AbstractVector{U},
 			loss                    :: Function,
 			n_classes               :: Int,
-			max_features			:: Int,
+			max_features            :: Int,
 			max_depth               :: Int,
 			min_samples_leaf        :: Int, # TODO generalize to min_samples_leaf_relative and min_weight_leaf
 			min_purity_increase     :: AbstractFloat,
 			min_loss_at_leaf        :: AbstractFloat,
-			max_relations			:: Function,
+			max_relations           :: Function,
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
@@ -524,7 +537,7 @@ module treeclassifier
 			gammas 					:: Union{GammasType{NTO, Ta},Nothing} = nothing) where {T, U, N, NTO, Ta}
 
 		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
-			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset (dimensionality = $(N))")
+			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset of dimensionality = $(N)")
 		end
 		
 		# Dataset sizes
@@ -553,11 +566,16 @@ module treeclassifier
 		Sf = Vector{WorldSet{X.ontology.worldType}}(undef, n_instances)
 		
 		(
-			relationSet,
+			# X,
+			test_operators, relationSet,
 			useRelationId, useRelationAll, 
 			relationId_id, relationAll_id,
 			availableModalRelation_ids, allAvailableRelation_ids
-		) = optimize_test_operators!(X, initCondition, useRelationAll, useRelationId, test_operators)
+		) = optimize_tree_parameters!(X, initCondition, useRelationAll, useRelationId, test_operators)
+
+		if (length(allAvailableRelation_ids) == 0)
+			throw("No available relation! Allow propositional splits with useRelationId=true")
+		end
 
 		if isnothing(gammas)
 			# Calculate gammas
@@ -566,8 +584,10 @@ module treeclassifier
 			#  if polarity(⋈) == true:      ∀ a > γ:    w ⊭ <X> f ⋈ a
 			#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
 			
-			gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-			# gammas = @btime computeGammas($X,$X.ontology.worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids)
+			gammas = computeGammas(X, X.ontology.worldType, test_operators, relationSet, relationId_id, availableModalRelation_ids)
+			# gammas = @btime computeGammas($X, $X.ontology.worldType, $test_operators, $relationSet, $relationId_id, $availableModalRelation_ids)
+		else
+			checkGammasConsistency(gammas, X, X.ontology.worldType, test_operators, allAvailableRelation_ids)
 		end
 
 		# Let the core algorithm begin!
@@ -618,14 +638,14 @@ module treeclassifier
 			X                       :: OntologicalDataset{T, N},
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
-			gammas					:: Union{GammasType{NTO, Ta},Nothing} = nothing,
+			gammas                  :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 			loss = util.entropy     :: Function,
-			max_features			:: Int,
+			max_features            :: Int,
 			max_depth               :: Int,
 			min_samples_leaf        :: Int,
 			min_purity_increase     :: AbstractFloat,
 			min_loss_at_leaf        :: AbstractFloat, # TODO add this to scikit's interface.
-			max_relations			:: Function,
+			max_relations           :: Function,
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
