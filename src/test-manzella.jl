@@ -26,7 +26,7 @@ args = (
 )
 
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
-kwargs = (
+modal_args = (
 	n_subrelations = x -> ceil(sqrt(x)),
 	# n_subrelations = x -> ceil(x/2),
 
@@ -163,7 +163,7 @@ if log_results_best_values
 	for i in 1:repeat_test
 
 		global T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
-			forest_args=forest_args, args=selected_args, kwargs=kwargs);
+			forest_args=forest_args, args=selected_args, modal_args=modal_args);
 
 		push!(tree_overall_accuracy, Tcm.overall_accuracy)
 		push!(tree_mean_accuracy, Tcm.mean_accuracy)
@@ -189,5 +189,5 @@ if log_results_best_values
 	)
 else
 	T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
-		forest_args=forest_args, args=selected_args, kwargs=kwargs);
+		forest_args=forest_args, args=selected_args, modal_args=modal_args);
 end
