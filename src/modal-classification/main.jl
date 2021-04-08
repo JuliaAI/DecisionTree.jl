@@ -46,11 +46,12 @@ end
 
 function build_forest(
 	labels    :: AbstractVector{Label},
-	features  :: MatricialDataset{T,D},
-	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
+	features  :: MatricialDataset{T,D};
+	# weights   :: Union{Nothing,AbstractVector{U}} = nothing TODO
 	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
 	kwargs...) where {T, D, U}
-	build_forest(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...)
+	# build_forest(OntologicalDataset{T,D-2}(ontology,features), labels, weights; kwargs...)
+	build_forest(OntologicalDataset{T,D-2}(ontology,features), labels; kwargs...)
 end
 
 ################################################################################
@@ -74,12 +75,12 @@ function build_tree(
 	W                   :: Union{Nothing,AbstractVector{U}} = nothing;
 	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
-	n_subfeatures		    :: Int				        = 0,
+	n_subfeatures       :: Int                = 0,
 	max_depth           :: Int                = -1,
 	min_samples_leaf    :: Int                = 1,
 	min_purity_increase :: AbstractFloat      = 0.0,
 	min_loss_at_leaf    :: AbstractFloat      = -Inf,
-	n_subrelations		  :: Function			      = x -> x,
+	n_subrelations      :: Function           = x -> x,
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
@@ -277,20 +278,21 @@ apply_tree_proba(tree::DTNode{S, T}, features::AbstractMatrix{S}, labels) where 
 
 function build_forest(
 	X                   :: OntologicalDataset{T, N},
-	Y                   :: AbstractVector{S},
-	W                   :: Union{Nothing,AbstractVector{U}} = nothing;
+	Y                   :: AbstractVector{S}
+	;
+	# , W                   :: Union{Nothing,AbstractVector{U}} = nothing; TODO these must also be used for the calculation of the oob_error
 	# Forest parameters
 	n_trees             = 100,
-	partial_sampling    = 0.7,
+	partial_sampling    = 0.7,      # portion of instances sampled (without replacement) by each tree
 	# Tree parameters
 	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
-	n_subfeatures		    :: Int				        = 0,
+	n_subfeatures       :: Int                = 0,
 	max_depth           :: Int                = -1,
 	min_samples_leaf    :: Int                = 1,
 	min_purity_increase :: AbstractFloat      = 0.0,
 	min_loss_at_leaf    :: AbstractFloat      = -Inf,
-	n_subrelations		  :: Function			      = x -> x,
+	n_subrelations      :: Function           = x -> x,
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
@@ -332,27 +334,31 @@ function build_forest(
 	Threads.@threads for i in 1:n_trees
 		inds = rand(rng, 1:t_samples, num_samples)
 
+		# v_weights = @views W[inds]
 		v_labels = @views Y[inds]
 		v_features = @views ModalLogic.sliceDomainByInstances(X.domain, inds)
 		v_gammas = @views treeclassifier.sliceGammasByInstances(X.ontology.worldType, gammas, inds)
 
 		trees[i] = build_tree(
 			v_labels,
-			v_features,
-			n_subfeatures = n_subfeatures,
-			gammas = v_gammas,
-			max_depth = max_depth,
-			min_samples_leaf = min_samples_leaf,
-			min_purity_increase = min_purity_increase,
-			loss = loss,
-			min_loss_at_leaf = min_loss_at_leaf,
-			n_subrelations = n_subrelations,
-			initCondition = initCondition,
-			useRelationAll = useRelationAll,
-			useRelationId = useRelationId,
-			ontology = X.ontology,
-			test_operators = test_operators,
-			rng = rng)
+			v_features
+			# , v_weights
+			;
+			ontology             = X.ontology,
+			gammas               = v_gammas,
+			loss                 = loss,
+			n_subfeatures        = n_subfeatures,
+			max_depth            = max_depth,
+			min_samples_leaf     = min_samples_leaf,
+			min_purity_increase  = min_purity_increase,
+			min_loss_at_leaf     = min_loss_at_leaf,
+			n_subrelations       = n_subrelations,
+			initCondition        = initCondition,
+			useRelationAll       = useRelationAll,
+			useRelationId        = useRelationId,
+			test_operators       = test_operators,
+			rng                  = rng)
+
 		# grab out-of-bag indices
 		oob_samples[i] = setdiff(1:t_samples, inds)
 

@@ -76,6 +76,7 @@ testDataset("Test", dataset, 0.8, 0,
 			test_tree = true,
 			test_forest = true,
 			);
+
 for scale_dataset in [false, UInt8]
 	for n_task in 1:3
 		for n_version in 1:2

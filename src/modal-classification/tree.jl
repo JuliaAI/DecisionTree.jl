@@ -87,9 +87,7 @@ module treeclassifier
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							Sf                  :: AbstractVector{WorldSet{WorldType}},
-							# gammas            :: AbstractVector{<:AbstractDict{<:ModalLogic.AbstractRelation,<:AbstractVector{<:AbstractDict{WorldType,NTuple{NTO,T}}}}},
-							# gammas            :: TODO Union with AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
-							gammas              , # TODO write type with Union{}
+							gammas              :: GammasType{NTO, T},
 							# TODO Ef                  :: AbstractArray{T},
 							
 							relationSet         :: Vector{<:ModalLogic.AbstractRelation},
@@ -339,7 +337,7 @@ module treeclassifier
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
-			# TODO consistency check
+			# TODO this is only a consistency check
 			if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 				errStr = "Something's wrong with the optimization steps.\n"
 				errStr *= "Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
@@ -534,7 +532,7 @@ module treeclassifier
 			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG;
-			gammas 					:: Union{GammasType{NTO, Ta},Nothing} = nothing) where {T, U, N, NTO, Ta}
+			gammas                  :: Union{GammasType{NTO, Ta},Nothing} = nothing) where {T, U, N, NTO, Ta}
 
 		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
 			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset of dimensionality = $(N)")
