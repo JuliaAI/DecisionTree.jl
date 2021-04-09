@@ -75,10 +75,8 @@ testDataset("Test", dataset, 0.8, 0,
 			scale_dataset=scale_dataset,
 			forest_args=forest_args,
 			args=args,
-			kwargs=modal_args,
-			precompute_gammas = true,
-			test_tree = true,
-			test_forest = true,
+			modal_args=modal_args,
+			precompute_gammas = true
 			);
 
 # scale_dataset = false
@@ -94,7 +92,7 @@ testDataset("Test", dataset, 0.8, 0,
 # 						scale_dataset=scale_dataset,
 # 						forest_args=forest_args,
 # 						args=args,
-# 						kwargs=modal_args,
+# 						modal_args=modal_args,
 # 						test_tree = true,
 # 						test_forest = true,
 # 						);
@@ -119,6 +117,6 @@ testDataset("Test", dataset, 0.8, 0,
 # dataset = KDDDataset((3,2), audio_kwargs; dataset_kwargs..., rng = rng) # 46/13 -> 13/13
 
 # testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,
-# 			forest_args=forest_args, args=args, kwargs=modal_args,
+# 			forest_args=forest_args, args=args, modal_args=modal_args,
 # 			test_tree = true, test_forest = true);
 
