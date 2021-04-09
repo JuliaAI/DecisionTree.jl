@@ -47,6 +47,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 	gammas = nothing
 
 	if precompute_gammas
+		old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
 		relationSet = nothing
 		initCondition = modal_args.initCondition
 		useRelationAll = modal_args.useRelationAll
@@ -71,6 +72,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 		
 		println("(optimized) modal_args = ", modal_args)
+		global_logger(old_logger);
 	end
 
 	# println(" n_samples = $(size(X.domain)[end-1])")
