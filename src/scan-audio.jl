@@ -126,6 +126,7 @@ end
 # RUN
 for i in exec_runs
 	rng = spawn_rng(main_rng)
+	println("SEED: " * string(Int64.(rng.seed)))
 	# TASK
 	for n_task in exec_n_tasks
 		for n_version in exec_n_versions
@@ -146,6 +147,9 @@ for i in exec_runs
 						end
 					end
 
+					dataset_rng = spawn_rng(rng)
+					train_rng = spawn_rng(rng)
+
 					if done
 						println("Iteration already done, skipping...")
 						continue
@@ -154,7 +158,7 @@ for i in exec_runs
 
 					# ACTUAL COMPUTATION
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
+					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = dataset_rng)
 
 
 					T, F, Tcm, Fcm = testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
@@ -162,7 +166,8 @@ for i in exec_runs
 								scale_dataset    =   scale_dataset,
 								forest_args      =   forest_args,
 								tree_args        =   tree_args,
-								modal_args       =   modal_args
+								modal_args       =   modal_args,
+								rng              =   train_rng
 								);
 					#####################################################
 
@@ -176,20 +181,27 @@ for i in exec_runs
 					)
 
 					function percent(num::Real; digits=2)
-						return round.(num.*100, digits=ditigts)
+						return round.(num.*100, digits=digits)
 					end
 
-					function data_to_string(M::Union{DTree,Forest}, cm::ConfusionMatrix; start_s = "(", end_s = ")", separator = ";")
-						result = start_s
-						result *= string(percent(cm.kappa), "%", separator)
-						result *= string(percent(cm.sensitivities[1]), "%", separator)
-						result *= string(percent(cm.specificities[1]), "%", separator)
-						result *= string(percent(cm.PPVs), "%", separator)
-						result *= string(percent(cm.overall_accuracy), "%")
+					function data_to_string(
+							M::Union{DecisionTree.DTree{S, T},DecisionTree.Forest{S, T},DecisionTree.DTNode{S, T}},
+							cm::ConfusionMatrix;
+							start_s = "(",
+							end_s = ")",
+							separator = ";"
+						) where {S, T}
 
-						if isa(M, Forest)
+						result = start_s
+						result *= string(percent(cm.kappa[1]), separator)
+						result *= string(percent(cm.sensitivities[1]), separator)
+						result *= string(percent(cm.specificities[1]), separator)
+						result *= string(percent(cm.PPVs[1]), separator)
+						result *= string(percent(cm.overall_accuracy))
+
+						if isa(M, DecisionTree.Forest{S, T})
 							result *= separator
-							result *= string(percent("oob_error"), "%")
+							result *= string(percent(M.oob_error))
 						end
 
 						result *= end_s
@@ -230,8 +242,6 @@ for i in exec_runs
 					end
 					export_execution_porgress_dictionary(iteration_progress_json_file_path, exec_dicts)
 					#####################################################
-
-					exit()
 				end
 			end
 		end
