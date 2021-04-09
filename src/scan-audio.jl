@@ -222,24 +222,24 @@ end
 # 															min_loss_at_leaf = min_loss_at_leaf,
 # 															))
 
-dataset_kwargs = (
-	max_points = -1,
-	ma_size = 1,
-	ma_step = 1,
-)
-
-dataset = KDDDataset((1,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
-dataset[1] |> size # (1413, 282)
-dataset = KDDDataset((1,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
-dataset[1] |> size # (2997, 282)
-dataset = KDDDataset((2,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
-dataset[1] |> size # (1413, 64)
-dataset = KDDDataset((2,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
-dataset[1] |> size # (2997, 64)
-dataset = KDDDataset((3,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
-dataset[1] |> size # (1413, 40)
-dataset = KDDDataset((3,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
-dataset[1] |> size # (2673, 40)
+# dataset_kwargs = (
+# 	max_points = -1,
+# 	ma_size = 1,
+# 	ma_step = 1,
+# )
+# 
+# dataset = KDDDataset((1,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
+# dataset[1] |> size # (1413, 282)
+# dataset = KDDDataset((1,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
+# dataset[1] |> size # (2997, 282)
+# dataset = KDDDataset((2,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
+# dataset[1] |> size # (1413, 64)
+# dataset = KDDDataset((2,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
+# dataset[1] |> size # (2997, 64)
+# dataset = KDDDataset((3,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
+# dataset[1] |> size # (1413, 40)
+# dataset = KDDDataset((3,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
+# dataset[1] |> size # (2673, 40)
 
 # testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,
 # 			forest_args=forest_args, args=args, kwargs=modal_args,
