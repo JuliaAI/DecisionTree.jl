@@ -20,7 +20,7 @@ using PProf
 
 include("example-datasets.jl")
 
-function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], forest_args = [], args = (), modal_args = (), precompute_gammas = true, error_catching = false, rng = my_rng())
+function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], forest_args = [], tree_args = (), modal_args = (), precompute_gammas = true, error_catching = false, rng = my_rng())
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	if split_threshold != false
@@ -39,7 +39,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 	end
 
 	# println("forest_args = ", forest_args)
-	println("args = ", args)
+	println("tree_args = ", tree_args)
 	println("modal_args = ", modal_args)
 
 	X = OntologicalDataset{eltype(X_train),ndims(X_train)-2}(modal_args.ontology,X_train)
@@ -105,11 +105,11 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 	go_tree() = begin
 		if timeit == 0
-			T = build_tree(Y_train, X.domain; args..., modal_args..., gammas = gammas, rng = rng);
+			T = build_tree(Y_train, X.domain; tree_args..., modal_args..., gammas = gammas, rng = rng);
 		elseif timeit == 1
-			T = @time build_tree(Y_train, X.domain; args..., modal_args..., gammas = gammas, rng = rng);
+			T = @time build_tree(Y_train, X.domain; tree_args..., modal_args..., gammas = gammas, rng = rng);
 		elseif timeit == 2
-			T = @btime build_tree($Y_train, $X.domain; $args..., $modal_args..., gammas = gammas, rng = $rng);
+			T = @btime build_tree($Y_train, $X.domain; $tree_args..., $modal_args..., gammas = gammas, rng = $rng);
 		end
 		print_tree(T)
 		
@@ -123,7 +123,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 			cm = confusion_matrix(Y_test, preds)
 			# @test cm.overall_accuracy > 0.99
 
-			println("RESULT:\t$(name)\t$(args)\t$(modal_args)\t$(pruning_purity_threshold)\t$(display_cm_as_row(cm))")
+			println("RESULT:\t$(name)\t$(tree_args)\t$(modal_args)\t$(pruning_purity_threshold)\t$(display_cm_as_row(cm))")
 			
 			# println("  accuracy: ", round(cm.overall_accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
 			for (i,row) in enumerate(eachrow(cm.matrix))
@@ -140,11 +140,11 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 
 	go_forest(f_args) = begin
 		if timeit == 0
-			F = build_forest(Y_train, X.domain; f_args..., args..., modal_args..., gammas = gammas, rng = rng);
+			F = build_forest(Y_train, X.domain; f_args..., modal_args..., gammas = gammas, rng = rng);
 		elseif timeit == 1
-			F = @time build_forest(Y_train, X.domain; f_args..., args..., modal_args..., gammas = gammas, rng = rng);
+			F = @time build_forest(Y_train, X.domain; f_args..., modal_args..., gammas = gammas, rng = rng);
 		elseif timeit == 2
-			F = @btime build_forest($Y_train, $X.domain; $f_args..., $args..., $modal_args..., gammas = gammas, rng = $rng);
+			F = @btime build_forest($Y_train, $X.domain; $f_args..., $modal_args..., gammas = gammas, rng = $rng);
 		end
 		print_forest(F)
 		
@@ -154,7 +154,7 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		cm = confusion_matrix(Y_test, preds)
 		# @test cm.overall_accuracy > 0.99
 
-		println("RESULT:\t$(name)\t$(f_args)\t$(args)\t$(modal_args)\t$(display_cm_as_row(cm))")
+		println("RESULT:\t$(name)\t$(f_args)\t$(modal_args)\t$(display_cm_as_row(cm))")
 
 		# println("  accuracy: ", round(cm.overall_accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
 		for (i,row) in enumerate(eachrow(cm.matrix))

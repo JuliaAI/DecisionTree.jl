@@ -152,17 +152,19 @@ for i in exec_runs
 					end
 					#####################################################
 
-					# ACTUAL COMPUTATION
-#					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-#					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
-#
-#					testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
-#								debugging_level  =   log_level,
-#								scale_dataset    =   scale_dataset,
-#								forest_args      =   forest_args,
-#								tree_args        =   tree_args,
-#								modal_args       =   modal_args
-#								);
+					# # ACTUAL COMPUTATION
+					# println("Preparing dataset...")
+					# cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
+					# dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
+
+					# println("Testing dataset...")
+					# testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
+					# 			debugging_level  =   log_level,
+					# 			scale_dataset    =   scale_dataset,
+					# 			forest_args      =   forest_args,
+					# 			tree_args        =   tree_args,
+					# 			modal_args       =   modal_args
+					# 			);
 
 					#####################################################
 					row_ref = string(
