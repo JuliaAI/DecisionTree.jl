@@ -136,7 +136,7 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_point
 		],
 	]
 
-	subfolder,file_prefix = (n_version == 1 ? ("cough","cough_") : ("breath","breaths_"))
+	subfolder,file_suffix,file_prefix = (n_version == 1 ? ("cough","cough","cough_") : ("breath","breathe","breaths_"))
 
 	folders_Y, folders_N, class_labels = task_to_folders[n_task]
 
@@ -159,22 +159,28 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_point
 		timeseries = []
 		Threads.@threads for folder in folders
 			for samples in files_map[folder]
-				for filename in samples
-					if startswith(filename,file_prefix)
-						filepath = kdd_data_dir * "$folder/$subfolder/$filename"
-						ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
-						# Drop first point
-						ts = @views ts[:,2:end]
-						# println(size(ts))
-						if max_points != -1 && size(ts,2)>max_points
-							ts = ts[:,1:max_points]
-						end
-						# println(size(ts))
-						# readline()
-						# println(size(wav2stft_time_series(filepath, audio_kwargs)))
-						push!(timeseries, ts)
-						n_samples += 1
+				samples = 
+					if folder in ["asthmawebwithcough", "covidwebnocough", "covidwebwithcough", "healthywebnosymp", "healthywebwithcough"]
+						map((subfoldname)->"$folder/$subfoldname/audio_file_$(file_suffix).wav", samples)
+					else
+						filter!((filename)->startswith(filename,file_prefix), samples)
+						map((filename)->"$folder/$subfolder/$filename", samples)
 					end
+
+				for filename in samples
+					filepath = kdd_data_dir * "$filename"
+					ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
+					# Drop first point
+					ts = @views ts[:,2:end]
+					# println(size(ts))
+					if max_points != -1 && size(ts,2)>max_points
+						ts = ts[:,1:max_points]
+					end
+					# println(size(ts))
+					# readline()
+					# println(size(wav2stft_time_series(filepath, audio_kwargs)))
+					push!(timeseries, ts)
+					n_samples += 1
 				end
 				# break
 			end
