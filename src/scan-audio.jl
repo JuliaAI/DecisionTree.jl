@@ -81,16 +81,16 @@ exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
 							max_points = 30,
-							ma_size = 25,
-							ma_step = 15,
+							ma_size = 75,
+							ma_step = 50,
 						),(
 							max_points = 30,
 							ma_size = 45,
 							ma_step = 30,
 						),(
 							max_points = 30,
-							ma_size = 75,
-							ma_step = 50,
+							ma_size = 25,
+							ma_step = 15,
 						)]
 
 results_dir = "./results-audio-scan"
@@ -147,7 +147,7 @@ for i in exec_runs
 					end
 
 					if done
-						#println("Iteration already done, skipping...")
+						println("Iteration already done, skipping...")
 						continue
 					end
 					#####################################################
