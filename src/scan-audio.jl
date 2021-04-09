@@ -153,18 +153,19 @@ for i in exec_runs
 					#####################################################
 
 					# ACTUAL COMPUTATION
-#					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-#					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
-#
-#					testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
-#								debugging_level  =   log_level,
-#								scale_dataset    =   scale_dataset,
-#								forest_args      =   forest_args,
-#								tree_args        =   tree_args,
-#								modal_args       =   modal_args
-#								);
+					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
+					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
 
+					T, F, Tcm, Fcm = testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
+								debugging_level  =   log_level,
+								scale_dataset    =   scale_dataset,
+								forest_args      =   forest_args,
+								tree_args        =   tree_args,
+								modal_args       =   modal_args
+								);
 					#####################################################
+
+					# PRINT RESULT IN FILES
 					row_ref = string(
 						string(string(i), ",",
 						string(n_task), ",",
@@ -173,37 +174,42 @@ for i in exec_runs
 						string(values(dataset_kwargs)))
 					)
 
-					# TODO: print results in files
-					#["K", "sensitivity", "specificity", "precision", "accuracy"]
-					#["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error"]
-					tree_concise = Tuple(fill(0.5, 5))
-					forest_concise = Tuple(fill(0.5, 6))
+					function percent(num::Real; digits=2)
+						return round.(num.*100, digits=ditigts)
+					end
 
+					function data_to_string(M::Union{DTree,Forest}, cm::ConfusionMatrix; start_s = "(", end_s = ")", separator = ";")
+						result = start_s
+						result *= string(percent(cm.kappa), "%", separator)
+						result *= string(percent(cm.sensitivities[1]), "%", separator)
+						result *= string(percent(cm.specificities[1]), "%", separator)
+						result *= string(percent(cm.PPVs), "%", separator)
+						result *= string(percent(cm.overall_accuracy), "%")
+
+						if isa(M, Forest)
+							result *= separator
+							result *= string(percent("oob_error"), "%")
+						end
+
+						result *= end_s
+
+						result
+					end
+
+					# PRINT CONCISE
 					concise_output_string = string(row_ref, column_separator)
-					concise_output_string *= string(tree_concise, column_separator)
+					concise_output_string *= string(data_to_string(T, Tcm; separator=","), column_separator)
 					for i in 1:length(forest_args)
-						concise_output_string *= string(forest_concise)
+						concise_output_string *= string(data_to_string(F, Fcm; separator=","))
 						concise_output_string *= string(i == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(concise_output_file_path, concise_output_string)
 
+					# PRINT FULL
 					full_output_string = string(row_ref, column_separator)
-					full_output_string *= string(
-						string(0.5), column_separator,
-						string(0.5), column_separator,
-						string(0.5), column_separator,
-						string(0.5), column_separator,
-						string(0.5), column_separator
-					)
+					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
 					for i in 1:length(forest_args)
-						full_output_string *= string(
-							string(0.5), column_separator,
-							string(0.5), column_separator,
-							string(0.5), column_separator,
-							string(0.5), column_separator,
-							string(0.5), column_separator,
-							string(0.5)
-						)
+						full_output_string *= string(data_to_string(F, Fcm; start_s = "", end_s = ""))
 						full_output_string *= string(i == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(full_output_file_path, full_output_string)
