@@ -114,7 +114,6 @@ using JSON
 KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_points = -1, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
 	@assert n_version in [1,2] "KDDDataset: invalid n_version: {$n_version}"
-	rng = spawn_rng(rng)
 
 	kdd_data_dir = data_dir * "KDD/"
 
