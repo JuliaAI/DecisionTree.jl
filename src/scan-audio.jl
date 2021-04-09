@@ -96,8 +96,8 @@ exec_dataset_kwargs =   [(
 results_dir = "./results-audio-scan"
 
 iteration_progress_json_file_path = results_dir * "/progress.json"
-concise_output_file_path = results_dir * "/grouped_in_models.txt"
-full_output_file_path = results_dir * "/full_columns.txt"
+concise_output_file_path = results_dir * "/grouped_in_models.csv"
+full_output_file_path = results_dir * "/full_columns.csv"
 
 column_separator = ";"
 
