@@ -3,8 +3,8 @@
 ###############################################################################
 
 id_f = x->x
-half_f = x->ceil(x/2)
-sqrt_f = x->ceil(sqrt(x))
+half_f = x->ceil(Int, x/2)
+sqrt_f = x->ceil(Int, sqrt(x))
 
 function print_function(func::Core.Function)::String
 	if func === id_f
