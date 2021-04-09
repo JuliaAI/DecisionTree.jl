@@ -324,8 +324,9 @@ function build_forest(
 	cms = Vector{ConfusionMatrix}(undef, n_trees)
 	oob_samples = Vector{Vector{Integer}}(undef, n_trees)
 
+	rngs = [spawn_rng(rng) for i in 1:n_trees]
 	Threads.@threads for i in 1:n_trees
-		inds = rand(rng, 1:t_samples, num_samples)
+		inds = rand(rngs[i], 1:t_samples, num_samples)
 
 		# v_weights = @views W[inds]
 		v_labels = @views Y[inds]
@@ -350,7 +351,7 @@ function build_forest(
 			useRelationAll       = useRelationAll,
 			useRelationId        = useRelationId,
 			test_operators       = test_operators,
-			rng                  = rng)
+			rng                  = rngs[i])
 
 		# grab out-of-bag indices
 		oob_samples[i] = setdiff(1:t_samples, inds)
