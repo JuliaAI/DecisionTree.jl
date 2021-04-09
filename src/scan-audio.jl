@@ -187,16 +187,29 @@ for i in exec_runs
 					end
 					append_in_file(concise_output_file_path, concise_output_string)
 
-#					full_output_string = string(row_ref, column_separator)
-#					append_in_file(full_output_file,
-#						string(
-#							
-#						)
-#					)
+					full_output_string = string(row_ref, column_separator)
+					full_output_string *= string(
+						string(0.5), column_separator,
+						string(0.5), column_separator,
+						string(0.5), column_separator,
+						string(0.5), column_separator,
+						string(0.5), column_separator
+					)
+					for i in 1:length(forest_args)
+						full_output_string *= string(
+							string(0.5), column_separator,
+							string(0.5), column_separator,
+							string(0.5), column_separator,
+							string(0.5), column_separator,
+							string(0.5), column_separator,
+							string(0.5)
+						)
+						full_output_string *= string(i == length(forest_args) ? "\n" : column_separator)
+					end
+					append_in_file(full_output_file_path, full_output_string)
+					#####################################################
 
 					# ADD THIS STEP TO THE "HISTORY" OF ALREADY COMPUTED ITERATION
-					# concise_output_file_path
-					# full_output_file_path
 					for dict in exec_dicts
 						if (
 							dict["n_task"] == n_task &&
@@ -210,6 +223,8 @@ for i in exec_runs
 					end
 					export_execution_porgress_dictionary(iteration_progress_json_file_path, exec_dicts)
 					#####################################################
+
+					exit()
 				end
 			end
 		end
