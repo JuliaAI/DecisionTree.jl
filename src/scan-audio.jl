@@ -1,4 +1,6 @@
 include("test-header.jl")
+include("table-printer.jl")
+include("progressive-iterator-manager.jl")
 
 main_rng = DecisionTree.mk_rng(1)
 
@@ -56,63 +58,163 @@ scale_dataset = false
 # TEST:
 # - decision tree
 # - RF with:
-# forest_args = []
-# for n_trees in [1,50,100]
-# 	for n_subfeatures in [0,nbands]
-# 		for n_subrelations in [x->x, x->ceil(x/2), x->ceil(sqrt(x))]
+forest_args = []
 
-# 			push!(forest_args, (
-# 				n_subfeatures = n_subfeatures,
-# 				n_trees = n_trees,
-# 				partial_sampling = 1.0,
-# 				n_subrelations=n_subrelations,
-# 				forest_tree_args...
-# 			))
-# 		end
-# 	end
-# end
+for n_trees in [1,50,100]
+	for n_subfeatures in [id_f, sqrt_f]
+		for n_subrelations in [id_f, half_f, sqrt_f]
+			push!(forest_args, (
+				n_subfeatures       = n_subfeatures,
+				n_trees             = n_trees,
+				partial_sampling    = 1.0,
+				n_subrelations      = n_subrelations,
+				forest_tree_args...
+			))
+		end
+	end
+end
 # nfreqs
 
+exec_runs = 1:10
+exec_n_tasks = 1:1
+exec_n_versions = 1:2
+exec_nbands = [20,40,60]
+exec_dataset_kwargs =   [(
+							max_points = 30,
+							ma_size = 25,
+							ma_step = 15,
+						),(
+							max_points = 30,
+							ma_size = 45,
+							ma_step = 30,
+						),(
+							max_points = 30,
+							ma_size = 75,
+							ma_step = 50,
+						)]
+
+results_dir = "./results-audio-scan"
+
+iteration_progress_json_file_path = results_dir * "/progress.json"
+concise_output_file_path = results_dir * "/grouped_in_models.txt"
+full_output_file_path = results_dir * "/full_columns.txt"
+
+column_separator = ";"
+
+exec_dicts = load_or_create_execution_progress_dictionary(
+	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs
+)
+
+# if the output files does not exists initilize them
+if ! isfile(concise_output_file_path)
+	concise_output_file = open(concise_output_file_path, "a+")
+	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = [""], separator = column_separator)
+	close(concise_output_file)
+end
+if ! isfile(full_output_file_path)
+	full_output_file = open(full_output_file_path, "a+")
+	print_head(full_output_file, tree_args, forest_args, separator = column_separator)
+	close(full_output_file)
+end
+
+function append_in_file(file_name::String, text::String)
+	file = open(file_name, "a+")
+	write(file, text)
+	close(file)
+end
+
 # RUN
-for i in 1:10
+for i in exec_runs
 	rng = spawn_rng(main_rng)
 	# TASK
-	for n_task in 1:1
-		for n_version in 1:2
+	for n_task in exec_n_tasks
+		for n_version in exec_n_versions
 			# DATASET
-			for nbands in [20,40,60]
-				for dataset_kwargs in [(
-		max_points = 30,
-		ma_size = 25,
-		ma_step = 15,
-	),(
-		max_points = 30,
-		ma_size = 45,
-		ma_step = 30,
-	),(
-		max_points = 30,
-		ma_size = 75,
-		ma_step = 50,
-	)]
-					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
+			for nbands in exec_nbands
+				for dataset_kwargs in exec_dataset_kwargs
+					# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED
+					done = false
+					for dict in exec_dicts
+						if (
+							dict["n_task"] == n_task &&
+							dict["n_version"] == n_version &&
+							dict["nbands"] == nbands &&
+							is_same_dataset_kwargs(dict["dataset_kwargs"], dataset_kwargs) &&
+							i in dict["runs"]
+							)
+							done = true
+						end
+					end
 
-					testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
-								debugging_level  =   log_level,
-								scale_dataset    =   scale_dataset,
-								forest_args      =   forest_args,
-								tree_args        =   tree_args,
-								kwargs           =   modal_args,
-								test_tree        =   true,
-								test_forest      =   true,
-								);
+					if done
+						#println("Iteration already done, skipping...")
+						continue
+					end
+					#####################################################
 
+					# ACTUAL COMPUTATION
+#					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
+#					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = rng)
+#
+#					testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
+#								debugging_level  =   log_level,
+#								scale_dataset    =   scale_dataset,
+#								forest_args      =   forest_args,
+#								tree_args        =   tree_args,
+#								modal_args       =   modal_args
+#								);
+
+					#####################################################
+					row_ref = string(
+						string(string(i), ",",
+						string(n_task), ",",
+						string(n_version), ",",
+						string(nbands), ",",
+						string(values(dataset_kwargs)))
+					)
+
+					# TODO: print results in files
+					#["K", "sensitivity", "specificity", "precision", "accuracy"]
+					#["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error"]
+					tree_concise = Tuple(fill(0.5, 5))
+					forest_concise = Tuple(fill(0.5, 6))
+
+					concise_output_string = string(row_ref, column_separator)
+					concise_output_string *= string(tree_concise, column_separator)
+					for i in 1:length(forest_args)
+						concise_output_string *= string(forest_concise)
+						concise_output_string *= string(i == length(forest_args) ? "\n" : column_separator)
+					end
+					append_in_file(concise_output_file_path, concise_output_string)
+
+#					full_output_string = string(row_ref, column_separator)
+#					append_in_file(full_output_file,
+#						string(
+#							
+#						)
+#					)
+
+					# ADD THIS STEP TO THE "HISTORY" OF ALREADY COMPUTED ITERATION
+					# concise_output_file_path
+					# full_output_file_path
+					for dict in exec_dicts
+						if (
+							dict["n_task"] == n_task &&
+							dict["n_version"] == n_version &&
+							dict["nbands"] == nbands &&
+							is_same_dataset_kwargs(dict["dataset_kwargs"], dataset_kwargs)
+							)
+							#println("Iteration completed.")
+							push!(dict["runs"], i)
+						end
+					end
+					export_execution_porgress_dictionary(iteration_progress_json_file_path, exec_dicts)
+					#####################################################
 				end
 			end
 		end
 	end
 end
-
 
 # selected_args = merge(args, (loss = loss,
 # 															min_samples_leaf = min_samples_leaf,
