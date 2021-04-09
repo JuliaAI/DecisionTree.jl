@@ -31,7 +31,7 @@ export DTNode, DTLeaf, DTInternal,
 			 startWithRelationAll, startAtCenter,
 			 DTOverview, DTDebug, DTDetail,
 			 #
-			 GammasType
+			 GammasType, spawn_rng
 
 # ScikitLearn API
 export DecisionTreeClassifier,
@@ -117,6 +117,9 @@ promote_rule(::Type{DTInternal{S, T}}, ::Type{DTLeaf{T}}) where {S, T} = DTInter
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
 mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
+
+# Generate a new rng from a random pick from a given one.
+spawn_rng(rng) = Random.MersenneTwister(abs(rand(rng, Int)))
 
 ##############################
 ########## Includes ##########
