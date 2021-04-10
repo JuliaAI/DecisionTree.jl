@@ -182,7 +182,9 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		T, Tcm = go_tree()
 
 		for f_args in forest_args
-			F, Fcm = go_forest(f_args)
+			this_F, this_Fcm = go_forest(f_args)
+			push!(F, this_F)
+			push!(Fcm, this_Fcm)
 		end
 
 		global_logger(old_logger);
