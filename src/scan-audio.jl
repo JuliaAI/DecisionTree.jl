@@ -133,7 +133,7 @@ for i in exec_runs
 			# DATASET
 			for nbands in exec_nbands
 				for dataset_kwargs in exec_dataset_kwargs
-					# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED
+					# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED OR NOT
 					done = false
 					for dict in exec_dicts
 						if (
@@ -211,19 +211,19 @@ for i in exec_runs
 
 					# PRINT CONCISE
 					concise_output_string = string(row_ref, column_separator)
-					concise_output_string *= string(data_to_string(T, Tcm; separator=","), column_separator)
-					for i in 1:length(forest_args)
-						concise_output_string *= string(data_to_string(F, Fcm; separator=","))
-						concise_output_string *= string(i == length(forest_args) ? "\n" : column_separator)
+					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
+					for j in 1:length(forest_args)
+						concise_output_string *= string(data_to_string(F[j], Fcm[j]; separator=", "))
+						concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(concise_output_file_path, concise_output_string)
 
 					# PRINT FULL
 					full_output_string = string(row_ref, column_separator)
 					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
-					for i in 1:length(forest_args)
-						full_output_string *= string(data_to_string(F, Fcm; start_s = "", end_s = ""))
-						full_output_string *= string(i == length(forest_args) ? "\n" : column_separator)
+					for j in 1:length(forest_args)
+						full_output_string *= string(data_to_string(F[j], Fcm[j]; start_s = "", end_s = ""))
+						full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(full_output_file_path, full_output_string)
 					#####################################################
