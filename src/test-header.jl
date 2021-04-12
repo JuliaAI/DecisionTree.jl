@@ -55,7 +55,7 @@ function testDataset(
 		end
 	end
 
-	# println("forest_args = ", forest_args)
+	println("forest_args = ", forest_args)
 	println("tree_args = ", tree_args)
 	println("modal_args = ", modal_args)
 
@@ -87,12 +87,12 @@ function testDataset(
 			(initCondition = initCondition, useRelationAll = useRelationAll, useRelationId = useRelationId, test_operators = test_operators))
 
 		if length(gammas_pickle_location) > 0 && isfile(gammas_pickle_location)
-			#println("Loading gammas from file \"$(gammas_pickle_location)\"...")
+			println("Loading gammas from file \"$(gammas_pickle_location)\"...")
 			gammas = JLD.load(gammas_pickle_location, "gammas")
 		else
 			gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 			if length(gammas_pickle_location) > 0
-				#println("Saving gammas to file \"$(gammas_pickle_location)\"...")
+				println("Saving gammas to file \"$(gammas_pickle_location)\"...")
 				JLD.save(gammas_pickle_location, "gammas", gammas)
 			end
 		end

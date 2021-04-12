@@ -207,7 +207,7 @@ for i in exec_runs
 						) where {S, T}
 
 						result = start_s
-						result *= string(percent(cm.kappa[1]), separator)
+						result *= string(percent(cm.kappa), separator)
 						result *= string(percent(cm.sensitivities[1]), separator)
 						result *= string(percent(cm.specificities[1]), separator)
 						result *= string(percent(cm.PPVs[1]), separator)
