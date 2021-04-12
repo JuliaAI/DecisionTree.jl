@@ -18,9 +18,26 @@ using Test
 using Profile
 using PProf
 
+import JLD
+
 include("example-datasets.jl")
 
-function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,AbstractFloat}, timeit::Integer = 2; debugging_level = DecisionTree.DTOverview, scale_dataset::Union{Bool,Type} = false, post_pruning_purity_thresholds = [], forest_args = [], tree_args = (), modal_args = (), precompute_gammas = true, error_catching = false, rng = my_rng())
+function testDataset(
+		name                           ::String,
+		dataset                        ::Tuple,
+		split_threshold                ::Union{Bool,AbstractFloat},
+		timeit                         ::Integer = 2;
+		debugging_level                 = DecisionTree.DTOverview,
+		scale_dataset                  ::Union{Bool,Type} = false,
+		post_pruning_purity_thresholds  = [],
+		forest_args                     = [],
+		tree_args                       = (),
+		modal_args                      = (),
+		precompute_gammas               = true,
+		gammas_pickle_location         ::String = "",
+		error_catching                  = false,
+		rng                             = my_rng()
+	)
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 	if split_threshold != false
@@ -69,8 +86,17 @@ function testDataset(name::String, dataset::Tuple, split_threshold::Union{Bool,A
 		modal_args = merge(modal_args,
 			(initCondition = initCondition, useRelationAll = useRelationAll, useRelationId = useRelationId, test_operators = test_operators))
 
-		gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-		
+		if length(gammas_pickle_location) > 0 && isfile(gammas_pickle_location)
+			#println("Loading gammas from file \"$(gammas_pickle_location)\"...")
+			gammas = JLD.load(gammas_pickle_location, "gammas")
+		else
+			gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+			if length(gammas_pickle_location) > 0
+				#println("Saving gammas to file \"$(gammas_pickle_location)\"...")
+				JLD.save(gammas_pickle_location, "gammas", gammas)
+			end
+		end
+
 		println("(optimized) modal_args = ", modal_args)
 		global_logger(old_logger);
 	end

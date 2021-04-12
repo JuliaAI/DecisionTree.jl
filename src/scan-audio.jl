@@ -98,6 +98,7 @@ results_dir = "./results-audio-scan"
 iteration_progress_json_file_path = results_dir * "/progress.json"
 concise_output_file_path = results_dir * "/grouped_in_models.csv"
 full_output_file_path = results_dir * "/full_columns.csv"
+gammas_save_path = results_dir * "/gammas"
 
 column_separator = ";"
 
@@ -156,18 +157,31 @@ for i in exec_runs
 					end
 					#####################################################
 
+					# GENERATE PATH TO GAMMAS JLD FILE
+					gammas_jld_path = string(
+						gammas_save_path, "/",
+						"gammas_",
+						string(n_task), "_",
+						string(n_version), "_",
+						string(nbands), "_",
+						reduce(replace, [ ", " => "_", "(" => "__", ")" => "" ], init = string(values(dataset_kwargs))),
+						".jld"
+					)
+					#####################################################
+
 					# ACTUAL COMPUTATION
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
 					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = dataset_rng)
 
 
 					T, F, Tcm, Fcm = testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
-								debugging_level  =   log_level,
-								scale_dataset    =   scale_dataset,
-								forest_args      =   forest_args,
-								tree_args        =   tree_args,
-								modal_args       =   modal_args,
-								rng              =   train_rng
+								debugging_level        =   log_level,
+								scale_dataset          =   scale_dataset,
+								forest_args            =   forest_args,
+								tree_args              =   tree_args,
+								modal_args             =   modal_args,
+								gammas_pickle_location =   gammas_jld_path,
+								rng                    =   train_rng
 								);
 					#####################################################
 
