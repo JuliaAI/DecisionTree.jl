@@ -99,6 +99,7 @@ iteration_progress_json_file_path = results_dir * "/progress.json"
 concise_output_file_path = results_dir * "/grouped_in_models.csv"
 full_output_file_path = results_dir * "/full_columns.csv"
 gammas_save_path = results_dir * "/gammas"
+gammas_hash_index = gammas_save_path * "/gammas_hash_index.csv"
 
 column_separator = ";"
 
@@ -122,6 +123,18 @@ function append_in_file(file_name::String, text::String)
 	file = open(file_name, "a+")
 	write(file, text)
 	close(file)
+end
+
+using SHA
+using Serialization
+
+function get_dataset_hash_sha256(dataset)::String
+	io = IOBuffer();
+	serialize(io, dataset)
+	result = bytes2hex(sha256(take!(io)))
+	close(io)
+
+	result
 end
 
 # RUN
@@ -157,23 +170,34 @@ for i in exec_runs
 					end
 					#####################################################
 
+					# LOAD DATASET
+					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
+					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = dataset_rng)
+
+					dataset_hash = get_dataset_hash_sha256(dataset)
+					#####################################################
+
 					# GENERATE PATH TO GAMMAS JLD FILE
 					gammas_jld_path = string(
 						gammas_save_path, "/",
 						"gammas_",
-						string(n_task), "_",
-						string(n_version), "_",
-						string(nbands), "_",
-						reduce(replace, [ ", " => "_", "(" => "__", ")" => "" ], init = string(values(dataset_kwargs))),
+						dataset_hash,
 						".jld"
+					)
+
+					append_in_file(gammas_hash_index,
+						string(
+							string(n_task), ",",
+							string(n_version), ",",
+							string(cur_audio_kwargs), ",",
+							string(dataset_kwargs)..., ",",
+							string(dataset_rng.seed), column_separator,
+							dataset_hash
+						)
 					)
 					#####################################################
 
 					# ACTUAL COMPUTATION
-					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = dataset_rng)
-
-
 					T, F, Tcm, Fcm = testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
 								debugging_level        =   log_level,
 								scale_dataset          =   scale_dataset,
