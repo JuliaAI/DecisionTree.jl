@@ -161,8 +161,10 @@ KDDDataset((n_task,n_version),
 		# end
 		n_samples = 0
 		timeseries = []
-		Threads.@threads for folder in folders
-			for samples in files_map[folder]
+		for folder in folders
+			cur_folder_timeseries = Array{...}(undef, length(files_map[folder]))
+
+			Threads.@threads for i_samples,samples in enumerate(files_map[folder])
 				samples = 
 					if folder in ["asthmawebwithcough", "covidwebnocough", "covidwebwithcough", "healthywebnosymp", "healthywebwithcough"]
 						map((subfoldname)->"$folder/$subfoldname/audio_file_$(file_suffix).wav", samples)
@@ -183,13 +185,17 @@ KDDDataset((n_task,n_version),
 					# println(size(ts))
 					# readline()
 					# println(size(wav2stft_time_series(filepath, audio_kwargs)))
-					push!(timeseries, ts)
+					cur_folder_timeseries[i_...] = ts
 					n_samples += 1
 				end
 				# break
 			end
+			push!(timeseries, cur_folder_timeseries)
 		end
 		# @assert n_samples == tot_n_samples "KDDDataset: unmatching tot_n_samples: {$n_samples} != {$tot_n_samples}"
+		[[[1], [2], [3,4,5]], [[3,5,4], [], []], ...]
+		[[1], [2], [3,4,5]]
+		[k for k in j for j in i for i in timeseries]
 		timeseries
 	end
 

@@ -167,14 +167,14 @@ for i in exec_runs
 					println(dataset[1][:,2,2])
 					# using Random
 					# n_pos = 10
-					# n_neg = 15
+					# n_neg = 15 
 					# dataset_rng = Random.MersenneTwister(2)
 
 					dataset_slice = Array{Int,2}(undef, 2, n_per_class)
 					dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
 					dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
 					dataset_slice = dataset_slice[:]
-					println(dataset_slice)
+					# println(dataset_slice)
 
 					#####################################################
 					dataset_name_str = string(
