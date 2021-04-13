@@ -192,12 +192,12 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_point
 	neg = readFiles(folders_N)
 
 	println("POS={$(length(pos))}, NEG={$(length(neg))}")
-	n_per_class = min(length(pos), length(neg))
+	#n_per_class = min(length(pos), length(neg))
 
-	pos = pos[Random.randperm(rng, length(pos))[1:n_per_class]]
-	neg = neg[Random.randperm(rng, length(neg))[1:n_per_class]]
+	#pos = pos[Random.randperm(rng, length(pos))[1:n_per_class]]
+	#neg = neg[Random.randperm(rng, length(neg))[1:n_per_class]]
 
-	println("Balanced -> {$n_per_class}+{$n_per_class}")
+	#println("Balanced -> {$n_per_class}+{$n_per_class}")
 
 	# Stratify
 	timeseries = vec(hcat(pos,neg)')
@@ -214,7 +214,7 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_point
 		# println(size(ts))
 		X[1:size(ts, 1),i,:] = ts
 	end
-	(X,Y,class_labels)
+	(X,Y,class_labels, length(pos), length(neg))
 end
 ################################################################################
 ################################################################################

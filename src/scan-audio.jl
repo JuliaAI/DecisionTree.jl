@@ -172,9 +172,17 @@ for i in exec_runs
 
 					# LOAD DATASET
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					dataset = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = dataset_rng)
-
+					X, Y, class_labels, n_pos, n_neg = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = dataset_rng)
 					dataset_hash = get_dataset_hash_sha256(dataset)
+					dataset = (X, Y, class_labels)
+
+					# TODO: move following code inside testDataset and apply split on gammas too
+					n_per_class = min(length(pos), length(neg))
+
+					v_dataset = @views [:,append!(
+						[Random.randperm(rng, 1:length(n_pos))[1:n_per_class]],
+						[Random.randperm(rng, (length(n_pos)+1):(length(n_pos)+length(n_neg)))[1:n_per_class]]
+					) ,:]
 					#####################################################
 
 					# GENERATE PATH TO GAMMAS JLD FILE
