@@ -99,7 +99,6 @@ iteration_progress_json_file_path = results_dir * "/progress.json"
 concise_output_file_path = results_dir * "/grouped_in_models.csv"
 full_output_file_path = results_dir * "/full_columns.csv"
 gammas_save_path = results_dir * "/gammas"
-gammas_hash_index = gammas_save_path * "/gammas_hash_index.csv"
 
 column_separator = ";"
 
@@ -123,18 +122,6 @@ function append_in_file(file_name::String, text::String)
 	file = open(file_name, "a+")
 	write(file, text)
 	close(file)
-end
-
-using SHA
-using Serialization
-
-function get_dataset_hash_sha256(dataset)::String
-	io = IOBuffer();
-	serialize(io, dataset)
-	result = bytes2hex(sha256(take!(io)))
-	close(io)
-
-	result
 end
 
 # RUN
@@ -172,44 +159,44 @@ for i in exec_runs
 
 					# LOAD DATASET
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					X, Y, class_labels, n_pos, n_neg = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., rng = dataset_rng)
-					dataset_hash = get_dataset_hash_sha256(dataset)
-					dataset = (X, Y, class_labels)
+					dataset, n_pos, n_neg = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+					n_per_class = min(n_pos, n_neg)
+					println(dataset[1][:,1,1])
+					println(dataset[1][:,1,2])
+					println(dataset[1][:,2,1])
+					println(dataset[1][:,2,2])
+					# using Random
+					# n_pos = 10
+					# n_neg = 15
+					# dataset_rng = Random.MersenneTwister(2)
 
-					n_per_class = min(length(pos), length(neg))
+					dataset_slice = Array{Int,2}(undef, 2, n_per_class)
+					dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
+					dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
+					dataset_slice = dataset_slice[:]
+					println(dataset_slice)
 
-					slice_dataset = append!([Random.randperm(dataset_rng, 1:length(n_pos))[1:n_per_class]],
-					[Random.randperm(dataset_rng, (length(n_pos)+1):(length(n_pos)+length(n_neg)))[1:n_per_class]])
 					#####################################################
-
-					# GENERATE PATH TO GAMMAS JLD FILE
-					gammas_jld_path = string(
-						gammas_save_path, "/",
-						"gammas_",
-						dataset_hash,
-						".jld"
+					dataset_name_str = string(
+						string(n_task), column_separator,
+						string(n_version), column_separator,
+						string(cur_audio_kwargs), column_separator,
+						string(dataset_kwargs), column_separator,
+						string(dataset_rng.seed)
 					)
-
-					append_in_file(gammas_hash_index,
-						string(
-							string(n_task), ",",
-							string(n_version), ",",
-							string(cur_audio_kwargs), ",",
-							string(dataset_kwargs)..., ",",
-							string(dataset_rng.seed), column_separator,
-							dataset_hash
-						)
-					)
-					#####################################################
 
 					# ACTUAL COMPUTATION
-					T, F, Tcm, Fcm = testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
+					T, F, Tcm, Fcm = testDataset(
+								"($(n_task),$(n_version))",
+								dataset,
+								0.8,
 								debugging_level        =   log_level,
 								scale_dataset          =   scale_dataset,
+								dataset_slice          =   dataset_slice,
 								forest_args            =   forest_args,
 								tree_args              =   tree_args,
 								modal_args             =   modal_args,
-								gammas_pickle_location =   gammas_jld_path,
+								gammas_save_path       =   (gammas_save_path, dataset_name_str),
 								rng                    =   train_rng
 								);
 					#####################################################

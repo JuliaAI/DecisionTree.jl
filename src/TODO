@@ -2,6 +2,7 @@
 
 
 ☐	computation of softened operators takes too much time
+☐ allow nan to signal the end of the current instance!
 ☐	Add IA7, IA7^2 relations
 ☐	Check improvements with @inbounds
 ☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)

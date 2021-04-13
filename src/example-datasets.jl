@@ -111,7 +111,12 @@ end
 # - v2: USING BREATH
 
 using JSON
-KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_points = -1, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
+KDDDataset((n_task,n_version),
+		audio_kwargs; ma_size = 1,
+		ma_step = 1,
+		max_points = -1,
+		# rng = Random.GLOBAL_RNG :: Random.AbstractRNG
+	) = begin
 	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
 	@assert n_version in [1,2] "KDDDataset: invalid n_version: {$n_version}"
 
@@ -200,10 +205,17 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_point
 	#println("Balanced -> {$n_per_class}+{$n_per_class}")
 
 	# Stratify
-	timeseries = vec(hcat(pos,neg)')
-	Y = vec(hcat(ones(Int,length(pos)),zeros(Int,length(neg)))')
-	# timeseries = [pos..., neg...]
-	# println(size(timeseries[1]))
+	# timeseries = vec(hcat(pos,neg)')
+	# Y = vec(hcat(ones(Int,length(pos)),zeros(Int,length(neg)))')
+
+	# print(size(pos))
+	# print(size(neg))
+	timeseries = [[p' for p in pos]..., [n' for n in neg]...]
+	# print(size(timeseries))
+	# print(size(timeseries[1]))
+	Y = [ones(Int, length(pos))..., zeros(Int, length(neg))...]
+	# print(size(Y))
+
 	# println([size(ts, 1) for ts in timeseries])
 	max_timepoints = maximum(size(ts, 1) for ts in timeseries)
 	nfreqs = unique(size(ts, 2) for ts in timeseries)
@@ -214,7 +226,7 @@ KDDDataset((n_task,n_version), audio_kwargs; ma_size = 1, ma_step = 1, max_point
 		# println(size(ts))
 		X[1:size(ts, 1),i,:] = ts
 	end
-	(X,Y,class_labels, length(pos), length(neg))
+	((X,Y,class_labels), length(pos), length(neg))
 end
 ################################################################################
 ################################################################################
@@ -408,26 +420,3 @@ SampleLandCoverDataset(dataset::String, n_samples_per_label::Int, sample_size::U
 	# println(labels)
 	inputs,labels,[class_labels_map[y] for y in existingLabels]
 end
-
-# TODO note that these splitting functions simply cut the dataset in two,
-#  and they don't produce balanced cuts. To produce balanced cuts, one must manually stratify the dataset
-traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold) where {D,T} = begin
-	(X,Y,class_labels) = data
-	spl = floor(Int, length(Y)*threshold)
-	X_train = X[:,1:spl,:]
-	Y_train = Y[1:spl]
-	X_test  = X[:,spl+1:end,:]
-	Y_test  = Y[spl+1:end]
-	(X_train,Y_train),(X_test,Y_test),class_labels
-end
-
-traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVector{String}},threshold) where {D,T} = begin
-	(X,Y,class_labels) = data
-	spl = floor(Int, length(Y)*threshold)
-	X_train = X[:,:,1:spl,:]
-	Y_train = Y[1:spl]
-	X_test  = X[:,:,spl+1:end,:]
-	Y_test  = Y[spl+1:end]
-	(X_train,Y_train),(X_test,Y_test),class_labels
-end
-

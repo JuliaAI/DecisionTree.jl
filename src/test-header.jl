@@ -12,116 +12,261 @@ using Logging
 using IterTools
 
 using BenchmarkTools
-using ScikitLearnBase
+# using ScikitLearnBase
 using Statistics
 using Test
-using Profile
-using PProf
+# using Profile
+# using PProf
 
 import JLD
+
+
+
+using SHA
+using Serialization
+
+function get_dataset_hash_sha256(dataset)::String
+	io = IOBuffer();
+	serialize(io, dataset)
+	result = bytes2hex(sha256(take!(io)))
+	close(io)
+
+	result
+end
+
+
+# TODO note that these splitting functions simply cut the dataset in two,
+#  and they don't produce balanced cuts. To produce balanced cuts, one must manually stratify the dataset
+traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
+	(X,Y,class_labels) = data
+	spl = floor(Int, length(Y)*threshold)
+	X_train = X[:,1:spl,:]
+	Y_train = Y[1:spl]
+	gammas_train = 
+		if isnothing(gammas) # || isnothing(worldType)
+			gammas
+		else
+			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl)
+		end
+	X_test  = X[:,spl+1:end,:]
+	Y_test  = Y[spl+1:end]
+	# if gammas == nothing
+		# (X_train,Y_train),(X_test,Y_test),class_labels
+	# else
+	(X_train,Y_train),(X_test,Y_test),class_labels,gammas_train
+	# end
+end
+
+traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
+	(X,Y,class_labels) = data
+	spl = floor(Int, length(Y)*threshold)
+	X_train = X[:,:,1:spl,:]
+	Y_train = Y[1:spl]
+	gammas_train = 
+		if isnothing(gammas) # || isnothing(worldType)
+			gammas
+		else
+			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl)
+		end
+	X_test  = X[:,:,spl+1:end,:]
+	Y_test  = Y[spl+1:end]
+	# if gammas == nothing
+		# (X_train,Y_train),(X_test,Y_test),class_labels
+	# else
+	(X_train,Y_train),(X_test,Y_test),class_labels,gammas_train
+	# end
+end
+
 
 include("example-datasets.jl")
 
 function testDataset(
-		name                           ::String,
-		dataset                        ::Tuple,
-		split_threshold                ::Union{Bool,AbstractFloat},
-		timeit                         ::Integer = 2;
+		name                            ::String,
+		dataset                         ::Tuple,
+		split_threshold                 ::Union{Bool,AbstractFloat};
 		debugging_level                 = DecisionTree.DTOverview,
-		scale_dataset                  ::Union{Bool,Type} = false,
+		scale_dataset                   ::Union{Bool,Type} = false,
 		post_pruning_purity_thresholds  = [],
 		forest_args                     = [],
 		tree_args                       = (),
 		modal_args                      = (),
 		precompute_gammas               = true,
-		gammas_pickle_location         ::String = "",
-		slice_dataset					= [],
+		gammas_save_path                ::Union{String,NTuple{2,String},Nothing} = nothing,
+		dataset_slice                   ::Union{AbstractVector,Nothing} = nothing,
 		error_catching                  = false,
-		rng                             = my_rng()
+		rng                             = my_rng(),
+		timeit                          ::Integer = 0,
 	)
 	println("Benchmarking dataset '$name'...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
-	if split_threshold != false
-		length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
-		if scale_dataset != false
-			dataset = scaleDataset(dataset, scale_dataset)
-		end
-		(X_train, Y_train), (X_test, Y_test),class_labels = traintestsplit(dataset, split_threshold)
-	else
-		length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
-		(X_train, Y_train), (X_test, Y_test),class_labels = dataset 
-		if scale_dataset != false
-			(X_train, Y_train, class_labels) = scaleDataset((X_train, Y_train, class_labels))
-			(X_test, Y_test, class_labels) = scaleDataset((X_test, Y_test, class_labels))
+
+	calculateGammas(modal_args, X_all_d) = begin
+		if !precompute_gammas
+			(modal_args, nothing, nothing)
+		else
+			haskey(modal_args, :ontology) || error("testDataset: precompute_gammas=1 requires `ontology` field in modal_args: $(modal_args)")
+
+			X_all = OntologicalDataset{eltype(X_all_d),ndims(X_all_d)-2}(modal_args.ontology,X_all_d)
+
+			worldType = modal_args.ontology.worldType
+
+			old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
+			relationSet = nothing
+			initCondition = modal_args.initCondition
+			useRelationAll = modal_args.useRelationAll
+			useRelationId = modal_args.useRelationId
+			relationId_id = nothing
+			relationAll_id = nothing
+			availableModalRelation_ids = nothing
+			allAvailableRelation_ids = nothing
+			test_operators = deepcopy(modal_args.test_operators)
+			(
+				# X_all,
+				test_operators, relationSet,
+				useRelationId, useRelationAll, 
+				relationId_id, relationAll_id,
+				availableModalRelation_ids, allAvailableRelation_ids
+				) = DecisionTree.treeclassifier.optimize_tree_parameters!(X_all, initCondition, useRelationAll, useRelationId, test_operators)
+
+			# update values
+			modal_args = merge(modal_args,
+				(initCondition = initCondition, 
+					useRelationAll = useRelationAll, 
+					useRelationId = useRelationId, 
+					test_operators = test_operators))
+
+			# Generate path to gammas jld file
+
+			if isa(gammas_save_path,String)
+				gammas_save_path = (gammas_save_path,nothing)
+			end
+
+			gammas_save_path, dataset_name_str = gammas_save_path
+
+			gammas_jld_path, gammas_hash_index_file, dataset_hash =
+				if isnothing(gammas_save_path)
+					(nothing, nothing, nothing)
+				else
+					dataset_hash = get_dataset_hash_sha256(X_all_d)
+					(
+						"$(gammas_save_path)/gammas_$(dataset_hash).jld",
+						"$(gammas_save_path)/gammas_hash_index.csv",
+						dataset_hash,
+					)
+				end
+
+			gammas = 
+				if !isnothing(gammas_jld_path) && isfile(gammas_jld_path)
+					println("Loading gammas from file \"$(gammas_jld_path)\"...")
+					JLD.load(gammas_jld_path, "gammas")
+				else
+					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+					if !isnothing(gammas_jld_path)
+						println("Saving gammas to file \"$(gammas_jld_path)\"...")
+						JLD.save(gammas_jld_path, "gammas", gammas)
+						# Add record line to the index file of the folder
+						if !isnothing(dataset_name_str)
+							# Generate path to gammas jld file)
+							# TODO fix column_separator here
+							append_in_file(gammas_hash_index_file, "$(dataset_hash);$(dataset_name_str)\n")
+						end
+					end
+					gammas
+				end
+
+			println("(optimized) modal_args = ", modal_args)
+			global_logger(old_logger);
+			(modal_args, gammas, modal_args.ontology.worldType)
 		end
 	end
 
 	println("forest_args = ", forest_args)
-	println("tree_args = ", tree_args)
-	println("modal_args = ", modal_args)
+	# println("forest_args = ", length(forest_args), " × some forest_args structure")
+	println("tree_args   = ", tree_args)
+	println("modal_args  = ", modal_args)
 
-	X = OntologicalDataset{eltype(X_train),ndims(X_train)-2}(modal_args.ontology,X_train)
+	# Slice & split the dataset according to dataset_slice & split_threshold
+	# The instances for which the gammas are computed are either all, or the ones specified for training.	
+	# This depends on whether the dataset is already splitted or not.
+	modal_args, (X_train, Y_train), (X_test, Y_test), class_labels, gammas_train = 
+		if split_threshold != false
 
-	gammas = nothing
+			# Unpack dataset
+			length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
+			X, Y, class_labels = dataset
 
-	if precompute_gammas
-		old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
-		relationSet = nothing
-		initCondition = modal_args.initCondition
-		useRelationAll = modal_args.useRelationAll
-		useRelationId = modal_args.useRelationId
-		relationId_id = nothing
-		relationAll_id = nothing
-		availableModalRelation_ids = nothing
-		allAvailableRelation_ids = nothing
-		test_operators = deepcopy(modal_args.test_operators)
-		(
-			# X,
-			test_operators, relationSet,
-			useRelationId, useRelationAll, 
-			relationId_id, relationAll_id,
-			availableModalRelation_ids, allAvailableRelation_ids
-			) = DecisionTree.treeclassifier.optimize_tree_parameters!(X, initCondition, useRelationAll, useRelationId, test_operators)
-
-		# update values
-		modal_args = merge(modal_args,
-			(initCondition = initCondition, useRelationAll = useRelationAll, useRelationId = useRelationId, test_operators = test_operators))
-
-		if length(gammas_pickle_location) > 0 && isfile(gammas_pickle_location)
-			println("Loading gammas from file \"$(gammas_pickle_location)\"...")
-			gammas = JLD.load(gammas_pickle_location, "gammas")
-		else
-			gammas = DecisionTree.treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
-			if length(gammas_pickle_location) > 0
-				println("Saving gammas to file \"$(gammas_pickle_location)\"...")
-				JLD.save(gammas_pickle_location, "gammas", gammas)
+			# Apply scaling
+			if scale_dataset != false
+				X, Y, class_labels = scaleDataset((X, Y, class_labels), scale_dataset)
 			end
+			
+			# Calculate gammas for the full set of instances
+			modal_args, gammas, worldType = calculateGammas(modal_args, X)
+
+			# Slice instances
+			X, Y, gammas =
+				if isnothing(dataset_slice)
+					(X, Y, gammas)
+				else
+					(
+						(@views ModalLogic.sliceDomainByInstances(X, dataset_slice)),
+						(@views Y[dataset_slice]),
+						if !isnothing(gammas)
+							@views DecisionTree.sliceGammasByInstances(worldType, gammas, dataset_slice)
+						else
+							gammas
+						end
+					)
+				end
+			# dataset = (X, Y, class_labels)
+
+			# Split in train/test
+			((X_train, Y_train), (X_test, Y_test), class_labels, gammas_train) =
+				traintestsplit((X, Y, class_labels), split_threshold, gammas = gammas, worldType = worldType)
+
+			modal_args, (X_train, Y_train), (X_test, Y_test), class_labels, gammas_train
+		else
+
+			# Unpack dataset
+			length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
+			(X_train, Y_train), (X_test, Y_test), class_labels = dataset
+
+			# Apply scaling
+			if scale_dataset != false
+				(X_train, Y_train, class_labels) = scaleDataset((X_train, Y_train, class_labels), scale_dataset)
+				(X_test,  Y_test,  class_labels) = scaleDataset((X_test,  Y_test,  class_labels), scale_dataset)
+			end
+			
+			# Calculate gammas for the training instances
+			modal_args, gammas, worldType = calculateGammas(modal_args, X_train)
+
+			# Slice training instances
+			X_train, Y_train, gammas_train =
+				if isnothing(dataset_slice)
+					(X_train, Y_train, gammas)
+				else
+					(
+					@views ModalLogic.sliceDomainByInstances(X_train, dataset_slice),
+					@views Y_train[dataset_slice],
+					if !isnothing(gammas)
+						@views DecisionTree.sliceGammasByInstances(worldType, gammas, dataset_slice)
+					else
+						gammas
+					end
+					)
+				end
+			# dataset = (X_train, Y_train), (X_test, Y_test), class_labels
+
+			modal_args, (X_train, Y_train), (X_test, Y_test), class_labels, gammas_train
 		end
 
-		println("(optimized) modal_args = ", modal_args)
-		global_logger(old_logger);
-	end
 
-	# println(" n_samples = $(size(X.domain)[end-1])")
-	println(" train size = $(size(X.domain))")
+
+	# println(" n_samples = $(size(X_train)[end-1])")
+	println(" train size = $(size(X_train))")
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
 	# global_logger(ConsoleLogger(stderr, debugging_level))
 	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
-
-	# TODO: this can't be here!!! should be before the call to traintestsplit
-	v_X = nothing
-	v_Y = nothing
-	v_gammas = nothing
-	if length(slice_dataset) > 0
-		# TODO: generalize slicing for all dimensions
-		v_X = X.domain[:, slice_dataset, :]
-		v_Y = Y_train[slice_dataset]
-		v_gammas = gammas[:,:,slice_dataset,:,:]
-	else
-		v_X = X.domain
-		v_Y = Y_train
-		v_gammas = gammas
-	end
 
 	function display_cm_as_row(cm::ConfusionMatrix)
 		"|\t" *
@@ -148,13 +293,14 @@ function testDataset(
 	end
 
 	go_tree() = begin
-		if timeit == 0
-			T = build_tree(v_Y, v_X; tree_args..., modal_args..., gammas = v_gammas, rng = rng);
-		elseif timeit == 1
-			T = @time build_tree(v_Y, v_X; tree_args..., modal_args..., gammas = v_gammas, rng = rng);
-		elseif timeit == 2
-			T = @btime build_tree($v_Y, $v_X; $tree_args..., $modal_args..., gammas = v_gammas, rng = $rng);
-		end
+		T = 
+			if timeit == 0
+				build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng);
+			elseif timeit == 1
+				@time build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng);
+			elseif timeit == 2
+				@btime build_tree($Y_train, $X_train; $tree_args..., $modal_args..., gammas = gammas_train, rng = $rng);
+			end
 		print_tree(T)
 		
 		println(" test size = $(size(X_test))")
@@ -183,13 +329,14 @@ function testDataset(
 	end
 
 	go_forest(f_args) = begin
-		if timeit == 0
-			F = build_forest(v_Y, v_X; f_args..., modal_args..., gammas = v_gammas, rng = rng);
-		elseif timeit == 1
-			F = @time build_forest(v_Y, v_X; f_args..., modal_args..., gammas = v_gammas, rng = rng);
-		elseif timeit == 2
-			F = @btime build_forest($v_Y, $v_X; $f_args..., $modal_args..., gammas = v_gammas, rng = $rng);
-		end
+		F = 
+			if timeit == 0
+				build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
+			elseif timeit == 1
+				@time build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
+			elseif timeit == 2
+				@btime build_forest($Y_train, $X_train; $f_args..., $modal_args..., gammas = gammas_train, rng = $rng);
+			end
 		print_forest(F)
 		
 		println(" test size = $(size(X_test))")

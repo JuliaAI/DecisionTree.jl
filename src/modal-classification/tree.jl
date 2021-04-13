@@ -16,8 +16,6 @@ module treeclassifier
 	import Random
 	import StatsBase
 
-	include("gammas.jl")
-
 	mutable struct NodeMeta{S<:Real,U}
 		region           :: UnitRange{Int}                   # a slice of the samples used to decide the split of the node
 		depth            :: Int
@@ -218,7 +216,7 @@ module treeclassifier
 						end
 					for w in worlds
 						# TODO maybe read the specific value of gammas referred to the test_operator?
-						cur_gammas = readGamma(gammas, w, indX[i + r_start], relation_id, feature)
+						cur_gammas = DecisionTree.readGamma(gammas, w, indX[i + r_start], relation_id, feature)
 						@logmsg DTDetail " cur_gammas" w cur_gammas
 						for (i_test_operator,test_operator) in enumerate(test_operators) # TODO use correct indexing for test_operators
 							# if relation == ModalLogic.Topo_TPP println("world ", w) end
@@ -582,10 +580,10 @@ module treeclassifier
 			#  if polarity(⋈) == true:      ∀ a > γ:    w ⊭ <X> f ⋈ a
 			#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
 			
-			gammas = computeGammas(X, X.ontology.worldType, test_operators, relationSet, relationId_id, availableModalRelation_ids)
-			# gammas = @btime computeGammas($X, $X.ontology.worldType, $test_operators, $relationSet, $relationId_id, $availableModalRelation_ids)
+			gammas = DecisionTree.computeGammas(X, X.ontology.worldType, test_operators, relationSet, relationId_id, availableModalRelation_ids)
+			# gammas = @btime DecisionTree.computeGammas($X, $X.ontology.worldType, $test_operators, $relationSet, $relationId_id, $availableModalRelation_ids)
 		else
-			checkGammasConsistency(gammas, X, X.ontology.worldType, test_operators, allAvailableRelation_ids)
+			DecisionTree.checkGammasConsistency(gammas, X, X.ontology.worldType, test_operators, allAvailableRelation_ids)
 		end
 
 		# Let the core algorithm begin!

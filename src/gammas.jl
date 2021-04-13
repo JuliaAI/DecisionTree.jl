@@ -1,4 +1,13 @@
 
+const GammasType{NTO, T} =
+Union{
+	AbstractArray{T, 4},
+	AbstractArray{Dict{WorldType,NTuple{NTO, T}}, 3},
+	AbstractArray{NTuple{NTO, T}, 5},
+	AbstractArray{NTuple{NTO, T}, 7}
+} where {WorldType<:AbstractWorld}
+
+
 # gammas is a structure holding threshold values that are on the verge of truth of propositional split formulas.
 
 # For generic worldTypes, gammas is an n-dim array of dictionaries indicized on the world itself.

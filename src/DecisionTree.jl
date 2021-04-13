@@ -46,6 +46,7 @@ export DecisionTreeClassifier,
 
 include("ModalLogic/ModalLogic.jl")
 using .ModalLogic
+include("gammas.jl")
 
 ###########################
 ########## Types ##########
@@ -54,15 +55,6 @@ abstract type _initCondition end
 struct _startWithRelationAll  <: _initCondition end; const startWithRelationAll  = _startWithRelationAll();
 struct _startAtCenter         <: _initCondition end; const startAtCenter         = _startAtCenter();
 struct _startAtWorld{wT<:AbstractWorld} <: _initCondition w::wT end;
-
-# TODO move this to gammas.jl and include gammas.jl from here.
-const GammasType{NTO, T} =
-Union{
-	AbstractArray{T, 4},
-	AbstractArray{Dict{WorldType,NTuple{NTO, T}}, 3},
-	AbstractArray{NTuple{NTO, T}, 5},
-	AbstractArray{NTuple{NTO, T}, 7}
-} where {WorldType<:AbstractWorld}
 
 # Leaf node, holding the output decision
 struct DTLeaf{T} # TODO specify output type: Number, Label, String, Union{Number,Label,String}?

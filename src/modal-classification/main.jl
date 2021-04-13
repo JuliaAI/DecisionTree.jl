@@ -314,7 +314,7 @@ function build_forest(
 			relationId_id, relationAll_id,
 			availableModalRelation_ids, allAvailableRelation_ids
 		) = treeclassifier.optimize_tree_parameters!(X, initCondition, useRelationAll, useRelationId, test_operators)
-		gammas = treeclassifier.computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+		gammas = computeGammas(X,X.ontology.worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 	end
 
 	t_samples = n_samples(X.domain)
@@ -331,7 +331,7 @@ function build_forest(
 		# v_weights = @views W[inds]
 		v_labels = @views Y[inds]
 		v_features = @views ModalLogic.sliceDomainByInstances(X.domain, inds)
-		v_gammas = @views treeclassifier.sliceGammasByInstances(X.ontology.worldType, gammas, inds)
+		v_gammas = @views sliceGammasByInstances(X.ontology.worldType, gammas, inds)
 
 		trees[i] = build_tree(
 			v_labels,
