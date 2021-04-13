@@ -35,6 +35,7 @@ function testDataset(
 		modal_args                      = (),
 		precompute_gammas               = true,
 		gammas_pickle_location         ::String = "",
+		slice_dataset					= [],
 		error_catching                  = false,
 		rng                             = my_rng()
 	)
@@ -107,6 +108,21 @@ function testDataset(
 	# global_logger(ConsoleLogger(stderr, debugging_level))
 	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
 
+	# TODO: this can't be here!!! should be before the call to traintestsplit
+	v_X = nothing
+	v_Y = nothing
+	v_gammas = nothing
+	if length(slice_dataset) > 0
+		# TODO: generalize slicing for all dimensions
+		v_X = X.domain[:, slice_dataset, :]
+		v_Y = Y_train[slice_dataset]
+		v_gammas = gammas[:,:,slice_dataset,:,:]
+	else
+		v_X = X.domain
+		v_Y = Y_train
+		v_gammas = gammas
+	end
+
 	function display_cm_as_row(cm::ConfusionMatrix)
 		"|\t" *
 		"$(round(cm.overall_accuracy*100, digits=2))%\t" *
@@ -133,11 +149,11 @@ function testDataset(
 
 	go_tree() = begin
 		if timeit == 0
-			T = build_tree(Y_train, X.domain; tree_args..., modal_args..., gammas = gammas, rng = rng);
+			T = build_tree(v_Y, v_X; tree_args..., modal_args..., gammas = v_gammas, rng = rng);
 		elseif timeit == 1
-			T = @time build_tree(Y_train, X.domain; tree_args..., modal_args..., gammas = gammas, rng = rng);
+			T = @time build_tree(v_Y, v_X; tree_args..., modal_args..., gammas = v_gammas, rng = rng);
 		elseif timeit == 2
-			T = @btime build_tree($Y_train, $X.domain; $tree_args..., $modal_args..., gammas = gammas, rng = $rng);
+			T = @btime build_tree($v_Y, $v_X; $tree_args..., $modal_args..., gammas = v_gammas, rng = $rng);
 		end
 		print_tree(T)
 		
@@ -168,11 +184,11 @@ function testDataset(
 
 	go_forest(f_args) = begin
 		if timeit == 0
-			F = build_forest(Y_train, X.domain; f_args..., modal_args..., gammas = gammas, rng = rng);
+			F = build_forest(v_Y, v_X; f_args..., modal_args..., gammas = v_gammas, rng = rng);
 		elseif timeit == 1
-			F = @time build_forest(Y_train, X.domain; f_args..., modal_args..., gammas = gammas, rng = rng);
+			F = @time build_forest(v_Y, v_X; f_args..., modal_args..., gammas = v_gammas, rng = rng);
 		elseif timeit == 2
-			F = @btime build_forest($Y_train, $X.domain; $f_args..., $modal_args..., gammas = gammas, rng = $rng);
+			F = @btime build_forest($v_Y, $v_X; $f_args..., $modal_args..., gammas = v_gammas, rng = $rng);
 		end
 		print_forest(F)
 		
