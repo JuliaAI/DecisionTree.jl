@@ -67,7 +67,7 @@ n_task = 1
 n_version = 2
 scale_dataset = false
 # scale_dataset = UInt16
-dataset = KDDDataset((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
+dataset = KDDDataset_not_stratified((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
 println(dataset[1] |> size)
 
 testDataset("Test", dataset, 0.8, 0,
@@ -84,7 +84,7 @@ testDataset("Test", dataset, 0.8, 0,
 # for i in 1:10
 # 	for n_task in 1:1
 # 		for n_version in 1:2
-# 			dataset = KDDDataset((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
+# 			dataset = KDDDataset_not_stratified((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
 # 			# (1,1) -> 994
 
 # 			testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
@@ -109,12 +109,12 @@ testDataset("Test", dataset, 0.8, 0,
 # 															))
 
 
-# dataset = KDDDataset((1,1), audio_kwargs; dataset_kwargs..., rng = rng) # 110/137 -> 110/110
-# dataset = KDDDataset((1,2), audio_kwargs; dataset_kwargs..., rng = rng) # 110/137 -> 110/110
-# dataset = KDDDataset((2,1), audio_kwargs; dataset_kwargs..., rng = rng) # 26/8 -> 8/8
-# dataset = KDDDataset((2,2), audio_kwargs; dataset_kwargs..., rng = rng) # 46/8 -> 8/8
-# dataset = KDDDataset((3,1), audio_kwargs; dataset_kwargs..., rng = rng) # 46/13 -> 13/13
-# dataset = KDDDataset((3,2), audio_kwargs; dataset_kwargs..., rng = rng) # 46/13 -> 13/13
+# dataset = KDDDataset_not_stratified((1,1), audio_kwargs; dataset_kwargs..., rng = rng) # 110/137 -> 110/110
+# dataset = KDDDataset_not_stratified((1,2), audio_kwargs; dataset_kwargs..., rng = rng) # 110/137 -> 110/110
+# dataset = KDDDataset_not_stratified((2,1), audio_kwargs; dataset_kwargs..., rng = rng) # 26/8 -> 8/8
+# dataset = KDDDataset_not_stratified((2,2), audio_kwargs; dataset_kwargs..., rng = rng) # 46/8 -> 8/8
+# dataset = KDDDataset_not_stratified((3,1), audio_kwargs; dataset_kwargs..., rng = rng) # 46/13 -> 13/13
+# dataset = KDDDataset_not_stratified((3,2), audio_kwargs; dataset_kwargs..., rng = rng) # 46/13 -> 13/13
 
 # testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,
 # 			forest_args=forest_args, args=args, modal_args=modal_args,

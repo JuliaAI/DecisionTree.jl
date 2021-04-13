@@ -159,12 +159,8 @@ for i in exec_runs
 
 					# LOAD DATASET
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					dataset, n_pos, n_neg = KDDDataset((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+					dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
 					n_per_class = min(n_pos, n_neg)
-					println(dataset[1][:,1,1])
-					println(dataset[1][:,1,2])
-					println(dataset[1][:,2,1])
-					println(dataset[1][:,2,2])
 					# using Random
 					# n_pos = 10
 					# n_neg = 15 
@@ -290,17 +286,17 @@ end
 # 	ma_step = 1,
 # )
 # 
-# dataset = KDDDataset((1,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
+# dataset = KDDDataset_not_stratified((1,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
 # dataset[1] |> size # (1413, 282)
-# dataset = KDDDataset((1,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
+# dataset = KDDDataset_not_stratified((1,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
 # dataset[1] |> size # (2997, 282)
-# dataset = KDDDataset((2,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
+# dataset = KDDDataset_not_stratified((2,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
 # dataset[1] |> size # (1413, 64)
-# dataset = KDDDataset((2,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
+# dataset = KDDDataset_not_stratified((2,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
 # dataset[1] |> size # (2997, 64)
-# dataset = KDDDataset((3,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
+# dataset = KDDDataset_not_stratified((3,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
 # dataset[1] |> size # (1413, 40)
-# dataset = KDDDataset((3,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
+# dataset = KDDDataset_not_stratified((3,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
 # dataset[1] |> size # (2673, 40)
 
 # testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,

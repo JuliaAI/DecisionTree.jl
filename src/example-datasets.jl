@@ -111,7 +111,7 @@ end
 # - v2: USING BREATH
 
 using JSON
-KDDDataset((n_task,n_version),
+KDDDataset_not_stratified((n_task,n_version),
 		audio_kwargs; ma_size = 1,
 		ma_step = 1,
 		max_points = -1,
@@ -162,9 +162,11 @@ KDDDataset((n_task,n_version),
 		n_samples = 0
 		timeseries = []
 		for folder in folders
-			cur_folder_timeseries = Array{...}(undef, length(files_map[folder]))
+			cur_folder_timeseries = Array{Array{Array{Float64, 2}, 1}, 1}(undef, length(files_map[folder]))
 
-			Threads.@threads for i_samples,samples in enumerate(files_map[folder])
+			# collect is necessary because the threads macro supports only arrays
+			# https://stackoverflow.com/questions/57633477/multi-threading-julia-shows-error-with-enumerate-iterator
+			Threads.@threads for (i_samples, samples) in collect(enumerate(files_map[folder]))
 				samples = 
 					if folder in ["asthmawebwithcough", "covidwebnocough", "covidwebwithcough", "healthywebnosymp", "healthywebwithcough"]
 						map((subfoldname)->"$folder/$subfoldname/audio_file_$(file_suffix).wav", samples)
@@ -173,7 +175,8 @@ KDDDataset((n_task,n_version),
 						map((filename)->"$folder/$subfolder/$filename", samples)
 					end
 
-				for filename in samples
+				cur_file_timeseries = Array{Array{Float64, 2}, 1}(undef, length(samples))
+				for (i_filename, filename) in collect(enumerate(samples))
 					filepath = kdd_data_dir * "$filename"
 					ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
 					# Drop first point
@@ -185,17 +188,15 @@ KDDDataset((n_task,n_version),
 					# println(size(ts))
 					# readline()
 					# println(size(wav2stft_time_series(filepath, audio_kwargs)))
-					cur_folder_timeseries[i_...] = ts
+					cur_file_timeseries[i_filename] = ts
 					n_samples += 1
 				end
+				cur_folder_timeseries[i_samples] = cur_file_timeseries
 				# break
 			end
-			push!(timeseries, cur_folder_timeseries)
+			append!(timeseries, [j for i in cur_folder_timeseries for j in i])
 		end
 		# @assert n_samples == tot_n_samples "KDDDataset: unmatching tot_n_samples: {$n_samples} != {$tot_n_samples}"
-		[[[1], [2], [3,4,5]], [[3,5,4], [], []], ...]
-		[[1], [2], [3,4,5]]
-		[k for k in j for j in i for i in timeseries]
 		timeseries
 	end
 
