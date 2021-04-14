@@ -385,7 +385,7 @@ function testDataset(
 		T, Tcm = go_tree()
 
 		for (i_forest, f_args) in enumerate(forest_args)
-			checkpoint_stdout("Computing Random Forest $(i_forest) / $(length(f_args))...")
+			checkpoint_stdout("Computing Random Forest $(i_forest) / $(length(forest_args))...")
 			this_F, this_Fcm = go_forest(f_args)
 			push!(F, this_F)
 			push!(Fcm, this_Fcm)
