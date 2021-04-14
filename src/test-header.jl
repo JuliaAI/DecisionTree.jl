@@ -76,6 +76,10 @@ traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVecto
 	# end
 end
 
+function checkpoint_stdout(string::String)
+	println("● ", string)
+	flush(stdout)
+end
 
 include("example-datasets.jl")
 
@@ -158,13 +162,13 @@ function testDataset(
 
 			gammas = 
 				if !isnothing(gammas_jld_path) && isfile(gammas_jld_path)
-					println("Loading gammas from file \"$(gammas_jld_path)\"...")
+					checkpoint_stdout("Loading gammas from file \"$(gammas_jld_path)\"...")
 
 					Serialization.deserialize(gammas_jld_path)
 				else
 					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 					if !isnothing(gammas_jld_path)
-						println("Saving gammas to file \"$(gammas_jld_path)\" (size: $(Base.summarysize(gammas)))...")
+						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\" (size: $(Base.summarysize(gammas)))...")
 
 						global gammas_saving_task
 						if isa(gammas_saving_task, Task)
@@ -376,9 +380,12 @@ function testDataset(
 
 		old_logger = global_logger(ConsoleLogger(stderr, log_level))
 		
+		checkpoint_stdout("Computing Tree...")
+
 		T, Tcm = go_tree()
 
-		for f_args in forest_args
+		for (i_forest, f_args) in enumerate(forest_args)
+			checkpoint_stdout("Computing Random Forest $(i_forest) / $(length(forest_args))...")
 			this_F, this_Fcm = go_forest(f_args)
 			push!(F, this_F)
 			push!(Fcm, this_Fcm)
