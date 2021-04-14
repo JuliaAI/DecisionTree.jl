@@ -4,6 +4,35 @@ include("progressive-iterator-manager.jl")
 
 main_rng = DecisionTree.mk_rng(1)
 
+################################################################################
+################################################################################
+################################################################################
+
+results_dir = "./results-siemens"
+
+iteration_progress_json_file_path = results_dir * "/progress.json"
+concise_output_file_path = results_dir * "/grouped_in_models.csv"
+full_output_file_path = results_dir * "/full_columns.csv"
+gammas_save_path = results_dir * "/gammas"
+
+column_separator = ";"
+
+################################################################################
+################################################################################
+################################################################################
+
+modal_args = (
+	initCondition = DecisionTree.startWithRelationAll,
+	useRelationId = true,
+	useRelationAll = false,
+	ontology = getIntervalOntologyOfDim(Val(1)),
+	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
+)
+
+################################################################################
+################################################################################
+################################################################################
+
 # Optimization arguments for single-tree
 tree_args = (
 	loss = DecisionTree.util.entropy,
@@ -20,29 +49,30 @@ forest_tree_args = (
 	min_loss_at_leaf = 0.0,
 )
 
-audio_kwargs = (
-	wintime = 0.025, # in ms          # 0.020-0.040
-	steptime = 0.010, # in ms         # 0.010-0.015
-	fbtype = :mel,                    # [:mel, :htkmel, :fcmel]
-	window_f = DSP.hamming, # [DSP.hamming, (nwin)->DSP.tukey(nwin, 0.25)]
-	pre_emphasis = 0.97,              # any, 0 (no pre_emphasis)
-	nbands = 40,                      # any, (also try 20)
-	sumpower = false,                 # [false, true]
-	dither = false,                   # [false, true]
-	# bwidth = 1.0,                   # 
-	# minfreq = 0.0,
-	# maxfreq = (sr)->(sr/2),
-	# usecmp = false,
+
+forest_args = []
+
+# for n_trees in [1,50,100]
+# 	for n_subfeatures in [id_f, sqrt_f]
+# 		for n_subrelations in [id_f, half_f, sqrt_f]
+# 			push!(forest_args, (
+# 				n_subfeatures       = n_subfeatures,
+# 				n_trees             = n_trees,
+# 				partial_sampling    = 1.0,
+# 				n_subrelations      = n_subrelations,
+# 				forest_tree_args...
+# 			))
+# 		end
+# 	end
+# end
+# nfreqs
+
+dataset_kwargs = (,
 )
 
-modal_args = (
-	initCondition = DecisionTree.startWithRelationAll,
-	useRelationId = true,
-	useRelationAll = false,
-	ontology = getIntervalOntologyOfDim(Val(1)),
-	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
-)
-
+################################################################################
+################################################################################
+################################################################################
 
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview
@@ -54,32 +84,15 @@ timeit = 0
 scale_dataset = false
 # scale_dataset = UInt16
 
-# TODO
-# TEST:
-# - decision tree
-# - RF with:
-forest_args = []
-
-for n_trees in [1,50,100]
-	for n_subfeatures in [id_f, sqrt_f]
-		for n_subrelations in [id_f, half_f, sqrt_f]
-			push!(forest_args, (
-				n_subfeatures       = n_subfeatures,
-				n_trees             = n_trees,
-				partial_sampling    = 1.0,
-				n_subrelations      = n_subrelations,
-				forest_tree_args...
-			))
-		end
-	end
-end
-# nfreqs
+################################################################################
+################################################################################
+################################################################################
 
 exec_runs = 1:10
 exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
-exec_dataset_kwargs =   [(
+exec_ds_kwargs =   [(
 							max_points = 30,
 							ma_size = 75,
 							ma_step = 50,
@@ -93,17 +106,8 @@ exec_dataset_kwargs =   [(
 							ma_step = 15,
 						)]
 
-results_dir = "./results-audio-scan"
-
-iteration_progress_json_file_path = results_dir * "/progress.json"
-concise_output_file_path = results_dir * "/grouped_in_models.csv"
-full_output_file_path = results_dir * "/full_columns.csv"
-gammas_save_path = results_dir * "/gammas"
-
-column_separator = ";"
-
 exec_dicts = load_or_create_execution_progress_dictionary(
-	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs
+	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_ds_kwargs
 )
 
 # if the output files does not exists initilize them
@@ -127,7 +131,7 @@ for i in exec_runs
 		for n_version in exec_n_versions
 			# DATASET
 			for nbands in exec_nbands
-				for dataset_kwargs in exec_dataset_kwargs
+				for ds_kwargs in exec_ds_kwargs
 					# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED OR NOT
 					done = false
 					for dict in exec_dicts
@@ -135,7 +139,7 @@ for i in exec_runs
 							dict["n_task"] == n_task &&
 							dict["n_version"] == n_version &&
 							dict["nbands"] == nbands &&
-							is_same_kwargs(dict["dataset_kwargs"], dataset_kwargs) &&
+							is_same_kwargs(dict["ds_kwargs"], ds_kwargs) &&
 							i in dict["runs"]
 							)
 							done = true
@@ -152,8 +156,8 @@ for i in exec_runs
 					#####################################################
 
 					# LOAD DATASET
-					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+					cur_dataset_kwargs = merge(dataset_kwargs, (nbands=nbands,))
+					dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_dataset_kwargs; ds_kwargs...) # , rng = dataset_rng)
 					n_per_class = min(n_pos, n_neg)
 					# using Random
 					# n_pos = 10
@@ -170,8 +174,8 @@ for i in exec_runs
 					dataset_name_str = string(
 						string(n_task), column_separator,
 						string(n_version), column_separator,
-						string(cur_audio_kwargs), column_separator,
-						string(dataset_kwargs), column_separator,
+						string(cur_dataset_kwargs), column_separator,
+						string(ds_kwargs), column_separator,
 						string(dataset_rng.seed)
 					)
 
@@ -197,7 +201,7 @@ for i in exec_runs
 						string(n_task), ",",
 						string(n_version), ",",
 						string(nbands), ",",
-						string(values(dataset_kwargs)))
+						string(values(ds_kwargs)))
 					)
 
 					function percent(num::Real; digits=2)
@@ -254,7 +258,7 @@ for i in exec_runs
 							dict["n_task"] == n_task &&
 							dict["n_version"] == n_version &&
 							dict["nbands"] == nbands &&
-							is_same_kwargs(dict["dataset_kwargs"], dataset_kwargs)
+							is_same_kwargs(dict["ds_kwargs"], ds_kwargs)
 							)
 							#println("Iteration completed.")
 							push!(dict["runs"], i)
@@ -267,33 +271,3 @@ for i in exec_runs
 		end
 	end
 end
-
-# selected_args = merge(args, (loss = loss,
-# 															min_samples_leaf = min_samples_leaf,
-# 															min_purity_increase = min_purity_increase,
-# 															min_loss_at_leaf = min_loss_at_leaf,
-# 															))
-
-# dataset_kwargs = (
-# 	max_points = -1,
-# 	ma_size = 1,
-# 	ma_step = 1,
-# )
-# 
-# dataset = KDDDataset_not_stratified((1,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
-# dataset[1] |> size # (1413, 282)
-# dataset = KDDDataset_not_stratified((1,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 141/298
-# dataset[1] |> size # (2997, 282)
-# dataset = KDDDataset_not_stratified((2,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
-# dataset[1] |> size # (1413, 64)
-# dataset = KDDDataset_not_stratified((2,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/32
-# dataset[1] |> size # (2997, 64)
-# dataset = KDDDataset_not_stratified((3,1), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
-# dataset[1] |> size # (1413, 40)
-# dataset = KDDDataset_not_stratified((3,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
-# dataset[1] |> size # (2673, 40)
-
-# testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,
-# 			forest_args=forest_args, args=args, kwargs=modal_args,
-# 			test_tree = true, test_forest = true);
-

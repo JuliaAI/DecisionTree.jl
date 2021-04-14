@@ -13,7 +13,7 @@ Union{
 	AbstractArray{Dict{WorldType,NTuple{NTO, T}}, 3},
 	# worldType=ModalLogic.OneWorld
 	AbstractArray{T, 4},
-	# worldType=ModalLogic.Interval2D
+	# worldType=ModalLogic.Interval
 	AbstractArray{T, 6},
 	# worldType=ModalLogic.Interval2D
 	AbstractArray{T, 8}

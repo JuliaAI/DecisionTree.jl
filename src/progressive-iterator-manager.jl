@@ -1,7 +1,7 @@
 
 import JSON
 
-function init_new_execution_porgress_dictionary(file_path::String, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs)
+function init_new_execution_progress_dictionary(file_path::String, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs)
 	execution_dictionaries = []
 
 	for n_task in exec_n_tasks
@@ -20,20 +20,20 @@ function init_new_execution_porgress_dictionary(file_path::String, exec_n_tasks,
 		end
 	end
 
-	export_execution_porgress_dictionary(file_path, execution_dictionaries)
+	export_execution_progress_dictionary(file_path, execution_dictionaries)
 
-	execution_dictionaries = import_execution_porgress_dictionary(file_path)
+	execution_dictionaries = import_execution_progress_dictionary(file_path)
 
 	return execution_dictionaries
 end
 
-function export_execution_porgress_dictionary(file_path::String, dicts::AbstractVector)
+function export_execution_progress_dictionary(file_path::String, dicts::AbstractVector)
 	file = open(file_path, "w+")
 	write(file, JSON.json(dicts))
 	close(file)
 end
 
-function import_execution_porgress_dictionary(file_path::String)
+function import_execution_progress_dictionary(file_path::String)
 	file = open(file_path)
 	dicts = JSON.parse(file)
 	close(file)
@@ -41,18 +41,24 @@ function import_execution_porgress_dictionary(file_path::String)
 	dicts
 end
 
-function is_same_dataset_kwargs(dk1::Dict, dk2::NamedTuple{T, N}) where {T, N}
+function append_in_file(file_name::String, text::String)
+	file = open(file_name, "a+")
+	write(file, text)
+	close(file)
+end
+
+function is_same_kwargs(dk1::Dict, dk2::NamedTuple{T, N}) where {T, N}
 	return dk1 == Dict{String, Any}([String(k) => v for (k,v) in zip(keys(dk2),values(dk2))])
 end
 
-function is_same_dataset_kwargs(dk1::NamedTuple{T, N}, dk2::Dict) where {T, N}
-	return is_same_dataset_kwargs(dk2, dk1)
+function is_same_kwargs(dk1::NamedTuple{T, N}, dk2::Dict) where {T, N}
+	return is_same_kwargs(dk2, dk1)
 end
 
 function load_or_create_execution_progress_dictionary(file_path::String, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs)
 	if isfile(file_path)
-		import_execution_porgress_dictionary(file_path)
+		import_execution_progress_dictionary(file_path)
 	else
-		init_new_execution_porgress_dictionary(file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs)
+		init_new_execution_progress_dictionary(file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs)
 	end
 end
