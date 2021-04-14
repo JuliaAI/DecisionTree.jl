@@ -55,7 +55,7 @@ rng_i = DecisionTree.mk_rng(1)
 # T = testDataset(("Pavia, 3x3",                           traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 1, rng = my_rng),0.8)), timeit, args=args, kwargs=kwargs);
 
 # T = testDataset(datasets[1], timeit, args=args, kwargs=kwargs);
-# T = testDataset(datasets[2], timeit, debugging_level=DecisionTree.DTOverview, args=args, kwargs=kwargs);
+# T = testDataset(datasets[2], timeit, log_level=DecisionTree.DTOverview, args=args, kwargs=kwargs);
 # T = testDataset(datasets[3], timeit, args=args, kwargs=kwargs);
 
 # exit()
@@ -82,7 +82,7 @@ rng_i = DecisionTree.mk_rng(1)
 
 # 					for i in 1:5
 # 						rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-# 						testDataset(("$(dataset_name), 1x1",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 n_instances,        1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+# 						testDataset(("$(dataset_name), 1x1",                           traintestsplit(SampleLandCoverDataset(dataset_name,                 n_instances,        1,                   rng = rng_new),0.8)), timeit, log_level = log_level, args=cur_args, kwargs=cur_kwargs);
 # 					end
 # 				end
 # 			end
@@ -99,7 +99,7 @@ rng_i = DecisionTree.mk_rng(1)
 # # relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
 # println(relation)
 # cur_kwargs = merge(kwargs, (ontology=Ontology(ModalLogic.Interval2D,relation),))
-# T = testDataset(datasets[databatch*3+3], timeit, debugging_level = Logging.Warn, args=args, kwargs=cur_kwargs);
+# T = testDataset(datasets[databatch*3+3], timeit, log_level = Logging.Warn, args=args, kwargs=cur_kwargs);
 # println(T)
 # i_relation+=1
 # end
@@ -141,7 +141,7 @@ n_instances = 10
 # for dataset_name in ["IndianPines", "Pavia"]
 # 	for i in 1:10
 # 		rng_new = DecisionTree.mk_rng(abs(rand(rng_i, Int)))
-# 		testDataset((dataset_name * ", 1x1",  traintestsplit(SampleLandCoverDataset(dataset_name,  n_instances,  1,                   rng = rng_new),0.8)), timeit, debugging_level = log_level, args=selected_args, kwargs=kwargs, rng = rng_new);
+# 		testDataset((dataset_name * ", 1x1",  traintestsplit(SampleLandCoverDataset(dataset_name,  n_instances,  1,                   rng = rng_new),0.8)), timeit, log_level = log_level, args=selected_args, kwargs=kwargs, rng = rng_new);
 # 	end
 # end
 
@@ -197,8 +197,8 @@ for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre", "Pavia", "IndianPine
 							initCondition = startAtCenter,
 							test_operators = test_operators,
 							))
-						# testDataset(("Pavia, 3x3", traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 10, rng = rng_new),0.8)), timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
-						# testDataset(datasets[databatch*5+3], timeit, debugging_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+						# testDataset(("Pavia, 3x3", traintestsplit(SampleLandCoverDataset("Pavia", 30,  3, n_variables = 10, rng = rng_new),0.8)), timeit, log_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
+						# testDataset(datasets[databatch*5+3], timeit, log_level = DecisionTree.DTOverview, args=cur_args, kwargs=cur_kwargs);
 						# exit()
 
 						println("$(ontology)\t$(i)\t$(window_size)\t$(dataset_name)\t$(useRelationAll)\t$(initCondition)\t$(test_operators)")
@@ -210,7 +210,7 @@ for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre", "Pavia", "IndianPine
 														0.8,
 														timeit,
 														scale_dataset = scale_dataset,
-														debugging_level = log_level,
+														log_level = log_level,
 														args = cur_args,
 														kwargs = cur_kwargs,
 														precompute_gammas = true,
@@ -218,11 +218,11 @@ for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre", "Pavia", "IndianPine
 														test_forest = true,
 														);
 						
-						# testDataset(datasets[databatch*5+1], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-						# testDataset(datasets[databatch*5+2], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-						# testDataset(datasets[databatch*5+3], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-						# testDataset(datasets[databatch*5+4], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
-						# testDataset(datasets[databatch*5+5], timeit, debugging_level = log_level, args=cur_args, kwargs=cur_kwargs);
+						# testDataset(datasets[databatch*5+1], timeit, log_level = log_level, args=cur_args, kwargs=cur_kwargs);
+						# testDataset(datasets[databatch*5+2], timeit, log_level = log_level, args=cur_args, kwargs=cur_kwargs);
+						# testDataset(datasets[databatch*5+3], timeit, log_level = log_level, args=cur_args, kwargs=cur_kwargs);
+						# testDataset(datasets[databatch*5+4], timeit, log_level = log_level, args=cur_args, kwargs=cur_kwargs);
+						# testDataset(datasets[databatch*5+5], timeit, log_level = log_level, args=cur_args, kwargs=cur_kwargs);
 					end
 				end
 			end

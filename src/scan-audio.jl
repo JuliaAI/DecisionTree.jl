@@ -180,7 +180,7 @@ for i in exec_runs
 								"($(n_task),$(n_version))",
 								dataset,
 								0.8,
-								debugging_level        =   log_level,
+								log_level              =   log_level,
 								scale_dataset          =   scale_dataset,
 								dataset_slice          =   dataset_slice,
 								forest_args            =   forest_args,
@@ -199,35 +199,6 @@ for i in exec_runs
 						string(nbands), ",",
 						string(values(dataset_kwargs)))
 					)
-
-					function percent(num::Real; digits=2)
-						return round.(num.*100, digits=digits)
-					end
-
-					function data_to_string(
-							M::Union{DecisionTree.DTree{S, T},DecisionTree.Forest{S, T},DecisionTree.DTNode{S, T}},
-							cm::ConfusionMatrix;
-							start_s = "(",
-							end_s = ")",
-							separator = ";"
-						) where {S, T}
-
-						result = start_s
-						result *= string(percent(cm.kappa), separator)
-						result *= string(percent(cm.sensitivities[1]), separator)
-						result *= string(percent(cm.specificities[1]), separator)
-						result *= string(percent(cm.PPVs[1]), separator)
-						result *= string(percent(cm.overall_accuracy))
-
-						if isa(M, DecisionTree.Forest{S, T})
-							result *= separator
-							result *= string(percent(M.oob_error))
-						end
-
-						result *= end_s
-
-						result
-					end
 
 					# PRINT CONCISE
 					concise_output_string = string(row_ref, column_separator)
@@ -293,7 +264,7 @@ end
 # dataset = KDDDataset_not_stratified((3,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
 # dataset[1] |> size # (2673, 40)
 
-# testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,
+# testDataset("Test", dataset, 0.8, 0, log_level=log_level,
 # 			forest_args=forest_args, args=args, kwargs=modal_args,
 # 			test_tree = true, test_forest = true);
 

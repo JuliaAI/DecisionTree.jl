@@ -162,7 +162,7 @@ if log_results_best_values
 
 	for i in 1:repeat_test
 
-		global T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
+		global T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, log_level=log_level,
 			forest_args=forest_args, args=selected_args, modal_args=modal_args);
 
 		push!(tree_overall_accuracy, Tcm.overall_accuracy)
@@ -188,6 +188,6 @@ if log_results_best_values
 		forest_oob_error
 	)
 else
-	T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, debugging_level=log_level,
+	T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, log_level=log_level,
 		forest_args=forest_args, args=selected_args, modal_args=modal_args);
 end

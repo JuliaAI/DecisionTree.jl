@@ -85,7 +85,7 @@ function testDataset(
 		name                            ::String,
 		dataset                         ::Tuple,
 		split_threshold                 ::Union{Bool,AbstractFloat};
-		debugging_level                 = DecisionTree.DTOverview,
+		log_level                       = DecisionTree.DTOverview,
 		scale_dataset                   ::Union{Bool,Type} = false,
 		post_pruning_purity_thresholds  = [],
 		forest_args                     = [],
@@ -111,7 +111,7 @@ function testDataset(
 
 			worldType = modal_args.ontology.worldType
 
-			old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
+			old_logger = global_logger(ConsoleLogger(stderr, log_level))
 			relationSet = nothing
 			initCondition = modal_args.initCondition
 			useRelationAll = modal_args.useRelationAll
@@ -273,7 +273,7 @@ function testDataset(
 	# println(" n_samples = $(size(X_train)[end-1])")
 	println(" train size = $(size(X_train))")
 	# global_logger(ConsoleLogger(stderr, Logging.Info))
-	# global_logger(ConsoleLogger(stderr, debugging_level))
+	# global_logger(ConsoleLogger(stderr, log_level))
 	# global_logger(ConsoleLogger(stderr, DecisionTree.DTDebug))
 
 	function display_cm_as_row(cm::ConfusionMatrix)
@@ -374,7 +374,7 @@ function testDataset(
 		Tcm = nothing
 		Fcm = []
 
-		old_logger = global_logger(ConsoleLogger(stderr, debugging_level))
+		old_logger = global_logger(ConsoleLogger(stderr, log_level))
 		
 		T, Tcm = go_tree()
 
