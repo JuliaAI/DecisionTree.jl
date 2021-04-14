@@ -2,8 +2,6 @@
 
 module DecisionTree
 
-include("measures.jl")
-
 import Base: length, show, convert, promote_rule, zero
 using DelimitedFiles
 using LinearAlgebra
@@ -19,7 +17,7 @@ const DTDebug = Logging.LogLevel(-1000)
 # Log more detailed debug info
 const DTDetail = Logging.LogLevel(-1500)
 
-
+# TODO update these
 export DTNode, DTLeaf, DTInternal,
 			 is_leaf, is_modal_node,
 			 num_nodes, height, modal_height,
@@ -32,6 +30,7 @@ export DTNode, DTLeaf, DTInternal,
 			 DTOverview, DTDebug, DTDetail,
 			 #
 			 GammasType, spawn_rng
+
 
 # ScikitLearn API
 export DecisionTreeClassifier,
@@ -47,6 +46,7 @@ export DecisionTreeClassifier,
 include("ModalLogic/ModalLogic.jl")
 using .ModalLogic
 include("gammas.jl")
+include("measures.jl")
 
 ###########################
 ########## Types ##########
@@ -66,22 +66,21 @@ end
 
 # Inner node, holding the output decision
 struct DTInternal{S<:Real, T}
-
-	modality :: R where R<:AbstractRelation
-	featid   :: Int
+	# Split label
+	modality      :: R where R<:AbstractRelation
+	featid        :: Int
 	test_operator :: ModalLogic.TestOperator # Test operator (e.g. <=, ==)
-	featval  :: featType where featType<:S
-	# string representing an existential modality (e.g. ♢, L, LL)
-
+	featval       :: featType where featType<:S
 	# Child nodes
-	left     :: Union{DTLeaf{T}, DTInternal{S, T}}
-	right    :: Union{DTLeaf{T}, DTInternal{S, T}}
+	left          :: Union{DTLeaf{T}, DTInternal{S, T}}
+	right         :: Union{DTLeaf{T}, DTInternal{S, T}}
 
 end
 
 # Decision node/tree # TODO figure out, maybe this has to be abstract and to supertype DTLeaf and DTInternal
 const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
 
+# TODO attach info about training (e.g. algorithm used + full namedtuple of training arguments) to these models
 struct DTree{S<:Real, T<:Real}
 	root          :: DTNode{S, T}
 	worldType     :: Type{<:AbstractWorld}
@@ -89,9 +88,9 @@ struct DTree{S<:Real, T<:Real}
 end
 
 struct Forest{S<:Real, T<:Real}
-	trees 		:: Vector{Union{DTree{S, T},DTNode{S, T}}}
-	cm    		:: Vector{ConfusionMatrix}
-	oob_error 	:: AbstractFloat
+	trees       :: Vector{Union{DTree{S, T},DTNode{S, T}}}
+	cm          :: Vector{ConfusionMatrix}
+	oob_error   :: AbstractFloat
 end
 
 is_leaf(l::DTLeaf) = true
@@ -143,15 +142,6 @@ height(t::DTree) = height(t.root)
 modal_height(leaf::DTLeaf) = 0
 modal_height(tree::DTInternal) = (is_modal_node(tree) ? 1 : 0) + max(modal_height(tree.left), modal_height(tree.right))
 modal_height(t::DTree) = modal_height(t.root)
-
-function print_forest(forest::Forest)
-	n_trees = length(forest)
-	for i in 1:n_trees
-		println("Tree $(i) / $(n_trees)")
-		print_tree(forest.trees[i])
-	end
-	println("Forest Out-Of-Bag Error: $(forest.oob_error)")
-end
 
 function print_tree(leaf::DTLeaf, depth=-1, indent=0, indent_guides=[])
 		matches = findall(leaf.values .== leaf.majority)
@@ -205,6 +195,24 @@ function show(io::IO, tree::DTree)
 		println(io, "Height: $(height(tree))")
 		println(io, "Modal height:  $(modal_height(tree))")
 		print_tree(tree)
+end
+
+
+function print_forest(forest::Forest)
+	n_trees = length(forest)
+	for i in 1:n_trees
+		println("Tree $(i) / $(n_trees)")
+		print_tree(forest.trees[i])
+	end
+end
+
+function show(io::IO, forest::Forest)
+		println(io, "Forest")
+		println(io, "Num trees: $(length(forest))")
+		println(io, "Out-Of-Bag Error: $(forest.oob_error)")
+		println(io, "ConfusionMatrix: $(forest.cm)")
+		println(io, "Trees:")
+		print_forest(forest)
 end
 
 end # module

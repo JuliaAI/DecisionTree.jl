@@ -2,6 +2,7 @@
 
 
 ☐	computation of softened operators takes too much time
+☐	Add the use of an unbalanced test set, and allow ConfusionMatrix to compute the overall accuracy in a balanced way.
 ☐ allow nan to signal the end of the current instance!
 ☐	Add IA7, IA7^2 relations
 ☐	Check improvements with @inbounds

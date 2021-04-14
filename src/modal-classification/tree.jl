@@ -11,7 +11,6 @@ module treeclassifier
 	using ..ModalLogic
 	using ..DecisionTree
 	using DecisionTree.util
-	using BenchmarkTools
 	using Logging: @logmsg
 	import Random
 	import StatsBase
@@ -581,7 +580,7 @@ module treeclassifier
 			#  if polarity(⋈) == false:     ∀ a < γ:    w ⊭ <X> f ⋈ a
 			
 			gammas = DecisionTree.computeGammas(X, X.ontology.worldType, test_operators, relationSet, relationId_id, availableModalRelation_ids)
-			# gammas = @btime DecisionTree.computeGammas($X, $X.ontology.worldType, $test_operators, $relationSet, $relationId_id, $availableModalRelation_ids)
+			# using BenchmarkTools; gammas = @btime DecisionTree.computeGammas($X, $X.ontology.worldType, $test_operators, $relationSet, $relationId_id, $availableModalRelation_ids)
 		else
 			DecisionTree.checkGammasConsistency(gammas, X, X.ontology.worldType, test_operators, allAvailableRelation_ids)
 		end
