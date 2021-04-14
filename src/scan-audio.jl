@@ -145,6 +145,17 @@ for i in exec_runs
 					dataset_rng = spawn_rng(rng)
 					train_rng = spawn_rng(rng)
 
+					row_ref = string(
+						string(string(i), ",",
+						string(n_task), ",",
+						string(n_version), ",",
+						string(nbands), ",",
+						string(values(dataset_kwargs)))
+					)
+
+					# Placed here so we can keep track of which iteration is being skipped
+					checkpoint_stdout("Computing iteration $(row_ref)...")
+
 					if done
 						println("Iteration already done, skipping...")
 						continue
@@ -192,14 +203,6 @@ for i in exec_runs
 					#####################################################
 
 					# PRINT RESULT IN FILES
-					row_ref = string(
-						string(string(i), ",",
-						string(n_task), ",",
-						string(n_version), ",",
-						string(nbands), ",",
-						string(values(dataset_kwargs)))
-					)
-
 					function percent(num::Real; digits=2)
 						return round.(num.*100, digits=digits)
 					end
