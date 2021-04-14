@@ -201,16 +201,9 @@ for i in exec_runs
 								rng                    =   train_rng
 								);
 					#####################################################
-
 					# PRINT RESULT IN FILES
-					row_ref = string(
-						string(string(i), ",",
-						string(n_task), ",",
-						string(n_version), ",",
-						string(nbands), ",",
-						string(values(dataset_kwargs)))
-					)
-
+					#####################################################
+					
 					# PRINT CONCISE
 					concise_output_string = string(row_ref, column_separator)
 					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
