@@ -18,7 +18,6 @@ using Test
 # using Profile
 # using PProf
 
-import JLD
 
 
 
@@ -79,6 +78,8 @@ end
 
 
 include("example-datasets.jl")
+
+gammas_saving_task = nothing
 
 function testDataset(
 		name                            ::String,
@@ -158,12 +159,19 @@ function testDataset(
 			gammas = 
 				if !isnothing(gammas_jld_path) && isfile(gammas_jld_path)
 					println("Loading gammas from file \"$(gammas_jld_path)\"...")
-					JLD.load(gammas_jld_path, "gammas")
+
+					Serialization.deserialize(gammas_jld_path)
 				else
 					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 					if !isnothing(gammas_jld_path)
-						println("Saving gammas to file \"$(gammas_jld_path)\"...")
-						JLD.save(gammas_jld_path, "gammas", gammas)
+						println("Saving gammas to file \"$(gammas_jld_path)\" (size: $(Base.summarysize(gammas)))...")
+
+						global gammas_saving_task
+						if isa(gammas_saving_task, Task)
+							# make sure there is no previous saving in progress
+							wait(gammas_saving_task)
+						end
+						gammas_saving_task = @async Serialization.serialize(gammas_jld_path, gammas)
 						# Add record line to the index file of the folder
 						if !isnothing(dataset_name_str)
 							# Generate path to gammas jld file)
