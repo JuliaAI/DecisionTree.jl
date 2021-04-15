@@ -75,7 +75,7 @@ for n_trees in [1,50,100]
 end
 # nfreqs
 
-exec_runs = 1:10
+exec_runs = 1:5
 exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
@@ -191,14 +191,15 @@ for i in exec_runs
 								"($(n_task),$(n_version))",
 								dataset,
 								0.8,
-								debugging_level        =   log_level,
-								scale_dataset          =   scale_dataset,
-								dataset_slice          =   dataset_slice,
-								forest_args            =   forest_args,
-								tree_args              =   tree_args,
-								modal_args             =   modal_args,
-								gammas_save_path       =   (gammas_save_path, dataset_name_str),
-								rng                    =   train_rng
+								debugging_level             =   log_level,
+								scale_dataset               =   scale_dataset,
+								dataset_slice               =   dataset_slice,
+								forest_args                 =   forest_args,
+								tree_args                   =   tree_args,
+								modal_args                  =   modal_args,
+								optimize_forest_computation =   i != 1, # reproduce first iteration without forest optimization
+								gammas_save_path            =   (gammas_save_path, dataset_name_str),
+								rng                         =   train_rng
 								);
 					#####################################################
 

@@ -33,6 +33,31 @@ function get_dataset_hash_sha256(dataset)::String
 	result
 end
 
+abstract type Support end
+
+mutable struct ForestEvaluationSupport <: Support
+	f::Union{Nothing,Support,DecisionTree.Forest{S, Ta}} where {S, Ta}
+	f_args::NamedTuple{T, N} where {T, N}
+	cm::Union{Nothing,ConfusionMatrix}
+	enqueued::Bool
+	ForestEvaluationSupport(f_args) = new(nothing, f_args, nothing, false)
+end
+
+function will_produce_same_forest_with_different_number_of_trees(f1::ForestEvaluationSupport, f2::ForestEvaluationSupport)
+	# TODO: find a smart way to handle this (just not needed for now)
+	@assert length(f1.f_args) == length(f2.f_args) "Can't compare two forests with different number of arguments."
+	for (k, v1) in zip(keys(f1.f_args), values(f1.f_args))
+		# do not compare n_trees
+		if k == :n_trees
+			continue
+		end
+		if v1 != f2.f_args[k]
+			return false
+		end
+	end
+	true
+end
+
 
 # TODO note that these splitting functions simply cut the dataset in two,
 #  and they don't produce balanced cuts. To produce balanced cuts, one must manually stratify the dataset
@@ -98,6 +123,7 @@ function testDataset(
 		tree_args                       = (),
 		modal_args                      = (),
 		precompute_gammas               = true,
+		optimize_forest_computation     = false,
 		gammas_save_path                ::Union{String,NTuple{2,String},Nothing} = nothing,
 		dataset_slice                   ::Union{AbstractVector,Nothing} = nothing,
 		error_catching                  = false,
@@ -343,14 +369,23 @@ function testDataset(
 		return (T, cm);
 	end
 
-	go_forest(f_args) = begin
+	go_forest(f_args; prebuilt_model::Union{Nothing,DecisionTree.Forest{S, T}} = nothing) where {S,T} = begin
 		F = 
-			if timeit == 0
-				build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
-			elseif timeit == 1
-				@time build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
-			elseif timeit == 2
-				@btime build_forest($Y_train, $X_train; $f_args..., $modal_args..., gammas = gammas_train, rng = $rng);
+			if isnothing(prebuilt_model)
+				if timeit == 0
+					build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
+				elseif timeit == 1
+					@time build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
+				elseif timeit == 2
+					@btime build_forest($Y_train, $X_train; $f_args..., $modal_args..., gammas = gammas_train, rng = $rng);
+				end
+			else
+				println("Using slice of a prebuilt forest.")
+				# !!! HUGE PROBLEM HERE !!! #
+				# BUG: can't compute oob_error of a forest build slicing another forest!!!
+				v_forest = @views prebuilt_model.trees[Random.randperm(rng, length(prebuilt_model.trees))[1:f_args.n_trees]]
+				v_cms = @views prebuilt_model.cm[Random.randperm(rng, length(prebuilt_model.cm))[1:f_args.n_trees]]
+				DecisionTree.Forest{S, T}(v_forest, v_cms, 0.0)
 			end
 		print_forest(F)
 		
@@ -387,11 +422,65 @@ function testDataset(
 
 		T, Tcm = go_tree()
 
-		for (i_forest, f_args) in enumerate(forest_args)
-			checkpoint_stdout("Computing Random Forest $(i_forest) / $(length(forest_args))...")
-			this_F, this_Fcm = go_forest(f_args)
-			push!(F, this_F)
-			push!(Fcm, this_Fcm)
+		if optimize_forest_computation
+			# initialize support structures
+			forest_supports_user_order = Vector{ForestEvaluationSupport}(undef, length(forest_args)) # ordered as user gave them
+			for (i_forest, f_args) in enumerate(forest_args)
+				forest_supports_user_order[i_forest] = ForestEvaluationSupport(f_args)
+			end
+
+			# biggest forest first
+			forest_supports_build_order = Vector{ForestEvaluationSupport}() # ordered with biggest forest first
+			append!(forest_supports_build_order, forest_supports_user_order)
+			sort!(forest_supports_build_order, by = f -> f.f_args.n_trees, rev = true)
+
+			for (i, f) in enumerate(forest_supports_build_order)
+				if f.enqueued
+					continue
+				end
+
+				f.enqueued = true
+
+				for j in i:length(forest_supports_build_order)
+					if forest_supports_build_order[j].enqueued
+						continue
+					end
+
+					if will_produce_same_forest_with_different_number_of_trees(f, forest_supports_build_order[j])
+						# reference the forest of the "equivalent" Support structor
+						# equivalent means has the same parameters except for the n_trees
+						forest_supports_build_order[j].f = forest_supports_build_order[i]
+						forest_supports_build_order[j].enqueued = true
+					end
+				end
+			end
+
+			for (i, f) in enumerate(forest_supports_build_order)
+				checkpoint_stdout("Computing Random Forest $(i) / $(length(forest_supports_build_order))...")
+				model = f
+
+				while isa(model, ForestEvaluationSupport)
+					model = model.f
+				end
+
+				forest_supports_build_order[i].f, forest_supports_build_order[i].cm = go_forest(f.f_args, prebuilt_model = model)
+			end
+
+			# put resulting forests in vector in the order the user gave them
+			for (i, f) in enumerate(forest_supports_user_order)
+				@assert f.f isa DecisionTree.Forest "This is not a Forest!"
+				@assert f.cm isa ConfusionMatrix "This is not a ConfusionMatrix!"
+				@assert f.f_args == forest_args[i] "f_args mismatch! $(f.f_args) == $(f_args[i])"
+				push!(F, f.f)
+				push!(Fcm, f.cm)
+			end
+		else
+			for (i_forest, f_args) in enumerate(forest_args)
+				checkpoint_stdout("Computing Random Forest $(i_forest) / $(length(forest_args))...")
+				this_F, this_Fcm = go_forest(f_args)
+				push!(F, this_F)
+				push!(Fcm, this_Fcm)
+			end
 		end
 
 		global_logger(old_logger);
