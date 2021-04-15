@@ -76,8 +76,10 @@ traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVecto
 	# end
 end
 
+import Dates
+
 function checkpoint_stdout(string::String)
-	println("● ", string)
+	println("● ", Dates.format(Dates.now(), "[ dd/mm/yyyy HH:MM:SS ] "), string)
 	flush(stdout)
 end
 
@@ -166,6 +168,7 @@ function testDataset(
 
 					Serialization.deserialize(gammas_jld_path)
 				else
+					checkpoint_stdout("Computing gammas...")
 					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 					if !isnothing(gammas_jld_path)
 						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\" (size: $(Base.summarysize(gammas)))...")
