@@ -4,6 +4,10 @@ include("progressive-iterator-manager.jl")
 
 main_rng = DecisionTree.mk_rng(1)
 
+dataset_rng = spawn_rng(main_rng)
+
+train_seed = abs(rand(main_rng,Int))
+
 ################################################################################
 ################################################################################
 ################################################################################
@@ -52,20 +56,19 @@ forest_tree_args = (
 
 forest_args = []
 
-# for n_trees in [1,50,100]
-# 	for n_subfeatures in [id_f, sqrt_f]
-# 		for n_subrelations in [id_f, half_f, sqrt_f]
-# 			push!(forest_args, (
-# 				n_subfeatures       = n_subfeatures,
-# 				n_trees             = n_trees,
-# 				partial_sampling    = 1.0,
-# 				n_subrelations      = n_subrelations,
-# 				forest_tree_args...
-# 			))
-# 		end
-# 	end
-# end
-# nfreqs
+for n_trees in [50,100]
+	for n_subfeatures in [sqrt_f] # [id_f, sqrt_f]
+		for n_subrelations in [sqrt_f] # [id_f, half_f, sqrt_f]
+			push!(forest_args, (
+				n_subfeatures       = n_subfeatures,
+				n_trees             = n_trees,
+				partial_sampling    = 1.0,
+				n_subrelations      = n_subrelations,
+				forest_tree_args...
+			))
+		end
+	end
+end
 
 # TODO
 # dataset_kwargs = (,
@@ -102,9 +105,9 @@ post_pruning_purity_thresholds = []
 
 
 exec_runs = 1:10
-exec_nmeans = [5, 10, 15]
-exec_hour = 1:2
-exec_distance = [-19, -20, -21, -22, -23, -24]
+exec_nmeans = [5] # [5, 10, 15]
+exec_hour = 1 # 1:2
+exec_distance = [-19] # [-19, -20, -21, -22, -23, -24]
 
 exec_ranges = [exec_nmeans, exec_hour, exec_distance]
 exec_ranges_names = ["nmeans", "hour", "distance"]
@@ -130,16 +133,18 @@ end
 
 # RUN
 for i in exec_runs
-	rng = spawn_rng(main_rng)
-	println("SEED: " * string(Int64.(rng.seed)))
+	
+	dataset_seed = abs(rand(dataset_rng,Int))
+
+	println("DATA SEED: $(dataset_seed)")
 	
 	for params_combination in IterTools.product(exec_ranges...)
 
 		# Unpack params combination
 		nmeans, hour, distance = params_combination
 
-		dataset_rng = spawn_rng(rng)
-		train_rng = spawn_rng(rng)
+		dataset_rng = Random.MersenneTwister(dataset_seed)
+		train_rng   = Random.MersenneTwister(train_seed)
 
 		############################################################################
 		# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED OR NOT
@@ -163,12 +168,12 @@ for i in exec_runs
 		# ... dataset_kwargs, rng = dataset_rng)
 		(X_train,Y_train), (X_test,Y_test), class_labels = dataset
 		
-		println(size(X_train))
-		println(size(X_test))
-		println(size(Y_train))
-		println(size(Y_test))
+		# println(size(X_train))
+		# println(size(X_test))
+		# println(size(Y_train))
+		# println(size(Y_test))
 		
-		readline()
+		# readline()
 		
 		############################################################################
 		dataset_name_str = string(
