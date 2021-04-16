@@ -33,7 +33,7 @@ function print_head(
 		forest_args::AbstractArray;
 		separator = ";",
 		tree_columns = ["K", "sensitivity", "specificity", "precision", "accuracy"],
-		forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error"],
+		forest_columns = ["K", "σ² K", "sensitivity", "σ² sensitivity", "specificity", "σ² specificity", "precision", "σ² precision", "accuracy", "σ² accuracy", "oob_error", "σ² oob_error"],
         empty_column_before = 1
 	) where {T, N}
 

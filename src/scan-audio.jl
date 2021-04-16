@@ -93,6 +93,9 @@ exec_dataset_kwargs =   [(
 							ma_step = 15,
 						)]
 
+forest_runs = 5
+optimize_forest_computation = true
+
 results_dir = "./results-audio-scan"
 
 iteration_progress_json_file_path = results_dir * "/progress.json"
@@ -122,6 +125,7 @@ end
 for i in exec_runs
 	rng = spawn_rng(main_rng)
 	println("SEED: " * string(Int64.(rng.seed)))
+	dataset_seed = abs(rand(rng, Int))
 	# TASK
 	for n_task in exec_n_tasks
 		for n_version in exec_n_versions
@@ -142,11 +146,11 @@ for i in exec_runs
 						end
 					end
 
-					dataset_rng = spawn_rng(rng)
+					dataset_rng = Random.MersenneTwister(dataset_seed)
 					train_rng = spawn_rng(rng)
 
 					row_ref = string(
-						string(string(i), ",",
+						string(string(dataset_seed), ",",
 						string(n_task), ",",
 						string(n_version), ",",
 						string(nbands), ",",
@@ -187,7 +191,7 @@ for i in exec_runs
 					)
 
 					# ACTUAL COMPUTATION
-					T, F, Tcm, Fcm = testDataset(
+					T, Fs, Tcm, Fcms = testDataset(
 								"($(n_task),$(n_version))",
 								dataset,
 								0.8,
@@ -197,7 +201,8 @@ for i in exec_runs
 								forest_args                 =   forest_args,
 								tree_args                   =   tree_args,
 								modal_args                  =   modal_args,
-								optimize_forest_computation =   i != 1, # reproduce first iteration without forest optimization
+								optimize_forest_computation =   optimize_forest_computation,
+								forest_runs                 =   forest_runs,
 								gammas_save_path            =   (gammas_save_path, dataset_name_str),
 								rng                         =   train_rng
 								);
@@ -209,7 +214,7 @@ for i in exec_runs
 					end
 
 					function data_to_string(
-							M::Union{DecisionTree.DTree{S, T},DecisionTree.Forest{S, T},DecisionTree.DTNode{S, T}},
+							M::Union{DecisionTree.DTree{S, T},DecisionTree.DTNode{S, T}},
 							cm::ConfusionMatrix;
 							start_s = "(",
 							end_s = ")",
@@ -233,11 +238,50 @@ for i in exec_runs
 						result
 					end
 
+					function data_to_string(
+							Ms::AbstractVector{DecisionTree.Forest{S, T}},
+							cms::AbstractVector{ConfusionMatrix};
+							start_s = "(",
+							end_s = ")",
+							separator = ";"
+						) where {S, T}
+
+						result = start_s
+						result *= start_s
+						result *= string(percent(mean(map(cm->cm.kappa, cms))), separator)
+						result *= string(var(map(cm->cm.kappa, cms)))
+						result *= end_s * separator
+						result *= start_s
+						result *= string(percent(mean(map(cm->cm.sensitivities[1], cms))), separator)
+						result *= string(var(map(cm->cm.sensitivities[1], cms)))
+						result *= end_s * separator
+						result *= start_s
+						result *= string(percent(mean(map(cm->cm.specificities[1], cms))), separator)
+						result *= string(var(map(cm->cm.specificities[1], cms)))
+						result *= end_s * separator
+						result *= start_s
+						result *= string(percent(mean(map(cm->cm.PPVs[1], cms))), separator)
+						result *= string(var(map(cm->cm.PPVs[1], cms)))
+						result *= end_s * separator
+						result *= start_s
+						result *= string(percent(mean(map(cm->cm.overall_accuracy, cms))), separator)
+						result *= string(var(map(cm->cm.overall_accuracy, cms)))
+						result *= end_s * separator
+						result *= start_s
+						result *= string(percent(mean(map(M->M.oob_error, Ms))), separator)
+						result *= string(var(map(M->M.oob_error, Ms)))
+						result *= end_s
+
+						result *= end_s
+
+						result
+					end
+
 					# PRINT CONCISE
 					concise_output_string = string(row_ref, column_separator)
 					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
 					for j in 1:length(forest_args)
-						concise_output_string *= string(data_to_string(F[j], Fcm[j]; separator=", "))
+						concise_output_string *= string(data_to_string(Fs[j], Fcms[j]; separator=", "))
 						concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(concise_output_file_path, concise_output_string)
@@ -246,7 +290,7 @@ for i in exec_runs
 					full_output_string = string(row_ref, column_separator)
 					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
 					for j in 1:length(forest_args)
-						full_output_string *= string(data_to_string(F[j], Fcm[j]; start_s = "", end_s = ""))
+						full_output_string *= string(data_to_string(Fs[j], Fcms[j]; start_s = "", end_s = ""))
 						full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(full_output_file_path, full_output_string)
