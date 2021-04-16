@@ -51,7 +51,7 @@ log_level = DecisionTree.DTOverview
 timeit = 0
 # timeit = 2
 
-scale_dataset = false
+scale_dataset = Float32
 # scale_dataset = UInt16
 
 # TODO
@@ -112,7 +112,7 @@ exec_dicts = load_or_create_execution_progress_dictionary(
 # if the output files does not exists initilize them
 if ! isfile(concise_output_file_path)
 	concise_output_file = open(concise_output_file_path, "a+")
-	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = [""], separator = column_separator)
+	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²"], separator = column_separator)
 	close(concise_output_file)
 end
 if ! isfile(full_output_file_path)
@@ -216,7 +216,7 @@ for i in exec_runs
 					concise_output_string = string(row_ref, column_separator)
 					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
 					for j in 1:length(forest_args)
-						concise_output_string *= string(data_to_string(Fs[j], Fcms[j]; separator=", "))
+						concise_output_string *= string(data_to_string(Fs[j], Fcms[j]; alt_separator=", ", separator = column_separator))
 						concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(concise_output_file_path, concise_output_string)
@@ -225,7 +225,7 @@ for i in exec_runs
 					full_output_string = string(row_ref, column_separator)
 					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
 					for j in 1:length(forest_args)
-						full_output_string *= string(data_to_string(Fs[j], Fcms[j]; start_s = "", end_s = ""))
+						full_output_string *= string(data_to_string(Fs[j], Fcms[j]; start_s = "", end_s = "", alt_separator = column_separator))
 						full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(full_output_file_path, full_output_string)

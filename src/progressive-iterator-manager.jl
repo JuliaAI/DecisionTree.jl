@@ -10,7 +10,8 @@ function data_to_string(
 		cm::ConfusionMatrix;
 		start_s = "(",
 		end_s = ")",
-		separator = ";"
+		separator = ";",
+		alt_separator = ","
 	) where {S, T}
 
 	result = start_s
@@ -35,35 +36,26 @@ function data_to_string(
 		cms::AbstractVector{ConfusionMatrix};
 		start_s = "(",
 		end_s = ")",
-		separator = ";"
+		separator = ";",
+		alt_separator = ","
 	) where {S, T}
 
 	result = start_s
-	result *= start_s
-	result *= string(percent(mean(map(cm->cm.kappa, cms))), separator)
-	result *= string(var(map(cm->cm.kappa, cms)))
-	result *= end_s * separator
-	result *= start_s
-	result *= string(percent(mean(map(cm->cm.sensitivities[1], cms))), separator)
-	result *= string(var(map(cm->cm.sensitivities[1], cms)))
-	result *= end_s * separator
-	result *= start_s
-	result *= string(percent(mean(map(cm->cm.specificities[1], cms))), separator)
-	result *= string(var(map(cm->cm.specificities[1], cms)))
-	result *= end_s * separator
-	result *= start_s
-	result *= string(percent(mean(map(cm->cm.PPVs[1], cms))), separator)
-	result *= string(var(map(cm->cm.PPVs[1], cms)))
-	result *= end_s * separator
-	result *= start_s
-	result *= string(percent(mean(map(cm->cm.overall_accuracy, cms))), separator)
-	result *= string(var(map(cm->cm.overall_accuracy, cms)))
-	result *= end_s * separator
-	result *= start_s
-	result *= string(percent(mean(map(M->M.oob_error, Ms))), separator)
-	result *= string(var(map(M->M.oob_error, Ms)))
+	result *= string(percent(mean(map(cm->cm.kappa, cms))), alt_separator)
+	result *= string(percent(mean(map(cm->cm.sensitivities[1], cms))), alt_separator)
+	result *= string(percent(mean(map(cm->cm.specificities[1], cms))), alt_separator)
+	result *= string(percent(mean(map(cm->cm.PPVs[1], cms))), alt_separator)
+	result *= string(percent(mean(map(cm->cm.overall_accuracy, cms))), alt_separator)
+	result *= string(percent(mean(map(M->M.oob_error, Ms))))
 	result *= end_s
-
+	result *= separator
+	result *= start_s
+	result *= string(var(map(cm->cm.kappa, cms)), alt_separator)
+	result *= string(var(map(cm->cm.sensitivities[1], cms)), alt_separator)
+	result *= string(var(map(cm->cm.specificities[1], cms)), alt_separator)
+	result *= string(var(map(cm->cm.PPVs[1], cms)), alt_separator)
+	result *= string(var(map(cm->cm.overall_accuracy, cms)), alt_separator)
+	result *= string(var(map(M->M.oob_error, Ms)))
 	result *= end_s
 
 	result
