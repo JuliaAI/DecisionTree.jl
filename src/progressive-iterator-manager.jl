@@ -6,7 +6,7 @@ function percent(num::Real; digits=2)
 end
 
 function data_to_string(
-		M::Union{DecisionTree.DTree{S, T},DecisionTree.Forest{S, T},DecisionTree.DTNode{S, T}},
+		M::Union{DecisionTree.DTree{S, T},DecisionTree.DTNode{S, T}},
 		cm::ConfusionMatrix;
 		start_s = "(",
 		end_s = ")",
@@ -30,6 +30,44 @@ function data_to_string(
 	result
 end
 
+function data_to_string(
+		Ms::AbstractVector{DecisionTree.Forest{S, T}},
+		cms::AbstractVector{ConfusionMatrix};
+		start_s = "(",
+		end_s = ")",
+		separator = ";"
+	) where {S, T}
+
+	result = start_s
+	result *= start_s
+	result *= string(percent(mean(map(cm->cm.kappa, cms))), separator)
+	result *= string(var(map(cm->cm.kappa, cms)))
+	result *= end_s * separator
+	result *= start_s
+	result *= string(percent(mean(map(cm->cm.sensitivities[1], cms))), separator)
+	result *= string(var(map(cm->cm.sensitivities[1], cms)))
+	result *= end_s * separator
+	result *= start_s
+	result *= string(percent(mean(map(cm->cm.specificities[1], cms))), separator)
+	result *= string(var(map(cm->cm.specificities[1], cms)))
+	result *= end_s * separator
+	result *= start_s
+	result *= string(percent(mean(map(cm->cm.PPVs[1], cms))), separator)
+	result *= string(var(map(cm->cm.PPVs[1], cms)))
+	result *= end_s * separator
+	result *= start_s
+	result *= string(percent(mean(map(cm->cm.overall_accuracy, cms))), separator)
+	result *= string(var(map(cm->cm.overall_accuracy, cms)))
+	result *= end_s * separator
+	result *= start_s
+	result *= string(percent(mean(map(M->M.oob_error, Ms))), separator)
+	result *= string(var(map(M->M.oob_error, Ms)))
+	result *= end_s
+
+	result *= end_s
+
+	result
+end
 function init_new_execution_progress_dictionary(file_path::String, exec_ranges::Vector, params_names::Vector{String})
 	execution_dictionaries = []
 

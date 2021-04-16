@@ -75,7 +75,7 @@ for n_trees in [1,50,100]
 end
 # nfreqs
 
-exec_runs = 1:10
+exec_runs = 1:5
 exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
@@ -92,6 +92,9 @@ exec_dataset_kwargs =   [(
 							ma_size = 25,
 							ma_step = 15,
 						)]
+
+forest_runs = 5
+optimize_forest_computation = true
 
 results_dir = "./results-audio-scan"
 
@@ -124,6 +127,7 @@ end
 for i in exec_runs
 	rng = spawn_rng(main_rng)
 	println("SEED: " * string(Int64.(rng.seed)))
+	dataset_seed = abs(rand(rng, Int))
 	# TASK
 	for n_task in exec_n_tasks
 		for n_version in exec_n_versions
@@ -144,11 +148,11 @@ for i in exec_runs
 						end
 					end
 
-					dataset_rng = spawn_rng(rng)
+					dataset_rng = Random.MersenneTwister(dataset_seed)
 					train_rng = spawn_rng(rng)
 
 					row_ref = string(
-						string(string(i), ",",
+						string(string(dataset_seed), ",",
 						string(n_task), ",",
 						string(n_version), ",",
 						string(nbands), ",",
@@ -189,18 +193,20 @@ for i in exec_runs
 					)
 
 					# ACTUAL COMPUTATION
-					T, F, Tcm, Fcm = testDataset(
+					T, Fs, Tcm, Fcms = testDataset(
 								"($(n_task),$(n_version))",
 								dataset,
 								0.8,
-								log_level              =   log_level,
-								scale_dataset          =   scale_dataset,
-								dataset_slice          =   dataset_slice,
-								forest_args            =   forest_args,
-								tree_args              =   tree_args,
-								modal_args             =   modal_args,
-								gammas_save_path       =   (gammas_save_path, dataset_name_str),
-								rng                    =   train_rng
+								log_level                   =   log_level,
+								scale_dataset               =   scale_dataset,
+								dataset_slice               =   dataset_slice,
+								forest_args                 =   forest_args,
+								tree_args                   =   tree_args,
+								modal_args                  =   modal_args,
+								optimize_forest_computation =   optimize_forest_computation,
+								forest_runs                 =   forest_runs,
+								gammas_save_path            =   (gammas_save_path, dataset_name_str),
+								rng                         =   train_rng
 								);
 					#####################################################
 					# PRINT RESULT IN FILES
@@ -210,7 +216,7 @@ for i in exec_runs
 					concise_output_string = string(row_ref, column_separator)
 					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
 					for j in 1:length(forest_args)
-						concise_output_string *= string(data_to_string(F[j], Fcm[j]; separator=", "))
+						concise_output_string *= string(data_to_string(Fs[j], Fcms[j]; separator=", "))
 						concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(concise_output_file_path, concise_output_string)
@@ -219,7 +225,7 @@ for i in exec_runs
 					full_output_string = string(row_ref, column_separator)
 					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
 					for j in 1:length(forest_args)
-						full_output_string *= string(data_to_string(F[j], Fcm[j]; start_s = "", end_s = ""))
+						full_output_string *= string(data_to_string(Fs[j], Fcms[j]; start_s = "", end_s = ""))
 						full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(full_output_file_path, full_output_string)
