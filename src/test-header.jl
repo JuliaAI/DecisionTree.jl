@@ -62,8 +62,13 @@ end
 # TODO note that these splitting functions simply cut the dataset in two,
 #  and they don't produce balanced cuts. To produce balanced cuts, one must manually stratify the dataset
 traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
+	is_balanced = true
 	(X,Y,class_labels) = data
-	spl = floor(Int, length(Y)*threshold)
+	spl = ceil(Int, length(Y)*threshold)
+	# make it even
+	if length(class_labels) == 2 && is_balanced
+		spl = isodd(spl) ? (spl-1) : spl
+	end
 	X_train = X[:,1:spl,:]
 	Y_train = Y[1:spl]
 	gammas_train = 
@@ -82,8 +87,13 @@ traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVecto
 end
 
 traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
+	is_balanced = true
 	(X,Y,class_labels) = data
-	spl = floor(Int, length(Y)*threshold)
+	spl = ceil(Int, length(Y)*threshold)
+	# make it even
+	if length(class_labels) == 2 && is_balanced
+		spl = isodd(spl) ? (spl-1) : spl
+	end
 	X_train = X[:,:,1:spl,:]
 	Y_train = Y[1:spl]
 	gammas_train = 
@@ -122,6 +132,7 @@ function testDataset(
 		forest_args                     = [],
 		tree_args                       = (),
 		modal_args                      = (),
+		test_flattened                  = false,
 		precompute_gammas               = true,
 		optimize_forest_computation     = false,
 		forest_runs						= 1,
@@ -437,6 +448,16 @@ function testDataset(
 		checkpoint_stdout("Computing Tree...")
 
 		T, Tcm = go_tree()
+
+		# # TODO
+		# if test_flattened == true
+		# 	T, Tcm = go_flattened_tree()
+		# 	# Flatten 
+		# 	(X_train,Y_train), (X_test,Y_test), class_labels = dataset
+		# 	X_train = ...
+		# 	X_test = ...
+		# 	dataset = (X_train,Y_train), (X_test,Y_test), class_labels
+		# end
 
 		if optimize_forest_computation
 			# initialize support structures

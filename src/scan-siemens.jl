@@ -38,6 +38,12 @@ modal_args = (
 ################################################################################
 
 # Optimization arguments for single-tree
+# tree_args = (
+# 	loss = DecisionTree.util.entropy,
+# 	min_samples_leaf = 1,
+# 	min_purity_increase = 0.0,
+# 	min_loss_at_leaf = 0.0,
+# )
 tree_args = (
 	loss = DecisionTree.util.entropy,
 	min_samples_leaf = 2,
@@ -56,19 +62,19 @@ forest_tree_args = (
 
 forest_args = []
 
-for n_trees in [50,100]
-	for n_subfeatures in [sqrt_f] # [id_f, sqrt_f]
-		for n_subrelations in [sqrt_f] # [id_f, half_f, sqrt_f]
-			push!(forest_args, (
-				n_subfeatures       = n_subfeatures,
-				n_trees             = n_trees,
-				partial_sampling    = 1.0,
-				n_subrelations      = n_subrelations,
-				forest_tree_args...
-			))
-		end
-	end
-end
+# for n_trees in [50,100]
+# 	for n_subfeatures in [sqrt_f] # [id_f, sqrt_f]
+# 		for n_subrelations in [sqrt_f] # [id_f, half_f, sqrt_f]
+# 			push!(forest_args, (
+# 				n_subfeatures       = n_subfeatures,
+# 				n_trees             = n_trees,
+# 				partial_sampling    = 1.0,
+# 				n_subrelations      = n_subrelations,
+# 				forest_tree_args...
+# 			))
+# 		end
+# 	end
+# end
 
 # TODO
 # dataset_kwargs = (,
@@ -80,22 +86,26 @@ end
 
 # TODO gather into kwargs
 
-# split_threshold = 0.8
-split_threshold = false
+split_threshold = 0.8
+# split_threshold = false
 
 error_catching = false
 
-precompute_gammas = false
+precompute_gammas = true
+# precompute_gammas = false
 
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
 
+test_flattened = false
+
 timeit = 0
 # timeit = 2
 
-scale_dataset = false
+# scale_dataset = false
 # scale_dataset = UInt16
+scale_dataset = Float32
 
 post_pruning_purity_thresholds = []
 
@@ -105,9 +115,9 @@ post_pruning_purity_thresholds = []
 
 
 exec_runs = 1:10
-exec_nmeans = [5] # [5, 10, 15]
-exec_hour = 1 # 1:2
-exec_distance = [-19] # [-19, -20, -21, -22, -23, -24]
+exec_nmeans = [5, 10, 15]
+exec_hour = 1:2
+exec_distance = -2:-1:-24
 
 exec_ranges = [exec_nmeans, exec_hour, exec_distance]
 exec_ranges_names = ["nmeans", "hour", "distance"]
@@ -163,10 +173,17 @@ for i in exec_runs
 		############################################################################
 
 		# LOAD DATASET
-		# (X_train,Y_train), (X_test,Y_test), class_labels  = SplatSiemensDataset_not_stratified(i, nmeans, hour, distance)
-		dataset = SplatSiemensDataset_not_stratified(i, nmeans, hour, distance) # params_combination...
+		# (X_train,Y_train), (X_test,Y_test), class_labels  = SiemensDataset_not_stratified(nmeans, hour, distance, , subdir = "Siemens-2")
+		dataset, n_pos, n_neg = SiemensDataset_not_stratified(nmeans, hour, distance, subdir = "Siemens-2") # params_combination...
 		# ... dataset_kwargs, rng = dataset_rng)
+		n_per_class = min(n_pos, n_neg)
 		(X_train,Y_train), (X_test,Y_test), class_labels = dataset
+
+		dataset_slice = Array{Int,2}(undef, 2, n_per_class)
+		dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
+		dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
+		dataset_slice = vec(dataset_slice)
+		# println(dataset_slice)
 		
 		# println(size(X_train))
 		# println(size(X_test))
@@ -195,9 +212,10 @@ for i in exec_runs
 				forest_args                     = forest_args,
 				tree_args                       = tree_args,
 				modal_args                      = modal_args,
+				test_flattened                  = test_flattened,
 				precompute_gammas               = precompute_gammas,
 				gammas_save_path                = (gammas_save_path, dataset_name_str),
-				# dataset_slice                   = dataset_slice,
+				dataset_slice                   = dataset_slice,
 				error_catching                  = error_catching,
 				rng                             = train_rng,
 				timeit                          = timeit,
@@ -217,8 +235,9 @@ for i in exec_runs
 		concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
 		for j in 1:length(forest_args)
 			concise_output_string *= string(data_to_string(F[j], Fcm[j]; separator=", "))
-			concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
+			concise_output_string *= string(column_separator)
 		end
+		concise_output_string *= string("\n")
 		append_in_file(concise_output_file_path, concise_output_string)
 
 		# PRINT FULL
@@ -226,8 +245,9 @@ for i in exec_runs
 		full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
 		for j in 1:length(forest_args)
 			full_output_string *= string(data_to_string(F[j], Fcm[j]; start_s = "", end_s = ""))
-			full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
+			full_output_string *= string(column_separator)
 		end
+		full_output_string *= string("\n")
 		append_in_file(full_output_file_path, full_output_string)
 
 		############################################################################

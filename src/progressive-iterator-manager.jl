@@ -124,6 +124,7 @@ function import_execution_progress_dictionary(file_path::String)
 end
 
 function append_in_file(file_name::String, text::String)
+	mkpath(dirname(file_name))
 	file = open(file_name, "a+")
 	write(file, text)
 	close(file)
