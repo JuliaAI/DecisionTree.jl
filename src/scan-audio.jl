@@ -62,7 +62,7 @@ forest_args = []
 
 for n_trees in [1,50,100]
 	for n_subfeatures in [id_f, sqrt_f]
-		for n_subrelations in [id_f, half_f, sqrt_f]
+		for n_subrelations in [id_f, sqrt_f]
 			push!(forest_args, (
 				n_subfeatures       = n_subfeatures,
 				n_trees             = n_trees,
@@ -109,6 +109,49 @@ exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs
 )
 
+just_test_filters = true
+iteration_whitelist = [
+	# TASK 1
+	(
+		n_version = 1,
+		nbands = 40,
+		dataset_kwargs = (max_points = 30, ma_size = 25, ma_step = 15)
+	),
+	(
+		n_version = 1,
+		nbands = 60,
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	),
+	(
+		n_version = 1,
+		nbands = 60,
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	),
+	# TASK 2
+	(
+		n_version = 2,
+		nbands = 20,
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	),
+	(
+		n_version = 2,
+		nbands = 20,
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	),
+	(
+		n_version = 2,
+		nbands = 40,
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	),
+	(
+		n_version = 2,
+		nbands = 40,
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	),
+]
+
+iteration_blacklist = []
+
 # if the output files does not exists initilize them
 if ! isfile(concise_output_file_path)
 	concise_output_file = open(concise_output_file_path, "a+")
@@ -134,6 +177,18 @@ for i in exec_runs
 			# DATASET
 			for nbands in exec_nbands
 				for dataset_kwargs in exec_dataset_kwargs
+					# FILTER ITERATIONS
+					test_parameters = (
+						n_task = n_task,
+						n_version = n_version,
+						nbands = nbands,
+						dataset_kwargs = dataset_kwargs,
+					)
+					if !is_whitelisted_test(test_parameters, iteration_whitelist) || is_blacklisted_test(test_parameters, iteration_blacklist)
+						continue
+					end
+					#####################################################
+
 					# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED OR NOT
 					done = false
 					for dict in exec_dicts
@@ -161,6 +216,10 @@ for i in exec_runs
 
 					# Placed here so we can keep track of which iteration is being skipped
 					checkpoint_stdout("Computing iteration $(row_ref)...")
+
+					if just_test_filters
+						continue
+					end
 
 					if done
 						println("Iteration already done, skipping...")

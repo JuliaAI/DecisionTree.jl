@@ -130,6 +130,54 @@ function is_same_kwargs(dk1::NamedTuple{T, N}, dk2::Dict) where {T, N}
 	return is_same_kwargs(dk2, dk1)
 end
 
+function is_same_kwargs(dk1::NamedTuple{T, N}, dk2::NamedTuple{T, N}) where {T, N}
+	return
+		Dict{String, Any}([String(k) => v for (k,v) in zip(keys(dk1),values(dk1))])
+		  ==
+		Dict{String, Any}([String(k) => v for (k,v) in zip(keys(dk2),values(dk2))])
+end
+
+function _match_filter(test_parameters, filters)::Bool
+	for filter in filters
+		for (i, k) in enumerate(keys(filter))
+			# TODO: handle test_parameters has no key "k"
+			if filter[k] == test_parameters[k]
+				if i == length(filter)
+					# if was it was the last key then there is a match
+					return true
+				else
+					# if key has same value continue cycling through filter keys
+					continue
+				end
+			else
+				# if there is a key not matching go to next filter
+				break
+			end
+		end
+	end
+
+	return false
+end
+
+# note: filters may contain less keys than test_parameters
+function is_whitelisted_test(test_parameters, filters = [])::Bool
+	# if filters is empty no whitelisting is applied
+	if length(filters) == 0
+		return true
+	end
+
+	return _match_filter(test_parameters, filters)
+end
+
+function is_blacklisted_test(test_parameters, filters = [])::Bool
+	# if filters is empty no blacklisting is applied
+	if length(filters) == 0
+		return false
+	end
+
+	return _match_filter(test_parameters, filters)
+end
+
 function load_or_create_execution_progress_dictionary(file_path::String, args...)
 	if isfile(file_path)
 		import_execution_progress_dictionary(file_path)
