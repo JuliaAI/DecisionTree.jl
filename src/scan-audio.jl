@@ -51,7 +51,7 @@ log_level = DecisionTree.DTOverview
 timeit = 0
 # timeit = 2
 
-scale_dataset = false
+scale_dataset = Float32
 # scale_dataset = UInt16
 
 # TODO
@@ -75,7 +75,7 @@ for n_trees in [1,50,100]
 end
 # nfreqs
 
-exec_runs = 1:10
+exec_runs = 1:5
 exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
@@ -93,6 +93,9 @@ exec_dataset_kwargs =   [(
 							ma_step = 15,
 						)]
 
+forest_runs = 5
+optimize_forest_computation = true
+
 results_dir = "./results-audio-scan"
 
 iteration_progress_json_file_path = results_dir * "/progress.json"
@@ -109,7 +112,7 @@ exec_dicts = load_or_create_execution_progress_dictionary(
 # if the output files does not exists initilize them
 if ! isfile(concise_output_file_path)
 	concise_output_file = open(concise_output_file_path, "a+")
-	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = [""], separator = column_separator)
+	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²"], separator = column_separator)
 	close(concise_output_file)
 end
 if ! isfile(full_output_file_path)
@@ -118,10 +121,13 @@ if ! isfile(full_output_file_path)
 	close(full_output_file)
 end
 
+# a = KDDDataset_not_stratified((1,1), merge(audio_kwargs, (nbands=40,)); exec_dataset_kwargs[1]...)
+
 # RUN
 for i in exec_runs
 	rng = spawn_rng(main_rng)
 	println("SEED: " * string(Int64.(rng.seed)))
+	dataset_seed = abs(rand(rng, Int))
 	# TASK
 	for n_task in exec_n_tasks
 		for n_version in exec_n_versions
@@ -142,11 +148,11 @@ for i in exec_runs
 						end
 					end
 
-					dataset_rng = spawn_rng(rng)
+					dataset_rng = Random.MersenneTwister(dataset_seed)
 					train_rng = spawn_rng(rng)
 
 					row_ref = string(
-						string(string(i), ",",
+						string(string(dataset_seed), ",",
 						string(n_task), ",",
 						string(n_version), ",",
 						string(nbands), ",",
@@ -187,56 +193,30 @@ for i in exec_runs
 					)
 
 					# ACTUAL COMPUTATION
-					T, F, Tcm, Fcm = testDataset(
+					T, Fs, Tcm, Fcms = testDataset(
 								"($(n_task),$(n_version))",
 								dataset,
 								0.8,
-								debugging_level        =   log_level,
-								scale_dataset          =   scale_dataset,
-								dataset_slice          =   dataset_slice,
-								forest_args            =   forest_args,
-								tree_args              =   tree_args,
-								modal_args             =   modal_args,
-								gammas_save_path       =   (gammas_save_path, dataset_name_str),
-								rng                    =   train_rng
+								log_level                   =   log_level,
+								scale_dataset               =   scale_dataset,
+								dataset_slice               =   dataset_slice,
+								forest_args                 =   forest_args,
+								tree_args                   =   tree_args,
+								modal_args                  =   modal_args,
+								optimize_forest_computation =   optimize_forest_computation,
+								forest_runs                 =   forest_runs,
+								gammas_save_path            =   (gammas_save_path, dataset_name_str),
+								rng                         =   train_rng
 								);
 					#####################################################
-
 					# PRINT RESULT IN FILES
-					function percent(num::Real; digits=2)
-						return round.(num.*100, digits=digits)
-					end
-
-					function data_to_string(
-							M::Union{DecisionTree.DTree{S, T},DecisionTree.Forest{S, T},DecisionTree.DTNode{S, T}},
-							cm::ConfusionMatrix;
-							start_s = "(",
-							end_s = ")",
-							separator = ";"
-						) where {S, T}
-
-						result = start_s
-						result *= string(percent(cm.kappa), separator)
-						result *= string(percent(cm.sensitivities[1]), separator)
-						result *= string(percent(cm.specificities[1]), separator)
-						result *= string(percent(cm.PPVs[1]), separator)
-						result *= string(percent(cm.overall_accuracy))
-
-						if isa(M, DecisionTree.Forest{S, T})
-							result *= separator
-							result *= string(percent(M.oob_error))
-						end
-
-						result *= end_s
-
-						result
-					end
+					#####################################################
 
 					# PRINT CONCISE
 					concise_output_string = string(row_ref, column_separator)
 					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
 					for j in 1:length(forest_args)
-						concise_output_string *= string(data_to_string(F[j], Fcm[j]; separator=", "))
+						concise_output_string *= string(data_to_string(Fs[j], Fcms[j]; alt_separator=", ", separator = column_separator))
 						concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(concise_output_file_path, concise_output_string)
@@ -245,7 +225,7 @@ for i in exec_runs
 					full_output_string = string(row_ref, column_separator)
 					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
 					for j in 1:length(forest_args)
-						full_output_string *= string(data_to_string(F[j], Fcm[j]; start_s = "", end_s = ""))
+						full_output_string *= string(data_to_string(Fs[j], Fcms[j]; start_s = "", end_s = "", alt_separator = column_separator))
 						full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
 					end
 					append_in_file(full_output_file_path, full_output_string)
@@ -296,7 +276,7 @@ end
 # dataset = KDDDataset_not_stratified((3,2), audio_kwargs; dataset_kwargs..., rng = main_rng); # 54/20
 # dataset[1] |> size # (2673, 40)
 
-# testDataset("Test", dataset, 0.8, 0, debugging_level=log_level,
+# testDataset("Test", dataset, 0.8, 0, log_level=log_level,
 # 			forest_args=forest_args, args=args, kwargs=modal_args,
 # 			test_tree = true, test_forest = true);
 

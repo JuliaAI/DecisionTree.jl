@@ -4,6 +4,10 @@ include("progressive-iterator-manager.jl")
 
 main_rng = DecisionTree.mk_rng(1)
 
+dataset_rng = spawn_rng(main_rng)
+
+train_seed = abs(rand(main_rng,Int))
+
 ################################################################################
 ################################################################################
 ################################################################################
@@ -34,9 +38,15 @@ modal_args = (
 ################################################################################
 
 # Optimization arguments for single-tree
+# tree_args = (
+# 	loss = DecisionTree.util.entropy,
+# 	min_samples_leaf = 1,
+# 	min_purity_increase = 0.0,
+# 	min_loss_at_leaf = 0.0,
+# )
 tree_args = (
 	loss = DecisionTree.util.entropy,
-	min_samples_leaf = 1,
+	min_samples_leaf = 2,
 	min_purity_increase = 0.01,
 	min_loss_at_leaf = 0.4,
 )
@@ -52,9 +62,9 @@ forest_tree_args = (
 
 forest_args = []
 
-# for n_trees in [1,50,100]
-# 	for n_subfeatures in [id_f, sqrt_f]
-# 		for n_subrelations in [id_f, half_f, sqrt_f]
+# for n_trees in [50,100]
+# 	for n_subfeatures in [sqrt_f] # [id_f, sqrt_f]
+# 		for n_subrelations in [sqrt_f] # [id_f, half_f, sqrt_f]
 # 			push!(forest_args, (
 # 				n_subfeatures       = n_subfeatures,
 # 				n_trees             = n_trees,
@@ -65,52 +75,57 @@ forest_args = []
 # 		end
 # 	end
 # end
-# nfreqs
 
-dataset_kwargs = (,
-)
+# TODO
+# dataset_kwargs = (,
+# )
 
 ################################################################################
 ################################################################################
 ################################################################################
+
+# TODO gather into kwargs
+
+split_threshold = 0.8
+# split_threshold = false
+
+error_catching = false
+
+precompute_gammas = true
+# precompute_gammas = false
 
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
 
+test_flattened = false
+
 timeit = 0
 # timeit = 2
 
-scale_dataset = false
+# scale_dataset = false
 # scale_dataset = UInt16
+scale_dataset = Float32
+
+post_pruning_purity_thresholds = []
 
 ################################################################################
 ################################################################################
 ################################################################################
+
 
 exec_runs = 1:10
-exec_n_tasks = 1:1
-exec_n_versions = 1:2
-exec_nbands = [20,40,60]
-exec_ds_kwargs =   [(
-							max_points = 30,
-							ma_size = 75,
-							ma_step = 50,
-						),(
-							max_points = 30,
-							ma_size = 45,
-							ma_step = 30,
-						),(
-							max_points = 30,
-							ma_size = 25,
-							ma_step = 15,
-						)]
+exec_nmeans = [5, 10, 15]
+exec_hour = 1:2
+exec_distance = -2:-1:-24
 
+exec_ranges = [exec_nmeans, exec_hour, exec_distance]
+exec_ranges_names = ["nmeans", "hour", "distance"]
 exec_dicts = load_or_create_execution_progress_dictionary(
-	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_ds_kwargs
+	iteration_progress_json_file_path, exec_ranges, exec_ranges_names
 )
 
-# if the output files does not exists initilize them
+# if the output files does not exist initialize it
 if ! isfile(concise_output_file_path)
 	concise_output_file = open(concise_output_file_path, "a+")
 	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = [""], separator = column_separator)
@@ -122,152 +137,128 @@ if ! isfile(full_output_file_path)
 	close(full_output_file)
 end
 
+################################################################################
+################################################################################
+################################################################################
+
 # RUN
 for i in exec_runs
-	rng = spawn_rng(main_rng)
-	println("SEED: " * string(Int64.(rng.seed)))
-	# TASK
-	for n_task in exec_n_tasks
-		for n_version in exec_n_versions
-			# DATASET
-			for nbands in exec_nbands
-				for ds_kwargs in exec_ds_kwargs
-					# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED OR NOT
-					done = false
-					for dict in exec_dicts
-						if (
-							dict["n_task"] == n_task &&
-							dict["n_version"] == n_version &&
-							dict["nbands"] == nbands &&
-							is_same_kwargs(dict["ds_kwargs"], ds_kwargs) &&
-							i in dict["runs"]
-							)
-							done = true
-						end
-					end
+	
+	dataset_seed = abs(rand(dataset_rng,Int))
 
-					dataset_rng = spawn_rng(rng)
-					train_rng = spawn_rng(rng)
+	println("DATA SEED: $(dataset_seed)")
+	
+	for params_combination in IterTools.product(exec_ranges...)
 
-					if done
-						println("Iteration already done, skipping...")
-						continue
-					end
-					#####################################################
+		# Unpack params combination
+		nmeans, hour, distance = params_combination
 
-					# LOAD DATASET
-					cur_dataset_kwargs = merge(dataset_kwargs, (nbands=nbands,))
-					dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_dataset_kwargs; ds_kwargs...) # , rng = dataset_rng)
-					n_per_class = min(n_pos, n_neg)
-					# using Random
-					# n_pos = 10
-					# n_neg = 15 
-					# dataset_rng = Random.MersenneTwister(2)
+		dataset_rng = Random.MersenneTwister(dataset_seed)
+		train_rng   = Random.MersenneTwister(train_seed)
 
-					dataset_slice = Array{Int,2}(undef, 2, n_per_class)
-					dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
-					dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
-					dataset_slice = dataset_slice[:]
-					# println(dataset_slice)
-
-					#####################################################
-					dataset_name_str = string(
-						string(n_task), column_separator,
-						string(n_version), column_separator,
-						string(cur_dataset_kwargs), column_separator,
-						string(ds_kwargs), column_separator,
-						string(dataset_rng.seed)
-					)
-
-					# ACTUAL COMPUTATION
-					T, F, Tcm, Fcm = testDataset(
-								"($(n_task),$(n_version))",
-								dataset,
-								0.8,
-								debugging_level        =   log_level,
-								scale_dataset          =   scale_dataset,
-								dataset_slice          =   dataset_slice,
-								forest_args            =   forest_args,
-								tree_args              =   tree_args,
-								modal_args             =   modal_args,
-								gammas_save_path       =   (gammas_save_path, dataset_name_str),
-								rng                    =   train_rng
-								);
-					#####################################################
-
-					# PRINT RESULT IN FILES
-					row_ref = string(
-						string(string(i), ",",
-						string(n_task), ",",
-						string(n_version), ",",
-						string(nbands), ",",
-						string(values(ds_kwargs)))
-					)
-
-					function percent(num::Real; digits=2)
-						return round.(num.*100, digits=digits)
-					end
-
-					function data_to_string(
-							M::Union{DecisionTree.DTree{S, T},DecisionTree.Forest{S, T},DecisionTree.DTNode{S, T}},
-							cm::ConfusionMatrix;
-							start_s = "(",
-							end_s = ")",
-							separator = ";"
-						) where {S, T}
-
-						result = start_s
-						result *= string(percent(cm.kappa), separator)
-						result *= string(percent(cm.sensitivities[1]), separator)
-						result *= string(percent(cm.specificities[1]), separator)
-						result *= string(percent(cm.PPVs[1]), separator)
-						result *= string(percent(cm.overall_accuracy))
-
-						if isa(M, DecisionTree.Forest{S, T})
-							result *= separator
-							result *= string(percent(M.oob_error))
-						end
-
-						result *= end_s
-
-						result
-					end
-
-					# PRINT CONCISE
-					concise_output_string = string(row_ref, column_separator)
-					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
-					for j in 1:length(forest_args)
-						concise_output_string *= string(data_to_string(F[j], Fcm[j]; separator=", "))
-						concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
-					end
-					append_in_file(concise_output_file_path, concise_output_string)
-
-					# PRINT FULL
-					full_output_string = string(row_ref, column_separator)
-					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
-					for j in 1:length(forest_args)
-						full_output_string *= string(data_to_string(F[j], Fcm[j]; start_s = "", end_s = ""))
-						full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
-					end
-					append_in_file(full_output_file_path, full_output_string)
-					#####################################################
-
-					# ADD THIS STEP TO THE "HISTORY" OF ALREADY COMPUTED ITERATION
-					for dict in exec_dicts
-						if (
-							dict["n_task"] == n_task &&
-							dict["n_version"] == n_version &&
-							dict["nbands"] == nbands &&
-							is_same_kwargs(dict["ds_kwargs"], ds_kwargs)
-							)
-							#println("Iteration completed.")
-							push!(dict["runs"], i)
-						end
-					end
-					export_execution_progress_dictionary(iteration_progress_json_file_path, exec_dicts)
-					#####################################################
-				end
+		############################################################################
+		# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED OR NOT
+		done = false
+		for dict in exec_dicts
+			if getindex.([dict], exec_ranges_names) == collect(params_combination) &&
+					i in dict["runs"]
+				done = true
+				break
 			end
 		end
+		if done
+			println("Iteration $(params_combination) already done, skipping...")
+			continue
+		end
+		############################################################################
+
+		# LOAD DATASET
+		# (X_train,Y_train), (X_test,Y_test), class_labels  = SiemensDataset_not_stratified(nmeans, hour, distance, , subdir = "Siemens-2")
+		dataset, n_pos, n_neg = SiemensDataset_not_stratified(nmeans, hour, distance, subdir = "Siemens-2") # params_combination...
+		# ... dataset_kwargs, rng = dataset_rng)
+		n_per_class = min(n_pos, n_neg)
+		(X_train,Y_train), (X_test,Y_test), class_labels = dataset
+
+		dataset_slice = Array{Int,2}(undef, 2, n_per_class)
+		dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
+		dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
+		dataset_slice = vec(dataset_slice)
+		# println(dataset_slice)
+		
+		# println(size(X_train))
+		# println(size(X_test))
+		# println(size(Y_train))
+		# println(size(Y_test))
+		
+		# readline()
+		
+		############################################################################
+		dataset_name_str = string(
+			string(i), column_separator,
+			string(nmeans), column_separator,
+			string(hour), column_separator,
+			string(distance), column_separator, # TODO use params_combination
+			# string(dataset_rng.seed)
+		)
+
+		# ACTUAL COMPUTATION
+		T, F, Tcm, Fcm = testDataset(
+				"$(params_combination)",
+				dataset,
+				split_threshold,
+				log_level                       = log_level,
+				scale_dataset                   = scale_dataset,
+				post_pruning_purity_thresholds  = post_pruning_purity_thresholds,
+				forest_args                     = forest_args,
+				tree_args                       = tree_args,
+				modal_args                      = modal_args,
+				test_flattened                  = test_flattened,
+				precompute_gammas               = precompute_gammas,
+				gammas_save_path                = (gammas_save_path, dataset_name_str),
+				dataset_slice                   = dataset_slice,
+				error_catching                  = error_catching,
+				rng                             = train_rng,
+				timeit                          = timeit,
+			);
+		############################################################################
+
+		# PRINT RESULT IN FILES
+		row_ref = string(
+			string(i), ",",
+			string(nmeans), ",",
+			string(hour), ",",
+			string(distance),
+		)
+
+		# PRINT CONCISE
+		concise_output_string = string(row_ref, column_separator)
+		concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
+		for j in 1:length(forest_args)
+			concise_output_string *= string(data_to_string(F[j], Fcm[j]; separator=", "))
+			concise_output_string *= string(column_separator)
+		end
+		concise_output_string *= string("\n")
+		append_in_file(concise_output_file_path, concise_output_string)
+
+		# PRINT FULL
+		full_output_string = string(row_ref, column_separator)
+		full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
+		for j in 1:length(forest_args)
+			full_output_string *= string(data_to_string(F[j], Fcm[j]; start_s = "", end_s = ""))
+			full_output_string *= string(column_separator)
+		end
+		full_output_string *= string("\n")
+		append_in_file(full_output_file_path, full_output_string)
+
+		############################################################################
+		# ADD THIS STEP TO THE "HISTORY" OF ALREADY COMPUTED ITERATION
+		for dict in exec_dicts
+			if getindex.([dict], exec_ranges_names) == collect(params_combination)
+				#println("Iteration completed.")
+				push!(dict["runs"], i)
+			end
+		end
+		export_execution_progress_dictionary(iteration_progress_json_file_path, exec_dicts)
+		############################################################################
 	end
 end

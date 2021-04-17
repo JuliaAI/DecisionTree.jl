@@ -8,58 +8,63 @@ include("wav2stft_time_series.jl")
 # Generate a new rng from a random pick from a given one.
 spawn_rng(rng) = Random.MersenneTwister(abs(rand(rng, Int)))
 
-mapArrayToDataType(type::Type, array::AbstractArray) = begin
+mapArrayToDataType(type::Type{<:Integer}, array::AbstractArray) = begin
 	minVal = minimum(array)
 	maxVal = maximum(array)
 	normalized_array = (array.-minVal)./(maxVal-minVal)
 	typemin(type) .+ round.(type, (big(typemax(type))-big(typemin(type)))*normalized_array)
 end
 
+mapArrayToDataType(type::Type{<:AbstractFloat}, array::AbstractArray) = begin
+	type.(array)
+end
+
 scaleDataset(dataset::Tuple, type::Type = UInt8) =
 	(mapArrayToDataType(type, dataset[1]),dataset[2],dataset[3])
 
-readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
-	insts = Array{Array{Float64}}[]
-	labels = String[]
+SplatEduardDataset(N) = begin
 
-	numattributes = 0
+	readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
+		insts = Array{Array{Float64}}[]
+		labels = String[]
 
-	lines = readlines(io)
-	for line ∈ lines
-		split_line = split(line, "\',")
-		split_line[1] = split_line[1][2:end]    # removing the first '
-		series = split(split_line[1], "\\n")    # splitting the series based on \n
-		class = split_line[2]                   # the class
+		numattributes = 0
 
-		if length(series) ≥ 1
-			numserie = [parse(Float64, strval) for strval ∈ split(series[1], ",")]
-			numseries = Array{Float64}[]
-			push!(numseries, numserie)
+		lines = readlines(io)
+		for line ∈ lines
+			split_line = split(line, "\',")
+			split_line[1] = split_line[1][2:end]    # removing the first '
+			series = split(split_line[1], "\\n")    # splitting the series based on \n
+			class = split_line[2]                   # the class
 
-			for i ∈ 2:length(series)
-				numserie = [parse(Float64, strval) for strval ∈ split(series[i], ",")]
+			if length(series) ≥ 1
+				numserie = [parse(Float64, strval) for strval ∈ split(series[1], ",")]
+				numseries = Array{Float64}[]
 				push!(numseries, numserie)
+
+				for i ∈ 2:length(series)
+					numserie = [parse(Float64, strval) for strval ∈ split(series[i], ",")]
+					push!(numseries, numserie)
+				end
+
+				push!(insts, numseries)
+				push!(labels, class)
 			end
 
-			push!(insts, numseries)
-			push!(labels, class)
+			if numattributes === 0
+				numattributes = length(series)
+			end
 		end
+		(insts,labels)
+		# domains = Array{Float64}[]
+		# for j ∈ 1:numattributes
+		# 	# sort all values for each timeserie (i.e., row of size(insts)[1] rows) for the j-th attribute; that is, compute the sorted domain of each attribute
+		# 	push!(domains, sort!(collect(Set([val for i ∈ 1:size(insts)[1] for val ∈ insts.values[i][j]]))))
+		# end
 
-		if numattributes === 0
-			numattributes = length(series)
-		end
+		# classes = collect(Set(map((a,b)->(b), insts)))
 	end
-	(insts,labels)
-	# domains = Array{Float64}[]
-	# for j ∈ 1:numattributes
-	# 	# sort all values for each timeserie (i.e., row of size(insts)[1] rows) for the j-th attribute; that is, compute the sorted domain of each attribute
-	# 	push!(domains, sort!(collect(Set([val for i ∈ 1:size(insts)[1] for val ∈ insts.values[i][j]]))))
-	# end
 
-	# classes = collect(Set(map((a,b)->(b), insts)))
-end
-
-SplatEduardDataset(N) = begin
 	insts,classes = readDataset(data_dir * "test-Eduard/Train-$N.txt", Val(N))
 
 	n_samples = length(insts)
@@ -92,6 +97,236 @@ SplatEduardDataset(N) = begin
 	# [val for i ∈ 1:3 for val ∈ ds.values[i][:,1]] <-- prendo tutti i valori del primo attributo
 	# sort!(collect(Set([val for i ∈ 1:3 for val ∈ ds.values[i][:,1]]))) <-- ordino il dominio
 	# size(ds.values[1])    <-- dimensione della prima serie
+end
+
+
+# function testSplatSiemensDataset_not_stratified()
+# 	for seed ∈ [1,2,3,4,5,6,7,8,9,10]
+# 		for nmeans ∈ [5,10,15]
+# 			for h ∈ [1,2]
+# 				for distance ∈ [-19,-20,-21,-22,-23,-24]
+# 					SplatSiemensDataset_not_stratified(seed, nmeans, h, distance)
+# 				end
+# 			end
+# 		end
+# 	end
+# end
+
+SplatSiemensDataset(rseed::Int, nmeans::Int, hour::Int, distance::Int; subdir = "Siemens") = begin
+
+	readDataset(filepath::String) = open(filepath, "r") do io
+		insts = Array{Array{Float64}}[]
+		labels = Int64[]
+
+		numattributes = 0
+
+		flag = false
+
+		lines = readlines(io)
+
+		i = 1
+
+		if flag == false
+			while isempty(lines[i]) || split(lines[i])[1] != "@data"
+				i = i + 1
+				if !isempty(lines[i]) && split(lines[i])[1] == "@data"
+					break
+				end
+			end
+			flag = true
+			i = i+1
+		end
+
+		for j = i:length(lines)
+			# line = lines[j]
+			# # println("line=" * line)
+			# split_line = split(line, "\',\'")
+			# split_line[1] = split_line[1][2:end]    # removing the first '
+			#
+			# # println("split_line[1]")
+			# # println(split_line[1])
+			# # println("split_line[2]")
+			# # println(split_line[2])
+			# # println("split_line[10]")
+			# # println(split_line[10])
+			# # series = split(split_line[1], "','")    # splitting the series based on \n
+			# #class = split_line[11]                   # the class
+			#
+			# temp = split(split_line[10], "\',")
+			# class = temp[2]
+			# split_line[10] = temp[1]
+			#
+			# series = [split_line[i] for i ∈ 1:10]
+
+			line = lines[j]
+			split_line = split(line, "\',")
+			split_line[1] = split_line[1][2:end]    # removing the first '
+			series = split(split_line[1], "\\n")    # splitting the series based on \n
+			class = split_line[2]                   # the class
+
+			if length(series) ≥ 1
+				numserie = [parse(Float64, strval) for strval ∈ split(series[1], ",")]
+				numseries = Array{Float64}[]
+				push!(numseries, numserie)
+
+				for i ∈ 2:length(series)
+					numserie = [parse(Float64, strval) for strval ∈ split(series[i], ",")]
+					push!(numseries, numserie)
+				end
+				# @show class
+				push!(insts, numseries)
+				push!(labels, parse(Int, class))
+			end
+
+			if numattributes === 0
+				numattributes = length(series)
+			end
+		end
+
+		(insts,labels)
+	end
+
+	fileWithPath = data_dir * subdir * "/TRAIN_seed" * string(rseed) * "_nMeans" * string(nmeans) * "_hour" * string(hour) * "_distanceFromEvent" * string(distance) * ".arff"
+	println(fileWithPath)
+	insts,classes = readDataset(fileWithPath)
+
+	n_vars = 10
+
+	X_train = Array{Float64,3}(undef, nmeans*hour, length(insts), n_vars)
+
+	for i in 1:length(insts)
+		# println()
+		# println("i=" * string(i))
+		# println("size(X_train)=" * string(size(X_train)))
+		# println("size(insts[i])=" * string(size(insts[i])))
+		# println("size(hcat(insts[i]...))=" * string(size(hcat(insts[i]...))))
+		# println("size(X_train[:, i, :])=" * string(size(X_train[:, i, :])))
+		X_train[:, i, :] .= hcat(insts[i]...)
+	end
+
+	Y_train = classes
+
+	class_labels = map(string, 1:2)
+
+	fileWithPath = data_dir * subdir * "/TEST_seed" * string(rseed) * "_nMeans" * string(nmeans) * "_hour" * string(hour) * "_distanceFromEvent" * string(distance) * ".arff"
+	insts,classes = readDataset(fileWithPath)
+
+	X_test = Array{Float64,3}(undef, nmeans*hour, length(insts), n_vars)
+
+	for i in 1:length(insts)
+		X_test[:, i, :] .= hcat(insts[i]...)
+	end
+
+	Y_test = classes
+
+	(X_train,Y_train),(X_test,Y_test),class_labels
+end
+
+SiemensDataset_not_stratified(nmeans::Int, hour::Int, distance::Int; subdir = "Siemens") = begin
+
+	readDataset(filepath::String) = open(filepath, "r") do io
+		insts = Array{Array{Float64}}[]
+		labels = Int64[]
+
+		numattributes = 0
+
+		flag = false
+
+		lines = readlines(io)
+
+		i = 1
+
+		if flag == false
+			while isempty(lines[i]) || split(lines[i])[1] != "@data"
+				i = i + 1
+				if !isempty(lines[i]) && split(lines[i])[1] == "@data"
+					break
+				end
+			end
+			flag = true
+			i = i+1
+		end
+
+		for j = i:length(lines)
+			# line = lines[j]
+			# # println("line=" * line)
+			# split_line = split(line, "\',\'")
+			# split_line[1] = split_line[1][2:end]    # removing the first '
+			#
+			# # println("split_line[1]")
+			# # println(split_line[1])
+			# # println("split_line[2]")
+			# # println(split_line[2])
+			# # println("split_line[10]")
+			# # println(split_line[10])
+			# # series = split(split_line[1], "','")    # splitting the series based on \n
+			# #class = split_line[11]                   # the class
+			#
+			# temp = split(split_line[10], "\',")
+			# class = temp[2]
+			# split_line[10] = temp[1]
+			#
+			# series = [split_line[i] for i ∈ 1:10]
+
+			line = lines[j]
+			split_line = split(line, "\',")
+			split_line[1] = split_line[1][2:end]    # removing the first '
+			series = split(split_line[1], "\\n")    # splitting the series based on \n
+			class = split_line[2]                   # the class
+
+			if length(series) ≥ 1
+				numserie = [parse(Float64, strval) for strval ∈ split(series[1], ",")]
+				numseries = Array{Float64}[]
+				push!(numseries, numserie)
+
+				for i ∈ 2:length(series)
+					numserie = [parse(Float64, strval) for strval ∈ split(series[i], ",")]
+					push!(numseries, numserie)
+				end
+				# @show class
+				push!(insts, numseries)
+				push!(labels, parse(Int, class))
+			end
+
+			if numattributes === 0
+				numattributes = length(series)
+			end
+		end
+
+		(insts,labels)
+	end
+
+	fileWithPath = data_dir * subdir * "/nMeans" * string(nmeans) * "_hour" * string(hour) * "_distanceFromEvent" * string(distance) * ".arff"
+	println(fileWithPath)
+	insts,classes = readDataset(fileWithPath)
+
+	n_vars = 10
+
+	X = Array{Float64,3}(undef, nmeans*hour, length(insts), n_vars)
+	Y = Array{Int,1}(undef, length(insts))
+
+	pos_idx = []
+	neg_idx = []
+	for (i,class) in enumerate(classes)
+		if class == 0
+			push!(neg_idx, i)
+		elseif class == 1
+			push!(pos_idx, i)
+		else
+			throw("Unknown class: $(class)")
+		end
+	end
+
+	progressive_i = 1
+	for i in [pos_idx..., neg_idx...]
+		X[:, progressive_i, :] .= hcat(insts[i]...)
+		Y[progressive_i] = classes[i]
+		progressive_i+=1
+	end
+
+	class_labels = map(string, 1:2)
+
+	((X,Y,class_labels), length(pos_idx), length(neg_idx))
 end
 
 ################################################################################

@@ -1,0 +1,221 @@
+DATA SEED: 7933197233428195239
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens
+-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2,
+ min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), u
+seRelationId = true, useRelationAll = false, ontology = Ontology(Decis
+ionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTre
+e.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7),
+ DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:12:01 ] Computing gammas...
+┌ LogLevel(-500): Computing gammas... Array{Float64,6} (2, 30, 31, 144
+, 14, 10) DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic
+._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)]
+└ @ DecisionTree ~/.julia/dev/DecisionTree/src/gammas.jl:251
+┌ LogLevel(-500): Feature 1/10
+└ @ DecisionTree ~/.julia/dev/DecisionTree/src/gammas.jl:310
+
+┌ LogLevel(-500): Feature 2/10
+└ @ DecisionTree ~/.julia/dev/DecisionTree/src/gammas.jl:310
+┌ LogLevel(-500): Feature 8/10
+└ @ DecisionTree ~/.julia/dev/DecisionTree/src/gammas.jl:310
+┌ LogLevel(-500): Feature 5/10
+└ @ DecisionTree ~/.julia/dev/DecisionTree/src/gammas.jl:310
+● [ 16/04/2021 16:21:07 ] Saving gammas to file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld" (size: 299980872)...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:09 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 356491804970798699
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:17 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:23 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 2284730168603835983
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:23 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:25 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 6079256005084455503
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:25 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:26 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 1743869521403926156
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:26 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:27 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 35.371275), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 35.371275)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       95.0%   90.0%   [95.24, 94.74]%   [100.0, 90.0]%  [90.91, 100.0]% ||      94.99%  95.0%   95.0%   95.45%    95.45%
+ 10  0  100.0%          1
+  1  9  90.0%           2
+DATA SEED: 8948374666660132529
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:27 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:28 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 1527081112973771993
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:29 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:30 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 6888085395116035070
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:30 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:31 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 846958492396999582
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:31 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:32 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 34.426725), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 34.426725)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       100.0%  100.0%  [100.0, 100.0]%   [100.0, 100.0]% [100.0, 100.0]% ||      100.0%  100.0%  100.0%  100.0%    100.0%
+ 10  0  100.0%          1
+  0 10  100.0%          2
+DATA SEED: 1901373126375724037
+/home/gio/Desktop/SpatialDecisionTree/DecisionTree.jl/datasets/Siemens-2/nMeans15_hour2_distanceFromEvent-2.arff
+Benchmarking dataset '(15, 2, -2)'...
+forest_args = Any[]
+tree_args   = (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args  = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+● [ 16/04/2021 16:21:32 ] Loading gammas from file "./results-siemens/gammas/gammas_d2748ecf490542f4892e5b96050eea3c26f5f63f6286bbe3212382ef260d8764.jld"...
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (30, 84, 10)
+● [ 16/04/2021 16:21:33 ] Computing Tree...
+┌ LogLevel(-500):  Branch (42+42=84 samples) on condition: ⟨⟩ (V6 ⫺₇₀ 35.371275), purity 4.440892098500626e-16
+└ @ DecisionTree.treeclassifier ~/.julia/dev/DecisionTree/src/modal-classification/tree.jl:333
+⟨⟩ (V6 ⫺₇₀ 35.371275)
+✔ 1 : 42/42
+✘ 0 : 42/42
+ test size = (30, 20, 10)
+ Purity threshold 1.0
+RESULT: (15, 2, -2)     (loss = DecisionTree.util.entropy, min_samples_leaf = 2, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)      (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       95.0%   90.0%   [95.24, 94.74]%   [100.0, 90.0]%  [90.91, 100.0]% ||      94.99%  95.0%   95.0%   95.45%    95.45%
+ 10  0  100.0%          1
+  1  9  90.0%           2
+               _

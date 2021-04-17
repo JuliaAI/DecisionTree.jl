@@ -1,0 +1,43 @@
+POS={140}, NEG={298}
+Balanced -> {140}+{140}
+Benchmarking dataset '(1,1)'...
+tree_args = (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)
+modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+(optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])
+ train size = (26, 224, 60)
+⟨⟩ (V20 ⫺₇₀ 0.5615922788407576)
+✔ ⟨L̅⟩ (V7 ⫹₇₀ 6.176777086476566e-7)
+│✔ 1 : 6/6
+│✘ ⟨E̅⟩ (V54 ⫺₇₀ 6.064393361449956)
+│ ✔ 1 : 4/4
+│ ✘ V14 ⫹₇₀ 0.820070925146093
+│  ✔ ⟨A̅⟩ (V14 ⫺₇₀ 0.35871902278168466)
+│  │✔ ⟨L⟩ (V24 ⫺₇₀ 0.05022759203477401)
+│  ││✔ 1 : 9/9
+│  ││✘ 0 : 2/2
+│  │✘ 0 : 24/25
+│  ✘ 0 : 26/26
+✘ ⟨⟩ (V45 ⫺₇₀ 0.0005385868666157022)
+ ✔ ⟨A̅⟩ (V51 ⫺₇₀ 0.06956334660096865)
+ │✔ ⟨A̅⟩ (V46 ⫺₇₀ 0.32768843936211767)
+ ││✔ ⟨B̅⟩ (V10 ⫺₇₀ 0.44057750825408043)
+ │││✔ 1 : 6/6
+ │││✘ 0 : 9/10
+ ││✘ 1 : 53/55
+ │✘ ⟨E⟩ (V20 ⫺₇₀ 0.029182827872923228)
+ │ ✔ ⟨D⟩ (V48 ⫹₇₀ 4.199406045996452e-6)
+ │ │✔ 1 : 7/7
+ │ │✘ ⟨E̅⟩ (V5 ⫹₇₀ 0.07069683637970851)
+ │ │ ✔ ⟨E̅⟩ (V8 ⫹₇₀ 0.16965271511272867)
+ │ │ │✔ ⟨A⟩ (V24 ⫺₇₀ 0.07407156769668966)
+ │ │ ││✔ 1 : 3/3
+ │ │ ││✘ 0 : 11/11
+ │ │ │✘ 1 : 8/8
+ │ │ ✘ 0 : 15/15
+ │ ✘ 1 : 12/13
+ ✘ 0 : 22/24
+ test size = (26, 56, 60)
+ Purity threshold 1.0
+RESULT: (1,1)   (loss = DecisionTree.util.entropy, min_samples_leaf = 1, min_purity_increase = 0.01, min_loss_at_leaf = 0.4)    (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeqSoft(0.7), DecisionTree.ModalLogic._TestOpLeqSoft(0.7)])        1.0     |       80.36%  60.71%  [80.7, 80.0]%   [82.14, 78.57]% [79.31, 81.48]% ||      80.35%  80.36%  80.36%  80.4%   80.4%
+ 23  5  82.14%          YES
+  6 22  78.57%          NO_CLEAN_HISTORY_AND_LOW_PROBABILITY
