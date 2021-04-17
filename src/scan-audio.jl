@@ -75,7 +75,7 @@ for n_trees in [1,50,100]
 end
 # nfreqs
 
-exec_runs = 1:5
+exec_runs = 1:10
 exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
@@ -109,8 +109,24 @@ exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs
 )
 
-just_test_filters = true
+just_test_filters = false
 iteration_whitelist = [
+	# FOR TESTING
+#	(
+#		n_version = 1,
+#		nbands = 20,
+#		dataset_kwargs = (max_points = 2, ma_size = 75, ma_step = 50),
+#	),
+#	(
+#		n_version = 1,
+#		nbands = 20,
+#		dataset_kwargs = (max_points = 5, ma_size = 75, ma_step = 50),
+#	),
+#	(
+#		n_version = 1,
+#		nbands = 20,
+#		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50),
+#	),
 	# TASK 1
 	(
 		n_version = 1,
