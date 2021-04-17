@@ -171,7 +171,7 @@ function testDataset(
 					checkpoint_stdout("Computing gammas...")
 					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 					if !isnothing(gammas_jld_path)
-						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\" (size: $(Base.summarysize(gammas)))...")
+						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\" (size: $(sizeof(gammas)) bytes)...")
 
 						global gammas_saving_task
 						if isa(gammas_saving_task, Task)
