@@ -91,8 +91,8 @@ split_threshold = 0.8
 
 error_catching = false
 
-precompute_gammas = true
-# precompute_gammas = false
+# precompute_gammas = true
+precompute_gammas = false
 
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview

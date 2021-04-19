@@ -147,7 +147,7 @@ function testDataset(
 
 	calculateGammas(modal_args, X_all_d) = begin
 		if !precompute_gammas
-			(modal_args, nothing, nothing)
+			(modal_args, nothing, modal_args.ontology.worldType)
 		else
 			haskey(modal_args, :ontology) || error("testDataset: precompute_gammas=1 requires `ontology` field in modal_args: $(modal_args)")
 
