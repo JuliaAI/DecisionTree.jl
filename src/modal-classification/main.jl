@@ -330,8 +330,8 @@ function build_forest(
 
 		# v_weights = @views W[inds]
 		v_labels = @views Y[inds]
-		v_features = @views ModalLogic.sliceDomainByInstances(X.domain, inds)
-		v_gammas = @views sliceGammasByInstances(X.ontology.worldType, gammas, inds)
+		v_features = ModalLogic.sliceDomainByInstances(X.domain, inds; return_view = true)
+		v_gammas = sliceGammasByInstances(X.ontology.worldType, gammas, inds; return_view = true)
 
 		trees[i] = build_tree(
 			v_labels,
@@ -356,7 +356,7 @@ function build_forest(
 		# grab out-of-bag indices
 		oob_samples[i] = setdiff(1:t_samples, inds)
 
-		tree_preds = apply_tree(trees[i], @views ModalLogic.sliceDomainByInstances(X.domain, oob_samples[i]))
+		tree_preds = apply_tree(trees[i], ModalLogic.sliceDomainByInstances(X.domain, oob_samples[i]; return_view = true))
 		cms[i] = confusion_matrix(Y[oob_samples[i]], tree_preds)
 	end
 
@@ -380,7 +380,7 @@ function build_forest(
 			continue
 		end
 
-		v_features = @views ModalLogic.sliceDomainByInstances(X.domain, [i])
+		v_features = ModalLogic.sliceDomainByInstances(X.domain, [i]; return_view = true)
 		v_labels = @views Y[[i]]
 
 		# TODO: optimization - no need to pass through ConfusionMatrix
