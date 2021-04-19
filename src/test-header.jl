@@ -237,7 +237,7 @@ function testDataset(
 			modal_args, gammas, worldType = calculateGammas(modal_args, X)
 
 			# Slice instances
-			X, Y, gammas =
+			X, Y, gammas_train =
 				if isnothing(dataset_slice)
 					(X, Y, gammas)
 				else
