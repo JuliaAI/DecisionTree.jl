@@ -97,7 +97,7 @@ end
 
 include("example-datasets.jl")
 
-gammas_saving_task = nothing
+#gammas_saving_task = nothing
 
 function testDataset(
 		name                            ::String,
@@ -188,12 +188,13 @@ function testDataset(
 					if !isnothing(gammas_jld_path)
 						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\"...")
 
-						global gammas_saving_task
-						if isa(gammas_saving_task, Task)
+#						global gammas_saving_task
+#						if isa(gammas_saving_task, Task)
 							# make sure there is no previous saving in progress
-							wait(gammas_saving_task)
-						end
-						gammas_saving_task = @async Serialization.serialize(gammas_jld_path, gammas)
+#							wait(gammas_saving_task)
+#						end
+#						gammas_saving_task = @async Serialization.serialize(gammas_jld_path, gammas)
+						Serialization.serialize(gammas_jld_path, gammas)
 						# Add record line to the index file of the folder
 						if !isnothing(dataset_name_str)
 							# Generate path to gammas jld file)
@@ -255,7 +256,7 @@ function testDataset(
 
 			# Split in train/test
 			((X_train, Y_train), (X_test, Y_test), class_labels, gammas_train) =
-				traintestsplit((X, Y, class_labels), split_threshold, gammas = gammas, worldType = worldType)
+				traintestsplit((X, Y, class_labels), split_threshold, gammas = gammas_train, worldType = worldType)
 
 			modal_args, (X_train, Y_train), (X_test, Y_test), class_labels, gammas_train
 		else
