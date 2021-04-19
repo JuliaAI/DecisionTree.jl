@@ -52,8 +52,8 @@ end
 	gammas[i_instances, i_relations, i_vars]
 @inline setGammaSlice(gammasSlice::Dict{WorldType,NTuple{NTO,T}}, w::WorldType, i_test_operator::Integer, threshold::T) where {WorldType<:AbstractWorld,NTO,T} =
 	gammasSlice[w][i_test_operator] = threshold
-@inline sliceGammasByInstances(worldType::Type{WorldType}, gammas::AbstractArray{Dict{WorldType,NTuple{NTO,T}}, 3}, inds::AbstractVector{<:Integer}) where {WorldType<:AbstractWorld,NTO, T} =
-	gammas[inds,:,:]
+@inline sliceGammasByInstances(worldType::Type{WorldType}, gammas::AbstractArray{Dict{WorldType,NTuple{NTO,T}}, 3}, inds::AbstractVector{<:Integer}; return_view = false) where {WorldType<:AbstractWorld,NTO, T} =
+	if return_view @view gammas[inds,:,:] else gammas[inds,:,:] end
 @inline function readGamma(
 	gammas     :: AbstractArray{<:AbstractDict{WorldType,NTuple{NTO,T}},3},
 	w          :: WorldType,
@@ -75,8 +75,8 @@ end
 	@view gammas[:,i_instances, i_relations, i_vars]
 @inline setGammaSlice(gammasSlice::AbstractArray{T,1}, w::ModalLogic.OneWorld, i_test_operator::Integer, threshold::T) where {T} =
 	gammasSlice[i_test_operator] = threshold
-@inline sliceGammasByInstances(worldType::Type{ModalLogic.OneWorld}, gammas::AbstractArray{T, 4}, inds::AbstractVector{<:Integer}) where {T} =
-	gammas[:,inds,:,:]
+@inline sliceGammasByInstances(worldType::Type{ModalLogic.OneWorld}, gammas::AbstractArray{T, 4}, inds::AbstractVector{<:Integer}; return_view = false) where {T} =
+	if return_view @view gammas[:,inds,:,:] else gammas[:,inds,:,:] end
 @inline function readGamma(
 	gammas     :: AbstractArray{T, 4},
 	w          :: ModalLogic.OneWorld,
@@ -98,8 +98,8 @@ end
 	@view gammas[:, :,:, i_instances, i_relations, i_vars]
 @inline setGammasSlice(gammasSlice::AbstractArray{T, 3}, w::ModalLogic.Interval, i_test_operators::Integer, threshold::T) where {T} =
 	gammasSlice[i_test_operators, w.x, w.y] = threshold
-@inline sliceGammasByInstances(worldType::Type{ModalLogic.Interval}, gammas::AbstractArray{T, 6}, inds::AbstractVector{<:Integer}) where {T} =
-	gammas[:, :,:, inds,:,:]
+@inline sliceGammasByInstances(worldType::Type{ModalLogic.Interval}, gammas::AbstractArray{T, 6}, inds::AbstractVector{<:Integer}; return_view = false) where {T} =
+	if return_view @view gammas[:, :,:, inds,:,:] else gammas[:, :,:, inds,:,:] end
 @inline function readGamma(
 	gammas     :: AbstractArray{T, 6},
 	w          :: ModalLogic.Interval,
@@ -120,8 +120,8 @@ end
 	@view gammas[:, :,:,:,:, i_instances, i_relations, i_vars]
 @inline setGammaSlice(gammasSlice::AbstractArray{T, 6}, w::ModalLogic.Interval2D, i_test_operators::Integer, threshold::T) where {T} =
 	gammasSlice[i_test_operators, w.x.x, w.x.y, w.y.x, w.y.y] = threshold
-@inline sliceGammasByInstances(worldType::Type{ModalLogic.Interval2D}, gammas::AbstractArray{T, 8}, inds::AbstractVector{<:Integer}) where {T} =
-	gammas[:, :,:,:,:, inds,:,:]
+@inline sliceGammasByInstances(worldType::Type{ModalLogic.Interval2D}, gammas::AbstractArray{T, 8}, inds::AbstractVector{<:Integer}; return_view = false) where {T} =
+	if return_view @view gammas[:, :,:,:,:, inds,:,:] else gammas[:, :,:,:,:, inds,:,:] end
 @inline function readGamma(
 	gammas     :: AbstractArray{T, 8},
 	w          :: ModalLogic.Interval2D,
