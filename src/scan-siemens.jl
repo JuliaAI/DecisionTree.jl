@@ -177,7 +177,7 @@ for i in exec_runs
 		dataset, n_pos, n_neg = SiemensDataset_not_stratified(nmeans, hour, distance, subdir = "Siemens-2") # params_combination...
 		# ... dataset_kwargs, rng = dataset_rng)
 		n_per_class = min(n_pos, n_neg)
-		(X_train,Y_train), (X_test,Y_test), class_labels = dataset
+		# (X_train,Y_train), (X_test,Y_test), class_labels = dataset
 
 		dataset_slice = Array{Int,2}(undef, 2, n_per_class)
 		dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]

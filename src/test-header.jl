@@ -65,7 +65,8 @@ end
 traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
 	is_balanced = true
 	(X,Y,class_labels) = data
-	spl = ceil(Int, length(Y)*threshold)
+	num_instances = length(Y)
+	spl = ceil(Int, num_instances*threshold)
 	# make it even
 	if length(class_labels) == 2 && is_balanced
 		spl = isodd(spl) ? (spl-1) : spl
@@ -78,12 +79,12 @@ traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVecto
 		else
 			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl)
 		end
-	X_test  = ModalLogic.sliceDomainByInstances(X, spl+1:end)
+	X_test  = ModalLogic.sliceDomainByInstances(X, spl+1:num_instances)
 	Y_test  = Y[spl+1:end]
 	# if gammas == nothing
 		# (X_train,Y_train),(X_test,Y_test),class_labels
 	# else
-	(X_train,Y_train),(X_test,Y_test),class_labels,gammas_train
+	(X_train,Y_train), (X_test,Y_test), class_labels, gammas_train
 	# end
 end
 
@@ -125,7 +126,7 @@ function testDataset(
 		if !precompute_gammas
 			(modal_args, nothing, modal_args.ontology.worldType)
 		else
-			haskey(modal_args, :ontology) || error("testDataset: precompute_gammas=1 requires `ontology` field in modal_args: $(modal_args)")
+			haskey(modal_args, :ontology) || error("testDataset: precompute_gammas=true requires `ontology` field in modal_args: $(modal_args)")
 
 			X_all = OntologicalDataset{eltype(X_all_d),ndims(X_all_d)-2}(modal_args.ontology,X_all_d)
 
@@ -185,7 +186,7 @@ function testDataset(
 					checkpoint_stdout("Computing gammas...")
 					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 					if !isnothing(gammas_jld_path)
-						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\" (size: $(sizeof(gammas)) bytes)...")
+						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\"...")
 
 						global gammas_saving_task
 						if isa(gammas_saving_task, Task)
@@ -202,6 +203,9 @@ function testDataset(
 					end
 					gammas
 				end
+			checkpoint_stdout(" Type: $(typeof(gammas))")
+			checkpoint_stdout(" Size: $(sizeof(gammas)/1024/1024) MBytes")
+			checkpoint_stdout(" Dimensions: $(size(gammas))")
 
 			println("(optimized) modal_args = ", modal_args)
 			global_logger(old_logger);

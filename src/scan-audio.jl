@@ -51,8 +51,9 @@ log_level = DecisionTree.DTOverview
 timeit = 0
 # timeit = 2
 
-scale_dataset = Float32
+#scale_dataset = Float32
 # scale_dataset = UInt16
+scale_dataset = false
 
 # TODO
 # TEST:
@@ -60,7 +61,7 @@ scale_dataset = Float32
 # - RF with:
 forest_args = []
 
-for n_trees in [1,50,100]
+for n_trees in [1,10,100]
 	for n_subfeatures in [id_f, sqrt_f]
 		for n_subrelations in [id_f, sqrt_f]
 			push!(forest_args, (
@@ -74,6 +75,10 @@ for n_trees in [1,50,100]
 	end
 end
 # nfreqs
+
+precompute_gammas = true
+
+test_flattened = false
 
 exec_runs = 1:10
 exec_n_tasks = 1:1
@@ -91,7 +96,8 @@ exec_dataset_kwargs =   [(
 							max_points = 30,
 							ma_size = 25,
 							ma_step = 15,
-						)]
+						)
+						]
 
 forest_runs = 5
 optimize_forest_computation = true
@@ -108,6 +114,7 @@ column_separator = ";"
 exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs
 )
+
 
 just_test_filters = false
 iteration_whitelist = [
@@ -278,6 +285,8 @@ for i in exec_runs
 								forest_args                 =   forest_args,
 								tree_args                   =   tree_args,
 								modal_args                  =   modal_args,
+								test_flattened              =   test_flattened,
+								precompute_gammas           =   precompute_gammas,
 								optimize_forest_computation =   optimize_forest_computation,
 								forest_runs                 =   forest_runs,
 								gammas_save_path            =   (gammas_save_path, dataset_name_str),
