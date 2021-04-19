@@ -194,6 +194,7 @@ function testDataset(
 #							wait(gammas_saving_task)
 #						end
 #						gammas_saving_task = @async Serialization.serialize(gammas_jld_path, gammas)
+						mkpath(dirname(gammas_jld_path))
 						Serialization.serialize(gammas_jld_path, gammas)
 						# Add record line to the index file of the folder
 						if !isnothing(dataset_name_str)

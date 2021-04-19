@@ -140,7 +140,7 @@ module treeclassifier
 
 		# TODO these are just for checking the consistency of gamma-optimizations
 		best_nl = -1
-		best_unsatisfied = []
+		# TODO bring back best_unsatisfied = []
 		
 		# at this point max_features can be = n_variables(X) or the selected number of features
 		n_vars = max_features
@@ -289,7 +289,7 @@ module treeclassifier
 								best_threshold      = threshold
 								# TODO just for checking the consistency of optimizations
 								best_nl             = nl
-								best_unsatisfied    = unsatisfied
+								# TODO bring back best_unsatisfied    = unsatisfied
 								@logmsg DTDetail "  Found new optimum: " (best_purity__nt/nt) best_relation best_feature best_test_operator best_threshold
 							end
 						end
@@ -335,14 +335,18 @@ module treeclassifier
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
 			# TODO this is only a consistency check
-			if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
+			# TODO bring back if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
+			if best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 				errStr = "Something's wrong with the optimization steps.\n"
 				errStr *= "Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
 				if length(unique(unsatisfied_flags)) == 1
 					errStr *= "Uninformative split.\n$(unsatisfied_flags)\n"
 				end
-				if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags)
-					errStr *= "Different unsatisfied and best_unsatisfied:\ncomputed: $(best_unsatisfied)\n$(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
+				# TODO bring back if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags)
+				if best_nl != n_instances-sum(unsatisfied_flags)
+					# TODO bring back errStr *= "Different unsatisfied and best_unsatisfied:\ncomputed: $(best_unsatisfied)\n$(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
+					# errStr *= "Different unsatisfied and best_unsatisfied:\ncomputed: $(best_unsatisfied)\n$(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
+					errStr *= "Different unsatisfied:\ncomputed: $(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
 				end
 				for i in 1:n_instances
 					errStr *= "$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])\n";
