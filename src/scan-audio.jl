@@ -61,7 +61,7 @@ scale_dataset = false
 # - RF with:
 forest_args = []
 
-for n_trees in [1,10,100]
+for n_trees in [1,50,100]
 	for n_subfeatures in [id_f, sqrt_f]
 		for n_subrelations in [id_f, sqrt_f]
 			push!(forest_args, (
@@ -80,7 +80,7 @@ precompute_gammas = true
 
 test_flattened = false
 
-exec_runs = 1:10
+exec_runs = 1:5
 exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
@@ -174,6 +174,21 @@ iteration_whitelist = [
 ]
 
 iteration_blacklist = []
+
+if "-f" in ARGS
+	if isfile(iteration_progress_json_file_path)
+		println("Removing old $(iteration_progress_json_file_path)...")
+		rm(iteration_progress_json_file_path)
+	end
+	if isfile(concise_output_file_path)
+		println("Removing old $(concise_output_file_path)...")
+		rm(concise_output_file_path)
+	end
+	if isfile(full_output_file_path)
+		println("Removing old $(full_output_file_path)...")
+		rm(full_output_file_path)
+	end
+end
 
 # if the output files does not exists initilize them
 if ! isfile(concise_output_file_path)

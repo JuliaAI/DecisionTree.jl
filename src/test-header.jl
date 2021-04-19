@@ -77,7 +77,7 @@ traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVecto
 		if isnothing(gammas) # || isnothing(worldType)
 			gammas
 		else
-			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl)
+			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl; return_view = true)
 		end
 	X_test  = ModalLogic.sliceDomainByInstances(X, spl+1:num_instances)
 	Y_test  = Y[spl+1:end]
@@ -245,7 +245,7 @@ function testDataset(
 						(@views ModalLogic.sliceDomainByInstances(X, dataset_slice)),
 						(@views Y[dataset_slice]),
 						if !isnothing(gammas)
-							@views DecisionTree.sliceGammasByInstances(worldType, gammas, dataset_slice)
+							DecisionTree.sliceGammasByInstances(worldType, gammas, dataset_slice; return_view = true)
 						else
 							gammas
 						end
@@ -282,7 +282,7 @@ function testDataset(
 					@views ModalLogic.sliceDomainByInstances(X_train, dataset_slice),
 					@views Y_train[dataset_slice],
 					if !isnothing(gammas)
-						@views DecisionTree.sliceGammasByInstances(worldType, gammas, dataset_slice)
+						DecisionTree.sliceGammasByInstances(worldType, gammas, dataset_slice; return_view = true)
 					else
 						gammas
 					end
