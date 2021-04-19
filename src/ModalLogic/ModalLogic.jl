@@ -192,9 +192,9 @@ channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain
 @inline getFeature(d::MatricialDataset{T,3},      idx::Integer, feature::Integer) where T = @views d[:,    idx, feature]::MatricialChannel{T,1} # N=1
 @inline getFeature(d::MatricialDataset{T,4},      idx::Integer, feature::Integer) where T = @views d[:, :, idx, feature]::MatricialChannel{T,2} # N=2
 
-@inline sliceDomainByInstances(d::MatricialDataset{T,2}, inds::AbstractVector{<:Integer}) where T = @views d[inds, :]         # N=0
-@inline sliceDomainByInstances(d::MatricialDataset{T,3}, inds::AbstractVector{<:Integer}) where T = @views d[:, inds, :]      # N=1
-@inline sliceDomainByInstances(d::MatricialDataset{T,4}, inds::AbstractVector{<:Integer}) where T = @views d[:, :, inds, :]   # N=2
+@inline sliceDomainByInstances(d::MatricialDataset{T,2}, inds::AbstractVector{<:Integer}) where T = d[inds, :]         # N=0
+@inline sliceDomainByInstances(d::MatricialDataset{T,3}, inds::AbstractVector{<:Integer}) where T = d[:, inds, :]      # N=1
+@inline sliceDomainByInstances(d::MatricialDataset{T,4}, inds::AbstractVector{<:Integer}) where T = d[:, :, inds, :]   # N=2
 
 @inline strip_domain(d::MatricialDataset{T,2}) where T = d  # N=0
 @inline strip_domain(d::MatricialDataset{T,3}) where T = dropdims(d; dims=1)      # N=1

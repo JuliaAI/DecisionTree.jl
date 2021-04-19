@@ -60,7 +60,8 @@ end
 
 
 # TODO note that these splitting functions simply cut the dataset in two,
-#  and they don't produce balanced cuts. To produce balanced cuts, one must manually stratify the dataset
+#  and they don't necessarily produce balanced cuts. To produce balanced cuts,
+#  one must manually stratify the dataset beforehand
 traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
 	is_balanced = true
 	(X,Y,class_labels) = data
@@ -69,7 +70,7 @@ traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVecto
 	if length(class_labels) == 2 && is_balanced
 		spl = isodd(spl) ? (spl-1) : spl
 	end
-	X_train = X[:,1:spl,:]
+	X_train = ModalLogic.sliceDomainByInstances(X, 1:spl)
 	Y_train = Y[1:spl]
 	gammas_train = 
 		if isnothing(gammas) # || isnothing(worldType)
@@ -77,32 +78,7 @@ traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVecto
 		else
 			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl)
 		end
-	X_test  = X[:,spl+1:end,:]
-	Y_test  = Y[spl+1:end]
-	# if gammas == nothing
-		# (X_train,Y_train),(X_test,Y_test),class_labels
-	# else
-	(X_train,Y_train),(X_test,Y_test),class_labels,gammas_train
-	# end
-end
-
-traintestsplit(data::Tuple{MatricialDataset{D,4},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
-	is_balanced = true
-	(X,Y,class_labels) = data
-	spl = ceil(Int, length(Y)*threshold)
-	# make it even
-	if length(class_labels) == 2 && is_balanced
-		spl = isodd(spl) ? (spl-1) : spl
-	end
-	X_train = X[:,:,1:spl,:]
-	Y_train = Y[1:spl]
-	gammas_train = 
-		if isnothing(gammas) # || isnothing(worldType)
-			gammas
-		else
-			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl)
-		end
-	X_test  = X[:,:,spl+1:end,:]
+	X_test  = ModalLogic.sliceDomainByInstances(X, spl+1:end)
 	Y_test  = Y[spl+1:end]
 	# if gammas == nothing
 		# (X_train,Y_train),(X_test,Y_test),class_labels
