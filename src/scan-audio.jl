@@ -183,7 +183,9 @@ if ! isfile(concise_output_file_path)
 end
 if ! isfile(full_output_file_path)
 	full_output_file = open(full_output_file_path, "a+")
-	print_head(full_output_file, tree_args, forest_args, separator = column_separator)
+	print_head(full_output_file, tree_args, forest_args, separator = column_separator,
+		forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error", "σ² K", "σ² sensitivity", "σ² specificity", "σ² precision", "σ² accuracy", "σ² oob_error"],
+	)
 	close(full_output_file)
 end
 
