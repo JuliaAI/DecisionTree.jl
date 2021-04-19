@@ -61,7 +61,7 @@ scale_dataset = false
 # - RF with:
 forest_args = []
 
-for n_trees in [1,10,100]
+for n_trees in [5]
 	for n_subfeatures in [id_f, sqrt_f]
 		for n_subrelations in [id_f, sqrt_f]
 			push!(forest_args, (
@@ -82,20 +82,20 @@ test_flattened = false
 
 exec_runs = 1:10
 exec_n_tasks = 1:1
-exec_n_versions = 1:2
-exec_nbands = [20,40,60]
+exec_n_versions = [1] # 1:2
+exec_nbands = [20] # [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 30,
+							max_points = 2,
 							ma_size = 75,
 							ma_step = 50,
-						),(
-							max_points = 30,
-							ma_size = 45,
-							ma_step = 30,
-						),(
-							max_points = 30,
-							ma_size = 25,
-							ma_step = 15,
+						# ),(
+						# 	max_points = 30,
+						# 	ma_size = 45,
+						# 	ma_step = 30,
+						# ),(
+						# 	max_points = 30,
+						# 	ma_size = 25,
+						# 	ma_step = 15,
 						)
 						]
 
@@ -207,9 +207,9 @@ for i in exec_runs
 						nbands = nbands,
 						dataset_kwargs = dataset_kwargs,
 					)
-					if !is_whitelisted_test(test_parameters, iteration_whitelist) || is_blacklisted_test(test_parameters, iteration_blacklist)
-						continue
-					end
+					# if !is_whitelisted_test(test_parameters, iteration_whitelist) || is_blacklisted_test(test_parameters, iteration_blacklist)
+					# 	continue
+					# end
 					#####################################################
 
 					# CHECK WHETHER THIS ITERATION WAS ALREADY COMPUTED OR NOT
