@@ -255,7 +255,7 @@ module treeclassifier
 						# Re-initialize right class counts
 						nr = zero(U)
 						ncr[:] .= zero(U)
-						unsatisfied = fill(1, n_instances)
+						# unsatisfied = fill(1, n_instances)
 						for i in 1:n_instances
 							# @logmsg DTDetail " instance $i/$n_instances ExtremeThresh ($(opGeqMaxThresh[i])/$(opLesMinThresh[i]))"
 							satisfied = ModalLogic.evaluateThreshCondition(test_operator, threshold, thresholdArr[i])
@@ -265,7 +265,7 @@ module treeclassifier
 								nr += Wf[i]
 								ncr[Yf[i]] += Wf[i]
 							else
-								unsatisfied[i] = 0
+								# unsatisfied[i] = 0
 								@logmsg DTDetail "YES"
 							end
 						end
