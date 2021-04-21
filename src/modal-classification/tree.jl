@@ -343,6 +343,7 @@ module treeclassifier
 					errStr *= "Uninformative split.\n$(unsatisfied_flags)\n"
 				end
 				# TODO bring back if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags)
+				# if best_nl != n_instances-sum(unsatisfied_flags)
 				if best_nl != n_instances-sum(unsatisfied_flags)
 					# TODO bring back errStr *= "Different unsatisfied and best_unsatisfied:\ncomputed: $(best_unsatisfied)\n$(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
 					# errStr *= "Different unsatisfied and best_unsatisfied:\ncomputed: $(best_unsatisfied)\n$(best_nl)\nactual: $(unsatisfied_flags)\n$(n_instances-sum(unsatisfied_flags))\n"
@@ -351,7 +352,9 @@ module treeclassifier
 				for i in 1:n_instances
 					errStr *= "$(ModalLogic.getFeature(X.domain, indX[i + r_start], best_feature))\t$(Sf[i])\t$(!(unsatisfied_flags[i]==1))\t$(S[indX[i + r_start]])\n";
 				end
-				throw(Base.ErrorException(errStr))
+				# throw(Base.ErrorException(errStr))
+				println("ERROR! " * errStr)
+                                # TODO bring this error back
 			end
 
 			@logmsg DTDetail "pre-partition" region indX[region] unsatisfied_flags
