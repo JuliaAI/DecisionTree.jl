@@ -113,7 +113,7 @@ column_separator = ";"
 
 import JLD2
 save_datasets = true
-just_produce_datasets_jld = true
+just_produce_datasets_jld = false
 saved_datasets_path = results_dir * "/datasets"
 mkpath(saved_datasets_path)
 
