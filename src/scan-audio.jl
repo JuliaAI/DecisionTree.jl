@@ -267,7 +267,7 @@ for i in exec_runs
 						continue
 					end
 
-					if done
+					if done && !just_produce_datasets_jld
 						println("Iteration already done, skipping...")
 						continue
 					end
@@ -288,11 +288,11 @@ for i in exec_runs
 					n_neg = nothing
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
 					if save_datasets && isfile(dataset_file_name)
-						checkpoint_stdout("Loading dataset $(dataset_file_name)...")
-						JLD2.@load dataset_file_name dataset n_pos n_neg
 						if just_produce_datasets_jld
 							continue
 						end
+						checkpoint_stdout("Loading dataset $(dataset_file_name)...")
+						JLD2.@load dataset_file_name dataset n_pos n_neg
 					else
 						dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
 						if save_datasets
