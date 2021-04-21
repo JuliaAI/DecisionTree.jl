@@ -111,6 +111,12 @@ gammas_save_path = results_dir * "/gammas"
 
 column_separator = ";"
 
+import JLD2
+save_datasets = true
+just_produce_datasets_jld = true
+saved_datasets_path = results_dir * "/datasets"
+mkpath(saved_datasets_path)
+
 exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs
 )
@@ -268,8 +274,35 @@ for i in exec_runs
 					#####################################################
 
 					# LOAD DATASET
+					dataset_file_safe_name = string(
+						string(string(dataset_seed), ".",
+						string(n_task), ".",
+						string(n_version), ".",
+						string(nbands), ".",
+						replace(string(values(dataset_kwargs)), ", " => ".")), ".jld"
+					)
+					dataset_file_name = saved_datasets_path * "/" * dataset_file_safe_name
+
+					dataset = nothing
+					n_pos = nothing
+					n_neg = nothing
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+					if save_datasets && isfile(dataset_file_name)
+						checkpoint_stdout("Loading dataset $(dataset_file_name)...")
+						JLD2.@load dataset_file_name dataset n_pos n_neg
+						if just_produce_datasets_jld
+							continue
+						end
+					else
+						dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+						if save_datasets
+							checkpoint_stdout("Saving dataset $(dataset_file_name)...")
+							JLD2.@save dataset_file_name dataset n_pos n_neg
+							if just_produce_datasets_jld
+								continue
+							end
+						end
+					end
 					n_per_class = min(n_pos, n_neg)
 					# using Random
 					# n_pos = 10
