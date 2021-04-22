@@ -67,3 +67,138 @@ end
 
 ###############################################################################
 ###############################################################################
+
+function extract_model(
+		file_name::String,
+		type::String;
+		n_trees::Number = 100,
+		keep_header = true,
+		column_separator = ";",
+		exclude_variance = true,
+		exclude_parameters = [ "K", "oob_error" ],
+		secondary_file_name::Union{Nothing,String} = nothing,
+		remove_duplicated_rows = true
+	)
+
+	if ! isfile(file_name)
+		error("No file with name $(file_name) found.")
+	end
+
+	file = open(file_name, "r")
+	secondary_table =
+		if isnothing(secondary_file_name)
+			nothing
+		else
+			extract_model(
+				secondary_file_name, type,
+				n_trees = n_trees,
+				keep_header = false,
+				column_separator = column_separator,
+				exclude_variance = exclude_variance,
+				exclude_parameters = exclude_parameters,
+				secondary_file_name = nothing
+			)
+		end
+
+	function split_line(line)
+		return split(chomp(line), column_separator, keepempty = true)
+	end
+
+	function get_proper_columns_indexes(header, type, n_trees)
+		function get_tree_number_from_header(header, index)
+			return parse(Int, split(replace(header[index], "RF(" => ""), ",")[1])
+		end
+
+		function is_variance_column(header, index)::Bool
+			return contains(header[index], "σ")
+		end
+
+		function is_excluded_column(header, index)::Bool
+			for excluded in exclude_parameters
+				if contains(split(header[index], ")")[2], excluded)
+					return true
+				end
+			end
+			return false
+		end
+
+		local selected_columns = []
+		if type == "T"
+			for i in 1:length(header)
+				if startswith(header[i], "T")
+					if is_excluded_column(header, i)
+						continue
+					end
+					push!(selected_columns, i)
+				end
+			end
+		elseif type == "RF"
+			for i in 1:length(header)
+				if startswith(header[i], "RF") && get_tree_number_from_header(header, i) == n_trees
+					if exclude_variance && is_variance_column(header, i)
+						continue
+					end
+					if is_excluded_column(header, i)
+						continue
+					end
+					push!(selected_columns, i)
+				end
+			end	
+		else
+			error("No model known of type $(type); could be \"T\" or \"RF\".")
+		end
+
+		selected_columns
+	end
+	
+	header = []
+	append!(header, split_line(readline(file)))
+
+	selected_columns = [1]
+	append!(selected_columns, get_proper_columns_indexes(header, type, n_trees))
+
+	table::Vector{Vector{Any}} = []
+	if keep_header
+		push!(table, header[selected_columns])
+	end
+	for l in readlines(file)
+		push!(table, split_line(l)[selected_columns])
+	end
+
+	close(file)
+
+	if !isnothing(secondary_table)
+		if remove_duplicated_rows
+			# TODO: is there a less naive solution to this?
+			for st_row in secondary_table
+				jump_row = false
+				for pt_row in table
+					if st_row[1] == pt_row[1]
+						jump_row = true
+					end
+				end
+				if !jump_row
+					push!(table, st_row)
+				end
+			end
+		else
+			append!(table, secondary_table)
+		end
+	end
+
+	table
+end
+
+function string_table_csv(table::Vector{Vector{Any}}; column_separator = ";")
+	result = ""
+	for row in table
+		for (i, cell) in enumerate(row)
+			result *= string(cell)
+			if i != length(row)
+				result *= ";"
+			end
+		end
+		result *= "\n"
+	end
+	result
+end
