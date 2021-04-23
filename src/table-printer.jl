@@ -202,3 +202,67 @@ function string_table_csv(table::Vector{Vector{Any}}; column_separator = ";")
 	end
 	result
 end
+
+function string_table_latex(table::Vector{Vector{Any}};
+		column_separator = ";",
+		header_size = 1,
+		first_column_size = 1,
+		v_lin_every_cloumn = 0,
+		foot_note = "",
+		scale = 1.0
+	)
+	result = "\\begin{table}[t]\n"
+
+	if scale != 1.0
+		result *= "\\resizebox{$(scale)\\linewidth}{!}{\\begin{minipage}{\\textwidth}"
+	end
+
+	result *= "\\begin{tabular}{$("c"^first_column_size)|"
+	if v_lin_every_cloumn == 0
+		result *= "$("l"^(length(table[header_size+1])-first_column_size))"
+	else
+		for i in (first_column_size+1):length(table[header_size+1])
+			result *= "l"
+			if (i-first_column_size) % v_lin_every_cloumn == 0 && i != length(table[header_size+1])
+				result *= "|"
+			end
+		end
+	end
+	result *= "}\n"
+
+	for (i, row) in enumerate(table)
+		if i == 1
+#			result *= "\\toprule\n"
+		end
+		for (j, cell) in enumerate(row)
+			result *= string(cell)
+			if j != length(row)
+				result *= " & "
+			end
+		end
+		if i != length(table)
+			result *= " \\\\"
+		end
+		result *= "\n"
+		if i == header_size
+			result *= "\\hline"
+		end
+		if i == length(table)
+#			result *= "\\bottomrule\n"
+		end
+	end
+	result *= "\\end{tabular}"
+	if length(foot_note) > 0
+		result *= "\\begin{tablenotes}\n"
+		result *= "\\item " * foot_note * "\n"
+	  	result *= "\\end{tablenotes}\n"
+	end
+
+	if scale != 1.0
+		result *= "\\end{minipage}}"
+	end
+
+	result *= "\n\\end{table}\n"
+
+	result
+end
