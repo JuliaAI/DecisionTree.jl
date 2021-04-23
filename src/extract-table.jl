@@ -279,7 +279,7 @@ write_to_file(destination * "/tree.tex", latex_t)
 write_to_file(destination * "/rf50.tex", latex_rf50)
 write_to_file(destination * "/rf100.tex", latex_rf100)
 
-nice_tree *= "\\begin{lstlisting}
+nice_tree = "\\begin{lstlisting}
 ⟨⟩ (V20 ⫺₇₀ 0.5615922788407576)
 ✔ ⟨L̅⟩ (V7 ⫹₇₀ 6.176777086476566e-7)
 │✔ 1 : 6/6
