@@ -126,10 +126,10 @@ iteration_progress_json_file_path = results_dir * "/progress.json"
 concise_output_file_path = results_dir * "/grouped_in_models.csv"
 full_output_file_path = results_dir * "/full_columns.csv"
 gammas_save_path = results_dir * "/gammas"
+save_tree_path = results_dir * "/trees"
 
 column_separator = ";"
 
-import JLD2
 save_datasets = true
 just_produce_datasets_jld = false
 saved_datasets_path = results_dir * "/datasets"
@@ -230,11 +230,19 @@ end
 
 # a = KDDDataset_not_stratified((1,1), merge(audio_kwargs, (nbands=40,)); exec_dataset_kwargs[1]...)
 
+run_to_seed = Dict{Number, Number}(
+	1 => 7933197233428195239,
+	2 => 1735640862149943821,
+	3 => 3245434972983169324,
+	4 => 1708661255722239460,
+	5 => 1107158645723204584
+)
+
 # RUN
 for i in exec_runs
 	rng = spawn_rng(main_rng)
 	println("SEED: " * string(Int64.(rng.seed)))
-	dataset_seed = abs(rand(rng, Int))
+	dataset_seed = run_to_seed[i]
 	# TASK
 	for n_task in exec_n_tasks
 		for n_version in exec_n_versions
@@ -358,6 +366,7 @@ for i in exec_runs
 								optimize_forest_computation =   optimize_forest_computation,
 								forest_runs                 =   forest_runs,
 								gammas_save_path            =   (gammas_save_path, dataset_name_str),
+								save_tree_path              =   save_tree_path,
 								rng                         =   train_rng
 								);
 					#####################################################
@@ -410,6 +419,8 @@ for i in exec_runs
 		end
 	end
 end
+
+checkpoint_stdout("Finished!")
 
 # selected_args = merge(args, (loss = loss,
 # 															min_samples_leaf = min_samples_leaf,

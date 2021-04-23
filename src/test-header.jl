@@ -23,6 +23,7 @@ using Test
 
 using SHA
 using Serialization
+import JLD2
 
 function get_dataset_hash_sha256(dataset)::String
 	io = IOBuffer();
@@ -114,6 +115,7 @@ function testDataset(
 		optimize_forest_computation     = false,
 		forest_runs						= 1,
 		gammas_save_path                ::Union{String,NTuple{2,String},Nothing} = nothing,
+		save_tree_path                  ::Union{String,Nothing} = nothing,
 		dataset_slice                   ::Union{AbstractVector,Nothing} = nothing,
 		error_catching                  = false,
 		rng                             = my_rng(),
@@ -337,6 +339,15 @@ function testDataset(
 				@btime build_tree($Y_train, $X_train; $tree_args..., $modal_args..., gammas = gammas_train, rng = $rng);
 			end
 		print_tree(T)
+
+		if !isnothing(save_tree_path)
+			tree_hash = get_dataset_hash_sha256(T)
+			total_save_path = save_tree_path * "/tree_" * tree_hash * ".jld"
+			mkpath(dirname(total_save_path))
+
+			checkpoint_stdout("Saving tree to file $(total_save_path)...")
+			JLD2.@save total_save_path T
+		end
 		
 		println(" test size = $(size(X_test))")
 		cm = nothing

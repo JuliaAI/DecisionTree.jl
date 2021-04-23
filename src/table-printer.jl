@@ -222,10 +222,10 @@ function string_table_latex(table::Vector{Vector{Any}};
 
 	result *= "\\begin{tabular}{$("c"^first_column_size)|"
 	if v_lin_every_cloumn == 0
-		result *= "$("l"^(length(table[header_size+1])-first_column_size))"
+		result *= "$("c"^(length(table[header_size+1])-first_column_size))"
 	else
 		for i in (first_column_size+1):length(table[header_size+1])
-			result *= "l"
+			result *= "c"
 			if (i-first_column_size) % v_lin_every_cloumn == 0 && i != length(table[header_size+1])
 				result *= "|"
 			end

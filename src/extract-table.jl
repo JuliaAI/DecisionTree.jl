@@ -123,7 +123,7 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
         nh::Vector{Vector{Any}} = []
         if type == "RF"
             # first row
-            new_row_1::Vector{Any} = [ "\\multirow{2}{*}{$(type) ($(get_n_trees(header[2])))}" ]
+            new_row_1::Vector{Any} = [ "\\multirow{2}{*}{$(type)($(get_n_trees(header[2])))}" ]
             for (j, m) in enumerate(models)
                 res = "\\multicolumn{$(length(vars))}{c"
                 if j != length(models)
@@ -244,7 +244,7 @@ Ttable_csv = dict_to_desired_format_table(Ttuple..., use_only_seeds = seeds, bea
 RF50table_csv = dict_to_desired_format_table(RF50tuple..., use_only_seeds = seeds, beautify_latex = false)
 RF100table_csv = dict_to_desired_format_table(RF100tuple..., use_only_seeds = seeds, beautify_latex = false)
 
-color_row = ""#"\\rowcolor{lightgray!50}"
+color_row = "\\rowcolor{lightgray!50}"
 # Arrange table in proper way (LaTeX)
 Ttable_latex = dict_to_desired_format_table(Ttuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
 RF50table_latex = dict_to_desired_format_table(RF50tuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
