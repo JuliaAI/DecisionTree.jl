@@ -20,12 +20,6 @@ function data_to_string(
 	result *= string(percent(cm.specificities[1]), separator)
 	result *= string(percent(cm.PPVs[1]), separator)
 	result *= string(percent(cm.overall_accuracy))
-
-	if isa(M, DecisionTree.Forest{S, T})
-		result *= separator
-		result *= string(percent(M.oob_error))
-	end
-
 	result *= end_s
 
 	result

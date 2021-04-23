@@ -29,23 +29,26 @@ function print_forest_head(io, forest_args)
 end
 
 function print_head(
-		io::Core.IO, tree_args::NamedTuple{T,N},
+		io::Core.IO,
+		tree_args::AbstractArray,
 		forest_args::AbstractArray;
 		separator = ";",
 		tree_columns = ["K", "sensitivity", "specificity", "precision", "accuracy"],
 		forest_columns = ["K", "σ² K", "sensitivity", "σ² sensitivity", "specificity", "σ² specificity", "precision", "σ² precision", "accuracy", "σ² accuracy", "oob_error", "σ² oob_error"],
         empty_column_before = 1
-	) where {T, N}
+	) # where {T, N}
 
-    for i in 1:empty_column_before
-        write(io, separator)
-    end
+	for i in 1:empty_column_before
+		write(io, separator)
+	end
 
-	for j in 1:length(tree_columns)
-		print_tree_head(io, tree_args)
-		write(io, tree_columns[j])
-		if j != length(tree_columns) || length(forest_args) > 0
+	for i in 1:length(tree_args)
+		for j in 1:length(tree_columns)
+			print_tree_head(io, tree_args[i])
+			write(io, tree_columns[j])
+			# if !(i === length(tree_args) && j === length(tree_columns)) || length(forest_args) > 0
 			write(io, separator)
+			# end
 		end
 	end
 
@@ -53,9 +56,9 @@ function print_head(
 		for j in 1:length(forest_columns)
 			print_forest_head(io, forest_args[i])
 			write(io, forest_columns[j])
-			if !(i === length(forest_args) && j === length(forest_columns))
-				write(io, separator)
-			end
+			# if !(i === length(forest_args) && j === length(forest_columns))
+			write(io, separator)
+			# end
 		end
 	end
 	write(io, "\n")
