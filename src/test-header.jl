@@ -107,7 +107,7 @@ function testDataset(
 		scale_dataset                   ::Union{Bool,Type} = false,
 		post_pruning_purity_thresholds  = [],
 		forest_args                     = [],
-		tree_args                       = (),
+		tree_args                       = [],
 		modal_args                      = (),
 		test_flattened                  = false,
 		precompute_gammas               = true,
@@ -183,7 +183,7 @@ function testDataset(
 
 					Serialization.deserialize(gammas_jld_path)
 				else
-					checkpoint_stdout("Computing gammas...")
+					checkpoint_stdout("Computing gammas for $(dataset_hash)...")
 					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
 					if !isnothing(gammas_jld_path)
 						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\"...")
@@ -327,7 +327,7 @@ function testDataset(
 		"$(round(DecisionTree.macro_weighted_NPV(cm)*100, digits=2))%\t"
 	end
 
-	go_tree() = begin
+	go_tree(tree_args) = begin
 		T = 
 			if timeit == 0
 				build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng);
@@ -420,16 +420,19 @@ function testDataset(
 	end
 
 	go() = begin
-		T = nothing
+		Ts = []
 		Fs = []
-		Tcm = nothing
+		Tcms = []
 		Fcms = []
 
 		old_logger = global_logger(ConsoleLogger(stderr, log_level))
-		
-		checkpoint_stdout("Computing Tree...")
 
-		T, Tcm = go_tree()
+		for (i_model, this_args) in enumerate(tree_args)
+			checkpoint_stdout("Computing Tree $(i_model) / $(length(tree_args))...")
+			this_T, this_Tcm = go_tree(this_args)
+			push!(Ts, this_T)
+			push!(Tcms, this_Tcm)
+		end
 
 		# # TODO
 		# if test_flattened == true
@@ -507,7 +510,7 @@ function testDataset(
 
 		global_logger(old_logger);
 
-		T, Fs, Tcm, Fcms
+		Ts, Fs, Tcms, Fcms
 	end
 
 	if error_catching 

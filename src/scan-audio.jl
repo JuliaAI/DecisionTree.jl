@@ -5,12 +5,31 @@ include("progressive-iterator-manager.jl")
 main_rng = DecisionTree.mk_rng(1)
 
 # Optimization arguments for single-tree
-tree_args = (
-	loss = DecisionTree.util.entropy,
-	min_samples_leaf = 1,
-	min_purity_increase = 0.01,
-	min_loss_at_leaf = 0.4,
-)
+tree_args = [
+	# (
+	# 	loss = DecisionTree.util.entropy,
+	# 	min_samples_leaf = 1,
+	# 	min_purity_increase = 0.01,
+	# 	min_loss_at_leaf = 0.4,
+	# )
+]
+
+for loss in [DecisionTree.util.entropy]
+	for min_samples_leaf in [1,2]
+		for min_purity_increase in [0.01, 0.001]
+			for min_loss_at_leaf in [0.4, 0.6]
+				push!(tree_args, 
+					(
+						loss = loss,
+						min_samples_leaf = min_samples_leaf,
+						min_purity_increase = min_purity_increase,
+						min_loss_at_leaf = min_loss_at_leaf,
+					)
+				)
+			end
+		end
+	end
+end
 
 # Optimization arguments for trees in a forest (no pruning is performed)
 forest_tree_args = (
@@ -61,20 +80,19 @@ scale_dataset = false
 # - RF with:
 forest_args = []
 
-for n_trees in [1,50,100]
-	for n_subfeatures in [id_f, sqrt_f]
-		for n_subrelations in [id_f, sqrt_f]
-			push!(forest_args, (
-				n_subfeatures       = n_subfeatures,
-				n_trees             = n_trees,
-				partial_sampling    = 1.0,
-				n_subrelations      = n_subrelations,
-				forest_tree_args...
-			))
-		end
-	end
-end
-# nfreqs
+# for n_trees in [1,50,100]
+# 	for n_subfeatures in [id_f, sqrt_f]
+# 		for n_subrelations in [id_f, sqrt_f]
+# 			push!(forest_args, (
+# 				n_subfeatures       = n_subfeatures,
+# 				n_trees             = n_trees,
+# 				partial_sampling    = 1.0,
+# 				n_subrelations      = n_subrelations,
+# 				forest_tree_args...
+# 			))
+# 		end
+# 	end
+# end
 
 precompute_gammas = true
 
@@ -325,7 +343,7 @@ for i in exec_runs
 					)
 
 					# ACTUAL COMPUTATION
-					T, Fs, Tcm, Fcms = testDataset(
+					Ts, Fs, Tcms, Fcms = testDataset(
 								"($(n_task),$(n_version))",
 								dataset,
 								0.8,
@@ -348,20 +366,28 @@ for i in exec_runs
 
 					# PRINT CONCISE
 					concise_output_string = string(row_ref, column_separator)
-					concise_output_string *= string(data_to_string(T, Tcm; separator=", "), column_separator)
+					for j in 1:length(tree_args)
+						concise_output_string *= string(data_to_string(Ts[j], Tcms[j]; alt_separator=", ", separator = column_separator))
+						concise_output_string *= string(column_separator)
+					end
 					for j in 1:length(forest_args)
 						concise_output_string *= string(data_to_string(Fs[j], Fcms[j]; alt_separator=", ", separator = column_separator))
-						concise_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
+						concise_output_string *= string(column_separator)
 					end
+					concise_output_string *= string("\n")
 					append_in_file(concise_output_file_path, concise_output_string)
 
 					# PRINT FULL
 					full_output_string = string(row_ref, column_separator)
-					full_output_string *= string(data_to_string(T, Tcm; start_s = "", end_s = ""), column_separator)
+					for j in 1:length(tree_args)
+						full_output_string *= string(data_to_string(Ts[j], Tcms[j]; start_s = "", end_s = ""), column_separator)
+						full_output_string *= string(column_separator)
+					end
 					for j in 1:length(forest_args)
 						full_output_string *= string(data_to_string(Fs[j], Fcms[j]; start_s = "", end_s = "", alt_separator = column_separator))
-						full_output_string *= string(j == length(forest_args) ? "\n" : column_separator)
+						full_output_string *= string(column_separator)
 					end
+					full_output_string *= string("\n")
 					append_in_file(full_output_file_path, full_output_string)
 					#####################################################
 
