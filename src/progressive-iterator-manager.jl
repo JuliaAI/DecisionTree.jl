@@ -15,10 +15,10 @@ function data_to_string(
 	) where {S, T}
 
 	result = start_s
-	result *= string(percent(cm.kappa), separator)
-	result *= string(percent(cm.sensitivities[1]), separator)
-	result *= string(percent(cm.specificities[1]), separator)
-	result *= string(percent(cm.PPVs[1]), separator)
+	result *= string(percent(cm.kappa), alt_separator)
+	result *= string(percent(cm.sensitivities[1]), alt_separator)
+	result *= string(percent(cm.specificities[1]), alt_separator)
+	result *= string(percent(cm.PPVs[1]), alt_separator)
 	result *= string(percent(cm.overall_accuracy))
 	result *= end_s
 

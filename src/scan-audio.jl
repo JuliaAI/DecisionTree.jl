@@ -389,7 +389,7 @@ for i in exec_runs
 					# PRINT FULL
 					full_output_string = string(row_ref, column_separator)
 					for j in 1:length(tree_args)
-						full_output_string *= string(data_to_string(Ts[j], Tcms[j]; start_s = "", end_s = ""), column_separator)
+						full_output_string *= string(data_to_string(Ts[j], Tcms[j]; start_s = "", end_s = "", alt_separator = column_separator))
 						full_output_string *= string(column_separator)
 					end
 					for j in 1:length(forest_args)
