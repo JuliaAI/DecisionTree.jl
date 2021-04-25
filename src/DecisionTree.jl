@@ -43,6 +43,8 @@ export DecisionTreeClassifier,
        # predict_proba,
        fit!, get_classes
 
+export update_tree_leaves
+
 include("ModalLogic/ModalLogic.jl")
 using .ModalLogic
 include("gammas.jl")
