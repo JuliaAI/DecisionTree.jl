@@ -217,7 +217,9 @@ function string_table_latex(table::Vector{Vector{Any}};
 	result = "\\begin{table}[t]\n"
 
 	if scale != 1.0
-		result *= "\\resizebox{$(scale)\\linewidth}{!}{\\begin{minipage}{\\textwidth}"
+		result *= "\\resizebox{$(scale)\\linewidth}{!}{"
+	else
+		result *= "\\resizebox{1\\linewidth}{!}{"
 	end
 
 	result *= "\\begin{tabular}{$("c"^first_column_size)|"
@@ -261,11 +263,9 @@ function string_table_latex(table::Vector{Vector{Any}};
 	  	result *= "\\end{tablenotes}\n"
 	end
 
-	if scale != 1.0
-		result *= "\\end{minipage}}"
-	end
-
-	result *= "\n\\end{table}\n"
+	# close resizebox
+	result *= "}\n"
+	result *= "\\end{table}\n"
 
 	result
 end
