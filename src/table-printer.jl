@@ -213,7 +213,7 @@ function string_table_latex(table::Vector{Vector{Any}};
 		foot_note = "",
 		scale = 1.0
 	)
-	result = "\\begin{table}[t]\n"
+	result = "\\begin{table}[h]\n\\centering\n"
 
 	if scale != 1.0
 		result *= "\\resizebox{$(scale)\\linewidth}{!}{"
