@@ -2,33 +2,34 @@
 include("table-printer.jl")
 
 import Statistics
-#tables_path = "./tables"
-#mkpath(tables_path)
+tables_path = "./tables"
+destination = "./tables"
+primary_file_name = tables_path * "/" * "encase.csv"
+secondary_file_name = tables_path * "/" * "titan.csv"
+tree_file_name = tables_path * "/" * "tree.csv"
+mkpath(tables_path)
 
 seeds = [
     "7933197233428195239",
     "1735640862149943821",
     "3245434972983169324",
-    #"2461790151364820568", TODO: add this if encase finishes in time
     "1708661255722239460",
     "1107158645723204584"
 ]
 
+convert_col_name = Dict{String,String}(
+    "sensitivity" => "sens",
+    "specificity" => "spec",
+    "precision" => "prec",
+    "accuracy" => "accu"
+)
+
 seed_dictionary = Dict{String,String}(zip(seeds, "s" * string(i) for i in 1:length(seeds)))
 
-secondary_file_name = nothing
-if length(ARGS) > 1
-    secondary_file_name = ARGS[2]
-end
-
-destination = "./"
-if length(ARGS) > 2
-    destination = ARGS[3]
-end
-
-T = extract_model(ARGS[1], "T", secondary_file_name = secondary_file_name)
-RF50 = extract_model(ARGS[1], "RF", n_trees = 50, secondary_file_name = secondary_file_name)
-RF100 = extract_model(ARGS[1], "RF", n_trees = 100, secondary_file_name = secondary_file_name)
+T = extract_model(primary_file_name, "T", secondary_file_name = secondary_file_name)
+RF50 = extract_model(primary_file_name, "RF", n_trees = 50, secondary_file_name = secondary_file_name)
+RF100 = extract_model(primary_file_name, "RF", n_trees = 100, secondary_file_name = secondary_file_name)
+newT = extract_model(tree_file_name, "T")
 
 function get_task(row_label)
     return split(row_label, ",", limit = 2)[2]
@@ -119,11 +120,12 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
                 push!(vars, get_column_var(header[i]))
             end
         end
+        vars = map(str -> convert_col_name[str], vars)
 
         nh::Vector{Vector{Any}} = []
         if type == "RF"
             # first row
-            new_row_1::Vector{Any} = [ "\\multirow{2}{*}{$(type)($(get_n_trees(header[2])))}" ]
+            new_row_1::Vector{Any} = [ "\\multirow{2}{*}{\\textit{$(type)$(get_n_trees(header[2]))}}" ]
             for (j, m) in enumerate(models)
                 res = "\\multicolumn{$(length(vars))}{c"
                 if j != length(models)
@@ -142,7 +144,7 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
             end
             push!(nh, new_row_2)
         elseif type == "T"
-            new_row::Vector{Any} = [ "$(type)" ]
+            new_row::Vector{Any} = [ "\\textit{TDT}" ]
             for i in 1:length(models)
                 for v in vars
                     push!(new_row, v)
@@ -238,83 +240,43 @@ end
 Ttuple = table_to_dict(T)
 RF50tuple = table_to_dict(RF50)
 RF100tuple = table_to_dict(RF100)
+newTtuple = table_to_dict(newT)
 
 # Arrange table in proper way (CSV)
-Ttable_csv = dict_to_desired_format_table(Ttuple..., use_only_seeds = seeds, beautify_latex = false)
-RF50table_csv = dict_to_desired_format_table(RF50tuple..., use_only_seeds = seeds, beautify_latex = false)
-RF100table_csv = dict_to_desired_format_table(RF100tuple..., use_only_seeds = seeds, beautify_latex = false)
+#Ttable_csv = dict_to_desired_format_table(Ttuple..., use_only_seeds = seeds, beautify_latex = false)
+#RF50table_csv = dict_to_desired_format_table(RF50tuple..., use_only_seeds = seeds, beautify_latex = false)
+#RF100table_csv = dict_to_desired_format_table(RF100tuple..., use_only_seeds = seeds, beautify_latex = false)
 
 color_row = "\\rowcolor{lightgray!50}"
 # Arrange table in proper way (LaTeX)
 Ttable_latex = dict_to_desired_format_table(Ttuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
 RF50table_latex = dict_to_desired_format_table(RF50tuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
 RF100table_latex = dict_to_desired_format_table(RF100tuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
+newTtable_latex = dict_to_desired_format_table(newTtuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
 
 # Prepare string to print (CSV)
-csv_doc = string_table_csv(Ttable_csv[1]) * "\n"
-csv_doc *= string_table_csv(RF50table_csv[1]) * "\n"
-csv_doc *= string_table_csv(RF100table_csv[1]) * "\n"
+#csv_doc = string_table_csv(Ttable_csv[1]) * "\n"
+#csv_doc *= string_table_csv(RF50table_csv[1]) * "\n"
+#csv_doc *= string_table_csv(RF100table_csv[1]) * "\n"
 
-# Prepare string to print (LaTeX)
 seed_item = "Seeds: "
-
 for (i, (k, v)) in enumerate(seed_dictionary)
     global seed_item *= k * " = " * v
     seed_item *= i == length(seed_dictionary) ? "." : ", "
 end
 
-latex_t = string_table_latex(Ttable_latex[1], header_size=Ttable_latex[2], first_column_size = Ttable_latex[3], v_lin_every_cloumn = 4, scale = 0.45) * "\n"
-latex_rf50 = string_table_latex(RF50table_latex[1], header_size=RF50table_latex[2], first_column_size = RF50table_latex[3], v_lin_every_cloumn = 4, scale = 0.45) * "\n"
-latex_rf100 = string_table_latex(RF100table_latex[1], header_size=RF100table_latex[2], first_column_size = RF100table_latex[3], v_lin_every_cloumn = 4, scale = 0.45) * "\n"
+latex_t = string_table_latex(Ttable_latex[1], header_size=Ttable_latex[2], first_column_size = Ttable_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
+latex_rf50 = string_table_latex(RF50table_latex[1], header_size=RF50table_latex[2], first_column_size = RF50table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
+latex_rf100 = string_table_latex(RF100table_latex[1], header_size=RF100table_latex[2], first_column_size = RF100table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
+latex_newt = string_table_latex(newTtable_latex[1], header_size=newTtable_latex[2], first_column_size = newTtable_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
 
 function write_to_file(file_name, string::String)
     file = open(file_name, "w")
-
     write(file, string)
-
     close(file)
 end
 
 write_to_file(destination * "/tree.tex", latex_t)
 write_to_file(destination * "/rf50.tex", latex_rf50)
 write_to_file(destination * "/rf100.tex", latex_rf100)
-
-nice_tree = "\\begin{lstlisting}
-⟨⟩ (V20 ⫺₇₀ 0.5615922788407576)
-✔ ⟨L̅⟩ (V7 ⫹₇₀ 6.176777086476566e-7)
-│✔ 1 : 6/6
-│✘ ⟨E̅⟩ (V54 ⫺₇₀ 6.064393361449956)
-│ ✔ 1 : 4/4
-│ ✘ V14 ⫹₇₀ 0.820070925146093
-│  ✔ ⟨A̅⟩ (V14 ⫺₇₀ 0.35871902278168466)
-│  │✔ ⟨L⟩ (V24 ⫺₇₀ 0.05022759203477401)
-│  ││✔ 1 : 9/9
-│  ││✘ 0 : 2/2
-│  │✘ 0 : 24/25
-│  ✘ 0 : 26/26
-✘ ⟨⟩ (V45 ⫺₇₀ 0.0005385868666157022)
- ✔ ⟨A̅⟩ (V51 ⫺₇₀ 0.06956334660096865)
- │✔ ⟨A̅⟩ (V46 ⫺₇₀ 0.32768843936211767)
- ││✔ ⟨B̅⟩ (V10 ⫺₇₀ 0.44057750825408043)
- │││✔ 1 : 6/6
- │││✘ 0 : 9/10
- ││✘ 1 : 53/55
- │✘ ⟨E⟩ (V20 ⫺₇₀ 0.029182827872923228)
- │ ✔ ⟨D⟩ (V48 ⫹₇₀ 4.199406045996452e-6)
- │ │✔ 1 : 7/7
- │ │✘ ⟨E̅⟩ (V5 ⫹₇₀ 0.07069683637970851)
- │ │ ✔ ⟨E̅⟩ (V8 ⫹₇₀ 0.16965271511272867)
- │ │ │✔ ⟨A⟩ (V24 ⫺₇₀ 0.07407156769668966)
- │ │ ││✔ 1 : 3/3
- │ │ ││✘ 0 : 11/11
- │ │ │✘ 1 : 8/8
- │ │ ✘ 0 : 15/15
- │ ✘ 1 : 12/13
- ✘ 0 : 22/24
-\\end{lstlisting}"
-
-# Print CSV
-#println(csv_doc)
-
-# Print LaTeX
-#println(latex_doc)
+write_to_file(destination * "/newtree.tex", latex_newt)
