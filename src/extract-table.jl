@@ -89,9 +89,11 @@ function table_to_dict(model)
 end
 
 function dict_to_desired_format_table(dict, header, seed_order, task_order; average_row_decorate = "", use_only_seeds = [], beautify_latex = false)
-    average_string = "avg(std)"
-    function average_row(dict)::Vector{Any}
-        new_row::Vector{Any} = [average_row_decorate * average_string]
+    average_string = "avg"
+    std_dev_string = "std"
+    function avg_std_row(dict)::Vector{Any}
+        avg_row::Vector{Any} = [average_row_decorate * average_string]
+        std_row::Vector{Any} = [average_row_decorate * std_dev_string]
         rows = collect(values(dict))
         for i in 2:length(rows[1])
             # TODO: there is a better way to do this, I know it
@@ -99,9 +101,10 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
             for r in rows
                 push!(vals, parse(Float64, r[i]))
             end
-            push!(new_row, string(round(Statistics.mean(vals), digits=2), " (", round(Statistics.std(vals), digits=2), ")"))
+            push!(avg_row, string(round(Statistics.mean(vals), digits=2)))
+            push!(std_row, string(round(Statistics.std(vals), digits=2)))
         end
-        new_row
+        [ avg_row, std_row ]
     end
 
     function pretty_header(header)::Vector{Vector{Any}}
@@ -170,7 +173,9 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
 
         for i in (header_size+1):length(table)
             if startswith(table[i][1], average_row_decorate * average_string)
-                table[i][1] = average_row_decorate * "\\multicolumn{2}{c|}{$(replace(table[i][1], average_row_decorate => ""))}"
+                table[i][1] = average_row_decorate * "\\multicolumn{2}{r|}{$(replace(table[i][1], average_row_decorate => ""))}"
+            elseif startswith(table[i][1], average_row_decorate * std_dev_string)
+                table[i][1] = average_row_decorate * "\\multicolumn{2}{r|}{$(replace(table[i][1], average_row_decorate => ""))}"
             else
                 seed = get_seed(table[i][1])
                 task = replace(replace(get_task(table[i][1]), "1," => "", count = 1), ", " => ",")
@@ -181,7 +186,7 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
                 if !(task in task_already_inserted)
                     k = i
                     row_count = 1
-                    while startswith(table[k][1], average_row_decorate * average_string)
+                    while !startswith(table[k][1], average_row_decorate * average_string)
                         k += 1
                         row_count += 1
                     end
@@ -219,7 +224,7 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
             end
             push!(table, dict[task][seed])
         end
-        push!(table, average_row(dict[task]))
+        append!(table, avg_std_row(dict[task]))
     end
 
     row_size = length(table[header_size+1])
