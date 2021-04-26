@@ -26,10 +26,46 @@ convert_col_name = Dict{String,String}(
 
 seed_dictionary = Dict{String,String}(zip(seeds, "s" * string(i) for i in 1:length(seeds)))
 
+function write_to_file(file_name, string::String)
+    file = open(file_name, "w")
+    write(file, string)
+    close(file)
+end
+
+function fix_table(table)
+    function NPV(sensitivity, specificity, n)
+        # i) calcolare TP = [sensitivity * 141]
+        TP = round(Int,( parse(Float64, sensitivity)/100) * n)
+        # ii) calcolare TN = [specificity * 141]
+        TN = round(Int, (parse(Float64, specificity)/100) * n)
+        # iii) calcolare FN = 141 - TP
+        FN = n - TP
+        # iv) calcolare NPV = TN/(TN+FN)
+        return string(round((TN / (TN + FN)) * 100, digits=2))
+    end
+    # FIX: Calculate NPV which is ours real PPV
+    for i in 2:length(table)
+        @assert (length(table[i])-1) % 4 == 0 "(length(table[i])-1) % 4 != 0 ($(table[i]))"
+        model_per_row = round(Int, (length(table[i])-1) / 4)
+        for j in 1:model_per_row
+            table[i][1+(3*j)] = NPV(table[i][1+(1*j)], table[i][1+(2*j)], 28)
+            sensitivity = table[i][1+(2*j)]
+            specificity = table[i][1+(1*j)]
+            table[i][1+(2*j)] = specificity
+            table[i][1+(1*j)] = sensitivity
+        end
+    end
+end
+
 T = extract_model(primary_file_name, "T", secondary_file_name = secondary_file_name)
 RF50 = extract_model(primary_file_name, "RF", n_trees = 50, secondary_file_name = secondary_file_name)
 RF100 = extract_model(primary_file_name, "RF", n_trees = 100, secondary_file_name = secondary_file_name)
 newT = extract_model(tree_file_name, "T")
+
+fix_table(T)
+fix_table(RF50)
+fix_table(RF100)
+fix_table(newT)
 
 function get_task(row_label)
     return split(row_label, ",", limit = 2)[2]
@@ -248,9 +284,17 @@ RF100tuple = table_to_dict(RF100)
 newTtuple = table_to_dict(newT)
 
 # Arrange table in proper way (CSV)
-#Ttable_csv = dict_to_desired_format_table(Ttuple..., use_only_seeds = seeds, beautify_latex = false)
-#RF50table_csv = dict_to_desired_format_table(RF50tuple..., use_only_seeds = seeds, beautify_latex = false)
-#RF100table_csv = dict_to_desired_format_table(RF100tuple..., use_only_seeds = seeds, beautify_latex = false)
+Ttable_csv = dict_to_desired_format_table(Ttuple..., use_only_seeds = seeds, beautify_latex = false)
+RF50table_csv = dict_to_desired_format_table(RF50tuple..., use_only_seeds = seeds, beautify_latex = false)
+RF100table_csv = dict_to_desired_format_table(RF100tuple..., use_only_seeds = seeds, beautify_latex = false)
+newTtable_csv = dict_to_desired_format_table(newTtuple..., use_only_seeds = seeds, beautify_latex = false)
+
+write_to_file(destination * "/results.csv", string(
+    string_table_csv(Ttable_csv[1]), "\n",
+    string_table_csv(RF50table_csv[1]), "\n",
+    string_table_csv(RF100table_csv[1]), "\n",
+    string_table_csv(newTtable_csv[1]),
+))
 
 color_row = "\\rowcolor{lightgray!50}"
 # Arrange table in proper way (LaTeX)
@@ -274,12 +318,6 @@ latex_t = string_table_latex(Ttable_latex[1], header_size=Ttable_latex[2], first
 latex_rf50 = string_table_latex(RF50table_latex[1], header_size=RF50table_latex[2], first_column_size = RF50table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
 latex_rf100 = string_table_latex(RF100table_latex[1], header_size=RF100table_latex[2], first_column_size = RF100table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
 latex_newt = string_table_latex(newTtable_latex[1], header_size=newTtable_latex[2], first_column_size = newTtable_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
-
-function write_to_file(file_name, string::String)
-    file = open(file_name, "w")
-    write(file, string)
-    close(file)
-end
 
 write_to_file(destination * "/tree.tex", latex_t)
 write_to_file(destination * "/rf50.tex", latex_rf50)
