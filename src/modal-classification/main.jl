@@ -235,20 +235,7 @@ function _empty_tree_leaves(tree::DTree{S, T}) where {S, T}
 end
 
 function update_tree_leaves(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}, class::T) where {T, U, MN, WorldType<:AbstractWorld}
-	val = [ leaf.values..., class ]
-	occur = Dict{T,Int}(v => 0 for v in unique(val))
-	for v in val
-		occur[v] += 1
-	end
-	cur_maj = val[1]
-	cur_max = occur[val[1]]
-	for v in val
-		if occur[v] > cur_max
-			cur_max = occur[v]
-			cur_maj = v
-		end
-	end
-	return DTLeaf{T}(cur_maj, val)
+	return DTLeaf{T}(leaf.majority, val)
 end
 
 function update_tree_leaves(node::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}, class::T) where {U, T, MN, WorldType<:AbstractWorld}
