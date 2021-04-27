@@ -136,6 +136,9 @@ function dict_to_desired_format_table(dict, header, seed_order, task_order; aver
             # TODO: there is a better way to do this, I know it
             vals::Vector{Real} = []
             for r in rows
+                if length(use_only_seeds) != 0 && !(get_seed(r[1]) in use_only_seeds)
+                    continue
+                end    
                 push!(vals, parse(Float64, r[i]))
             end
             push!(avg_row, string(round(Statistics.mean(vals), digits=2)))
@@ -304,21 +307,16 @@ RF50table_latex = dict_to_desired_format_table(RF50tuple...; average_row_decorat
 RF100table_latex = dict_to_desired_format_table(RF100tuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
 newTtable_latex = dict_to_desired_format_table(newTtuple...; average_row_decorate = color_row, beautify_latex = true, use_only_seeds = seeds)
 
-# Prepare string to print (CSV)
-#csv_doc = string_table_csv(Ttable_csv[1]) * "\n"
-#csv_doc *= string_table_csv(RF50table_csv[1]) * "\n"
-#csv_doc *= string_table_csv(RF100table_csv[1]) * "\n"
-
 seed_item = "Seeds: "
 for (i, (k, v)) in enumerate(seed_dictionary)
     global seed_item *= k * " = " * v
     seed_item *= i == length(seed_dictionary) ? "." : ", "
 end
 
-latex_t = string_table_latex(Ttable_latex[1], header_size=Ttable_latex[2], first_column_size = Ttable_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
-latex_rf50 = string_table_latex(RF50table_latex[1], header_size=RF50table_latex[2], first_column_size = RF50table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
-latex_rf100 = string_table_latex(RF100table_latex[1], header_size=RF100table_latex[2], first_column_size = RF100table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
-latex_newt = string_table_latex(newTtable_latex[1], header_size=newTtable_latex[2], first_column_size = newTtable_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
+latex_t = string_table_latex(Ttable_latex[1], header_size = Ttable_latex[2], first_column_size = Ttable_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
+latex_rf50 = string_table_latex(RF50table_latex[1], header_size = RF50table_latex[2], first_column_size = RF50table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
+latex_rf100 = string_table_latex(RF100table_latex[1], header_size = RF100table_latex[2], first_column_size = RF100table_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
+latex_newt = string_table_latex(newTtable_latex[1], header_size = newTtable_latex[2], first_column_size = newTtable_latex[3], v_lin_every_cloumn = 4, scale = 1.0) * "\n"
 
 write_to_file(destination * "/tree.tex", latex_t)
 write_to_file(destination * "/rf50.tex", latex_rf50)
