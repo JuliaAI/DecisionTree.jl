@@ -456,6 +456,8 @@ KDDDataset_not_stratified((n_task,n_version),
 	# print(size(timeseries))
 	# print(size(timeseries[1]))
 	Y = [ones(Int, length(pos))..., zeros(Int, length(neg))...]
+	# Y = [zeros(Int, length(pos))..., ones(Int, length(neg))...]
+	# Y = [fill("yes", length(pos))..., fill("no", length(neg))...]
 	# print(size(Y))
 
 	# println([size(ts, 1) for ts in timeseries])

@@ -659,6 +659,7 @@ module treeclassifier
 
 		# Translate labels to categorical form
 		labels, Y_ = util.assign(Y)
+		# print(labels, Y_)
 
 		# Use unary weights if no weight is supplied
 		if isnothing(W)

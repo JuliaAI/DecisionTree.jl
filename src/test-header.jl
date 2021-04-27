@@ -113,7 +113,7 @@ function testDataset(
 		test_flattened                  = false,
 		precompute_gammas               = true,
 		optimize_forest_computation     = false,
-		forest_runs						= 1,
+		forest_runs                     = 1,
 		gammas_save_path                ::Union{String,NTuple{2,String},Nothing} = nothing,
 		save_tree_path                  ::Union{String,Nothing} = nothing,
 		dataset_slice                   ::Union{AbstractVector,Nothing} = nothing,
@@ -362,12 +362,14 @@ function testDataset(
 			println("RESULT:\t$(name)\t$(tree_args)\t$(modal_args)\t$(pruning_purity_threshold)\t$(display_cm_as_row(cm))")
 			
 			# println("  accuracy: ", round(cm.overall_accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
-			for (i,row) in enumerate(eachrow(cm.matrix))
-				for val in row
-					print(lpad(val,3," "))
-				end
-				println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * class_labels[i])
-			end
+			# for (i,row) in enumerate(eachrow(cm.matrix))
+			# 	for val in row
+			# 		print(lpad(val,3," "))
+			# 	end
+			# 	println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * class_labels[i])
+			# end
+			println(cm)
+			# @show cm
 
 			# println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 		end

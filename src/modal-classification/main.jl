@@ -161,6 +161,9 @@ function prune_tree(tree::DTree{S, T}, max_purity_threshold::AbstractFloat = 1.0
 	DTree{S,T}(prune_tree(tree.root), tree.worldType, tree.initCondition)
 end
 
+################################################################################
+# Apply tree: predict labels for a new dataset of instances
+################################################################################
 
 apply_tree(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}) where {U, T, MN, WorldType<:AbstractWorld} = leaf.majority
 
@@ -211,6 +214,10 @@ function apply_tree(tree::DTNode{S, T}, d::MatricialDataset{S,D}) where {S, T, D
 	apply_tree(DTree{S, T}(tree, ModalLogic.getIntervalOntologyOfDim(Val(D-2)).worldType, startWithRelationAll), d)
 end
 
+################################################################################
+# Apply tree: predict labels for a new dataset of instances
+################################################################################
+
 function _empty_tree_leaves(leaf::DTLeaf{T}) where {T}
 		DTLeaf{T}(leaf.majority, [])
 end
@@ -234,24 +241,34 @@ function _empty_tree_leaves(tree::DTree{S, T}) where {S, T}
 	)
 end
 
-function update_tree_leaves(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}, class::T) where {T, U, MN, WorldType<:AbstractWorld}
-	val = [ leaf.values..., class ]
-	occur = Dict{T,Int}(v => 0 for v in unique(val))
-	for v in val
-		occur[v] += 1
-	end
-	cur_maj = val[1]
-	cur_max = occur[val[1]]
-	for v in val
-		if occur[v] > cur_max
-			cur_max = occur[v]
-			cur_maj = v
+function print_apply_tree(leaf::DTLeaf{T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}, class::T; update_majority = false) where {T, U, MN, WorldType<:AbstractWorld}
+	vals = [ leaf.values..., class ]
+
+	majority = 
+	if update_majority
+
+		# TODO optimize this code
+		occur = Dict{T,Int}(v => 0 for v in unique(vals))
+		for v in vals
+			occur[v] += 1
 		end
+		cur_maj = vals[1]
+		cur_max = occur[vals[1]]
+		for v in vals
+			if occur[v] > cur_max
+				cur_max = occur[v]
+				cur_maj = v
+			end
+		end
+		cur_maj
+	else
+		leaf.majority
 	end
-	return DTLeaf{T}(cur_maj, val)
+
+	return DTLeaf{T}(majority, vals)
 end
 
-function update_tree_leaves(node::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}, class::T) where {U, T, MN, WorldType<:AbstractWorld}
+function print_apply_tree(node::DTInternal{U, T}, Xi::MatricialInstance{U,MN}, S::WorldSet{WorldType}, class::T; update_majority = false) where {U, T, MN, WorldType<:AbstractWorld}
 	satisfied = true
 	channel = ModalLogic.getInstanceFeature(Xi, node.featid)
 	(satisfied,S) = ModalLogic.modalStep(S, node.modality, channel, node.test_operator, node.featval)
@@ -261,36 +278,37 @@ function update_tree_leaves(node::DTInternal{U, T}, Xi::MatricialInstance{U,MN},
 		node.featid,
 		node.test_operator,
 		node.featval,
-		satisfied ? update_tree_leaves(node.left, Xi, S, class) : node.left,
-		(!satisfied) ? update_tree_leaves(node.right, Xi, S, class) : node.right,
+		satisfied ? print_apply_tree(node.left, Xi, S, class, update_majority = update_majority) : node.left,
+		(!satisfied) ? print_apply_tree(node.right, Xi, S, class, update_majority = update_majority) : node.right,
 	)
 end
 
-function update_tree_leaves(tree::DTree{S, T}, d::Tuple{MatricialDataset{S,D},Vector{CT},Vector{CN}}; reset_leaves = true) where {S, T, D, CT, CN}
-	new_tree = tree
-	if reset_leaves
-		new_tree = _empty_tree_leaves(tree)
-	end
-	for i in 1:n_samples(d[1])
+function print_apply_tree(tree::DTree{S, T}, X::MatricialDataset{S,D}, Y::Vector{CT}; reset_leaves = true, update_majority = false) where {S, T, D, CT}
+	# Reset 
+	tree = (reset_leaves ? _empty_tree_leaves(tree) : tree)
+
+	# Propagate instances down the tree
+	for i in 1:n_samples(X)
 		w0params =
 			if tree.initCondition == startWithRelationAll
 				[ModalLogic.emptyWorld]
 			elseif tree.initCondition == startAtCenter
-				[ModalLogic.centeredWorld, channel_size(d)...]
+				[ModalLogic.centeredWorld, channel_size(X)...]
 			elseif typeof(tree.initCondition) <: _startAtWorld
 				[tree.initCondition.w]
 			end
-		new_tree = DTree{S, T}(
-			update_tree_leaves(new_tree.root, ModalLogic.getInstance(d[1], i), WorldSet{tree.worldType}([tree.worldType(w0params...)]), d[2][i]),
+		tree = DTree{S, T}(
+			print_apply_tree(tree.root, ModalLogic.getInstance(X, i), WorldSet{tree.worldType}([tree.worldType(w0params...)]), Y[i], update_majority = update_majority),
 			tree.worldType,
 			tree.initCondition
 		)
 	end
-	return new_tree
+	print_tree(tree)
+	return tree
 end
 
-function update_tree_leaves(tree::DTNode{S, T}, d::Tuple{MatricialDataset{S,D},Vector{CT},Vector{CN}}; reset_leaves = true) where {S, T, D, CT, CN}
-	return update_tree_leaves(DTree{S, T}(tree, ModalLogic.getIntervalOntologyOfDim(Val(D-2)).worldType, startWithRelationAll), d, reset_leaves = reset_leaves)
+function print_apply_tree(tree::DTNode{S, T}, X::MatricialDataset{S,D}, Y::Vector{CT}; reset_leaves = true, update_majority = false) where {S, T, D, CT}
+	return print_apply_tree(DTree{S, T}(tree, ModalLogic.getIntervalOntologyOfDim(Val(D-2)).worldType, startWithRelationAll), X, Y, reset_leaves = reset_leaves, update_majority = update_majority)
 end
 
 

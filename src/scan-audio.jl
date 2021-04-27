@@ -15,9 +15,9 @@ tree_args = [
 ]
 
 for loss in [DecisionTree.util.entropy]
-	for min_samples_leaf in [1,2]
-		for min_purity_increase in [0.01, 0.001]
-			for min_loss_at_leaf in [0.4, 0.6]
+	for min_samples_leaf in [1] # [1,2]
+		for min_purity_increase in [0.01] # [0.01, 0.001]
+			for min_loss_at_leaf in [0.6] # [0.4, 0.6]
 				push!(tree_args, 
 					(
 						loss = loss,
@@ -94,6 +94,8 @@ forest_args = []
 # 	end
 # end
 
+split_threshold = 0.8
+
 precompute_gammas = true
 
 test_flattened = false
@@ -131,7 +133,7 @@ save_tree_path = results_dir * "/trees"
 column_separator = ";"
 
 save_datasets = true
-just_produce_datasets_jld = false
+just_produce_datasets_jld = true
 saved_datasets_path = results_dir * "/datasets"
 mkpath(saved_datasets_path)
 
@@ -305,7 +307,7 @@ for i in exec_runs
 						string(n_task), ".",
 						string(n_version), ".",
 						string(nbands), ".",
-						replace(string(values(dataset_kwargs)), ", " => ".")), ".jld"
+						replace(string(values(dataset_kwargs)), ", " => "."))
 					)
 					dataset_file_name = saved_datasets_path * "/" * dataset_file_safe_name
 
@@ -313,32 +315,44 @@ for i in exec_runs
 					n_pos = nothing
 					n_neg = nothing
 					cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
-					if save_datasets && isfile(dataset_file_name)
-						if just_produce_datasets_jld
-							continue
-						end
-						checkpoint_stdout("Loading dataset $(dataset_file_name)...")
-						JLD2.@load dataset_file_name dataset n_pos n_neg
-					else
-						dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
-						if save_datasets
-							checkpoint_stdout("Saving dataset $(dataset_file_name)...")
-							JLD2.@save dataset_file_name dataset n_pos n_neg
+					dataset = 
+						if save_datasets && isfile(dataset_file_name * ".jld")
 							if just_produce_datasets_jld
 								continue
 							end
-						end
-					end
-					n_per_class = min(n_pos, n_neg)
-					# using Random
-					# n_pos = 10
-					# n_neg = 15 
-					# dataset_rng = Random.MersenneTwister(2)
+							checkpoint_stdout("Loading dataset $(dataset_file_name * ".jld")...")
+							JLD2.@load (dataset_file_name * ".jld") dataset n_pos n_neg
+							(X,Y,class_labels) = dataset
+							# Y = 1 .- Y
+							# Y = [ (y == 0 ? "yes" : "no") for y in Y]
+							dataset = (X,Y,class_labels)
+						else
+							dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+							n_per_class = min(n_pos, n_neg)
+							# using Random
+							# n_pos = 10
+							# n_neg = 15 
+							# dataset_rng = Random.MersenneTwister(2)
 
-					dataset_slice = Array{Int,2}(undef, 2, n_per_class)
-					dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
-					dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
-					dataset_slice = dataset_slice[:]
+							dataset_slice = Array{Int,2}(undef, 2, n_per_class)
+							dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
+							dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
+							dataset_slice = dataset_slice[:]
+
+							if save_datasets
+								checkpoint_stdout("Saving dataset $(dataset_file_name)...")
+								(X, Y, class_labels) = dataset
+								JLD2.@save (dataset_file_name * ".jld")                dataset
+								JLD2.@save (dataset_file_name * "-balanced.jld")       (X[dataset_slice], Y[dataset_slice], class_labels)
+								(X_train, Y_train), (X_test, Y_test), class_labels, _ = traintestsplit(dataset, split_threshold)
+								JLD2.@save (dataset_file_name * "-balanced-train.jld") (X_train, Y_train, class_labels)
+								JLD2.@save (dataset_file_name * "-balanced-test.jld")  (X_test,  Y_test,  class_labels)
+								if just_produce_datasets_jld
+									continue
+								end
+							end
+							dataset
+						end
 					# println(dataset_slice)
 
 					#####################################################
@@ -354,7 +368,7 @@ for i in exec_runs
 					Ts, Fs, Tcms, Fcms = testDataset(
 								"($(n_task),$(n_version))",
 								dataset,
-								0.8,
+								split_threshold,
 								log_level                   =   log_level,
 								scale_dataset               =   scale_dataset,
 								dataset_slice               =   dataset_slice,

@@ -43,7 +43,7 @@ export DecisionTreeClassifier,
        # predict_proba,
        fit!, get_classes
 
-export update_tree_leaves
+export print_apply_tree
 
 include("ModalLogic/ModalLogic.jl")
 using .ModalLogic
@@ -145,13 +145,29 @@ modal_height(leaf::DTLeaf) = 0
 modal_height(tree::DTInternal) = (is_modal_node(tree) ? 1 : 0) + max(modal_height(tree.left), modal_height(tree.right))
 modal_height(t::DTree) = modal_height(t.root)
 
-function print_tree(leaf::DTLeaf, depth=-1, indent=0, indent_guides=[])
+function print_tree(leaf::DTLeaf, depth=-1, indent=0, indent_guides=[]; n_tot_inst = false)
 		matches = findall(leaf.values .== leaf.majority)
-		ratio = string(length(matches)) * "/" * string(length(leaf.values))
-		println("$(leaf.majority) : $(ratio)") # TODO print purity?
+
+		n_correct =length(matches)
+		n_inst = length(leaf.values)
+
+		confidence = n_correct/n_inst
+		
+		metrics = "conf: $(confidence)"
+		
+		if n_tot_inst != false
+			support = n_inst/n_tot_inst
+			metrics *= ", supp = $(support)"
+			# lift = ...
+			# metrics *= ", lift = $(lift)"
+			# conv = ...
+			# metrics *= ", conv = $(conv)"
+		end
+
+		println("$(leaf.majority) : $(n_correct)/$(n_inst) ($(metrics))") # TODO print purity?
 end
 
-function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
+function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[]; n_tot_inst = false)
 		if depth == indent
 				println()
 				return
@@ -162,16 +178,16 @@ function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[])
 		indent_str = reduce(*, [i == 1 ? "│" : " " for i in indent_guides])
 		# print(indent_str * "╭✔")
 		print(indent_str * "✔ ")
-		print_tree(tree.left, depth, indent + 1, [indent_guides..., 1])
+		print_tree(tree.left, depth, indent + 1, [indent_guides..., 1], n_tot_inst = n_tot_inst)
 		# print(indent_str * "╰✘")
 		print(indent_str * "✘ ")
-		print_tree(tree.right, depth, indent + 1, [indent_guides..., 0])
+		print_tree(tree.right, depth, indent + 1, [indent_guides..., 0], n_tot_inst = n_tot_inst)
 end
 
-function print_tree(tree::DTree)
+function print_tree(tree::DTree; n_tot_inst = false)
 		println("worldType: $(tree.worldType)")
 		println("initCondition: $(tree.initCondition)")
-		print_tree(tree.root)
+		print_tree(tree.root, n_tot_inst = n_tot_inst)
 end
 
 function show(io::IO, leaf::DTLeaf)
