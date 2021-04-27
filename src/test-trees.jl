@@ -128,7 +128,7 @@ for (dataset_str,tree_filepaths) in obj
 for tree_filepath in tree_filepaths
 	dataset = nothing
 	tree = nothing
-	JLD2.@load "./results-audio-scan/datasets/$(dataset_str)-balanced-test.jld" dataset
+	JLD2.@load "./results-audio-scan/datasets/$(dataset_str)-balanced-train.jld" dataset
 	tree = load("./results-audio-scan/trees/$(tree_filepath).jld")["T"]
 	# JLD2.@load "./results-audio-scan/datasets/$(seed).1.1.60.($(config)).jld" dataset
 
