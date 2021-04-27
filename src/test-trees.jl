@@ -53,7 +53,7 @@ mkpath(output_directory)
 # 	("1708661255722239460.1.2.20.(30.75.50)","tree_72ce352289cb551233bc542db93dd90ab643b82e182e9b1a0d7fd532c479b4e2"),
 # 	("1107158645723204584.1.2.20.(30.75.50)","tree_014838ab30d9d70e2d5939ee4da07c21e07fe69960cbfdffe0348ecd6f167c71")]
 
-obj = Dict{String, String}("7933197233428195239,1,1,40,(30.25.15)" => [
+obj = Dict{String,Vector{String}}("7933197233428195239,1,1,40,(30.25.15)" => [
 "tree_e77119ed524a04463ce65ceacf7e2fe3fd01d4c18c813f38d0043872a014fc9e",
 ], "7933197233428195239,1,1,60,(30.75.50)" => [
 "tree_4a3930a9b121b248b6e1ee1ac8fb6630b3954fe9b3c6a6660869667173aac46d",
@@ -138,7 +138,7 @@ for tree_filepath in tree_filepaths
 	# print_tree(tree, n_tot_inst = 226)
 	print_tree(tree)
 	regenerated_tree = print_apply_tree(tree, X, Y)
-	readline()
+	# readline()
 	# print_tree(regenerated_tree)
 end
 end

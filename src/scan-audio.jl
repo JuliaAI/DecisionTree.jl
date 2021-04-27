@@ -343,8 +343,9 @@ for i in exec_runs
 								checkpoint_stdout("Saving dataset $(dataset_file_name)...")
 								(X, Y, class_labels) = dataset
 								JLD2.@save (dataset_file_name * ".jld")                dataset
-								JLD2.@save (dataset_file_name * "-balanced.jld")       (X[dataset_slice], Y[dataset_slice], class_labels)
+                                                                balanced_dataset = (X[dataset_slice], Y[dataset_slice], class_labels)
 								(X_train, Y_train), (X_test, Y_test), class_labels, _ = traintestsplit(dataset, split_threshold)
+								JLD2.@save (dataset_file_name * "-balanced.jld") balanced_dataset
 								JLD2.@save (dataset_file_name * "-balanced-train.jld") (X_train, Y_train, class_labels)
 								JLD2.@save (dataset_file_name * "-balanced-test.jld")  (X_test,  Y_test,  class_labels)
 								if just_produce_datasets_jld
