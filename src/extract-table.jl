@@ -48,11 +48,12 @@ function fix_table(table)
         @assert (length(table[i])-1) % 4 == 0 "(length(table[i])-1) % 4 != 0 ($(table[i]))"
         model_per_row = round(Int, (length(table[i])-1) / 4)
         for j in 1:model_per_row
-            table[i][1+(3*j)] = NPV(table[i][1+(1*j)], table[i][1+(2*j)], 28)
-            sensitivity = table[i][1+(2*j)]
-            specificity = table[i][1+(1*j)]
-            table[i][1+(2*j)] = specificity
-            table[i][1+(1*j)] = sensitivity
+            idx = (j-1)*4
+            table[i][1+idx+3] = NPV(table[i][1+idx+1], table[i][1+idx+2], 28)
+            sensitivity = table[i][1+idx+2]
+            specificity = table[i][1+idx+1]
+            table[i][1+idx+2] = specificity
+            table[i][1+idx+1] = sensitivity
         end
     end
 end
