@@ -207,14 +207,13 @@ function string_table_csv(table::Vector{Vector{Any}}; column_separator = ";")
 end
 
 function string_table_latex(table::Vector{Vector{Any}};
-		column_separator = ";",
 		header_size = 1,
 		first_column_size = 1,
 		v_lin_every_cloumn = 0,
 		foot_note = "",
 		scale = 1.0
 	)
-	result = "\\begin{table}[t]\n"
+	result = "\\begin{table}[h]\n\\centering\n"
 
 	if scale != 1.0
 		result *= "\\resizebox{$(scale)\\linewidth}{!}{"
@@ -224,10 +223,10 @@ function string_table_latex(table::Vector{Vector{Any}};
 
 	result *= "\\begin{tabular}{$("c"^first_column_size)|"
 	if v_lin_every_cloumn == 0
-		result *= "$("c"^(length(table[header_size+1])-first_column_size))"
+		result *= "$("l"^(length(table[header_size+1])-first_column_size))"
 	else
 		for i in (first_column_size+1):length(table[header_size+1])
-			result *= "c"
+			result *= "l"
 			if (i-first_column_size) % v_lin_every_cloumn == 0 && i != length(table[header_size+1])
 				result *= "|"
 			end
