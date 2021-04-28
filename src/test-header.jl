@@ -338,7 +338,7 @@ function testDataset(
 			elseif timeit == 2
 				@btime build_tree($Y_train, $X_train; $tree_args..., $modal_args..., gammas = gammas_train, rng = $rng);
 			end
-		print_tree(T)
+		print(T)
 
 		if !isnothing(save_tree_path)
 			tree_hash = get_dataset_hash_sha256(T)
@@ -403,7 +403,7 @@ function testDataset(
 			end
 
 		for F in Fs
-			print_forest(F)
+			print(F)
 		end
 		
 		cms = []
