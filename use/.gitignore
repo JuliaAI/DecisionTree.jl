@@ -1,0 +1,9 @@
+old-stuff/debugging
+old-stuff/results
+old-stuff/results-find-best-values
+old-stuff/results-siemens
+
+**.tmp
+**.jld
+**/progress.json
+**.outerr
