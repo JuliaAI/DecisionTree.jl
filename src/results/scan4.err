@@ -1,6 +1,0 @@
-┌ Warning: Package DecisionTree does not have Logging in its dependencies:
-│ - If you have DecisionTree checked out for development and have
-│   added Logging as a dependency but haven't updated your primary
-│   environment's manifest file, try `Pkg.resolve()`.
-│ - Otherwise you may need to report an issue with DecisionTree
-└ Loading Logging into DecisionTree from project dependency, future warnings for DecisionTree are suppressed.

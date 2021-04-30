@@ -1,7 +1,7 @@
 ☐	Generalize feature subset (e.g. providing a function vars_sampling_distr(n_vars, rng) = 1:n_vars vars_sampling_distr(n_vars, rng) = round(Int, Statistics.gaussrand_(rng, mean=sqrt(n_vars), var=1)))
 
 
-☐	computation of softened operators takes too much time
+☐	computation of softened operators takes too much time (optimize at least <A> in the temporal case?)
 ☐	Add the use of an unbalanced test set, and allow ConfusionMatrix to compute the overall accuracy in a balanced way.
 ☐ allow nan to signal the end of the current instance!
 ☐	Add IA7, IA7^2 relations

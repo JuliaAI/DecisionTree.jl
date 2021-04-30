@@ -1,6 +1,10 @@
-src/results-find-best-values/placeholder
+old-stuff/debugging
+old-stuff/results
+old-stuff/results-find-best-values
+old-stuff/results-siemens
 
 **.jld
 **/progress.json
+
 
 # src/results-audio-scan/
