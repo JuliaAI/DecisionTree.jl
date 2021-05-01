@@ -80,16 +80,16 @@ struct DTInternal{S<:Real, T}
 end
 
 # Decision node/tree # TODO figure out, maybe this has to be abstract and to supertype DTLeaf and DTInternal
-const DTNode{S<:Real, T<:Real} = Union{DTLeaf{T}, DTInternal{S, T}}
+const DTNode{S<:Real, T} = Union{DTLeaf{T}, DTInternal{S, T}}
 
 # TODO attach info about training (e.g. algorithm used + full namedtuple of training arguments) to these models
-struct DTree{S<:Real, T<:Real}
+struct DTree{S<:Real, T}
 	root          :: DTNode{S, T}
 	worldType     :: Type{<:AbstractWorld}
 	initCondition :: _initCondition
 end
 
-struct Forest{S<:Real, T<:Real}
+struct Forest{S<:Real, T}
 	trees       :: Vector{Union{DTree{S, T},DTNode{S, T}}}
 	cm          :: Vector{ConfusionMatrix}
 	oob_error   :: AbstractFloat

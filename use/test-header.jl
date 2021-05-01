@@ -63,13 +63,13 @@ end
 # TODO note that these splitting functions simply cut the dataset in two,
 #  and they don't necessarily produce balanced cuts. To produce balanced cuts,
 #  one must manually stratify the dataset beforehand
-traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D,T} = begin
+traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D} = begin
 	is_balanced = true
-	(X,Y,class_labels) = data
+	(X,Y) = data
 	num_instances = length(Y)
 	spl = ceil(Int, num_instances*threshold)
 	# make it even
-	if length(class_labels) == 2 && is_balanced
+	if length(Y) == 2 && is_balanced
 		spl = isodd(spl) ? (spl-1) : spl
 	end
 	X_train = ModalLogic.sliceDomainByInstances(X, 1:spl)
@@ -82,10 +82,7 @@ traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{T},AbstractVecto
 		end
 	X_test  = ModalLogic.sliceDomainByInstances(X, spl+1:num_instances)
 	Y_test  = Y[spl+1:end]
-	# if gammas == nothing
-		# (X_train,Y_train),(X_test,Y_test),class_labels
-	# else
-	(X_train,Y_train), (X_test,Y_test), class_labels, gammas_train
+	(X_train,Y_train), (X_test,Y_test), gammas_train
 	# end
 end
 
@@ -225,16 +222,16 @@ function testDataset(
 	# Slice & split the dataset according to dataset_slice & split_threshold
 	# The instances for which the gammas are computed are either all, or the ones specified for training.	
 	# This depends on whether the dataset is already splitted or not.
-	modal_args, (X_train, Y_train), (X_test, Y_test), class_labels, gammas_train = 
+	modal_args, (X_train, Y_train), (X_test, Y_test), gammas_train = 
 		if split_threshold != false
 
 			# Unpack dataset
-			length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
-			X, Y, class_labels = dataset
+			length(dataset) == 2 || error("Wrong dataset length: $(length(dataset))")
+			X, Y = dataset
 
 			# Apply scaling
 			if scale_dataset != false
-				X, Y, class_labels = scaleDataset((X, Y, class_labels), scale_dataset)
+				X, Y = scaleDataset((X, Y), scale_dataset)
 			end
 			
 			# Calculate gammas for the full set of instances
@@ -258,20 +255,20 @@ function testDataset(
 			# dataset = (X, Y, class_labels)
 
 			# Split in train/test
-			((X_train, Y_train), (X_test, Y_test), class_labels, gammas_train) =
-				traintestsplit((X, Y, class_labels), split_threshold, gammas = gammas_train, worldType = worldType)
+			((X_train, Y_train), (X_test, Y_test), gammas_train) =
+				traintestsplit((X, Y), split_threshold, gammas = gammas_train, worldType = worldType)
 
-			modal_args, (X_train, Y_train), (X_test, Y_test), class_labels, gammas_train
+			modal_args, (X_train, Y_train), (X_test, Y_test), gammas_train
 		else
 
 			# Unpack dataset
-			length(dataset) == 3 || error("Wrong dataset length: $(length(dataset))")
-			(X_train, Y_train), (X_test, Y_test), class_labels = dataset
+			length(dataset) == 2 || error("Wrong dataset length: $(length(dataset))")
+			(X_train, Y_train), (X_test, Y_test) = dataset
 
 			# Apply scaling
 			if scale_dataset != false
-				(X_train, Y_train, class_labels) = scaleDataset((X_train, Y_train, class_labels), scale_dataset)
-				(X_test,  Y_test,  class_labels) = scaleDataset((X_test,  Y_test,  class_labels), scale_dataset)
+				(X_train, Y_train) = scaleDataset((X_train, Y_train), scale_dataset)
+				(X_test,  Y_test) = scaleDataset((X_test,  Y_test), scale_dataset)
 			end
 			
 			# Calculate gammas for the training instances
@@ -292,9 +289,8 @@ function testDataset(
 					end
 					)
 				end
-			# dataset = (X_train, Y_train), (X_test, Y_test), class_labels
 
-			modal_args, (X_train, Y_train), (X_test, Y_test), class_labels, gammas_train
+			modal_args, (X_train, Y_train), (X_test, Y_test), gammas_train
 		end
 
 
@@ -366,7 +362,7 @@ function testDataset(
 			# 	for val in row
 			# 		print(lpad(val,3," "))
 			# 	end
-			# 	println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * class_labels[i])
+			# 	println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * cm.classes[i])
 			# end
 			println(cm)
 			# @show cm
@@ -421,7 +417,7 @@ function testDataset(
 				for val in row
 					print(lpad(val,3," "))
 				end
-				println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * class_labels[i])
+				println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * cm.classes[i])
 			end
 
 			println("Forest OOB Error: $(round.(F.oob_error.*100, digits=2))%")
@@ -451,10 +447,10 @@ function testDataset(
 		# if test_flattened == true
 		# 	T, Tcm = go_flattened_tree()
 		# 	# Flatten 
-		# 	(X_train,Y_train), (X_test,Y_test), class_labels = dataset
+		# 	(X_train,Y_train), (X_test,Y_test) = dataset
 		# 	X_train = ...
 		# 	X_test = ...
-		# 	dataset = (X_train,Y_train), (X_test,Y_test), class_labels
+		# 	dataset = (X_train,Y_train), (X_test,Y_test)
 		# end
 
 		if optimize_forest_computation

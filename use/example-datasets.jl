@@ -20,7 +20,7 @@ mapArrayToDataType(type::Type{<:AbstractFloat}, array::AbstractArray) = begin
 end
 
 scaleDataset(dataset::Tuple, type::Type = UInt8) =
-	(mapArrayToDataType(type, dataset[1]),dataset[2],dataset[3])
+	(mapArrayToDataType(type, dataset[1]),dataset[2])
 
 SplatEduardDataset(N) = begin
 
@@ -76,7 +76,7 @@ SplatEduardDataset(N) = begin
 		X_train[:, i, :] .= hcat(insts[i]...)
 	end
 
-	Y_train = map((x)-> parse(Int, x), classes)
+	Y_train = copy(classes)
 	
 	insts,classes = readDataset(data_dir * "test-Eduard/Test-$N.txt", Val(N))
 
@@ -89,11 +89,9 @@ SplatEduardDataset(N) = begin
 		X_test[:, i, :] .= hcat(insts[i]...)
 	end
 
-	Y_test = map((x)-> parse(Int, x), classes)
+	Y_test = copy(classes)
 
-	class_labels = map(string, 1:15)
-
-	(X_train,Y_train),(X_test,Y_test),class_labels
+	(X_train,Y_train),(X_test,Y_test)
 	# [val for i ∈ 1:3 for val ∈ ds.values[i][:,1]] <-- prendo tutti i valori del primo attributo
 	# sort!(collect(Set([val for i ∈ 1:3 for val ∈ ds.values[i][:,1]]))) <-- ordino il dominio
 	# size(ds.values[1])    <-- dimensione della prima serie
@@ -204,9 +202,7 @@ SplatSiemensDataset(rseed::Int, nmeans::Int, hour::Int, distance::Int; subdir = 
 		X_train[:, i, :] .= hcat(insts[i]...)
 	end
 
-	Y_train = classes
-
-	class_labels = map(string, 1:2)
+	Y_train = map(string, 1:2)
 
 	fileWithPath = data_dir * subdir * "/TEST_seed" * string(rseed) * "_nMeans" * string(nmeans) * "_hour" * string(hour) * "_distanceFromEvent" * string(distance) * ".arff"
 	insts,classes = readDataset(fileWithPath)
@@ -219,7 +215,7 @@ SplatSiemensDataset(rseed::Int, nmeans::Int, hour::Int, distance::Int; subdir = 
 
 	Y_test = classes
 
-	(X_train,Y_train),(X_test,Y_test),class_labels
+	(X_train,Y_train),(X_test,Y_test)
 end
 
 SiemensDataset_not_stratified(nmeans::Int, hour::Int, distance::Int; subdir = "Siemens") = begin
@@ -303,7 +299,7 @@ SiemensDataset_not_stratified(nmeans::Int, hour::Int, distance::Int; subdir = "S
 	n_vars = 10
 
 	X = Array{Float64,3}(undef, nmeans*hour, length(insts), n_vars)
-	Y = Array{Int,1}(undef, length(insts))
+	Y = Array{String,1}(undef, length(insts))
 
 	pos_idx = []
 	neg_idx = []
@@ -320,13 +316,11 @@ SiemensDataset_not_stratified(nmeans::Int, hour::Int, distance::Int; subdir = "S
 	progressive_i = 1
 	for i in [pos_idx..., neg_idx...]
 		X[:, progressive_i, :] .= hcat(insts[i]...)
-		Y[progressive_i] = classes[i]
+		Y[progressive_i] = (i == 0 ? "negative" : "positive")
 		progressive_i+=1
 	end
 
-	class_labels = map(string, 1:2)
-
-	((X,Y,class_labels), length(pos_idx), length(neg_idx))
+	((X,Y), length(pos_idx), length(neg_idx))
 end
 
 ################################################################################
@@ -377,7 +371,7 @@ KDDDataset_not_stratified((n_task,n_version),
 
 	subfolder,file_suffix,file_prefix = (n_version == 1 ? ("cough","cough","cough_") : ("breath","breathe","breaths_"))
 
-	folders_Y, folders_N, class_labels = task_to_folders[n_task]
+	folders_Y, folders_N, Y = task_to_folders[n_task]
 
 	files_map = JSON.parsefile(kdd_data_dir * "files.json")
 
@@ -455,7 +449,7 @@ KDDDataset_not_stratified((n_task,n_version),
 	timeseries = [[p' for p in pos]..., [n' for n in neg]...]
 	# print(size(timeseries))
 	# print(size(timeseries[1]))
-	Y = [ones(Int, length(pos))..., zeros(Int, length(neg))...]
+	# Y = [ones(Int, length(pos))..., zeros(Int, length(neg))...]
 	# Y = [zeros(Int, length(pos))..., ones(Int, length(neg))...]
 	# Y = [fill("yes", length(pos))..., fill("no", length(neg))...]
 	# print(size(Y))
@@ -470,7 +464,18 @@ KDDDataset_not_stratified((n_task,n_version),
 		# println(size(ts))
 		X[1:size(ts, 1),i,:] = ts
 	end
-	((X,Y,class_labels), length(pos), length(neg))
+
+	# TODO: optimize this code
+	labs::Vector{String} = []
+	for i in 1:(length(pos) + length(neg))
+		if i <= length(pos)
+			push!(labs, Y[1])
+		else
+			push!(labs, Y[2])
+		end
+	end
+
+	((X,labs), length(pos), length(neg))
 end
 ################################################################################
 ################################################################################
@@ -480,7 +485,7 @@ end
 
 simpleDataset(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	X = Array{Int,3}(undef, N, n_samp, 1);
-	Y = Array{Int,1}(undef, n_samp);
+	Y = Array{String,1}(undef, n_samp);
 	for i in 1:n_samp
 		instance = fill(2, N)
 		y = rand(rng, 0:1)
@@ -490,14 +495,14 @@ simpleDataset(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRNG
 			instance[3] = 2
 		end
 		X[:,i,1] .= instance
-		Y[i] = y
+		Y[i] = string(y)
 	end
 	(X,Y)
 end
 
 simpleDataset2(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	X = Array{Int,3}(undef, N, n_samp, 1);
-	Y = Array{Int,1}(undef, n_samp);
+	Y = Array{String,1}(undef, n_samp);
 	for i in 1:n_samp
 		instance = fill(0, N)
 		y = rand(rng, 0:1)
@@ -507,7 +512,7 @@ simpleDataset2(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRN
 			instance[1] += 1
 		end
 		X[:,i,1] .= instance
-		Y[i] = y
+		Y[i] = string(y)
 	end
 	(X,Y)
 end
@@ -662,5 +667,6 @@ SampleLandCoverDataset(dataset::String, n_samples_per_label::Int, sample_size::U
 	end
 	# println([class_labels_map[y] for y in existingLabels])
 	# println(labels)
-	inputs,labels,[class_labels_map[y] for y in existingLabels]
+	categorical_labels = [class_labels_map[y] for y in existingLabels]
+	inputs,[categorical_labels[y] for y in labels]
 end

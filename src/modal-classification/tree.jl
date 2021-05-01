@@ -671,7 +671,7 @@ module treeclassifier
 
 		# Check validity of the input
 		check_input(
-			X, Y, W,
+			X, Y_, W,
 			loss,
 			max_features,
 			max_depth,

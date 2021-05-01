@@ -8,23 +8,21 @@ rng = my_rng()
 forest_args = [(
 	n_subfeatures = x -> ceil(Int, sqrt(x)),
 	n_trees = 100,
-	#partial_sampling = 0.7,
+	partial_sampling = 1.0,
 ),(
 	n_subfeatures = x -> ceil(Int, x / 2),
 	n_trees = 100,
-	#partial_sampling = 0.7,
+	partial_sampling = 1.0,
 )]
 
-args = (
-	loss = DecisionTree.util.entropy,
-	# loss = DecisionTree.util.gini,
-	# loss = DecisionTree.util.zero_one,
-	# max_depth = -1,
-	# min_samples_leaf = 4,
-	# min_purity_increase = 0.02, # TODO check this
-	# min_loss_at_leaf = 1.0, # TODO check there's something wrong here, I think this sets min_purity_increase.
-)
-
+tree_args = [
+	(
+		loss = DecisionTree.util.entropy,
+		min_samples_leaf = 1,
+		min_purity_increase = 0.01,
+		min_loss_at_leaf = 0.6,
+	)
+]
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 modal_args = (
 	n_subrelations = x -> ceil(sqrt(x)),
@@ -89,11 +87,6 @@ end
 #min_purity_increase = 0.01
 #min_loss_at_leaf = 0.4
 
-selected_args = merge(args, (loss = loss,
-															min_samples_leaf = min_samples_leaf,
-															min_purity_increase = min_purity_increase,
-															min_loss_at_leaf = min_loss_at_leaf,
-															))
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
@@ -111,6 +104,7 @@ n_instances = 100
 
 # rng_i = DecisionTree.mk_rng(124)
 rng_i = DecisionTree.mk_rng(1)
+gammas_save_path = "./results-audio-scan/gammas"
 
 dataset = SplatEduardDataset(dataset_number)
 
@@ -162,8 +156,19 @@ if log_results_best_values
 
 	for i in 1:repeat_test
 
-		global T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, log_level=log_level,
-			forest_args=forest_args, args=selected_args, modal_args=modal_args);
+		global T, F, Tcm, Fcm = testDataset(
+			"Test",
+			dataset,
+			false;
+			log_level                   =   log_level,
+			scale_dataset               =   scale_dataset,
+			forest_args                 =   forest_args,
+			tree_args                   =   tree_args,
+			modal_args                  =   modal_args,
+			precompute_gammas           =   precompute_gammas,
+			optimize_forest_computation =   optimize_forest_computation,
+			rng                         =   rng
+		);
 
 		push!(tree_overall_accuracy, Tcm.overall_accuracy)
 		push!(tree_mean_accuracy, Tcm.mean_accuracy)
@@ -188,6 +193,16 @@ if log_results_best_values
 		forest_oob_error
 	)
 else
-	T, F, Tcm, Fcm = testDataset("Test", dataset, false, 0, log_level=log_level,
-		forest_args=forest_args, args=selected_args, modal_args=modal_args);
+	T, F, Tcm, Fcm = testDataset(
+		"Test",
+		dataset,
+		false;
+		log_level                   =   log_level,
+		scale_dataset               =   scale_dataset,
+		forest_args                 =   forest_args,
+		tree_args                   =   tree_args,
+		modal_args                  =   modal_args,
+		gammas_save_path            =   gammas_save_path,
+		rng                         =   rng
+	);
 end

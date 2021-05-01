@@ -6,12 +6,12 @@ main_rng = DecisionTree.mk_rng(1)
 
 # Optimization arguments for single-tree
 tree_args = [
-	# (
-	# 	loss = DecisionTree.util.entropy,
-	# 	min_samples_leaf = 1,
-	# 	min_purity_increase = 0.01,
-	# 	min_loss_at_leaf = 0.4,
-	# )
+#	(
+#		loss = DecisionTree.util.entropy,
+#		min_samples_leaf = 1,
+#		min_purity_increase = 0.01,
+#		min_loss_at_leaf = 0.6,
+#	)
 ]
 
 for loss in [DecisionTree.util.entropy]
@@ -133,14 +133,28 @@ save_tree_path = results_dir * "/trees"
 column_separator = ";"
 
 save_datasets = true
-just_produce_datasets_jld = true
+just_produce_datasets_jld = false
 saved_datasets_path = results_dir * "/datasets"
 mkpath(saved_datasets_path)
+
+if "-f" in ARGS
+	if isfile(iteration_progress_json_file_path)
+		println("Removing old $(iteration_progress_json_file_path)...")
+		rm(iteration_progress_json_file_path)
+	end
+	if isfile(concise_output_file_path)
+		println("Removing old $(concise_output_file_path)...")
+		rm(concise_output_file_path)
+	end
+	if isfile(full_output_file_path)
+		println("Removing old $(full_output_file_path)...")
+		rm(full_output_file_path)
+	end
+end
 
 exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs
 )
-
 
 just_test_filters = false
 iteration_whitelist = [
@@ -200,21 +214,6 @@ iteration_whitelist = [
 ]
 
 iteration_blacklist = []
-
-if "-f" in ARGS
-	if isfile(iteration_progress_json_file_path)
-		println("Removing old $(iteration_progress_json_file_path)...")
-		rm(iteration_progress_json_file_path)
-	end
-	if isfile(concise_output_file_path)
-		println("Removing old $(concise_output_file_path)...")
-		rm(concise_output_file_path)
-	end
-	if isfile(full_output_file_path)
-		println("Removing old $(full_output_file_path)...")
-		rm(full_output_file_path)
-	end
-end
 
 # if the output files does not exists initilize them
 if ! isfile(concise_output_file_path)
@@ -322,10 +321,9 @@ for i in exec_runs
 							end
 							checkpoint_stdout("Loading dataset $(dataset_file_name * ".jld")...")
 							JLD2.@load (dataset_file_name * ".jld") dataset n_pos n_neg
-							(X,Y,class_labels) = dataset
+							(X,Y) = dataset
 							# Y = 1 .- Y
 							# Y = [ (y == 0 ? "yes" : "no") for y in Y]
-							dataset = (X,Y,class_labels)
 						else
 							dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
 							n_per_class = min(n_pos, n_neg)
@@ -341,14 +339,14 @@ for i in exec_runs
 
 							if save_datasets
 								checkpoint_stdout("Saving dataset $(dataset_file_name)...")
-								(X, Y, class_labels) = dataset
+								(X, Y) = dataset
 								JLD2.@save (dataset_file_name * ".jld")                dataset
-								(X_train, Y_train), (X_test, Y_test), class_labels, _ = traintestsplit(dataset, split_threshold)
-								balanced_dataset = (X[dataset_slice], Y[dataset_slice], class_labels)
+								(X_train, Y_train), (X_test, Y_test), _ = traintestsplit(dataset, split_threshold)
+								balanced_dataset = (X[dataset_slice], Y[dataset_slice])
 								JLD2.@save (dataset_file_name * "-balanced.jld") balanced_dataset
-								balanced_train = (X_train, Y_train, class_labels)
+								balanced_train = (X_train, Y_train)
 								JLD2.@save (dataset_file_name * "-balanced-train.jld") balanced_train
-								balanced_test = (X_test,  Y_test,  class_labels)
+								balanced_test = (X_test,  Y_test)
 								JLD2.@save (dataset_file_name * "-balanced-test.jld")  balanced_test
 								if just_produce_datasets_jld
 									continue
