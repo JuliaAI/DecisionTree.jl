@@ -1,59 +1,6 @@
 
 import JSON
 
-function percent(num::Real; digits=2)
-	return round.(num.*100, digits=digits)
-end
-
-function data_to_string(
-		M::Union{DecisionTree.DTree{S, T},DecisionTree.DTNode{S, T}},
-		cm::ConfusionMatrix;
-		start_s = "(",
-		end_s = ")",
-		separator = ";",
-		alt_separator = ","
-	) where {S, T}
-
-	result = start_s
-	result *= string(percent(cm.kappa), alt_separator)
-	result *= string(percent(cm.sensitivities[1]), alt_separator)
-	result *= string(percent(cm.specificities[1]), alt_separator)
-	result *= string(percent(cm.PPVs[1]), alt_separator)
-	result *= string(percent(cm.overall_accuracy))
-	result *= end_s
-
-	result
-end
-
-function data_to_string(
-		Ms::AbstractVector{DecisionTree.Forest{S, T}},
-		cms::AbstractVector{ConfusionMatrix};
-		start_s = "(",
-		end_s = ")",
-		separator = ";",
-		alt_separator = ","
-	) where {S, T}
-
-	result = start_s
-	result *= string(percent(mean(map(cm->cm.kappa, cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.sensitivities[1], cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.specificities[1], cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.PPVs[1], cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.overall_accuracy, cms))), alt_separator)
-	result *= string(percent(mean(map(M->M.oob_error, Ms))))
-	result *= end_s
-	result *= separator
-	result *= start_s
-	result *= string(var(map(cm->cm.kappa, cms)), alt_separator)
-	result *= string(var(map(cm->cm.sensitivities[1], cms)), alt_separator)
-	result *= string(var(map(cm->cm.specificities[1], cms)), alt_separator)
-	result *= string(var(map(cm->cm.PPVs[1], cms)), alt_separator)
-	result *= string(var(map(cm->cm.overall_accuracy, cms)), alt_separator)
-	result *= string(var(map(M->M.oob_error, Ms)))
-	result *= end_s
-
-	result
-end
 function init_new_execution_progress_dictionary(file_path::String, exec_ranges::Vector, params_names::Vector{String})
 	execution_dictionaries = []
 
