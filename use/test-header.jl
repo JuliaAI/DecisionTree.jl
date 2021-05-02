@@ -25,7 +25,7 @@ using SHA
 using Serialization
 import JLD2
 
-function get_dataset_hash_sha256(dataset)::String
+function get_resource_hash_sha256(dataset)::String
 	io = IOBuffer();
 	serialize(io, dataset)
 	result = bytes2hex(sha256(take!(io)))
@@ -158,7 +158,7 @@ function testDataset(
 
 			# Generate path to gammas jld file
 
-			if isa(gammas_save_path,String)
+			if isa(gammas_save_path,String) || isnothing(gammas_save_path)
 				gammas_save_path = (gammas_save_path,nothing)
 			end
 
@@ -168,7 +168,7 @@ function testDataset(
 				if isnothing(gammas_save_path)
 					(nothing, nothing, nothing)
 				else
-					dataset_hash = get_dataset_hash_sha256(X_all_d)
+					dataset_hash = get_resource_hash_sha256(X_all_d)
 					(
 						"$(gammas_save_path)/gammas_$(dataset_hash).jld",
 						"$(gammas_save_path)/gammas_hash_index.csv",
@@ -204,9 +204,9 @@ function testDataset(
 					end
 					gammas
 				end
-			checkpoint_stdout(" Type: $(typeof(gammas))")
-			checkpoint_stdout(" Size: $(sizeof(gammas)/1024/1024) MBytes")
-			checkpoint_stdout(" Dimensions: $(size(gammas))")
+			checkpoint_stdout("├ Type: $(typeof(gammas))")
+			checkpoint_stdout("├ Size: $(sizeof(gammas)/1024/1024) MBytes")
+			checkpoint_stdout("└ Dimensions: $(size(gammas))")
 
 			println("(optimized) modal_args = ", modal_args)
 			global_logger(old_logger);
@@ -334,17 +334,21 @@ function testDataset(
 			elseif timeit == 2
 				@btime build_tree($Y_train, $X_train; $tree_args..., $modal_args..., gammas = gammas_train, rng = $rng);
 			end
+		println("Train tree:")
 		print(T)
 
 		if !isnothing(save_tree_path)
-			tree_hash = get_dataset_hash_sha256(T)
+			tree_hash = get_resource_hash_sha256(T)
 			total_save_path = save_tree_path * "/tree_" * tree_hash * ".jld"
 			mkpath(dirname(total_save_path))
 
 			checkpoint_stdout("Saving tree to file $(total_save_path)...")
 			JLD2.@save total_save_path T
 		end
-		
+
+		println("Test tree:")
+		print_apply_tree(T, X_test, Y_test)
+
 		println(" test size = $(size(X_test))")
 		cm = nothing
 		for pruning_purity_threshold in sort(unique([(Float64.(post_pruning_purity_thresholds))...,1.0]))
