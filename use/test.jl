@@ -328,7 +328,7 @@ end
 # 	for (X,Y) in Iterators.product(4:6,4:9)
 # 		sum = 0
 # 		for rel in relations
-# 			sum += (ModalLogic.enumAcc(S, rel, X,Y) |> collect |> length)
+# 			sum += (ModalLogic.enumAccessibles(S, rel, X,Y) |> collect |> length)
 # 			end
 # 		# println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
 # 		@assert sum == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)
@@ -336,7 +336,7 @@ end
 # 	for (X,Y) in Iterators.product(4:6,4:9)
 # 		sum = 0
 # 		for rel in relations
-# 			sum += (ModalLogic.enumAcc(S, rel, X,Y) |> distinct |> collect |> length)
+# 			sum += (ModalLogic.enumAccessibles(S, rel, X,Y) |> distinct |> collect |> length)
 # 			end
 # 		# println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
 # 		@assert sum == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)
@@ -351,9 +351,9 @@ relations = ModalLogic.RCC8Relations
 SUM = 0
 for rel in relations
 	println(rel)
-	map(ModalLogic.print_world, ModalLogic.enumAcc(S, rel, X,Y) |> collect)
+	map(ModalLogic.print_world, ModalLogic.enumAccessibles(S, rel, X,Y) |> collect)
 	global SUM
-	SUM += (ModalLogic.enumAcc(S, rel, X,Y) |> collect |> length)
+	SUM += (ModalLogic.enumAccessibles(S, rel, X,Y) |> collect |> length)
 end
 # println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
 @assert SUM == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)

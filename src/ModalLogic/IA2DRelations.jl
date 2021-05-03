@@ -76,14 +76,14 @@ enumAccBare2(w::Interval, r::_RelationAll, X::Integer) =
 
 enumAccBare(w::Interval2D, r::R where R<:_IA2DRel, X::Integer, Y::Integer) =
 	Iterators.product(enumAccBare2(w.x, r.x, X), enumAccBare2(w.y, r.y, Y))
-	# TODO try instead: Iterators.product(enumAcc(w.x, r.x, X), enumAcc(w.y, r.y, Y))
+	# TODO try instead: Iterators.product(enumAccessibles(w.x, r.x, X), enumAccessibles(w.y, r.y, Y))
 
 # More efficient implementations for edge cases
 # TODO write efficient implementations for _IA2DRelations_U
-# enumAcc(S::AbstractWorldSet{Interval2D}, r::_IA2DRelations_U, X::Integer, Y::Integer) = begin
+# enumAccessibles(S::AbstractWorldSet{Interval2D}, r::_IA2DRelations_U, X::Integer, Y::Integer) = begin
 # 	IterTools.imap(Interval2D,
 # 		Iterators.flatten(
-# 			Iterators.product((enumAcc(w, r.x, X) for w in S), enumAcc(S, r, Y))
+# 			Iterators.product((enumAccessibles(w, r.x, X) for w in S), enumAccessibles(S, r, Y))
 # 		)
 # 	)
 # end

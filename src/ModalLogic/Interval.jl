@@ -88,7 +88,7 @@ computeModalThreshold(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, 
 # 	minimum(channel)
 # end
 enumAccBare(w::Interval, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x, w.y)]
-enumAcc(S::AbstractWorldSet{Interval}, r::_RelationAll, X::Integer) =
+enumAccessibles(S::AbstractWorldSet{Interval}, r::_RelationAll, X::Integer) =
 	IterTools.imap(Interval, enumPairsIn(1, X+1))
 
 # worldTypeSize(::Type{Interval}) = 2

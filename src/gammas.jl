@@ -320,7 +320,7 @@ function computeGammas(
 			channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check that @views actually avoids copying
 			initGammaSlice(worldType, gammas, i, relationId_id, feature)
 			# println(channel)
-			for w in ModalLogic.enumAcc(worldType[], ModalLogic.RelationAll, channel)
+			for w in ModalLogic.enumAccessibles(worldType[], ModalLogic.RelationAll, channel)
 				@logmsg DTDetail "World" w
 
 				i_to = 1
@@ -388,7 +388,7 @@ function computeGammas(
 				@views cur_gammas = sliceGammas(worldType, gammas, i, relation_id, feature)
 				# For each world w and each relation, compute the thresholds of all v worlds, with w<R>v
 				worlds = if relation != ModalLogic.RelationAll
-						ModalLogic.enumAcc(worldType[], ModalLogic.RelationAll, channel)
+						ModalLogic.enumAccessibles(worldType[], ModalLogic.RelationAll, channel)
 					else
 						[firstWorld]
 					end

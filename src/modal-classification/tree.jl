@@ -179,7 +179,7 @@ module treeclassifier
 				# 	# if relation == ModalLogic.Topo_TPP println("channel ", channel) end
 				# 	# @info " instance $i/$n_instances" # channel
 				# 	# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
-				# 	for w in ModalLogic.enumAcc(Sf[i], relation, channel)
+				# 	for w in ModalLogic.enumAccessibles(Sf[i], relation, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("world ", w) end
 				#     TODO expand this code to multiple test_operators
 				# 		(_wmin,_wmax) = ModalLogic.computePropositionalThresholdDual(test_operators, w, channel)

@@ -18,7 +18,7 @@ export AbstractWorld, AbstractRelation,
 				display_modal_test
 				# , TestOperator
 				# RelationAll, RelationNone, RelationId,
-				# enumAcc, enumAccRepr
+				# enumAccessibles, enumAccRepr
 
 # Fix
 Base.keys(g::Base.Generator) = g.iter
@@ -392,7 +392,7 @@ end
 end
 
 computeModalThresholdDual(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc([w], relation, channel)
+	worlds = enumAccessibles([w], relation, channel)
 	extr = (typemin(T),typemax(T))
 	for w in worlds
 		e = computePropositionalThresholdDual(test_operator, w, channel)
@@ -403,7 +403,7 @@ end
 # TODO write a single computeModalThreshold using bottom and opt
 # TODO use readGammas
 computeModalThreshold(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc([w], relation, channel)
+	worlds = enumAccessibles([w], relation, channel)
 	v = typemin(T) # TODO write with reduce
 	for w in worlds
 		e = computePropositionalThreshold(test_operator, w, channel)
@@ -412,7 +412,7 @@ computeModalThreshold(test_operator::TestOperatorPositive, w::WorldType, relatio
 	v
 end
 computeModalThreshold(test_operator::TestOperatorNegative, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc([w], relation, channel)
+	worlds = enumAccessibles([w], relation, channel)
 	v = typemax(T) # TODO write with reduce
 	for w in worlds
 		e = computePropositionalThreshold(test_operator, w, channel)
@@ -487,12 +487,12 @@ struct _ReprNone{worldType<:AbstractWorld} <: _ReprTreatment end
 
 ## Enumerate accessible worlds
 
-# Fallback: enumAcc works with domains AND their dimensions
-enumAcc(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAcc(S, r, size(channel)...)
+# Fallback: enumAccessibles works with domains AND their dimensions
+enumAccessibles(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAccessibles(S, r, size(channel)...)
 enumAccRepr(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAccRepr(S, r, size(channel)...)
-# Fallback: enumAcc for world sets maps to enumAcc-ing their elements
+# Fallback: enumAccessibles for world sets maps to enumAccessibles-ing their elements
 #  (note: one may overload this function to provide improved implementations for special cases (e.g. <L> of a world set in interval algebra))
-enumAcc(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,WorldType<:AbstractWorld} = begin
+enumAccessibles(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,WorldType<:AbstractWorld} = begin
 	IterTools.imap(WorldType,
 		IterTools.distinct(Iterators.flatten((enumAccBare(w, r, XYZ...) for w in S)))
 	)
@@ -506,9 +506,9 @@ struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId(
 struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
 struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
-enumAcc(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
-enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
-# Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
+enumAccessibles(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
+enumAccessibles(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
+# Maybe this will have a use: enumAccessiblesW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
 
 # TODO parametrize on test operator (any test operator in this case)
 enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
@@ -545,7 +545,7 @@ modalStep(S::WorldSetType,
 					threshold::T) where {W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, T, N} = begin
 	@logmsg DTDetail "modalStep" S relation display_modal_test(relation, test_operator, -1, threshold)
 	satisfied = false
-	worlds = enumAcc(S, relation, channel)
+	worlds = enumAccessibles(S, relation, channel)
 	if length(collect(Iterators.take(worlds, 1))) > 0
 		new_worlds = WorldSetType()
 		for w in worlds

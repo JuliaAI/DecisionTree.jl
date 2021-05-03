@@ -79,11 +79,11 @@ enumAccBare(w::Interval, ::_IA_O,  X::Integer) = Iterators.product(w.x+1:w.y-1, 
 enumAccBare(w::Interval, ::_IA_Oi, X::Integer) = Iterators.product(1:w.x-1, w.x+1:w.y-1)
 
 # More efficient implementations for edge cases
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) =
+enumAccessibles(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) =
 	IterTools.imap(Interval, enumAccBare(nth(S, argmin(map((w)->w.y, S))), IA_L, X))
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) =
+enumAccessibles(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) =
 	IterTools.imap(Interval, enumAccBare(nth(S, argmax(map((w)->w.x, S))), IA_Li, X))
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_A, X::Integer) =
+enumAccessibles(S::AbstractWorldSet{Interval}, ::_IA_A, X::Integer) =
 	IterTools.imap(Interval,
 		Iterators.flatten(
 			IterTools.imap((y)->zip(Iterators.repeated(y), y+1:X+1),
@@ -91,7 +91,7 @@ enumAcc(S::AbstractWorldSet{Interval}, ::_IA_A, X::Integer) =
 			)
 		)
 	)
-enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Ai, X::Integer) =
+enumAccessibles(S::AbstractWorldSet{Interval}, ::_IA_Ai, X::Integer) =
 	IterTools.imap(Interval,
 		Iterators.flatten(
 			IterTools.imap((x)->zip(1:x-1, Iterators.repeated(x)),
@@ -101,26 +101,26 @@ enumAcc(S::AbstractWorldSet{Interval}, ::_IA_Ai, X::Integer) =
 	)
 
 # Other options:
-# enumAcc2_1_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) =
+# enumAccessibles2_1_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) =
 # 	IterTools.imap(Interval, enumAccBare(Base.argmin((w.y for w in S)), IA_L, X))
-# enumAcc2_1_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) =
+# enumAccessibles2_1_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) =
 # 	IterTools.imap(Interval, enumAccBare(Base.argmax((w.x for w in S)), IA_Li, X))
-# enumAcc2_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) = begin
+# enumAccessibles2_2(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) = begin
 # 	m = argmin(map((w)->w.y, S))
 # 	IterTools.imap(Interval, enumAccBare([w for (i,w) in enumerate(S) if i == m][1], IA_L, X))
 # end
-# enumAcc2_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) = begin
+# enumAccessibles2_2(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) = begin
 # 	m = argmax(map((w)->w.x, S))
 # 	IterTools.imap(Interval, enumAccBare([w for (i,w) in enumerate(S) if i == m][1], IA_Li, X))
 # end
 # # This makes sense if we have 2-Tuples instead of intervals
 # function snd((a,b)::Tuple) b end
 # function fst((a,b)::Tuple) a end
-# enumAcc2_1(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) = 
+# enumAccessibles2_1(S::AbstractWorldSet{Interval}, ::_IA_L, X::Integer) = 
 # 	IterTools.imap(Interval,
 # 		enumAccBare(S[argmin(map(snd, S))], IA_L, X)
 # 	)
-# enumAcc2_1(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) = 
+# enumAccessibles2_1(S::AbstractWorldSet{Interval}, ::_IA_Li, X::Integer) = 
 # 	IterTools.imap(Interval,
 # 		enumAccBare(S[argmax(map(fst, S))], IA_Li, X)
 # 	)

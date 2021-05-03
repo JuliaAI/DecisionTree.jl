@@ -110,7 +110,7 @@ computeModalThreshold(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D
 # 	minimum(channel)
 # end
 # enumAccBare(w::Interval2D, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x, w.y)]
-enumAcc(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) =
+enumAccessibles(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) =
 	IterTools.imap(Interval2D,
 		Iterators.product(enumPairsIn(1, X+1), enumPairsIn(1, Y+1))
 		# enumAccBare(w..., IA2DRel(RelationAll,RelationAll), X, Y)
