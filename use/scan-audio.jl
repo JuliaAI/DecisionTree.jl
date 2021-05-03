@@ -303,17 +303,32 @@ for i in exec_runs
 		n_neg = nothing
 		cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
 		dataset = 
-			if save_datasets && isfile(dataset_file_name * ".jld") && isfile(dataset_file_name * "-balanced.jld")
+			if save_datasets && isfile(dataset_file_name * ".jld")
 				if just_produce_datasets_jld
 					continue
 				end
 				checkpoint_stdout("Loading dataset $(dataset_file_name * ".jld")...")
 				JLD2.@load (dataset_file_name * ".jld") dataset n_pos n_neg
-				JLD2.@load (dataset_file_name * "-balanced.jld") balanced_dataset dataset_slice
-				#JLD2.@load (dataset_file_name * "-balanced-train.jld") balanced_train
-				#JLD2.@load (dataset_file_name * "-balanced-test.jld")  balanced_test
-
 				(X,Y) = dataset
+				if isfile(dataset_file_name * "-balanced.jld")
+					JLD2.@load (dataset_file_name * "-balanced.jld") balanced_dataset dataset_slice
+				else
+					n_per_class = min(n_pos, n_neg)
+					dataset_slice = Array{Int,2}(undef, 2, n_per_class)
+					dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
+					dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
+					dataset_slice = dataset_slice[:]
+
+					(X_train, Y_train), (X_test, Y_test), _ = traintestsplit(dataset, split_threshold)
+					balanced_dataset = (X[dataset_slice], Y[dataset_slice])
+					JLD2.@save (dataset_file_name * "-balanced.jld") balanced_dataset dataset_slice
+					balanced_train = (X_train, Y_train)
+					JLD2.@save (dataset_file_name * "-balanced-train.jld") balanced_train
+					balanced_test = (X_test,  Y_test)
+					JLD2.@save (dataset_file_name * "-balanced-test.jld")  balanced_test
+				end
+
+				dataset
 				# Y = 1 .- Y
 				# Y = [ (y == 0 ? "yes" : "no") for y in Y]
 			else
