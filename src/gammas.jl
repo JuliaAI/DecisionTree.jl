@@ -384,7 +384,7 @@ function computeGammas(
 				relation = relationSet[relation_id]
 				initGammaSlice(worldType, gammas, i, relation_id, feature)
 				@logmsg DTDebug "Relation $(relation) (id: $(relation_id))" # "/$(length(relation_ids))"
-				# TOD Check if cur_gammas improves performances
+				# TODO Check if cur_gammas improves performances
 				@views cur_gammas = sliceGammas(worldType, gammas, i, relation_id, feature)
 				# For each world w and each relation, compute the thresholds of all v worlds, with w<R>v
 				worlds = if relation != ModalLogic.RelationAll

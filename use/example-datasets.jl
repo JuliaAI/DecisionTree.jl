@@ -114,7 +114,8 @@ SplatSiemensDataset(rseed::Int, nmeans::Int, hour::Int, distance::Int; subdir = 
 
 	readDataset(filepath::String) = open(filepath, "r") do io
 		insts = Array{Array{Float64}}[]
-		labels = Int64[]
+		# labels = Int64[]
+		labels = String[]
 
 		numattributes = 0
 
@@ -173,7 +174,8 @@ SplatSiemensDataset(rseed::Int, nmeans::Int, hour::Int, distance::Int; subdir = 
 				end
 				# @show class
 				push!(insts, numseries)
-				push!(labels, parse(Int, class))
+				# push!(labels, parse(Int, class))
+				push!(labels, class)
 			end
 
 			if numattributes === 0
@@ -202,7 +204,7 @@ SplatSiemensDataset(rseed::Int, nmeans::Int, hour::Int, distance::Int; subdir = 
 		X_train[:, i, :] .= hcat(insts[i]...)
 	end
 
-	Y_train = map(string, 1:2)
+	Y_train = classes
 
 	fileWithPath = data_dir * subdir * "/TEST_seed" * string(rseed) * "_nMeans" * string(nmeans) * "_hour" * string(hour) * "_distanceFromEvent" * string(distance) * ".arff"
 	insts,classes = readDataset(fileWithPath)
@@ -299,7 +301,7 @@ SiemensDataset_not_stratified(nmeans::Int, hour::Int, distance::Int; subdir = "S
 	n_vars = 10
 
 	X = Array{Float64,3}(undef, nmeans*hour, length(insts), n_vars)
-	Y = Array{String,1}(undef, length(insts))
+	Y = Vector{String}(undef, length(insts))
 
 	pos_idx = []
 	neg_idx = []
@@ -371,7 +373,7 @@ KDDDataset_not_stratified((n_task,n_version),
 
 	subfolder,file_suffix,file_prefix = (n_version == 1 ? ("cough","cough","cough_") : ("breath","breathe","breaths_"))
 
-	folders_Y, folders_N, Y = task_to_folders[n_task]
+	folders_Y, folders_N, class_labels = task_to_folders[n_task]
 
 	files_map = JSON.parsefile(kdd_data_dir * "files.json")
 
@@ -451,7 +453,7 @@ KDDDataset_not_stratified((n_task,n_version),
 	# print(size(timeseries[1]))
 	# Y = [ones(Int, length(pos))..., zeros(Int, length(neg))...]
 	# Y = [zeros(Int, length(pos))..., ones(Int, length(neg))...]
-	# Y = [fill("yes", length(pos))..., fill("no", length(neg))...]
+	Y = [fill(class_labels[1], length(pos))..., fill(class_labels[2], length(neg))...]
 	# print(size(Y))
 
 	# println([size(ts, 1) for ts in timeseries])
@@ -465,17 +467,7 @@ KDDDataset_not_stratified((n_task,n_version),
 		X[1:size(ts, 1),i,:] = ts
 	end
 
-	# TODO: optimize this code
-	labs::Vector{String} = []
-	for i in 1:(length(pos) + length(neg))
-		if i <= length(pos)
-			push!(labs, Y[1])
-		else
-			push!(labs, Y[2])
-		end
-	end
-
-	((X,labs), length(pos), length(neg))
+	((X,Y), length(pos), length(neg))
 end
 ################################################################################
 ################################################################################
@@ -485,7 +477,7 @@ end
 
 simpleDataset(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	X = Array{Int,3}(undef, N, n_samp, 1);
-	Y = Array{String,1}(undef, n_samp);
+	Y = Vector{String}(undef, n_samp);
 	for i in 1:n_samp
 		instance = fill(2, N)
 		y = rand(rng, 0:1)
@@ -502,7 +494,7 @@ end
 
 simpleDataset2(n_samp::Int, N::Int, rng = Random.GLOBAL_RNG :: Random.AbstractRNG) = begin
 	X = Array{Int,3}(undef, N, n_samp, 1);
-	Y = Array{String,1}(undef, n_samp);
+	Y = Vector{String}(undef, n_samp);
 	for i in 1:n_samp
 		instance = fill(0, N)
 		y = rand(rng, 0:1)
@@ -667,6 +659,6 @@ SampleLandCoverDataset(dataset::String, n_samples_per_label::Int, sample_size::U
 	end
 	# println([class_labels_map[y] for y in existingLabels])
 	# println(labels)
-	categorical_labels = [class_labels_map[y] for y in existingLabels]
-	inputs,[categorical_labels[y] for y in labels]
+	class_labels = [class_labels_map[y] for y in existingLabels]
+	inputs, [class_labels[y] for y in labels]
 end

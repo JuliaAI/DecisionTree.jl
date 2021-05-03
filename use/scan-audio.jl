@@ -70,9 +70,9 @@ log_level = DecisionTree.DTOverview
 timeit = 0
 # timeit = 2
 
-#scale_dataset = Float32
-# scale_dataset = UInt16
-scale_dataset = false
+#round_dataset_to_datatype = Float32
+# round_dataset_to_datatype = UInt16
+round_dataset_to_datatype = false
 
 # TODO
 # TEST:
@@ -100,12 +100,12 @@ precompute_gammas = true
 
 test_flattened = false
 
-exec_runs = 1:5
-exec_n_tasks = 1:1
-exec_n_versions = 1:2
-exec_nbands = [20,40,60]
+exec_runs = 1 # 1:5
+exec_n_tasks = 1 # 1:1
+exec_n_versions = 1 # 1:2
+exec_nbands = 20 # [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 30,
+							max_points = 3,
 							ma_size = 75,
 							ma_step = 50,
 						)#,(
@@ -142,15 +142,15 @@ mkpath(saved_datasets_path)
 
 if "-f" in ARGS
 	if isfile(iteration_progress_json_file_path)
-		println("Removing old $(iteration_progress_json_file_path)...")
+		println("Removing existing $(iteration_progress_json_file_path)...")
 		rm(iteration_progress_json_file_path)
 	end
 	if isfile(concise_output_file_path)
-		println("Removing old $(concise_output_file_path)...")
+		println("Removing existing $(concise_output_file_path)...")
 		rm(concise_output_file_path)
 	end
 	if isfile(full_output_file_path)
-		println("Removing old $(full_output_file_path)...")
+		println("Removing existing $(full_output_file_path)...")
 		rm(full_output_file_path)
 	end
 end
@@ -178,42 +178,42 @@ iteration_whitelist = [
 #		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50),
 #	),
 	# TASK 1
-	(
-		n_version = 1,
-		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 25, ma_step = 15)
-	),
-	(
-		n_version = 1,
-		nbands = 60,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	),
-	(
-		n_version = 1,
-		nbands = 60,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	),
-	# TASK 2
-	(
-		n_version = 2,
-		nbands = 20,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	),
-	(
-		n_version = 2,
-		nbands = 20,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	),
-	(
-		n_version = 2,
-		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	),
-	(
-		n_version = 2,
-		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	),
+	# (
+	# 	n_version = 1,
+	# 	nbands = 40,
+	# 	dataset_kwargs = (max_points = 30, ma_size = 25, ma_step = 15)
+	# ),
+	# (
+	# 	n_version = 1,
+	# 	nbands = 60,
+	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	# ),
+	# (
+	# 	n_version = 1,
+	# 	nbands = 60,
+	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	# ),
+	# # TASK 2
+	# (
+	# 	n_version = 2,
+	# 	nbands = 20,
+	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	# ),
+	# (
+	# 	n_version = 2,
+	# 	nbands = 20,
+	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	# ),
+	# (
+	# 	n_version = 2,
+	# 	nbands = 40,
+	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	# ),
+	# (
+	# 	n_version = 2,
+	# 	nbands = 40,
+	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	# ),
 ]
 
 iteration_blacklist = []
@@ -252,11 +252,11 @@ for i in exec_runs
 	for params_combination in IterTools.product(exec_ranges...)
 		# Unpack params combination
 		println(params_combination)
-		n_task, n_version, nbands, dataset_kwargs = params_combination
+
+		params_namedtuple = (zip(map(Symbol, exec_ranges_names), params_combination) |> Dict |> namedtuple)
 
 		# FILTER ITERATIONS
-		test_parameters = (n_task = n_task, n_version = n_version, nbands = nbands, dataset_kwargs = dataset_kwargs)
-		if !is_whitelisted_test(test_parameters, iteration_whitelist) || is_blacklisted_test(test_parameters, iteration_blacklist)
+		if (length(iteration_whitelist) > 0 && !is_whitelisted_test(params_namedtuple, iteration_whitelist)) || is_blacklisted_test(params_namedtuple, iteration_blacklist)
 			continue
 		end
 		#####################################################
@@ -268,11 +268,8 @@ for i in exec_runs
 		train_rng = spawn_rng(rng)
 
 		row_ref = string(
-			string(string(dataset_seed), ",",
-			string(n_task), ",",
-			string(n_version), ",",
-			string(nbands), ",",
-			string(values(dataset_kwargs)))
+			string(dataset_seed),
+			["," * replace(string(values(value)), ", " => ",") for value in values(params_namedtuple)]...,
 		)
 
 		# Placed here so we can keep track of which iteration is being skipped
@@ -287,16 +284,10 @@ for i in exec_runs
 			continue
 		end
 		#####################################################
+		n_task, n_version, nbands, dataset_kwargs = params_combination
 
 		# LOAD DATASET
-		dataset_file_safe_name = string(
-			string(string(dataset_seed), ".",
-			string(n_task), ".",
-			string(n_version), ".",
-			string(nbands), ".",
-			replace(string(values(dataset_kwargs)), ", " => "."))
-		)
-		dataset_file_name = saved_datasets_path * "/" * dataset_file_safe_name
+		dataset_file_name = saved_datasets_path * "/" * row_ref
 
 		dataset = nothing
 		n_pos = nothing
@@ -316,7 +307,9 @@ for i in exec_runs
 				(X,Y) = dataset
 				# Y = 1 .- Y
 				# Y = [ (y == 0 ? "yes" : "no") for y in Y]
+				dataset = (X,Y)
 			else
+				# TODO wrap dataset creation into a function accepting the rng and other parameters...
 				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
 				n_per_class = min(n_pos, n_neg)
 				# using Random
@@ -350,20 +343,18 @@ for i in exec_runs
 
 		#####################################################
 		dataset_name_str = string(
-			string(n_task), column_separator,
-			string(n_version), column_separator,
+			[string(value) * column_separator for value in values(params_namedtuple)]...,
 			string(cur_audio_kwargs), column_separator,
-			string(dataset_kwargs), column_separator,
 			string(dataset_rng.seed)
 		)
 
 		# ACTUAL COMPUTATION
 		Ts, Fs, Tcms, Fcms = testDataset(
-					"($(n_task),$(n_version))",
+					"($(n_task),$(n_version))", # TODO more verbose name?
 					dataset,
 					split_threshold,
 					log_level                   =   log_level,
-					scale_dataset               =   scale_dataset,
+					round_dataset_to_datatype               =   round_dataset_to_datatype,
 					dataset_slice               =   dataset_slice,
 					forest_args                 =   forest_args,
 					tree_args                   =   tree_args,

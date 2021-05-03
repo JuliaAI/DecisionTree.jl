@@ -131,3 +131,9 @@ function load_or_create_execution_progress_dictionary(file_path::String, args...
 		init_new_execution_progress_dictionary(file_path, args...)
 	end
 end
+
+# https://discourse.julialang.org/t/how-to-make-a-named-tuple-from-a-dictionary/10899/3
+dictkeys(d::Dict) = (collect(keys(d))...,)
+dictvalues(d::Dict) = (collect(values(d))...,)
+namedtuple(d::Dict{Symbol,T}) where {T} = NamedTuple{dictkeys(d)}(dictvalues(d))
+

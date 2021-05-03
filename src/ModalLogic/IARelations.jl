@@ -18,9 +18,10 @@ struct _IA_Di <: _IARel end; const IA_Di = _IA_Di(); # During inverse
 struct _IA_Oi <: _IARel end; const IA_Oi = _IA_Oi(); # Overlaps inverse
 # Coarser relations for IA7
 abstract type _IA7Rel <: _IARel end
-struct _IA_AO   <: _IA7Rel end; const IA_AO   = _IA_AO();   # After ∪ Overlaps
+# TODO name clash with IA2's O×A
+# struct _IA_AO   <: _IA7Rel end; const IA_AO   = _IA_AO();   # After ∪ Overlaps
 struct _IA_DBE  <: _IA7Rel end; const IA_DBE  = _IA_DBE();  # During ∪ Begins ∪ Ends
-struct _IA_AOi  <: _IA7Rel end; const IA_AOi  = _IA_AOi();  # (After ∪ Overlaps) inverse
+# struct _IA_AOi  <: _IA7Rel end; const IA_AOi  = _IA_AOi();  # (After ∪ Overlaps) inverse
 struct _IA_DBEi <: _IA7Rel end; const IA_DBEi = _IA_DBEi(); # (During ∪ Begins ∪ Ends) inverse
 # Ever coarser relations for IA3
 abstract type _IA3Rel <: _IARel end
@@ -42,9 +43,9 @@ display_rel_short(::_IA_Ei) = "E̅"# "Ē"
 display_rel_short(::_IA_Di) = "D̅"# "D̄"
 display_rel_short(::_IA_Oi) = "O̅"# "Ō"
 
-display_rel_short(::_IA_AO)   = "AO"
+# display_rel_short(::_IA_AO)   = "AO"
 display_rel_short(::_IA_DBE)  = "DBE"
-display_rel_short(::_IA_AOi)  = "A̅O̅"
+# display_rel_short(::_IA_AOi)  = "A̅O̅"
 display_rel_short(::_IA_DBEi) = "D̅B̅E̅"
 
 display_rel_short(::_IA_I)    = "I"
@@ -54,8 +55,8 @@ const IARelations = [IA_A,  IA_L,  IA_B,  IA_E,  IA_D,  IA_O,
 										 IA_Ai, IA_Li, IA_Bi, IA_Ei, IA_Di, IA_Oi]
 
 # 7 IA7 relations
-const IA7Relations = [IA_AO,  IA_L,  IA_DBE,
-										  IA_AOi, IA_Li, IA_DBEi]
+# const IA7Relations = [IA_AO,  IA_L,  IA_DBE,
+										  # IA_AOi, IA_Li, IA_DBEi]
 
 # 3 IA3 relations
 const IA3Relations = [IA_I, IA_L, IA_Li]

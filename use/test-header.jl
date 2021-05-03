@@ -25,9 +25,9 @@ using SHA
 using Serialization
 import JLD2
 
-function get_resource_hash_sha256(dataset)::String
+function get_hash_sha256(var)::String
 	io = IOBuffer();
-	serialize(io, dataset)
+	serialize(io, var)
 	result = bytes2hex(sha256(take!(io)))
 	close(io)
 
@@ -69,7 +69,7 @@ traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{String}},thresho
 	num_instances = length(Y)
 	spl = ceil(Int, num_instances*threshold)
 	# make it even
-	if length(Y) == 2 && is_balanced
+	if length(unique(Y)) == 2 && is_balanced
 		spl = isodd(spl) ? (spl-1) : spl
 	end
 	X_train = ModalLogic.sliceDomainByInstances(X, 1:spl)
@@ -102,7 +102,7 @@ function testDataset(
 		dataset                         ::Tuple,
 		split_threshold                 ::Union{Bool,AbstractFloat};
 		log_level                       = DecisionTree.DTOverview,
-		scale_dataset                   ::Union{Bool,Type} = false,
+		round_dataset_to_datatype           ::Union{Bool,Type} = false,
 		post_pruning_purity_thresholds  = [],
 		forest_args                     = [],
 		tree_args                       = [],
@@ -168,7 +168,7 @@ function testDataset(
 				if isnothing(gammas_save_path)
 					(nothing, nothing, nothing)
 				else
-					dataset_hash = get_resource_hash_sha256(X_all_d)
+					dataset_hash = get_hash_sha256(X_all_d)
 					(
 						"$(gammas_save_path)/gammas_$(dataset_hash).jld",
 						"$(gammas_save_path)/gammas_hash_index.csv",
@@ -230,8 +230,8 @@ function testDataset(
 			X, Y = dataset
 
 			# Apply scaling
-			if scale_dataset != false
-				X, Y = scaleDataset((X, Y), scale_dataset)
+			if round_dataset_to_datatype != false
+				X, Y = scaleDataset((X, Y), round_dataset_to_datatype)
 			end
 			
 			# Calculate gammas for the full set of instances
@@ -266,9 +266,9 @@ function testDataset(
 			(X_train, Y_train), (X_test, Y_test) = dataset
 
 			# Apply scaling
-			if scale_dataset != false
-				(X_train, Y_train) = scaleDataset((X_train, Y_train), scale_dataset)
-				(X_test,  Y_test) = scaleDataset((X_test,  Y_test), scale_dataset)
+			if round_dataset_to_datatype != false
+				(X_train, Y_train) = scaleDataset((X_train, Y_train), round_dataset_to_datatype)
+				(X_test,  Y_test) = scaleDataset((X_test,  Y_test), round_dataset_to_datatype)
 			end
 			
 			# Calculate gammas for the training instances
@@ -304,25 +304,29 @@ function testDataset(
 	function display_cm_as_row(cm::ConfusionMatrix)
 		"|\t" *
 		"$(round(cm.overall_accuracy*100, digits=2))%\t" *
+		"$(join(round.(cm.sensitivities.*100, digits=2), "%\t"))%\t" *
+		"$(join(round.(cm.PPVs.*100, digits=2), "%\t"))%\t" *
+		"||\t" *
 		# "$(round(cm.mean_accuracy*100, digits=2))%\t" *
 		"$(round(cm.kappa*100, digits=2))%\t" *
 		# "$(round(DecisionTree.macro_F1(cm)*100, digits=2))%\t" *
 		# "$(round.(cm.accuracies.*100, digits=2))%\t" *
 		"$(round.(cm.F1s.*100, digits=2))%\t" *
-		"$(round.(cm.sensitivities.*100, digits=2))%\t" *
+		# "$(round.(cm.sensitivities.*100, digits=2))%\t" *
 		# "$(round.(cm.specificities.*100, digits=2))%\t" *
-		"$(round.(cm.PPVs.*100, digits=2))%\t" *
+		# "$(round.(cm.PPVs.*100, digits=2))%\t" *
 		# "$(round.(cm.NPVs.*100, digits=2))%\t" *
-		"||\t" *
-		"$(round(DecisionTree.macro_weighted_F1(cm)*100, digits=2))%\t" *
-		# "$(round(DecisionTree.macro_sensitivity(cm)*100, digits=2))%\t" *
-		"$(round(DecisionTree.macro_weighted_sensitivity(cm)*100, digits=2))%\t" *
-		# "$(round(DecisionTree.macro_specificity(cm)*100, digits=2))%\t" *
-		"$(round(DecisionTree.macro_weighted_specificity(cm)*100, digits=2))%\t" *
-		# "$(round(DecisionTree.mean_PPV(cm)*100, digits=2))%\t" *
-		"$(round(DecisionTree.macro_weighted_PPV(cm)*100, digits=2))%\t" *
-		# "$(round(DecisionTree.mean_NPV(cm)*100, digits=2))%\t" *
-		"$(round(DecisionTree.macro_weighted_NPV(cm)*100, digits=2))%\t"
+		# "|||\t" *
+		# "$(round(DecisionTree.macro_weighted_F1(cm)*100, digits=2))%\t" *
+		# # "$(round(DecisionTree.macro_sensitivity(cm)*100, digits=2))%\t" *
+		# "$(round(DecisionTree.macro_weighted_sensitivity(cm)*100, digits=2))%\t" *
+		# # "$(round(DecisionTree.macro_specificity(cm)*100, digits=2))%\t" *
+		# "$(round(DecisionTree.macro_weighted_specificity(cm)*100, digits=2))%\t" *
+		# # "$(round(DecisionTree.mean_PPV(cm)*100, digits=2))%\t" *
+		# "$(round(DecisionTree.macro_weighted_PPV(cm)*100, digits=2))%\t" *
+		# # "$(round(DecisionTree.mean_NPV(cm)*100, digits=2))%\t" *
+		# "$(round(DecisionTree.macro_weighted_NPV(cm)*100, digits=2))%\t"
+		""
 	end
 
 	go_tree(tree_args) = begin
@@ -338,7 +342,7 @@ function testDataset(
 		print(T)
 
 		if !isnothing(save_tree_path)
-			tree_hash = get_resource_hash_sha256(T)
+			tree_hash = get_hash_sha256(T)
 			total_save_path = save_tree_path * "/tree_" * tree_hash * ".jld"
 			mkpath(dirname(total_save_path))
 
@@ -361,13 +365,6 @@ function testDataset(
 
 			println("RESULT:\t$(name)\t$(tree_args)\t$(modal_args)\t$(pruning_purity_threshold)\t$(display_cm_as_row(cm))")
 			
-			# println("  accuracy: ", round(cm.overall_accuracy*100, digits=2), "% kappa: ", round(cm.kappa*100, digits=2), "% ")
-			# for (i,row) in enumerate(eachrow(cm.matrix))
-			# 	for val in row
-			# 		print(lpad(val,3," "))
-			# 	end
-			# 	println("  " * "$(round(100*row[i]/sum(row), digits=2))%\t\t" * cm.classes[i])
-			# end
 			println(cm)
 			# @show cm
 

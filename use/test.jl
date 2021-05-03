@@ -119,8 +119,8 @@ log_level = DecisionTree.DTOverview
 
 # timeit = 2
 timeit = 0
-scale_dataset = false
-# scale_dataset = UInt8
+round_dataset_to_datatype = false
+# round_dataset_to_datatype = UInt8
 
 
 n_instances = 10
@@ -209,7 +209,7 @@ for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre", "Pavia", "IndianPine
 														dataset,
 														0.8,
 														timeit,
-														scale_dataset = scale_dataset,
+														round_dataset_to_datatype = round_dataset_to_datatype,
 														log_level = log_level,
 														args = cur_args,
 														kwargs = cur_kwargs,

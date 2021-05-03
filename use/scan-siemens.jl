@@ -103,9 +103,9 @@ test_flattened = false
 timeit = 0
 # timeit = 2
 
-# scale_dataset = false
-# scale_dataset = UInt16
-scale_dataset = Float32
+# round_dataset_to_datatype = false
+# round_dataset_to_datatype = UInt16
+round_dataset_to_datatype = Float32
 
 post_pruning_purity_thresholds = []
 
@@ -207,7 +207,7 @@ for i in exec_runs
 				dataset,
 				split_threshold,
 				log_level                       = log_level,
-				scale_dataset                   = scale_dataset,
+				round_dataset_to_datatype                   = round_dataset_to_datatype,
 				post_pruning_purity_thresholds  = post_pruning_purity_thresholds,
 				forest_args                     = forest_args,
 				tree_args                       = tree_args,

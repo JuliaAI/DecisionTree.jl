@@ -71,8 +71,8 @@ audio_kwargs = (
 
 n_task = 1
 n_version = 2
-scale_dataset = false
-# scale_dataset = UInt16
+round_dataset_to_datatype = false
+# round_dataset_to_datatype = UInt16
 dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), audio_kwargs; dataset_kwargs...)
 println(dataset[1] |> size)
 
@@ -80,14 +80,14 @@ testDataset("Test",
 		dataset,
 		0.8;
 		log_level          =  log_level,
-		scale_dataset      =  scale_dataset,
+		round_dataset_to_datatype      =  round_dataset_to_datatype,
 		forest_args        =  forest_args,
 		tree_args          =  tree_args,
 		modal_args         =  modal_args,
 		precompute_gammas  =  true
 	);
 
-# scale_dataset = false
+# round_dataset_to_datatype = false
 
 # for i in 1:10
 # 	for n_task in 1:1
@@ -97,7 +97,7 @@ testDataset("Test",
 
 # 			testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
 # 						log_level=log_level,
-# 						scale_dataset=scale_dataset,
+# 						round_dataset_to_datatype=round_dataset_to_datatype,
 # 						forest_args=forest_args,
 # 						args=args,
 # 						modal_args=modal_args,

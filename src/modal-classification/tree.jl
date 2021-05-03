@@ -387,14 +387,14 @@ module treeclassifier
 
 	function check_input(
 			X                   :: OntologicalDataset{T, N},
-			Y                   :: AbstractVector{Label},
+			Y                   :: AbstractVector{S},
 			W                   :: AbstractVector{U},
 			loss_function       :: Function,
 			max_features		:: Int,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
 			min_loss_at_leaf    :: AbstractFloat,
-			min_purity_increase :: AbstractFloat) where {T, U, N}
+			min_purity_increase :: AbstractFloat) where {T, S, U, N}
 			n_instances, n_vars = n_samples(X), n_variables(X)
 		if length(Y) != n_instances
 			throw("dimension mismatch between X and Y ($(size(X.domain)) vs $(size(Y))")
@@ -657,10 +657,6 @@ module treeclassifier
 		# Obtain the dataset's "outer size": number of samples and number of features
 		n_instances = n_samples(X)
 
-		# Translate labels to categorical form
-		labels, Y_ = util.assign(Y)
-		# print(labels, Y_)
-
 		# Use unary weights if no weight is supplied
 		if isnothing(W)
 			# TODO optimize w in the case of all-ones: write a subtype of AbstractVector:
@@ -671,7 +667,7 @@ module treeclassifier
 
 		# Check validity of the input
 		check_input(
-			X, Y_, W,
+			X, Y, W,
 			loss,
 			max_features,
 			max_depth,
@@ -679,6 +675,10 @@ module treeclassifier
 			min_loss_at_leaf,
 			min_purity_increase,
 			)
+
+		# Translate labels to categorical form
+		labels, Y_ = util.assign(Y)
+		# print(labels, Y_)
 
 		# Call core learning function
 		root, indX = _fit(

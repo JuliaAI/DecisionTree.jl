@@ -93,8 +93,8 @@ log_level = DecisionTree.DTOverview
 
 # timeit = 2
 timeit = 0
-scale_dataset = false
-# scale_dataset = UInt8
+round_dataset_to_datatype = false
+# round_dataset_to_datatype = UInt8
 
 
 # n_instances = 1
@@ -161,7 +161,7 @@ if log_results_best_values
 			dataset,
 			false;
 			log_level                   =   log_level,
-			scale_dataset               =   scale_dataset,
+			round_dataset_to_datatype               =   round_dataset_to_datatype,
 			forest_args                 =   forest_args,
 			tree_args                   =   tree_args,
 			modal_args                  =   modal_args,
@@ -198,7 +198,7 @@ else
 		dataset,
 		false;
 		log_level                   =   log_level,
-		scale_dataset               =   scale_dataset,
+		round_dataset_to_datatype               =   round_dataset_to_datatype,
 		forest_args                 =   forest_args,
 		tree_args                   =   tree_args,
 		modal_args                  =   modal_args,

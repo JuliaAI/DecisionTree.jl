@@ -303,7 +303,7 @@ function print_apply_tree(tree::DTree{S, T}, X::MatricialDataset{S,D}, Y::Vector
 			tree.initCondition
 		)
 	end
-	print_tree(tree)
+	print(tree)
 	return tree
 end
 
