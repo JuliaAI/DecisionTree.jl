@@ -100,12 +100,12 @@ precompute_gammas = true
 
 test_flattened = false
 
-exec_runs = 1 # 1:5
-exec_n_tasks = 1 # 1:1
-exec_n_versions = 1 # 1:2
-exec_nbands = 20 # [20,40,60]
+exec_runs = 1:5
+exec_n_tasks = 1:1
+exec_n_versions = 1:2
+exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 3,
+							max_points = 30,
 							ma_size = 75,
 							ma_step = 50,
 						),(
