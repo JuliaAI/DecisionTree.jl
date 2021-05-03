@@ -29,7 +29,7 @@ export DTNode, DTLeaf, DTInternal,
 			 startWithRelationAll, startAtCenter,
 			 DTOverview, DTDebug, DTDetail,
 			 #
-			 GammasType, spawn_rng
+			 GammaType, GammaSliceType, spawn_rng
 
 
 # ScikitLearn API

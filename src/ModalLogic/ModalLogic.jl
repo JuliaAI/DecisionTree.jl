@@ -13,6 +13,7 @@ export AbstractWorld, AbstractRelation,
 				MatricialInstance,
 				MatricialDataset,
 				MatricialUniDataset,
+				MatricialChannel,
 				WorldSet,
 				display_propositional_test,
 				display_modal_test
@@ -401,27 +402,16 @@ computeModalThresholdDual(test_operator::TestOperatorPositive, w::WorldType, rel
 	end
 	extr
 end
-# TODO write a single computeModalThreshold using bottom and opt
-# TODO use readGammas
-computeModalThreshold(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+computeModalThreshold(test_operator::Union{TestOperatorPositive,TestOperatorNegative}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
 	worlds = enumAccessibles([w], relation, channel)
-	v = typemin(T) # TODO write with reduce
+	# TODO rewrite as reduce(opt(test_operator), (computePropositionalThreshold(test_operator, w, channel) for w in worlds); init=bottom(test_operator, T))
+	v = bottom(test_operator, T)
 	for w in worlds
 		e = computePropositionalThreshold(test_operator, w, channel)
-		v = max(v,e)
+		v = opt(test_operator)(v,e)
 	end
 	v
 end
-computeModalThreshold(test_operator::TestOperatorNegative, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAccessibles([w], relation, channel)
-	v = typemax(T) # TODO write with reduce
-	for w in worlds
-		e = computePropositionalThreshold(test_operator, w, channel)
-		v = min(v,e)
-	end
-	v
-end
-
 computeModalThresholdMany(test_ops::Vector{<:TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
 	[computeModalThreshold(test_op, w, relation, channel) for test_op in test_ops]
 end

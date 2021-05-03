@@ -183,7 +183,15 @@ function testDataset(
 					Serialization.deserialize(gammas_jld_path)
 				else
 					checkpoint_stdout("Computing gammas for $(dataset_hash)...")
-					gammas = DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids)
+					gammas = 
+						if timeit == 0
+							DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids);
+						elseif timeit == 1
+							@time DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids);
+						elseif timeit == 2
+							@btime DecisionTree.computeGammas($X_all,$worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids);
+					end
+
 					if !isnothing(gammas_jld_path)
 						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\"...")
 
@@ -336,8 +344,8 @@ function testDataset(
 			elseif timeit == 1
 				@time build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng);
 			elseif timeit == 2
-				@btime build_tree($Y_train, $X_train; $tree_args..., $modal_args..., gammas = gammas_train, rng = $rng);
-			end
+				@btime build_tree($Y_train, $X_train; $tree_args..., $modal_args..., gammas = $gammas_train, rng = $rng);
+		end
 		println("Train tree:")
 		print(T)
 
@@ -382,7 +390,7 @@ function testDataset(
 					elseif timeit == 1
 						@time build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
 					elseif timeit == 2
-						@btime build_forest($Y_train, $X_train; $f_args..., $modal_args..., gammas = gammas_train, rng = $rng);
+						@btime build_forest($Y_train, $X_train; $f_args..., $modal_args..., gammas = $gammas_train, rng = $rng);
 					end
 					for i in 1:forest_runs
 				]

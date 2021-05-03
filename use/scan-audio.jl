@@ -67,8 +67,9 @@ modal_args = (
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
 
-timeit = 0
-# timeit = 2
+# timeit = 0
+# timeit = 1
+timeit = 2
 
 #round_dataset_to_datatype = Float32
 # round_dataset_to_datatype = UInt16
@@ -100,6 +101,10 @@ precompute_gammas = true
 
 test_flattened = false
 
+# exec_runs = 1 # 1:5
+# exec_n_tasks = 1 # 1:1
+# exec_n_versions = 1 # 1:2
+# exec_nbands = 20 # [20,40,60]
 exec_runs = 1:5
 exec_n_tasks = 1:1
 exec_n_versions = 1:2
@@ -372,7 +377,8 @@ for i in exec_runs
 					forest_runs                 =   forest_runs,
 					gammas_save_path            =   (gammas_save_path, dataset_name_str),
 					save_tree_path              =   save_tree_path,
-					rng                         =   train_rng
+					rng                         =   train_rng,
+					timeit                      =   timeit,
 					);
 		#####################################################
 		# PRINT RESULT IN FILES
