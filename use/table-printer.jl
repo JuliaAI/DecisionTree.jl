@@ -27,6 +27,12 @@ function get_creation_date_string_format(file_name::String)::String
 	Dates.format(Dates.unix2datetime(ctime(file_name)), "HH.MM.SS_dd.mm.yyyy")
 end
 
+function backup_file_using_creation_date(file_name::String)
+	splitted_name = Base.Filesystem.splitext(file_name)
+	backup_file_name = splitted_name[1] * "_" * get_creation_date_string_format(file_name) * splitted_name[2]
+	mv(file_name, backup_file_name)
+end
+
 function string_tree_head(tree_args)::String
 	string("T($(print_function(tree_args.loss)),$(tree_args.min_samples_leaf),$(tree_args.min_purity_increase),$(tree_args.min_loss_at_leaf))")
 end
@@ -82,9 +88,7 @@ function print_head(file_name::String, tree_args::AbstractArray, forest_args::Ab
 		end
 		close(file)
 
-		splitted_name = Base.Filesystem.splitext(file_name)
-		backup_file_name = splitted_name[1] * "_" * get_creation_date_string_format(file_name) * splitted_name[2]
-		mv(file_name, backup_file_name)
+		backup_file_using_creation_date(file_name)
 	end
 
 	file = open(file_name, "w+")

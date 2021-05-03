@@ -59,7 +59,8 @@ modal_args = (
 	useRelationId = true,
 	useRelationAll = false,
 	ontology = getIntervalOntologyOfDim(Val(1)),
-	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
+#	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
+	test_operators = [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
 )
 
 
@@ -105,17 +106,17 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 30,
+							max_points = 2,
 							ma_size = 75,
 							ma_step = 50,
-						),(
-							max_points = 30,
-							ma_size = 45,
-							ma_step = 30,
-						),(
-							max_points = 30,
-							ma_size = 25,
-							ma_step = 15,
+#						),(
+#							max_points = 30,
+#							ma_size = 45,
+#							ma_step = 30,
+#						),(
+#							max_points = 30,
+#							ma_size = 25,
+#							ma_step = 15,
 						)
 						]
 
@@ -142,16 +143,16 @@ mkpath(saved_datasets_path)
 
 if "-f" in ARGS
 	if isfile(iteration_progress_json_file_path)
-		println("Removing existing $(iteration_progress_json_file_path)...")
-		rm(iteration_progress_json_file_path)
+		println("Backing up existing $(iteration_progress_json_file_path)...")
+		backup_file_using_creation_date(iteration_progress_json_file_path)
 	end
 	if isfile(concise_output_file_path)
-		println("Removing existing $(concise_output_file_path)...")
-		rm(concise_output_file_path)
+		println("Backing up existing $(concise_output_file_path)...")
+		backup_file_using_creation_date(concise_output_file_path)
 	end
 	if isfile(full_output_file_path)
-		println("Removing existing $(full_output_file_path)...")
-		rm(full_output_file_path)
+		println("Backing up existing $(full_output_file_path)...")
+		backup_file_using_creation_date(full_output_file_path)
 	end
 end
 
@@ -235,10 +236,13 @@ print_head(full_output_file_path, tree_args, forest_args, separator = column_sep
 #	5 => 1107158645723204584
 #)
 
+
+
 # RUN
 for i in exec_runs
-	rng = spawn_rng(main_rng)
 	dataset_seed = i
+	train_seed = i
+
 	println("DATA SEED: $(dataset_seed)")
 
 	for params_combination in IterTools.product(exec_ranges...)
@@ -257,7 +261,6 @@ for i in exec_runs
 		done = is_combination_already_computed(exec_dicts, exec_ranges_names, params_combination, i)
 
 		dataset_rng = Random.MersenneTwister(dataset_seed)
-		train_rng = spawn_rng(rng)
 
 		row_ref = string(
 			string(dataset_seed),
@@ -372,7 +375,7 @@ for i in exec_runs
 					forest_runs                 =   forest_runs,
 					gammas_save_path            =   (gammas_save_path, dataset_name_str),
 					save_tree_path              =   save_tree_path,
-					rng                         =   train_rng
+					train_seed                  =   train_seed
 					);
 		#####################################################
 		# PRINT RESULT IN FILES
