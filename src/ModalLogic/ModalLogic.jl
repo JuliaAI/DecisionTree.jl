@@ -137,7 +137,7 @@ subscriptnumber(i::AbstractFloat) = subscriptnumber(string(i))
 ################################################################################
 
 ################################################################################
-# BEGIN Matricial dataset
+# BEGIN Matricial dataset & Ontological dataset
 ################################################################################
 
 # A dataset, given by a set of N-dimensional (multi-variate) matrices/instances,
@@ -149,17 +149,44 @@ subscriptnumber(i::AbstractFloat) = subscriptnumber(string(i))
 # - A multi-variate dataset is of dimensionality D=N+1+1
 #  https://discourse.julialang.org/t/addition-to-parameter-of-parametric-type/20059/5
 
-const MatricialChannel{T,N}   = AbstractArray{T,N}
-const MatricialInstance{T,MN} = AbstractArray{T,MN}
+const MatricialChannel{T,N}     = AbstractArray{T,N}
+const MatricialInstance{T,MN}   = AbstractArray{T,MN}
 # TODO: It'd be nice to define these as a function of N, https://github.com/JuliaLang/julia/issues/8322
 #   e.g. const MatricialUniDataset{T,N}       = AbstractArray{T,N+1}
 const MatricialUniDataset{T,UD} = AbstractArray{T,UD}
 const MatricialDataset{T,D}     = AbstractArray{T,D}
 
-n_samples(d::MatricialDataset{T,D})        where {T,D} = size(d, D-1)
-n_variables(d::MatricialDataset{T,D})      where {T,D} = size(d, D)
-channel_size(d::MatricialDataset{T,D})     where {T,D} = size(d)[1:end-2]
+n_samples(d::MatricialDataset{T,D})    where {T,D} = size(d, D-1)
+n_variables(d::MatricialDataset{T,D})  where {T,D} = size(d, D)
+channel_size(d::MatricialDataset{T,D}) where {T,D} = size(d)[1:end-2]
 
+@inline getInstance(d::MatricialDataset{T,2},     idx::Integer) where T = @views d[idx, :]         # N=0
+@inline getInstance(d::MatricialDataset{T,3},     idx::Integer) where T = @views d[:, idx, :]      # N=1
+@inline getInstance(d::MatricialDataset{T,4},     idx::Integer) where T = @views d[:, :, idx, :]   # N=2
+@inline getFeature(d::MatricialDataset{T,2},      idx_i::Integer, idx_f::Integer) where T = @views d[      idx_i, idx_f]::T                     # N=0
+@inline getFeature(d::MatricialDataset{T,3},      idx_i::Integer, idx_f::Integer) where T = @views d[:,    idx_i, idx_f]::MatricialChannel{T,1} # N=1
+@inline getFeature(d::MatricialDataset{T,4},      idx_i::Integer, idx_f::Integer) where T = @views d[:, :, idx_i, idx_f]::MatricialChannel{T,2} # N=2
+@inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = @views ud[idx]           # N=0
+@inline getChannel(ud::MatricialUniDataset{T,2},  idx::Integer) where T = @views ud[:, idx]        # N=1
+@inline getChannel(ud::MatricialUniDataset{T,3},  idx::Integer) where T = @views ud[:, :, idx]     # N=2
+@inline getInstanceFeature(inst::MatricialInstance{T,1},      idx::Integer) where T = @views inst[      idx]::T                     # N=0
+@inline getInstanceFeature(inst::MatricialInstance{T,2},      idx::Integer) where T = @views inst[:,    idx]::MatricialChannel{T,1} # N=1
+@inline getInstanceFeature(inst::MatricialInstance{T,3},      idx::Integer) where T = @views inst[:, :, idx]::MatricialChannel{T,2} # N=2
+
+@inline sliceDomainByInstances(d::MatricialDataset{T,2}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[inds, :]       else d[inds, :]    end # N=0
+@inline sliceDomainByInstances(d::MatricialDataset{T,3}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, inds, :]    else d[:, inds, :] end # N=1
+@inline sliceDomainByInstances(d::MatricialDataset{T,4}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, :, inds, :] else d[:, inds, :] end # N=2
+
+@inline strip_domain(d::MatricialDataset{T,2}) where T = d  # N=0
+@inline strip_domain(d::MatricialDataset{T,3}) where T = dropdims(d; dims=1)      # N=1
+@inline strip_domain(d::MatricialDataset{T,4}) where T = dropdims(d; dims=(1,2))  # N=2
+
+# Initialize MatricialUniDataset by slicing across the features dimension
+MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,2}) where T = Array{T, 1}(undef, n_samples(d))::MatricialUniDataset{T, 1}
+MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,3}) where T = Array{T, 2}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 2}
+MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Array{T, 3}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 3}
+
+# TODO generalize as init_Xf(X::OntologicalDataset{T, N}) where T = Array{T, N+1}(undef, size(X)[3:end]..., n_samples(X))
 @computed struct OntologicalDataset{T,N}
 	ontology  :: Ontology
 	domain    :: MatricialDataset{T,N+1+1}
@@ -179,32 +206,6 @@ n_samples(X::OntologicalDataset{T,N})        where {T,N} = n_samples(X.domain)
 n_variables(X::OntologicalDataset{T,N})      where {T,N} = n_variables(X.domain)
 channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain)
 
-@inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = @views ud[idx]           # N=0
-@inline getChannel(ud::MatricialUniDataset{T,2},  idx::Integer) where T = @views ud[:, idx]        # N=1
-@inline getChannel(ud::MatricialUniDataset{T,3},  idx::Integer) where T = @views ud[:, :, idx]     # N=2
-@inline getInstance(d::MatricialDataset{T,2},     idx::Integer) where T = @views d[idx, :]         # N=0
-@inline getInstance(d::MatricialDataset{T,3},     idx::Integer) where T = @views d[:, idx, :]      # N=1
-@inline getInstance(d::MatricialDataset{T,4},     idx::Integer) where T = @views d[:, :, idx, :]   # N=2
-@inline getInstanceFeature(instance::MatricialInstance{T,1},      idx::Integer) where T = @views instance[      idx]::T                      # N=0
-@inline getInstanceFeature(instance::MatricialInstance{T,2},      idx::Integer) where T = @views instance[:,    idx]::MatricialChannel{T,1}  # N=1
-@inline getInstanceFeature(instance::MatricialInstance{T,3},      idx::Integer) where T = @views instance[:, :, idx]::MatricialChannel{T,2}  # N=2
-@inline getFeature(d::MatricialDataset{T,2},      idx::Integer, feature::Integer) where T = @views d[      idx, feature]::T                     # N=0
-@inline getFeature(d::MatricialDataset{T,3},      idx::Integer, feature::Integer) where T = @views d[:,    idx, feature]::MatricialChannel{T,1} # N=1
-@inline getFeature(d::MatricialDataset{T,4},      idx::Integer, feature::Integer) where T = @views d[:, :, idx, feature]::MatricialChannel{T,2} # N=2
-
-@inline sliceDomainByInstances(d::MatricialDataset{T,2}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[inds, :]       else d[inds, :]    end # N=0
-@inline sliceDomainByInstances(d::MatricialDataset{T,3}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, inds, :]    else d[:, inds, :] end # N=1
-@inline sliceDomainByInstances(d::MatricialDataset{T,4}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, :, inds, :] else d[:, inds, :] end # N=2
-
-@inline strip_domain(d::MatricialDataset{T,2}) where T = d  # N=0
-@inline strip_domain(d::MatricialDataset{T,3}) where T = dropdims(d; dims=1)      # N=1
-@inline strip_domain(d::MatricialDataset{T,4}) where T = dropdims(d; dims=(1,2))  # N=2
-
-# TODO generalize as init_Xf(X::OntologicalDataset{T, N}) where T = Array{T, N+1}(undef, size(X)[3:end]..., n_samples(X))
-# Initialize MatricialUniDataset by slicing across the features dimension
-MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,2}) where T = Array{T, 1}(undef, n_samples(d))::MatricialUniDataset{T, 1}
-MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,3}) where T = Array{T, 2}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 2}
-MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Array{T, 3}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 3}
 
 # TODO use Xf[i,[(:) for i in 1:N]...]
 # @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, N)...]::AbstractArray{T,N-1}
@@ -215,7 +216,7 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 # featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
 
 ################################################################################
-# END Matricial dataset
+# END Matricial dataset & Ontological dataset
 ################################################################################
 
 # World generators/enumerators and array/set-like structures
