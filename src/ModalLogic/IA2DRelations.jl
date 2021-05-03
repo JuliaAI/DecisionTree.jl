@@ -144,7 +144,7 @@ enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {
 enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelSingleVal,R2<:_IA2DRelMinimizer}, X::Integer, Y::Integer) =
 	enumAccRepr2D(test_operator, w, r.x, r.y, X, Y, _ReprMax)
 
-# The last two cases are difficult to express with enumAccRepr, better do it at WExtremaModal instead
+# The last two cases are difficult to express with enumAccRepr, better do it at computeModalThresholdDual instead
 
 # TODO create a dedicated min/max combination representation?
 yieldMinMaxCombinations(test_operator::_TestOpGeq, productRepr::_ReprTreatment, channel::MatricialChannel{T,2}, dims::Integer) where {T} = begin
@@ -174,16 +174,16 @@ yieldMinMaxCombination(test_operator::_TestOpLeq, productRepr::_ReprTreatment, c
 	minimum(mapslices(maximum, vals, dims=dims))
 end
 
-WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
+computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 1)
 end
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
+computeModalThreshold(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMinimizer,R2<:_IA2DRelMaximizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 1)
 end
-WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
+computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombinations(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 2)
 end
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
+computeModalThreshold(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::_IA2DRel{R1,R2} where {R1<:_IA2DRelMaximizer,R2<:_IA2DRelMinimizer}, channel::MatricialChannel{T,2}) where {T} = begin
 	yieldMinMaxCombination(test_operator, enumAccRepr2D(test_operator, w, r.x, r.y, size(channel)..., _ReprFake), channel, 2)
 end
 

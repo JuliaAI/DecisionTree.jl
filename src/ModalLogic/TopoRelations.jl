@@ -67,17 +67,17 @@ enumAccBare(w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccBare(w, IA_Di, X)
 enumAccBare(w::Interval, r::R where R<:_TopoRelRCC5,  XYZ::Vararg{Integer,1}) =
 	Iterators.flatten((enumAccBare(w, IA_r,  XYZ...) for RCC8_r in RCC52RCC8Relations(r) for IA_r in topo2IARelations(RCC8_r)))
 
-WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC8FromIA, channel::MatricialChannel{T,1}) where {T} = begin
+computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC8FromIA, channel::MatricialChannel{T,1}) where {T} = begin
 	maxExtrema(
 		map((IA_r)->(yieldReprs(test_operator, enumAccRepr(test_operator, w, IA_r, length(channel)), channel)), topo2IARelations(r))
 	)
 end
-WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC8FromIA, channel::MatricialChannel{T,1}) where {T} = begin
+computeModalThreshold(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC8FromIA, channel::MatricialChannel{T,1}) where {T} = begin
 	maximum(
 		map((IA_r)->(yieldRepr(test_operator, enumAccRepr(test_operator, w, IA_r, length(channel)), channel)), topo2IARelations(r))
 	)
 end
-WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::R where R<:_TopoRelRCC8FromIA, channel::MatricialChannel{T,1}) where {T} = begin
+computeModalThreshold(test_operator::_TestOpLeq, w::Interval, r::R where R<:_TopoRelRCC8FromIA, channel::MatricialChannel{T,1}) where {T} = begin
 	mininimum(
 		map((IA_r)->(yieldRepr(test_operator, enumAccRepr(test_operator, w, IA_r, length(channel)), channel)), topo2IARelations(r))
 	)
@@ -86,17 +86,17 @@ end
 enumAccRepr(test_operator::TestOperator, w::Interval, ::_Topo_NTPP,  X::Integer) = enumAccRepr(test_operator, w, IA_D, X)
 enumAccRepr(test_operator::TestOperator, w::Interval, ::_Topo_NTPPi, X::Integer) = enumAccRepr(test_operator, w, IA_Di, X)
 
-WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC5, channel::MatricialChannel{T,1}) where {T} = begin
+computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC5, channel::MatricialChannel{T,1}) where {T} = begin
 	maxExtrema(
 		map((IA_r)->(yieldReprs(test_operator, enumAccRepr(test_operator, w, IA_r, size(channel)...), channel)), [IA_r for RCC8_r in RCC52RCC8Relations(r) for IA_r in topo2IARelations(RCC8_r)])
 	)
 end
-WExtremeModal(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC5, channel::MatricialChannel{T,1}) where {T} = begin
+computeModalThreshold(test_operator::_TestOpGeq, w::Interval, r::R where R<:_TopoRelRCC5, channel::MatricialChannel{T,1}) where {T} = begin
 	maximum(
 		map((IA_r)->(yieldRepr(test_operator, enumAccRepr(test_operator, w, IA_r, size(channel)...), channel)), [IA_r for RCC8_r in RCC52RCC8Relations(r) for IA_r in topo2IARelations(RCC8_r)])
 	)
 end
-WExtremeModal(test_operator::_TestOpLeq, w::Interval, r::R where R<:_TopoRelRCC5, channel::MatricialChannel{T,1}) where {T} = begin
+computeModalThreshold(test_operator::_TestOpLeq, w::Interval, r::R where R<:_TopoRelRCC5, channel::MatricialChannel{T,1}) where {T} = begin
 	mininimum(
 		map((IA_r)->(yieldRepr(test_operator, enumAccRepr(test_operator, w, IA_r, size(channel)...), channel)), [IA_r for RCC8_r in RCC52RCC8Relations(r) for IA_r in topo2IARelations(RCC8_r)])
 	)

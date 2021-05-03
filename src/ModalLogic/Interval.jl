@@ -57,31 +57,31 @@ enumAccRepr(test_operator::_TestOpGeq, w::Interval, ::_RelationAll, X::Integer) 
 enumAccRepr(test_operator::_TestOpLeq, w::Interval, ::_RelationAll, X::Integer) = _ReprMin(Interval(1,X+1))
 
 # TODO optimize relationAll
-WExtremaModal(test_operator::_TestOpGeq, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
+computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
 	yieldReprs(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
+computeModalThreshold(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval, r::R where R<:AbstractRelation, channel::MatricialChannel{T,1}) where {T} =
 	yieldRepr(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
 
 # TODO optimize relationAll?
-# WExtremaModal(test_operator::_TestOpGeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
+# computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
 # 	# X = length(channel)
 # 	# println("Check!")
 # 	# println(test_operator)
 # 	# println(w)
 # 	# println(relation)
 # 	# println(channel)
-# 	# println(WExtrema(test_operator, Interval(1,X+1), channel))
+# 	# println(computePropositionalThresholdDual(test_operator, Interval(1,X+1), channel))
 # 	# readline()
-# 	# WExtrema(test_operator, Interval(1,X+1), channel)
+# 	# computePropositionalThresholdDual(test_operator, Interval(1,X+1), channel)
 # 	reverse(extrema(channel))
 # end
-# WExtremeModal(test_operator::_TestOpGeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
+# computeModalThreshold(test_operator::_TestOpGeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
 # 	# TODO optimize this by replacing readworld with channel[1:X]...
 # 	# X = length(channel)
 # 	# maximum(readWorld(Interval(1,X+1),channel))
 # 	maximum(channel)
 # end
-# WExtremeModal(test_operator::_TestOpLeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
+# computeModalThreshold(test_operator::_TestOpLeq, w::Interval, ::_RelationAll, channel::MatricialChannel{T,1}) where {T} = begin
 # 	# TODO optimize this by replacing readworld with channel[1:X]...
 # 	# X = length(channel)
 # 	# minimum(readWorld(Interval(1,X+1),channel))

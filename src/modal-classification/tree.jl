@@ -182,7 +182,7 @@ module treeclassifier
 				# 	for w in ModalLogic.enumAcc(Sf[i], relation, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("world ", w) end
 				#     TODO expand this code to multiple test_operators
-				# 		(_wmin,_wmax) = ModalLogic.WExtrema(test_operators, w, channel)
+				# 		(_wmin,_wmax) = ModalLogic.computePropositionalThresholdDual(test_operators, w, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("wmin, wmax ", _wmin, " ", _wmax) end
 				# 		opGeqMaxThresh_old[i] = max(opGeqMaxThresh_old[i], _wmin)
 				# 		opLesMinThresh_old[i] = min(opLesMinThresh_old[i], _wmax)

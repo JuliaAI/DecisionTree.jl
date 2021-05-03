@@ -294,8 +294,8 @@ alpha(x::_TestOpLeqSoft) = x.alpha
 dual_test_operator(x::_TestOpGeqSoft) = TestOpNone
 dual_test_operator(x::_TestOpLeqSoft) = TestOpNone
 # TODO fix
-# dual_test_operator(x::_TestOpGeqSoft) = error("If you use $(x), need to write WExtremaModal for the primal test operator.")
-# dual_test_operator(x::_TestOpLeqSoft) = error("If you use $(x), need to write WExtremaModal for the primal test operator.")
+# dual_test_operator(x::_TestOpGeqSoft) = error("If you use $(x), need to write computeModalThresholdDual for the primal test operator.")
+# dual_test_operator(x::_TestOpLeqSoft) = error("If you use $(x), need to write computeModalThresholdDual for the primal test operator.")
 
 primary_test_operator(x::_TestOpGeqSoft) = x
 primary_test_operator(x::_TestOpLeqSoft) = dual_test_operator(x)
@@ -350,9 +350,8 @@ display_modal_test(modality::AbstractRelation, test_operator::TestOperator, feat
 	end
 end
 
-
-@inline WExtrema(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
-@inline WExtreme(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThresholdDual(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
+@inline computePropositionalThreshold(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# println(_TestOpGeq)
 	# println(w)
 	# println(channel)
@@ -360,7 +359,7 @@ end
 	# readline()
 	minimum(readWorld(w,channel))
 end
-@inline WExtreme(::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThreshold(::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# println(_TestOpLeq)
 	# println(w)
 	# println(channel)
@@ -376,54 +375,54 @@ end
 	partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)))
 
 # TODO think about this:
-# @inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+# @inline computePropositionalThresholdDual(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 # 	vals = vec(readWorld(w,channel))
 # 	xmin = test_op_partialsort!(test_op,vec(readWorld(w,channel)))
 # 	xmin = partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)); rev=true)
 # 	xmax = partialsort!(vals,ceil(Int, (alpha(test_op))*length(vals)))
 # 	xmin,xmax
 # end
-@inline WExtreme(test_op::Union{_TestOpGeqSoft,_TestOpLeqSoft}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThreshold(test_op::Union{_TestOpGeqSoft,_TestOpLeqSoft}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
 	test_op_partialsort!(test_op,vals)
 end
-@inline WExtremeMany(test_ops::Vector{<:TestOperator}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThresholdMany(test_ops::Vector{<:TestOperator}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
 	(test_op_partialsort!(test_op,vals) for test_op in test_ops)
 end
 
-WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+computeModalThresholdDual(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
 	worlds = enumAcc([w], relation, channel)
 	extr = (typemin(T),typemax(T))
 	for w in worlds
-		e = WExtrema(test_operator, w, channel)
+		e = computePropositionalThresholdDual(test_operator, w, channel)
 		extr = (min(extr[1],e[1]), max(extr[2],e[2]))
 	end
 	extr
 end
-# TODO write a single WExtremeModal using bottom and opt
+# TODO write a single computeModalThreshold using bottom and opt
 # TODO use readGammas
-WExtremeModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+computeModalThreshold(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
 	worlds = enumAcc([w], relation, channel)
 	v = typemin(T) # TODO write with reduce
 	for w in worlds
-		e = WExtreme(test_operator, w, channel)
+		e = computePropositionalThreshold(test_operator, w, channel)
 		v = max(v,e)
 	end
 	v
 end
-WExtremeModal(test_operator::TestOperatorNegative, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+computeModalThreshold(test_operator::TestOperatorNegative, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
 	worlds = enumAcc([w], relation, channel)
 	v = typemax(T) # TODO write with reduce
 	for w in worlds
-		e = WExtreme(test_operator, w, channel)
+		e = computePropositionalThreshold(test_operator, w, channel)
 		v = min(v,e)
 	end
 	v
 end
 
-WExtremeModalMany(test_ops::Vector{<:TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	[WExtremeModal(test_op, w, relation, channel) for test_op in test_ops]
+computeModalThresholdMany(test_ops::Vector{<:TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	[computeModalThreshold(test_op, w, relation, channel) for test_op in test_ops]
 end
 
 # TODO remove
@@ -513,10 +512,10 @@ enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<
 
 # TODO parametrize on test operator (any test operator in this case)
 enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
-WExtremaModal(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-	WExtrema(test_operator, w, channel)
-WExtremeModal(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-	WExtreme(test_operator, w, channel)
+computeModalThresholdDual(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+	computePropositionalThresholdDual(test_operator, w, channel)
+computeModalThreshold(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+	computePropositionalThreshold(test_operator, w, channel)
 
 display_rel_short(::_RelationId)  = "Id"
 display_rel_short(::_RelationAll) = ""
@@ -528,11 +527,11 @@ display_rel_short(::_RelationAll) = ""
 # abstract type AbstractRelation end
 struct _UnionOfRelations{T<:NTuple{N,<:AbstractRelation} where N} <: AbstractRelation end;
 
-# WExtremaModal(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-# 	WExtrema(test_operator, w, channel)
+# computeModalThresholdDual(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	computePropositionalThresholdDual(test_operator, w, channel)
 # 	fieldtypes(relsTuple)
-# WExtremeModal(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-# 	WExtreme(test_operator, w, channel)
+# computeModalThreshold(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	computePropositionalThreshold(test_operator, w, channel)
 # 	fieldtypes(relsTuple)
 
 

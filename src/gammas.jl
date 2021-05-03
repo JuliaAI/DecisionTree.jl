@@ -255,9 +255,9 @@ function computeGammas(
 	# print(actual_test_operators)
 	# readline()
 
-	@inline WExtremaModal(test_operator::ModalLogic.TestOperator, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+	@inline computeModalThresholdDual(test_operator::ModalLogic.TestOperator, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 		# TODO use gammasId[w.x.x, w.x.y, w.y.x, w.y.y]...?
-		ModalLogic.WExtremaModal(test_operator, w, relation, channel)
+		ModalLogic.computeModalThresholdDual(test_operator, w, relation, channel)
 
 		# TODO fix this
 		# accrepr = ModalLogic.enumAccRepr(test_operator, w, relation, channel)
@@ -267,7 +267,7 @@ function computeGammas(
 		# inverted, representatives = accrepr
 		# opGeqMaxThresh, opLesMinThresh = typemin(T), typemax(T)
 		# for w in representatives
-		# 	(_wmin, _wmax) = ModalLogic.WExtrema(test_operator, w, channel)
+		# 	(_wmin, _wmax) = ModalLogic.computePropositionalThresholdDual(test_operator, w, channel)
 		# 	if inverted
 		# 		(_wmax, _wmin) = (_wmin, _wmax)
 		# 	end
@@ -277,8 +277,8 @@ function computeGammas(
 		# return (opGeqMaxThresh, opLesMinThresh)
 	end
 
-	@inline WExtremeModal(test_operator::ModalLogic.TestOperator, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
-		ModalLogic.WExtremeModal(test_operator, w, relation, channel)
+	@inline computeModalThreshold(test_operator::ModalLogic.TestOperator, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+		ModalLogic.computeModalThreshold(test_operator, w, relation, channel)
 	# 	# TODO fix this
 	# 	accrepr = ModalLogic.enumAccRepr(test_operator, w, relation, channel)
 		
@@ -292,15 +292,15 @@ function computeGammas(
 	# 			typemax(T), min
 	# 		end
 	# 	for w in representatives
-	# 		_wextreme = ModalLogic.WExtreme(test_operator, w, channel)
+	# 		_wextreme = ModalLogic.computePropositionalThreshold(test_operator, w, channel)
 	# 		opExtremeThresh = optimizer(opExtremeThresh, _wextreme)
 	# 	end
 	# 	return opExtremeThresh
 	end
 
-	@inline WExtremeModalMany(test_operators::Vector{<:ModalLogic.TestOperator}, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+	@inline computeModalThresholdMany(test_operators::Vector{<:ModalLogic.TestOperator}, gammasId, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 		# TODO use gammasId[w.x.x, w.x.y, w.y.x, w.y.y]...?
-		ModalLogic.WExtremeModalMany(test_operators, w, relation, channel)
+		ModalLogic.computeModalThresholdMany(test_operators, w, relation, channel)
 	end
 
 	# @inbounds for feature in 1:n_vars
@@ -326,16 +326,16 @@ function computeGammas(
 				i_to = 1
 				for (mode,test_operator) in actual_test_operators
 					if mode == 0
-						threshold = ModalLogic.WExtreme(test_operator, w, channel)
+						threshold = ModalLogic.computePropositionalThreshold(test_operator, w, channel)
 						setGamma(gammas, w, i, relationId_id, feature, i_to, threshold)
 						i_to+=1
 					elseif mode == 1
-						thresholds = ModalLogic.WExtrema(test_operator, w, channel)
+						thresholds = ModalLogic.computePropositionalThresholdDual(test_operator, w, channel)
 						setGamma(gammas, w, i, relationId_id, feature, i_to, thresholds[1])
 						setGamma(gammas, w, i, relationId_id, feature, i_to+1, thresholds[2])
 						i_to+=2
 					elseif mode == 2
-						thresholds = ModalLogic.WExtremeMany(test_operator, w, channel)
+						thresholds = ModalLogic.computePropositionalThresholdMany(test_operator, w, channel)
 						for (i_t,threshold) in enumerate(thresholds)
 							setGamma(gammas, w, i, relationId_id, feature, i_to+i_t-1, threshold)
 						end
@@ -350,20 +350,20 @@ function computeGammas(
 				# # println(actual_test_operators)
 				# for (mode,test_operator) in actual_test_operators
 				# 	if mode == 0
-				# 		setGamma(gammas, w, i, relationId_id, feature, i_to, ModalLogic.WExtreme(test_operator, w, channel))
+				# 		setGamma(gammas, w, i, relationId_id, feature, i_to, ModalLogic.computePropositionalThreshold(test_operator, w, channel))
 				# 		i_to+=1
 				# 	elseif mode == 1
 				# 		# println("-1")
-				# 		# println(ModalLogic.WExtrema(test_operator, w, channel))
-				# 		for t in ModalLogic.WExtrema(test_operator, w, channel)
+				# 		# println(ModalLogic.computePropositionalThresholdDual(test_operator, w, channel))
+				# 		for t in ModalLogic.computePropositionalThresholdDual(test_operator, w, channel)
 				# 			setGamma(gammas, w, i, relationId_id, feature, i_to, t)
 				# 			i_to+=1
 				# 			# println("-")
 				# 		end
 				# 	elseif mode == 2
 				# 		# println("-2")
-				# 		# println(ModalLogic.WExtremeMany(test_operator, w, channel))
-				# 		for t in ModalLogic.WExtremeMany(test_operator, w, channel)
+				# 		# println(ModalLogic.computePropositionalThresholdMany(test_operator, w, channel))
+				# 		for t in ModalLogic.computePropositionalThresholdMany(test_operator, w, channel)
 				# 			setGamma(gammas, w, i, relationId_id, feature, i_to, t)
 				# 			i_to+=1
 				# 			# println("-")
@@ -398,16 +398,16 @@ function computeGammas(
 					i_to = 1
 					for (mode,test_operator) in actual_test_operators
 						if mode == 0
-							threshold = WExtremeModal(test_operator, gammasId, w, relation, channel)
+							threshold = computeModalThreshold(test_operator, gammasId, w, relation, channel)
 							setGammasSlice(cur_gammas, w, i_to, threshold)
 							i_to+=1
 						elseif mode == 1
-							thresholds = WExtremaModal(test_operator, gammasId, w, relation, channel)
+							thresholds = computeModalThresholdDual(test_operator, gammasId, w, relation, channel)
 							setGammasSlice(cur_gammas, w, i_to, thresholds[1])
 							setGammasSlice(cur_gammas, w, i_to+1, thresholds[2])
 							i_to+=2
 						elseif mode == 2
-							thresholds = WExtremeModalMany(test_operator, gammasId, w, relation, channel)
+							thresholds = computeModalThresholdMany(test_operator, gammasId, w, relation, channel)
 							for (i_t,threshold) in enumerate(thresholds)
 								setGammasSlice(cur_gammas, w, i_to+i_t-1, threshold)
 							end
@@ -419,8 +419,8 @@ function computeGammas(
 
 					# TODO @logmsg DTDetail "World" w relation NTuple{n_actual_operators,T}(thresholds)
 
-					# Quale e' piu' veloce? TODO use gammasId in Wextrema?
-					# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.WExtremaRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "Wextrema different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
+					# Quale e' piu' veloce? TODO use gammasId in computePropositionalThresholdDual?
+					# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.computePropositionalThresholdDualRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "computePropositionalThresholdDual different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
 
 					# setGamma(gammas, w, i, relation_id, feature, NTuple{n_actual_operators,T}(thresholds))
 					# setGammasSlice(cur_gammas, w, NTuple{n_actual_operators,T}(thresholds))
@@ -429,15 +429,15 @@ function computeGammas(
 					# i_to=1
 					# for (mode,test_operator) in actual_test_operators
 					# 	if mode == 0
-					# 		setGammaSlice(cur_gammas, w, i_to, WExtremeModal(test_operator, gammasId, w, relation, channel))
+					# 		setGammaSlice(cur_gammas, w, i_to, computeModalThreshold(test_operator, gammasId, w, relation, channel))
 					# 		i_to+=1
 					# 	elseif mode == 1
-					# 		for t in WExtremaModal(test_operator, gammasId, w, relation, channel)
+					# 		for t in computeModalThresholdDual(test_operator, gammasId, w, relation, channel)
 					# 			setGammaSlice(cur_gammas, w, i_to, t)
 					# 			i_to+=1
 					# 		end
 					# 	elseif mode == 2
-					# 		for t in WExtremeModalMany(test_operator, gammasId, w, relation, channel)
+					# 		for t in computeModalThresholdMany(test_operator, gammasId, w, relation, channel)
 					# 			setGammaSlice(cur_gammas, w, i_to, t)
 					# 			i_to+=1
 					# 		end
@@ -448,8 +448,8 @@ function computeGammas(
 					# if i_to != (n_actual_operators+1)
 					# 	error("i_to != (n_actual_operators+1)! $(i_to) != $(n_actual_operators+1)")
 					# end 
-					# Quale e' piu' veloce? TODO use gammasId in Wextrema?
-					# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.WExtremaRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "Wextrema different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
+					# Quale e' piu' veloce? TODO use gammasId in computePropositionalThresholdDual?
+					# @assert (opGeqMaxThresh, opLesMinThresh) == ModalLogic.computePropositionalThresholdDualRepr(ModalLogic.enumAccRepr(w, relation, channel), channel) "computePropositionalThresholdDual different $((opGeqMaxThresh, opLesMinThresh)) $(get_thresholds(w, channel))"
 
 					# @logmsg DTDetail "World" w relation
 
