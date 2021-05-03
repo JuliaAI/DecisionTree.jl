@@ -219,18 +219,10 @@ iteration_whitelist = [
 iteration_blacklist = []
 
 # if the output files does not exists initilize them
-if ! isfile(concise_output_file_path)
-	concise_output_file = open(concise_output_file_path, "a+")
-	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²"], separator = column_separator)
-	close(concise_output_file)
-end
-if ! isfile(full_output_file_path)
-	full_output_file = open(full_output_file_path, "a+")
-	print_head(full_output_file, tree_args, forest_args, separator = column_separator,
-		forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error", "σ² K", "σ² sensitivity", "σ² specificity", "σ² precision", "σ² accuracy", "σ² oob_error"],
-	)
-	close(full_output_file)
-end
+print_head(concise_output_file_path, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²"], separator = column_separator)
+print_head(full_output_file_path, tree_args, forest_args, separator = column_separator,
+	forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error", "σ² K", "σ² sensitivity", "σ² specificity", "σ² precision", "σ² accuracy", "σ² oob_error"],
+)
 
 # a = KDDDataset_not_stratified((1,1), merge(audio_kwargs, (nbands=40,)); exec_dataset_kwargs[1]...)
 
