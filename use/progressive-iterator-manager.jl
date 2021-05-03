@@ -1,91 +1,12 @@
 
 import JSON
 
-function percent(num::Real; digits=2)
-	return round.(num.*100, digits=digits)
-end
-
-function data_to_string(
-		M::Union{DecisionTree.DTree{S, T},DecisionTree.DTNode{S, T}},
-		cm::ConfusionMatrix;
-		start_s = "(",
-		end_s = ")",
-		separator = ";",
-		alt_separator = ","
-	) where {S, T}
-
-	result = start_s
-	result *= string(percent(cm.kappa), alt_separator)
-	result *= string(percent(cm.sensitivities[1]), alt_separator)
-	result *= string(percent(cm.specificities[1]), alt_separator)
-	result *= string(percent(cm.PPVs[1]), alt_separator)
-	result *= string(percent(cm.overall_accuracy))
-	result *= end_s
-
-	result
-end
-
-function data_to_string(
-		Ms::AbstractVector{DecisionTree.Forest{S, T}},
-		cms::AbstractVector{ConfusionMatrix};
-		start_s = "(",
-		end_s = ")",
-		separator = ";",
-		alt_separator = ","
-	) where {S, T}
-
-	result = start_s
-	result *= string(percent(mean(map(cm->cm.kappa, cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.sensitivities[1], cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.specificities[1], cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.PPVs[1], cms))), alt_separator)
-	result *= string(percent(mean(map(cm->cm.overall_accuracy, cms))), alt_separator)
-	result *= string(percent(mean(map(M->M.oob_error, Ms))))
-	result *= end_s
-	result *= separator
-	result *= start_s
-	result *= string(var(map(cm->cm.kappa, cms)), alt_separator)
-	result *= string(var(map(cm->cm.sensitivities[1], cms)), alt_separator)
-	result *= string(var(map(cm->cm.specificities[1], cms)), alt_separator)
-	result *= string(var(map(cm->cm.PPVs[1], cms)), alt_separator)
-	result *= string(var(map(cm->cm.overall_accuracy, cms)), alt_separator)
-	result *= string(var(map(M->M.oob_error, Ms)))
-	result *= end_s
-
-	result
-end
 function init_new_execution_progress_dictionary(file_path::String, exec_ranges::Vector, params_names::Vector{String})
 	execution_dictionaries = []
 
 	for combination_tuple in IterTools.product(exec_ranges...)
-		d = zip([params_names..., "runs"], [combination_tuple..., []]) |> Dict
+		d = zip([params_names..., "seeds"], [combination_tuple..., []]) |> Dict
 		push!(execution_dictionaries, d)
-	end
-
-	export_execution_progress_dictionary(file_path, execution_dictionaries)
-
-	execution_dictionaries = import_execution_progress_dictionary(file_path)
-
-	return execution_dictionaries
-end
-
-function init_new_execution_progress_dictionary(file_path::String, exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs)
-	execution_dictionaries = []
-
-	for n_task in exec_n_tasks
-		for n_version in exec_n_versions
-			for nbands in exec_nbands
-				for dataset_kwargs in exec_dataset_kwargs
-					push!(execution_dictionaries, Dict(
-						"n_task" => n_task,
-						"n_version" => n_version,
-						"nbands" => nbands,
-						"dataset_kwargs" => dataset_kwargs,
-						"runs" => []
-					))
-				end
-			end
-		end
 	end
 
 	export_execution_progress_dictionary(file_path, execution_dictionaries)
@@ -129,6 +50,37 @@ function is_same_kwargs(dk1::NamedTuple{T, N}, dk2::NamedTuple{T, N}) where {T, 
 		Dict{String, Any}([String(k) => v for (k,v) in zip(keys(dk1),values(dk1))])
 		  ==
 		Dict{String, Any}([String(k) => v for (k,v) in zip(keys(dk2),values(dk2))])
+end
+
+# TODO: this should be overloaded in some way; this is a really poor way to handle type specific behaviour
+function _are_the_same(obj1::Any, obj2::Any)::Bool
+	if obj1 isa NamedTuple || obj2 isa NamedTuple
+		return is_same_kwargs(obj1, obj2)
+	else
+		return isequal(obj1, obj2)
+	end
+end
+
+function is_combination_already_computed(exec_dicts, exec_ranges_names, params_combination, seed)::Bool
+	done = false
+	for dict in exec_dicts
+		# if there are as many trues in left array as the number or exec_ranges_names then the iteration corresponds
+		if length(findall([_are_the_same(dict[par_name], params_combination[i]) for (i, par_name) in enumerate(exec_ranges_names)])) == length(exec_ranges_names) &&
+				seed in dict["seeds"]
+			done = true
+			break
+		end
+	end
+	return done
+end
+
+function push_seed_to_history!(exec_dicts, exec_ranges_names, params_combination, seed)
+	for dict in exec_dicts
+		if length(findall([_are_the_same(dict[par_name], params_combination[i]) for (i, par_name) in enumerate(exec_ranges_names)])) == length(exec_ranges_names)
+			push!(dict["seeds"], seed)
+			break
+		end
+	end
 end
 
 function _match_filter(test_parameters, filters)::Bool

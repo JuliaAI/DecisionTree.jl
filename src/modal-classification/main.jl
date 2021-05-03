@@ -10,7 +10,7 @@ include("tree.jl")
 function _convert(
 		node   :: treeclassifier.NodeMeta{S},
 		list   :: AbstractVector{T},
-		labels :: AbstractVector{T}) where {S<:Real, T<:Label}
+		labels :: AbstractVector{T}) where {S<:Real, T<:String}
 
 	if node.is_leaf
 		return DTLeaf{T}(list[node.label], labels[node.region])
@@ -27,7 +27,7 @@ end
 
 # Build models on (multi-dimensional) arrays
 function build_stump(
-	labels    :: AbstractVector{Label},
+	labels    :: AbstractVector{String},
 	features  :: MatricialDataset{T,D},
 	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
 	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
@@ -36,7 +36,7 @@ function build_stump(
 end
 
 function build_tree(
-	labels    :: AbstractVector{Label},
+	labels    :: AbstractVector{String},
 	features  :: MatricialDataset{T,D},
 	weights   :: Union{Nothing,AbstractVector{U}} = nothing;
 	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
@@ -45,7 +45,7 @@ function build_tree(
 end
 
 function build_forest(
-	labels    :: AbstractVector{Label},
+	labels    :: AbstractVector{String},
 	features  :: MatricialDataset{T,D};
 	# weights   :: Union{Nothing,AbstractVector{U}} = nothing TODO
 	ontology  :: Ontology = ModalLogic.getIntervalOntologyOfDim(Val(D-2)),
@@ -60,8 +60,8 @@ end
 
 # Build a stump (tree with depth 1)
 function build_stump(
-		X	  		       :: OntologicalDataset{T, N},
-		Y     		     :: AbstractVector{Label},
+		X	  		     :: OntologicalDataset{T, N},
+		Y     		     :: AbstractVector{String},
 		W     		     :: Union{Nothing,AbstractVector{U}} = nothing;
 		kwargs...) where {T, N, U}
 	@assert !haskey(kwargs, :max_depth) || kwargs.max_depth == 1 "build_stump doesn't allow max_depth != 1"
@@ -115,7 +115,7 @@ function build_tree(
 	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N))
 		root
 	else
-		DTree{T, Label}(root, X.ontology.worldType, initCondition)
+		DTree{T, String}(root, X.ontology.worldType, initCondition)
 	end
 end
 

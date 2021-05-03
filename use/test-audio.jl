@@ -1,16 +1,17 @@
 # julia -i -t4 test-audio.jl
 # julia -i test-audio.jl
-
 include("test-header.jl")
+include("table-printer.jl")
+include("progressive-iterator-manager.jl")
 
 rng = my_rng()
 
-args = (
+tree_args = [(
 	loss = DecisionTree.util.entropy,
 	min_samples_leaf = 1,
 	min_purity_increase = 0.01,
 	min_loss_at_leaf = 0.4,
-)
+)]
 
 # TODO add parameter: allow relationAll at all levels? Maybe it must be part of the relations... I don't know
 modal_args = (
@@ -27,11 +28,16 @@ modal_args = (
 	# rng = my_rng,
 )
 
-forest_args = (
-	n_subfeatures = 1,         # with 40 features: [40/10, 40/5, 40/3]
+forest_args = [(
+	n_subfeatures = sqrt_f,    # with 40 features: [40/10, 40/5, 40/3]
+	n_subrelations = sqrt_f,
 	n_trees = 5,               # [5,10,20,40,80]
-	#partial_sampling = 0.7,
-)
+	partial_sampling = 1.0,
+	loss = DecisionTree.util.entropy,
+	min_samples_leaf = 1,
+	min_purity_increase = 0.0,
+	min_loss_at_leaf = 0.0,
+)]
 
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview
@@ -43,7 +49,7 @@ timeit = 0
 # rng_i = spawn_rng(rng)
 
 dataset_kwargs = (
-	#
+	max_points = 2,
 	ma_size = 40,   # [100, 50, 20, 10]
 	ma_step = 30,   # [ma_size, ma_size*.75, ma_size*.5]
 )
@@ -67,24 +73,26 @@ n_task = 1
 n_version = 2
 scale_dataset = false
 # scale_dataset = UInt16
-dataset = KDDDataset_not_stratified((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
+dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), audio_kwargs; dataset_kwargs...)
 println(dataset[1] |> size)
 
-testDataset("Test", dataset, 0.8, 0,
-			log_level=log_level,
-			scale_dataset=scale_dataset,
-			forest_args=forest_args,
-			args=args,
-			modal_args=modal_args,
-			precompute_gammas = true
-			);
+testDataset("Test",
+		dataset,
+		0.8;
+		log_level          =  log_level,
+		scale_dataset      =  scale_dataset,
+		forest_args        =  forest_args,
+		tree_args          =  tree_args,
+		modal_args         =  modal_args,
+		precompute_gammas  =  true
+	);
 
 # scale_dataset = false
 
 # for i in 1:10
 # 	for n_task in 1:1
 # 		for n_version in 1:2
-# 			dataset = KDDDataset_not_stratified((n_task,n_version), audio_kwargs; dataset_kwargs..., rng = rng)
+# 			dataset = KDDDataset_not_stratified((n_task,n_version), audio_kwargs; dataset_kwargs...)
 # 			# (1,1) -> 994
 
 # 			testDataset("($(n_task),$(n_version))", dataset, 0.8, 0,
