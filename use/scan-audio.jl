@@ -108,15 +108,15 @@ exec_dataset_kwargs =   [(
 							max_points = 3,
 							ma_size = 75,
 							ma_step = 50,
-						)#,(
-#							max_points = 30,
-#							ma_size = 45,
-#							ma_step = 30,
-#						),(
-#							max_points = 30,
-#							ma_size = 25,
-#							ma_step = 15,
-#						)
+						),(
+							max_points = 30,
+							ma_size = 45,
+							ma_step = 30,
+						),(
+							max_points = 30,
+							ma_size = 25,
+							ma_step = 15,
+						)
 						]
 
 exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs]
@@ -219,18 +219,10 @@ iteration_whitelist = [
 iteration_blacklist = []
 
 # if the output files does not exists initilize them
-if ! isfile(concise_output_file_path)
-	concise_output_file = open(concise_output_file_path, "a+")
-	print_head(concise_output_file, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²"], separator = column_separator)
-	close(concise_output_file)
-end
-if ! isfile(full_output_file_path)
-	full_output_file = open(full_output_file_path, "a+")
-	print_head(full_output_file, tree_args, forest_args, separator = column_separator,
-		forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error", "σ² K", "σ² sensitivity", "σ² specificity", "σ² precision", "σ² accuracy", "σ² oob_error"],
-	)
-	close(full_output_file)
-end
+print_head(concise_output_file_path, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²"], separator = column_separator)
+print_head(full_output_file_path, tree_args, forest_args, separator = column_separator,
+	forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error", "σ² K", "σ² sensitivity", "σ² specificity", "σ² precision", "σ² accuracy", "σ² oob_error"],
+)
 
 # a = KDDDataset_not_stratified((1,1), merge(audio_kwargs, (nbands=40,)); exec_dataset_kwargs[1]...)
 
@@ -294,17 +286,32 @@ for i in exec_runs
 		n_neg = nothing
 		cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
 		dataset = 
-			if save_datasets && isfile(dataset_file_name * ".jld") && isfile(dataset_file_name * "-balanced.jld")
+			if save_datasets && isfile(dataset_file_name * ".jld")
 				if just_produce_datasets_jld
 					continue
 				end
 				checkpoint_stdout("Loading dataset $(dataset_file_name * ".jld")...")
 				JLD2.@load (dataset_file_name * ".jld") dataset n_pos n_neg
-				JLD2.@load (dataset_file_name * "-balanced.jld") balanced_dataset dataset_slice
-				#JLD2.@load (dataset_file_name * "-balanced-train.jld") balanced_train
-				#JLD2.@load (dataset_file_name * "-balanced-test.jld")  balanced_test
-
 				(X,Y) = dataset
+				if isfile(dataset_file_name * "-balanced.jld")
+					JLD2.@load (dataset_file_name * "-balanced.jld") balanced_dataset dataset_slice
+				else
+					n_per_class = min(n_pos, n_neg)
+					dataset_slice = Array{Int,2}(undef, 2, n_per_class)
+					dataset_slice[1,:] .=          Random.randperm(dataset_rng, n_pos)[1:n_per_class]
+					dataset_slice[2,:] .= n_pos .+ Random.randperm(dataset_rng, n_neg)[1:n_per_class]
+					dataset_slice = dataset_slice[:]
+
+					(X_train, Y_train), (X_test, Y_test), _ = traintestsplit(dataset, split_threshold)
+					balanced_dataset = (X[dataset_slice], Y[dataset_slice])
+					JLD2.@save (dataset_file_name * "-balanced.jld") balanced_dataset dataset_slice
+					balanced_train = (X_train, Y_train)
+					JLD2.@save (dataset_file_name * "-balanced-train.jld") balanced_train
+					balanced_test = (X_test,  Y_test)
+					JLD2.@save (dataset_file_name * "-balanced-test.jld")  balanced_test
+				end
+
+				dataset
 				# Y = 1 .- Y
 				# Y = [ (y == 0 ? "yes" : "no") for y in Y]
 				dataset = (X,Y)

@@ -1,3 +1,6 @@
+
+import Dates
+
 ###############################################################################
 ############################ OUTPUT HANDLERS ##################################
 ###############################################################################
@@ -20,52 +23,73 @@ function print_function(func::Core.Function)::String
 	end
 end
 
-function print_tree_head(io, tree_args)
-	write(io, "T($(print_function(tree_args.loss)),$(tree_args.min_samples_leaf),$(tree_args.min_purity_increase),$(tree_args.min_loss_at_leaf))")
+function get_creation_date_string_format(file_name::String)::String
+	Dates.format(Dates.unix2datetime(ctime(file_name)), "HH.MM.SS_dd.mm.yyyy")
 end
 
-function print_forest_head(io, forest_args)
-	write(io, "RF($(forest_args.n_trees),$(print_function(forest_args.n_subfeatures)),$(print_function(forest_args.n_subrelations)))")
+function string_tree_head(tree_args)::String
+	string("T($(print_function(tree_args.loss)),$(tree_args.min_samples_leaf),$(tree_args.min_purity_increase),$(tree_args.min_loss_at_leaf))")
 end
 
-function print_head(
-		io::Core.IO,
+function string_forest_head(forest_args)::String
+	string("RF($(forest_args.n_trees),$(print_function(forest_args.n_subfeatures)),$(print_function(forest_args.n_subrelations)))")
+end
+
+function string_head(
 		tree_args::AbstractArray,
 		forest_args::AbstractArray;
 		separator = ";",
 		tree_columns = ["K", "sensitivity", "specificity", "precision", "accuracy"],
 		forest_columns = ["K", "σ² K", "sensitivity", "σ² sensitivity", "specificity", "σ² specificity", "precision", "σ² precision", "accuracy", "σ² accuracy", "oob_error", "σ² oob_error"],
-        empty_column_before = 1
-	) # where {T, N}
+        empty_columns_before = 1
+	)::String
 
-	for i in 1:empty_column_before
-		write(io, separator)
+	result = ""
+	for i in 1:empty_columns_before
+		result *= string(separator)
 	end
 
 	for i in 1:length(tree_args)
 		for j in 1:length(tree_columns)
-			print_tree_head(io, tree_args[i])
-			write(io, tree_columns[j])
-			# if !(i === length(tree_args) && j === length(tree_columns)) || length(forest_args) > 0
-			write(io, separator)
-			# end
+			result *= string_tree_head(tree_args[i])
+			result *= string(tree_columns[j])
+			result *= string(separator)
 		end
 	end
 
 	for i in 1:length(forest_args)
 		for j in 1:length(forest_columns)
-			print_forest_head(io, forest_args[i])
-			write(io, forest_columns[j])
-			# if !(i === length(forest_args) && j === length(forest_columns))
-			write(io, separator)
-			# end
+			result *= string_forest_head(forest_args[i])
+			result *= string(forest_columns[j])
+			result *= string(separator)
 		end
 	end
-	write(io, "\n")
+
+	result *= string("\n")
+
+	result
 end
 
-function print_head(tree_args::NamedTuple{T,N}, forest_args::AbstractArray; kwargs...) where {T, N}
-	print_head(stdout, tree_args, forest_args; kwargs...)
+function print_head(file_name::String, tree_args::AbstractArray, forest_args::AbstractArray; kwargs...)
+	header = string_head(tree_args, forest_args; kwargs...)
+
+	if isfile(file_name)
+		file = open(file_name, "r")
+		if readlines(file, keep = true)[1] == header
+			# If the header is the same nothing to do
+			close(file)
+			return
+		end
+		close(file)
+
+		splitted_name = Base.Filesystem.splitext(file_name)
+		backup_file_name = splitted_name[1] * "_" * get_creation_date_string_format(file_name) * splitted_name[2]
+		mv(file_name, backup_file_name)
+	end
+
+	file = open(file_name, "w+")
+	write(file, header)
+	close(file)
 end
 
 function percent(num::Real; digits=2)
