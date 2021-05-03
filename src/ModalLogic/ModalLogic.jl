@@ -429,7 +429,7 @@ end
 # @inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
 # @inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
 
-@inline TestCondition(test_operator::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
+@inline testCondition(test_operator::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @inbounds
 	for x in readWorld(w,channel)
@@ -437,7 +437,7 @@ end
 	end
 	return true
 end
-@inline TestCondition(test_operator::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
+@inline testCondition(test_operator::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @info "WLes" w featval #n readWorld(w,channel)
 	# @inbounds
@@ -447,7 +447,7 @@ end
 	return true
 end
 
-@inline TestCondition(test_operator::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
+@inline testCondition(test_operator::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
 	ys = 0
 	vals = readWorld(w,channel)
 	# print(vals, ": ")
@@ -462,7 +462,7 @@ end
 	(ys/length(vals)) >= test_operator.alpha
 end
 
-@inline TestCondition(test_operator::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
+@inline testCondition(test_operator::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
 	ys = 0
 	vals = readWorld(w,channel)
 	for x in vals
@@ -549,7 +549,7 @@ modalStep(S::WorldSetType,
 	if length(collect(Iterators.take(worlds, 1))) > 0
 		new_worlds = WorldSetType()
 		for w in worlds
-			if TestCondition(test_operator, w, channel, threshold)
+			if testCondition(test_operator, w, channel, threshold)
 				@logmsg DTDetail " Found world " w readWorld(w,channel)
 				satisfied = true
 				push!(new_worlds, w)
