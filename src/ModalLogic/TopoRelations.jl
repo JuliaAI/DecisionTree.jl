@@ -5,8 +5,8 @@
 
 # Topological relations
 abstract type _TopoRel <: AbstractRelation end
-abstract type _TopoRelRCC8 <: _TopoRel end
 # Relations for RCC8
+abstract type _TopoRelRCC8 <: _TopoRel end
 struct _Topo_DC     <: _TopoRelRCC8 end; const Topo_DC     = _Topo_DC();     # Disconnected
 struct _Topo_EC     <: _TopoRelRCC8 end; const Topo_EC     = _Topo_EC();     # Externally connected
 struct _Topo_PO     <: _TopoRelRCC8 end; const Topo_PO     = _Topo_PO();     # Partially overlapping

@@ -3,16 +3,18 @@
 
 ☐	computation of softened operators takes too much time (optimize at least <A> in the temporal case?)
 ☐	Add the use of an unbalanced test set, and allow ConfusionMatrix to compute the overall accuracy in a balanced way.
-☐ allow nan to signal the end of the current instance!
-☐	Add IA7, IA7^2 relations
-☐	Check improvements with @inbounds
-☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)
+☐ Allow instances of different size
+☐	Add IA7 relations: Complete by writing enumAccBare, enumAcc, enumAccRepr.
+☐	Add the generalized solution for union of relations: _UnionOfRelations and its WExtremaModal, WExtrema, WExtremeModal, WExtreme, enumAcc, enumAccRepr. _UnionOfRelations{typeof((RelationId,))} _UnionOfRelations{typeof((RelationId,))} Tuple{_RelationId}
+☐	Check whether @inbounds improves performances
 ☐	Test whether ordering thresholdDomain and then performing binary search is actually better
 ☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
 ☐	Determine whether it's faster to use SoglId or recalculate. (If SoglId is better, use it in WExtrema?)
 ☐	Fix naming style (e.g. variables, etc. Order of struct's members)
+☐	Add IA7^2 relations.
 
 
+☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)
 ☐	Interpolate impurity function and find best threshold by interpolation
 ☐	new hard operator valuesbetween(a,b) (doesn't make the tree more expressive, just maybe faster at capturing patterns)
 ☐	Optimize RCC5

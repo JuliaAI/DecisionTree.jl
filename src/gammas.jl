@@ -304,6 +304,7 @@ function computeGammas(
 	end
 
 	# @inbounds for feature in 1:n_vars
+	# TODO maybe swap the two fors on features and instances
 	@inbounds Threads.@threads for feature in 1:n_vars
 		@logmsg DTDebug "Feature $(feature)/$(n_vars)"
 		if feature == 1 || ((feature+1) % (floor(Int, ((n_vars)/5))+1)) == 0

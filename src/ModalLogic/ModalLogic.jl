@@ -401,6 +401,8 @@ WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::Abstr
 	end
 	extr
 end
+# TODO write a single WExtremeModal using bottom and opt
+# TODO use readGammas
 WExtremeModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
 	worlds = enumAcc([w], relation, channel)
 	v = typemin(T) # TODO write with reduce
@@ -518,6 +520,21 @@ WExtremeModal(test_operator::TestOperator, w::WorldType, relation::_RelationId, 
 
 display_rel_short(::_RelationId)  = "Id"
 display_rel_short(::_RelationAll) = ""
+
+# TODO
+# A relation can be defined as a union of other relations.
+# In this case, thresholds can be computed by maximization/minimization of the
+#  thresholds referred to the relations involved.
+# abstract type AbstractRelation end
+struct _UnionOfRelations{T<:NTuple{N,<:AbstractRelation} where N} <: AbstractRelation end;
+
+# WExtremaModal(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	WExtrema(test_operator, w, channel)
+# 	fieldtypes(relsTuple)
+# WExtremeModal(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	WExtreme(test_operator, w, channel)
+# 	fieldtypes(relsTuple)
+
 
 # Perform the modal step, that is, evaluate a modal formula
 #  on a domain, and eventually compute the new world set.
