@@ -108,15 +108,15 @@ exec_dataset_kwargs =   [(
 							max_points = 30,
 							ma_size = 75,
 							ma_step = 50,
-						)#,(
-#							max_points = 30,
-#							ma_size = 45,
-#							ma_step = 30,
-#						),(
-#							max_points = 30,
-#							ma_size = 25,
-#							ma_step = 15,
-#						)
+						),(
+							max_points = 30,
+							ma_size = 45,
+							ma_step = 30,
+						),(
+							max_points = 30,
+							ma_size = 25,
+							ma_step = 15,
+						)
 						]
 
 exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs]
