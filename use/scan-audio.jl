@@ -67,9 +67,9 @@ modal_args = (
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
 
-# timeit = 0
+timeit = 0
 # timeit = 1
-timeit = 2
+# timeit = 2
 
 #round_dataset_to_datatype = Float32
 # round_dataset_to_datatype = UInt16
