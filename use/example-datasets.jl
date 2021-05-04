@@ -346,6 +346,7 @@ KDDDataset_not_stratified((n_task,n_version),
 		audio_kwargs; ma_size = 1,
 		ma_step = 1,
 		max_points = -1,
+		preprocess_wavs = []
 		# rng = Random.GLOBAL_RNG :: Random.AbstractRNG
 	) = begin
 	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
@@ -397,7 +398,8 @@ KDDDataset_not_stratified((n_task,n_version),
 
 			# collect is necessary because the threads macro supports only arrays
 			# https://stackoverflow.com/questions/57633477/multi-threading-julia-shows-error-with-enumerate-iterator
-			Threads.@threads for (i_samples, samples) in collect(enumerate(files_map[folder]))
+			#Threads.@threads
+			 for (i_samples, samples) in collect(enumerate(files_map[folder]))
 				samples = 
 					if folder in ["asthmawebwithcough", "covidwebnocough", "covidwebwithcough", "healthywebnosymp", "healthywebwithcough"]
 						map((subfoldname)->"$folder/$subfoldname/audio_file_$(file_suffix).wav", samples)
@@ -409,7 +411,7 @@ KDDDataset_not_stratified((n_task,n_version),
 				cur_file_timeseries = Array{Array{Float64, 2}, 1}(undef, length(samples))
 				for (i_filename, filename) in collect(enumerate(samples))
 					filepath = kdd_data_dir * "$filename"
-					ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
+					ts = moving_average(wav2stft_time_series(filepath, audio_kwargs; preprocess_sample = preprocess_wavs), ma_size, ma_step)
 					# Drop first point
 					ts = @views ts[:,2:end]
 					# println(size(ts))

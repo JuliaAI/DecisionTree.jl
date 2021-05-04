@@ -82,10 +82,13 @@ end
 
 merge_channels(samps) = vec(sum(samps, dims=2)/size(samps, 2))
 
-function wav2stft_time_series(filepath, kwargs)
+function wav2stft_time_series(filepath, kwargs; preprocess_sample::AbstractVector = [])
 	samps, sr = wavread(filepath)
 	samps = merge_channels(samps)
 
+	for pps in preprocess_sample
+		pps(samps)
+	end
 	# wintime = 0.025 # ms
 	# steptime = 0.010 # ms
 	# fbtype=:mel # [:mel, :htkmel, :fcmel]
@@ -108,3 +111,13 @@ end
 
 # DSP.Periodograms.stft(samps, div(length(samps), 8), div(n, 2); onesided=true, nfft=nextfastfft(n), fs=1, window=nothing)
 
+function noise_gate!(sample::AbstractVector; level::Float64 = 0.001)
+	apply_ng!(val) = val <= level ? 0.0 : val
+	sample .= apply_ng!.(sample)
+end
+
+function normalize!(sample::AbstractVector; level::Float64 = 1.0)
+	padd = level - maximum(abs, sample)
+	apply_padd!(val::Float64) = clamp(val + (sign(val) * padd), -1.0, 1.0)
+	sample .= apply_padd!.(sample)
+end

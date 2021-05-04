@@ -106,7 +106,7 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 2,
+							max_points = 5,
 							ma_size = 75,
 							ma_step = 50,
 #						),(
@@ -119,6 +119,8 @@ exec_dataset_kwargs =   [(
 #							ma_step = 15,
 						)
 						]
+
+preprocess_wavs = [ noise_gate!, normalize! ]
 
 exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs]
 exec_ranges_names = ["n_task", "n_version", "nbands", "dataset_kwargs"]
@@ -136,7 +138,7 @@ save_tree_path = results_dir * "/trees"
 
 column_separator = ";"
 
-save_datasets = true
+save_datasets = false
 just_produce_datasets_jld = false
 saved_datasets_path = results_dir * "/datasets"
 mkpath(saved_datasets_path)
@@ -320,7 +322,7 @@ for i in exec_runs
 				dataset = (X,Y)
 			else
 				# TODO wrap dataset creation into a function accepting the rng and other parameters...
-				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., preprocess_wavs = preprocess_wavs) # , rng = dataset_rng)
 				n_per_class = min(n_pos, n_neg)
 				# using Random
 				# n_pos = 10
