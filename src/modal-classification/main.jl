@@ -73,7 +73,7 @@ function build_tree(
 	X                   :: OntologicalDataset{T, N},
 	Y                   :: AbstractVector{S},
 	W                   :: Union{Nothing,AbstractVector{U}} = nothing;
-	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
+	gammas              :: Union{GammaType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
 	n_subfeatures       :: Function           = x -> x,
 	max_depth           :: Int                = -1,
@@ -381,7 +381,7 @@ function build_forest(
 	n_trees             = 100,
 	partial_sampling    = 0.7,      # portion of instances sampled (without replacement) by each tree
 	# Tree parameters
-	gammas              :: Union{GammasType{NTO, Ta},Nothing} = nothing,
+	gammas              :: Union{GammaType{NTO, Ta},Nothing} = nothing,
 	loss                :: Function           = util.entropy,
 	n_subfeatures       :: Function           = x -> ceil(Int, sqrt(x)),
 	max_depth           :: Int                = -1,

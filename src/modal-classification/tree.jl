@@ -84,7 +84,7 @@ module treeclassifier
 							Yf                  :: AbstractVector{Label},
 							Wf                  :: AbstractVector{U},
 							Sf                  :: AbstractVector{WorldSet{WorldType}},
-							gammas              :: GammasType{NTO, T},
+							gammas              :: GammaType{NTO, T},
 							# TODO Ef                  :: AbstractArray{T},
 							
 							relationSet         :: Vector{<:ModalLogic.AbstractRelation},
@@ -179,10 +179,10 @@ module treeclassifier
 				# 	# if relation == ModalLogic.Topo_TPP println("channel ", channel) end
 				# 	# @info " instance $i/$n_instances" # channel
 				# 	# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
-				# 	for w in ModalLogic.enumAcc(Sf[i], relation, channel)
+				# 	for w in ModalLogic.enumAccessibles(Sf[i], relation, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("world ", w) end
 				#     TODO expand this code to multiple test_operators
-				# 		(_wmin,_wmax) = ModalLogic.WExtrema(test_operators, w, channel)
+				# 		(_wmin,_wmax) = ModalLogic.computePropositionalThresholdDual(test_operators, w, channel)
 				# 		# if relation == ModalLogic.Topo_TPP println("wmin, wmax ", _wmin, " ", _wmax) end
 				# 		opGeqMaxThresh_old[i] = max(opGeqMaxThresh_old[i], _wmin)
 				# 		opLesMinThresh_old[i] = min(opLesMinThresh_old[i], _wmax)
@@ -217,6 +217,7 @@ module treeclassifier
 						# TODO maybe read the specific value of gammas referred to the test_operator?
 						cur_gammas = DecisionTree.readGamma(gammas, w, indX[i + r_start], relation_id, feature)
 						@logmsg DTDetail " cur_gammas" w cur_gammas
+						# TODO try using reduce for each operator instead.
 						for (i_test_operator,test_operator) in enumerate(test_operators) # TODO use correct indexing for test_operators
 							# if relation == ModalLogic.Topo_TPP println("world ", w) end
 							# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
@@ -536,7 +537,7 @@ module treeclassifier
 			useRelationId           :: Bool,
 			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG;
-			gammas                  :: Union{GammasType{NTO, Ta},Nothing} = nothing) where {T, U, N, NTO, Ta}
+			gammas                  :: Union{GammaType{NTO, Ta},Nothing} = nothing) where {T, U, N, NTO, Ta}
 
 		if N != ModalLogic.worldTypeDimensionality(X.ontology.worldType)
 			error("ERROR! Dimensionality mismatch: can't interpret worldType $(X.ontology.worldType) (dimensionality = $(ModalLogic.worldTypeDimensionality(X.ontology.worldType)) on OntologicalDataset of dimensionality = $(N)")
@@ -640,7 +641,7 @@ module treeclassifier
 			X                       :: OntologicalDataset{T, N},
 			Y                       :: AbstractVector{S},
 			W                       :: Union{Nothing, AbstractVector{U}},
-			gammas                  :: Union{GammasType{NTO, Ta},Nothing} = nothing,
+			gammas                  :: Union{GammaType{NTO, Ta},Nothing} = nothing,
 			loss = util.entropy     :: Function,
 			max_features            :: Int,
 			max_depth               :: Int,

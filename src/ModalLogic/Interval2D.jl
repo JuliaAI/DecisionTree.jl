@@ -54,20 +54,20 @@ enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, ::_RelationAll, X::Integer
 
 # TODO write only one ExtremeModal/ExtremaModal
 # TODO optimize relationAll
-WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, r::R where R<:AbstractRelation, channel::MatricialChannel{T,2}) where {T} = begin
+computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval2D, r::R where R<:AbstractRelation, channel::MatricialChannel{T,2}) where {T} = begin
 	# if (channel == [412 489 559 619 784; 795 771 1317 854 1256; 971 874 878 1278 560] && w.x.x==1 && w.x.y==3 && w.y.x==3 && w.y.y==4)
 	# 	println(enumAccRepr(test_operator, w, r, size(channel)...))
 	# 	readline()
 	# end
 	yieldReprs(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
 end
-WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::R where R<:AbstractRelation, channel::MatricialChannel{T,2}) where {T} =
+computeModalThreshold(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::R where R<:AbstractRelation, channel::MatricialChannel{T,2}) where {T} =
 	yieldRepr(test_operator, enumAccRepr(test_operator, w, r, size(channel)...), channel)
 # channel = [1,2,3,2,8,349,0,830,7290,298,20,29,2790,27,90279,270,2722,79072,0]
 # w = ModalLogic.Interval(3,9)
 # # w = ModalLogic.Interval(3,4)
 # for relation in ModalLogic.IARelations
-# 	ModalLogic.WExtremaModal(ModalLogic.TestOpGeq, w, relation, channel)
+# 	ModalLogic.computeModalThresholdDual(ModalLogic.TestOpGeq, w, relation, channel)
 # end
 
 # channel2 = randn(3,4)
@@ -78,7 +78,7 @@ WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::R w
 # vals=channel2
 # mapslices(maximum, vals, dims=1)
 
-# WExtremaModal(test_operator::_TestOpGeq, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
+# computeModalThresholdDual(test_operator::_TestOpGeq, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
 # 	# X = size(channel, 1)
 # 	# Y = size(channel, 2)
 # 	# println("Check!")
@@ -86,19 +86,19 @@ WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::R w
 # 	# println(w)
 # 	# println(relation)
 # 	# println(channel)
-# 	# println(WExtrema(test_operator, Interval2D(Interval(1,X+1), Interval(1, Y+1)), channel))
+# 	# println(computePropositionalThresholdDual(test_operator, Interval2D(Interval(1,X+1), Interval(1, Y+1)), channel))
 # 	# readline()
-# 	# WExtrema(test_operator, Interval2D(Interval(1,X+1), Interval(1, Y+1)), channel)
+# 	# computePropositionalThresholdDual(test_operator, Interval2D(Interval(1,X+1), Interval(1, Y+1)), channel)
 # 	reverse(extrema(channel))
 # end
-# WExtremeModal(test_operator::_TestOpGeq, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
+# computeModalThreshold(test_operator::_TestOpGeq, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
 # 	# TODO optimize this by replacing readworld with channel[1:X]...
 # 	# X = size(channel, 1)
 # 	# Y = size(channel, 2)
 # 	# maximum(channel[1:X,1:Y])
 # 	maximum(channel)
 # end
-# WExtremeModal(test_operator::_TestOpLeq, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
+# computeModalThreshold(test_operator::_TestOpLeq, w::Interval2D, ::_RelationAll, channel::MatricialChannel{T,2}) where {T} = begin
 # 	# TODO optimize this by replacing readworld with channel[1:X]...
 # 	# X = size(channel, 1)
 # 	# Y = size(channel, 2)
@@ -110,7 +110,7 @@ WExtremeModal(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D, r::R w
 # 	minimum(channel)
 # end
 # enumAccBare(w::Interval2D, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x, w.y)]
-enumAcc(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) =
+enumAccessibles(S::AbstractWorldSet{Interval2D}, r::_RelationAll, X::Integer, Y::Integer) =
 	IterTools.imap(Interval2D,
 		Iterators.product(enumPairsIn(1, X+1), enumPairsIn(1, Y+1))
 		# enumAccBare(w..., IA2DRel(RelationAll,RelationAll), X, Y)

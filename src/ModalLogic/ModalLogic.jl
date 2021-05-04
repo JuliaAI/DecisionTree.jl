@@ -13,12 +13,13 @@ export AbstractWorld, AbstractRelation,
 				MatricialInstance,
 				MatricialDataset,
 				MatricialUniDataset,
+				MatricialChannel,
 				WorldSet,
 				display_propositional_test,
 				display_modal_test
 				# , TestOperator
 				# RelationAll, RelationNone, RelationId,
-				# enumAcc, enumAccRepr
+				# enumAccessibles, enumAccRepr
 
 # Fix
 Base.keys(g::Base.Generator) = g.iter
@@ -137,7 +138,7 @@ subscriptnumber(i::AbstractFloat) = subscriptnumber(string(i))
 ################################################################################
 
 ################################################################################
-# BEGIN Matricial dataset
+# BEGIN Matricial dataset & Ontological dataset
 ################################################################################
 
 # A dataset, given by a set of N-dimensional (multi-variate) matrices/instances,
@@ -149,17 +150,44 @@ subscriptnumber(i::AbstractFloat) = subscriptnumber(string(i))
 # - A multi-variate dataset is of dimensionality D=N+1+1
 #  https://discourse.julialang.org/t/addition-to-parameter-of-parametric-type/20059/5
 
-const MatricialChannel{T,N}   = AbstractArray{T,N}
-const MatricialInstance{T,MN} = AbstractArray{T,MN}
+const MatricialChannel{T,N}     = AbstractArray{T,N}
+const MatricialInstance{T,MN}   = AbstractArray{T,MN}
 # TODO: It'd be nice to define these as a function of N, https://github.com/JuliaLang/julia/issues/8322
 #   e.g. const MatricialUniDataset{T,N}       = AbstractArray{T,N+1}
 const MatricialUniDataset{T,UD} = AbstractArray{T,UD}
 const MatricialDataset{T,D}     = AbstractArray{T,D}
 
-n_samples(d::MatricialDataset{T,D})        where {T,D} = size(d, D-1)
-n_variables(d::MatricialDataset{T,D})      where {T,D} = size(d, D)
-channel_size(d::MatricialDataset{T,D})     where {T,D} = size(d)[1:end-2]
+n_samples(d::MatricialDataset{T,D})    where {T,D} = size(d, D-1)
+n_variables(d::MatricialDataset{T,D})  where {T,D} = size(d, D)
+channel_size(d::MatricialDataset{T,D}) where {T,D} = size(d)[1:end-2]
 
+@inline getInstance(d::MatricialDataset{T,2},     idx::Integer) where T = @views d[idx, :]         # N=0
+@inline getInstance(d::MatricialDataset{T,3},     idx::Integer) where T = @views d[:, idx, :]      # N=1
+@inline getInstance(d::MatricialDataset{T,4},     idx::Integer) where T = @views d[:, :, idx, :]   # N=2
+@inline getFeature(d::MatricialDataset{T,2},      idx_i::Integer, idx_f::Integer) where T = @views d[      idx_i, idx_f]::T                     # N=0
+@inline getFeature(d::MatricialDataset{T,3},      idx_i::Integer, idx_f::Integer) where T = @views d[:,    idx_i, idx_f]::MatricialChannel{T,1} # N=1
+@inline getFeature(d::MatricialDataset{T,4},      idx_i::Integer, idx_f::Integer) where T = @views d[:, :, idx_i, idx_f]::MatricialChannel{T,2} # N=2
+@inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = @views ud[idx]           # N=0
+@inline getChannel(ud::MatricialUniDataset{T,2},  idx::Integer) where T = @views ud[:, idx]        # N=1
+@inline getChannel(ud::MatricialUniDataset{T,3},  idx::Integer) where T = @views ud[:, :, idx]     # N=2
+@inline getInstanceFeature(inst::MatricialInstance{T,1},      idx::Integer) where T = @views inst[      idx]::T                     # N=0
+@inline getInstanceFeature(inst::MatricialInstance{T,2},      idx::Integer) where T = @views inst[:,    idx]::MatricialChannel{T,1} # N=1
+@inline getInstanceFeature(inst::MatricialInstance{T,3},      idx::Integer) where T = @views inst[:, :, idx]::MatricialChannel{T,2} # N=2
+
+@inline sliceDomainByInstances(d::MatricialDataset{T,2}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[inds, :]       else d[inds, :]    end # N=0
+@inline sliceDomainByInstances(d::MatricialDataset{T,3}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, inds, :]    else d[:, inds, :] end # N=1
+@inline sliceDomainByInstances(d::MatricialDataset{T,4}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, :, inds, :] else d[:, inds, :] end # N=2
+
+@inline strip_domain(d::MatricialDataset{T,2}) where T = d  # N=0
+@inline strip_domain(d::MatricialDataset{T,3}) where T = dropdims(d; dims=1)      # N=1
+@inline strip_domain(d::MatricialDataset{T,4}) where T = dropdims(d; dims=(1,2))  # N=2
+
+# Initialize MatricialUniDataset by slicing across the features dimension
+MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,2}) where T = Array{T, 1}(undef, n_samples(d))::MatricialUniDataset{T, 1}
+MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,3}) where T = Array{T, 2}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 2}
+MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Array{T, 3}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 3}
+
+# TODO generalize as init_Xf(X::OntologicalDataset{T, N}) where T = Array{T, N+1}(undef, size(X)[3:end]..., n_samples(X))
 @computed struct OntologicalDataset{T,N}
 	ontology  :: Ontology
 	domain    :: MatricialDataset{T,N+1+1}
@@ -179,32 +207,6 @@ n_samples(X::OntologicalDataset{T,N})        where {T,N} = n_samples(X.domain)
 n_variables(X::OntologicalDataset{T,N})      where {T,N} = n_variables(X.domain)
 channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain)
 
-@inline getChannel(ud::MatricialUniDataset{T,1},  idx::Integer) where T = @views ud[idx]           # N=0
-@inline getChannel(ud::MatricialUniDataset{T,2},  idx::Integer) where T = @views ud[:, idx]        # N=1
-@inline getChannel(ud::MatricialUniDataset{T,3},  idx::Integer) where T = @views ud[:, :, idx]     # N=2
-@inline getInstance(d::MatricialDataset{T,2},     idx::Integer) where T = @views d[idx, :]         # N=0
-@inline getInstance(d::MatricialDataset{T,3},     idx::Integer) where T = @views d[:, idx, :]      # N=1
-@inline getInstance(d::MatricialDataset{T,4},     idx::Integer) where T = @views d[:, :, idx, :]   # N=2
-@inline getInstanceFeature(instance::MatricialInstance{T,1},      idx::Integer) where T = @views instance[      idx]::T                      # N=0
-@inline getInstanceFeature(instance::MatricialInstance{T,2},      idx::Integer) where T = @views instance[:,    idx]::MatricialChannel{T,1}  # N=1
-@inline getInstanceFeature(instance::MatricialInstance{T,3},      idx::Integer) where T = @views instance[:, :, idx]::MatricialChannel{T,2}  # N=2
-@inline getFeature(d::MatricialDataset{T,2},      idx::Integer, feature::Integer) where T = @views d[      idx, feature]::T                     # N=0
-@inline getFeature(d::MatricialDataset{T,3},      idx::Integer, feature::Integer) where T = @views d[:,    idx, feature]::MatricialChannel{T,1} # N=1
-@inline getFeature(d::MatricialDataset{T,4},      idx::Integer, feature::Integer) where T = @views d[:, :, idx, feature]::MatricialChannel{T,2} # N=2
-
-@inline sliceDomainByInstances(d::MatricialDataset{T,2}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[inds, :]       else d[inds, :]    end # N=0
-@inline sliceDomainByInstances(d::MatricialDataset{T,3}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, inds, :]    else d[:, inds, :] end # N=1
-@inline sliceDomainByInstances(d::MatricialDataset{T,4}, inds::AbstractVector{<:Integer}; return_view = false) where T = if return_view @views d[:, :, inds, :] else d[:, inds, :] end # N=2
-
-@inline strip_domain(d::MatricialDataset{T,2}) where T = d  # N=0
-@inline strip_domain(d::MatricialDataset{T,3}) where T = dropdims(d; dims=1)      # N=1
-@inline strip_domain(d::MatricialDataset{T,4}) where T = dropdims(d; dims=(1,2))  # N=2
-
-# TODO generalize as init_Xf(X::OntologicalDataset{T, N}) where T = Array{T, N+1}(undef, size(X)[3:end]..., n_samples(X))
-# Initialize MatricialUniDataset by slicing across the features dimension
-MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,2}) where T = Array{T, 1}(undef, n_samples(d))::MatricialUniDataset{T, 1}
-MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,3}) where T = Array{T, 2}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 2}
-MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Array{T, 3}(undef, size(d)[1:end-1])::MatricialUniDataset{T, 3}
 
 # TODO use Xf[i,[(:) for i in 1:N]...]
 # @computed @inline getFeature(X::OntologicalDataset{T,N}, idxs::AbstractVector{Integer}, feature::Integer) where T = X[idxs, feature, fill(:, N)...]::AbstractArray{T,N-1}
@@ -215,7 +217,7 @@ MatricialUniDataset(::UndefInitializer, d::MatricialDataset{T,4}) where T = Arra
 # featureview(X::OntologicalDataset{T,2}, idxs::AbstractVector{Integer}, feature::Integer) = view(X.domain, idxs, feature, :, :)
 
 ################################################################################
-# END Matricial dataset
+# END Matricial dataset & Ontological dataset
 ################################################################################
 
 # World generators/enumerators and array/set-like structures
@@ -294,8 +296,8 @@ alpha(x::_TestOpLeqSoft) = x.alpha
 dual_test_operator(x::_TestOpGeqSoft) = TestOpNone
 dual_test_operator(x::_TestOpLeqSoft) = TestOpNone
 # TODO fix
-# dual_test_operator(x::_TestOpGeqSoft) = error("If you use $(x), need to write WExtremaModal for the primal test operator.")
-# dual_test_operator(x::_TestOpLeqSoft) = error("If you use $(x), need to write WExtremaModal for the primal test operator.")
+# dual_test_operator(x::_TestOpGeqSoft) = error("If you use $(x), need to write computeModalThresholdDual for the primal test operator.")
+# dual_test_operator(x::_TestOpLeqSoft) = error("If you use $(x), need to write computeModalThresholdDual for the primal test operator.")
 
 primary_test_operator(x::_TestOpGeqSoft) = x
 primary_test_operator(x::_TestOpLeqSoft) = dual_test_operator(x)
@@ -350,9 +352,8 @@ display_modal_test(modality::AbstractRelation, test_operator::TestOperator, feat
 	end
 end
 
-
-@inline WExtrema(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
-@inline WExtreme(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThresholdDual(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = extrema(readWorld(w,channel))
+@inline computePropositionalThreshold(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# println(_TestOpGeq)
 	# println(w)
 	# println(channel)
@@ -360,7 +361,7 @@ end
 	# readline()
 	minimum(readWorld(w,channel))
 end
-@inline WExtreme(::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThreshold(::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# println(_TestOpLeq)
 	# println(w)
 	# println(channel)
@@ -376,61 +377,50 @@ end
 	partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)))
 
 # TODO think about this:
-# @inline WExtrema(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+# @inline computePropositionalThresholdDual(test_op::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 # 	vals = vec(readWorld(w,channel))
 # 	xmin = test_op_partialsort!(test_op,vec(readWorld(w,channel)))
 # 	xmin = partialsort!(vals,ceil(Int, alpha(test_op)*length(vals)); rev=true)
 # 	xmax = partialsort!(vals,ceil(Int, (alpha(test_op))*length(vals)))
 # 	xmin,xmax
 # end
-@inline WExtreme(test_op::Union{_TestOpGeqSoft,_TestOpLeqSoft}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThreshold(test_op::Union{_TestOpGeqSoft,_TestOpLeqSoft}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
 	test_op_partialsort!(test_op,vals)
 end
-@inline WExtremeMany(test_ops::Vector{<:TestOperator}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
+@inline computePropositionalThresholdMany(test_ops::Vector{<:TestOperator}, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	vals = vec(readWorld(w,channel))
 	(test_op_partialsort!(test_op,vals) for test_op in test_ops)
 end
 
-WExtremaModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc([w], relation, channel)
+computeModalThresholdDual(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	worlds = enumAccessibles([w], relation, channel)
 	extr = (typemin(T),typemax(T))
 	for w in worlds
-		e = WExtrema(test_operator, w, channel)
+		e = computePropositionalThresholdDual(test_operator, w, channel)
 		extr = (min(extr[1],e[1]), max(extr[2],e[2]))
 	end
 	extr
 end
-# TODO write a single WExtremeModal using bottom and opt
-# TODO use readGammas
-WExtremeModal(test_operator::TestOperatorPositive, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc([w], relation, channel)
-	v = typemin(T) # TODO write with reduce
+computeModalThreshold(test_operator::Union{TestOperatorPositive,TestOperatorNegative}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	worlds = enumAccessibles([w], relation, channel)
+	# TODO rewrite as reduce(opt(test_operator), (computePropositionalThreshold(test_operator, w, channel) for w in worlds); init=bottom(test_operator, T))
+	v = bottom(test_operator, T)
 	for w in worlds
-		e = WExtreme(test_operator, w, channel)
-		v = max(v,e)
+		e = computePropositionalThreshold(test_operator, w, channel)
+		v = opt(test_operator)(v,e)
 	end
 	v
 end
-WExtremeModal(test_operator::TestOperatorNegative, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	worlds = enumAcc([w], relation, channel)
-	v = typemax(T) # TODO write with reduce
-	for w in worlds
-		e = WExtreme(test_operator, w, channel)
-		v = min(v,e)
-	end
-	v
-end
-
-WExtremeModalMany(test_ops::Vector{<:TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
-	[WExtremeModal(test_op, w, relation, channel) for test_op in test_ops]
+computeModalThresholdMany(test_ops::Vector{<:TestOperator}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} = begin
+	[computeModalThreshold(test_op, w, relation, channel) for test_op in test_ops]
 end
 
 # TODO remove
 # @inline WMax(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = maximum(readWorld(w,channel))
 # @inline WMin(w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = minimum(readWorld(w,channel))
 
-@inline TestCondition(test_operator::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
+@inline testCondition(test_operator::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @inbounds
 	for x in readWorld(w,channel)
@@ -438,7 +428,7 @@ end
 	end
 	return true
 end
-@inline TestCondition(test_operator::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
+@inline testCondition(test_operator::_TestOpLeq, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin # TODO maybe this becomes SIMD, or sum/all(readWorld(w,channel)  .<= featval)
 	# Source: https://stackoverflow.com/questions/47564825/check-if-all-the-elements-of-a-julia-array-are-equal
 	# @info "WLes" w featval #n readWorld(w,channel)
 	# @inbounds
@@ -448,7 +438,7 @@ end
 	return true
 end
 
-@inline TestCondition(test_operator::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
+@inline testCondition(test_operator::_TestOpGeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
 	ys = 0
 	vals = readWorld(w,channel)
 	# print(vals, ": ")
@@ -463,7 +453,7 @@ end
 	(ys/length(vals)) >= test_operator.alpha
 end
 
-@inline TestCondition(test_operator::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
+@inline testCondition(test_operator::_TestOpLeqSoft, w::AbstractWorld, channel::MatricialChannel{T,N}, featval::Number) where {T,N} = begin 
 	ys = 0
 	vals = readWorld(w,channel)
 	for x in vals
@@ -488,12 +478,12 @@ struct _ReprNone{worldType<:AbstractWorld} <: _ReprTreatment end
 
 ## Enumerate accessible worlds
 
-# Fallback: enumAcc works with domains AND their dimensions
-enumAcc(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAcc(S, r, size(channel)...)
+# Fallback: enumAccessibles works with domains AND their dimensions
+enumAccessibles(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAccessibles(S, r, size(channel)...)
 enumAccRepr(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAccRepr(S, r, size(channel)...)
-# Fallback: enumAcc for world sets maps to enumAcc-ing their elements
+# Fallback: enumAccessibles for world sets maps to enumAccessibles-ing their elements
 #  (note: one may overload this function to provide improved implementations for special cases (e.g. <L> of a world set in interval algebra))
-enumAcc(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,WorldType<:AbstractWorld} = begin
+enumAccessibles(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,WorldType<:AbstractWorld} = begin
 	IterTools.imap(WorldType,
 		IterTools.distinct(Iterators.flatten((enumAccBare(w, r, XYZ...) for w in S)))
 	)
@@ -507,16 +497,16 @@ struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId(
 struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
 struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
-enumAcc(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
-enumAcc(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
-# Maybe this will have a use: enumAccW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
+enumAccessibles(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
+enumAccessibles(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
+# Maybe this will have a use: enumAccessiblesW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
 
 # TODO parametrize on test operator (any test operator in this case)
 enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
-WExtremaModal(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-	WExtrema(test_operator, w, channel)
-WExtremeModal(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-	WExtreme(test_operator, w, channel)
+computeModalThresholdDual(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+	computePropositionalThresholdDual(test_operator, w, channel)
+computeModalThreshold(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+	computePropositionalThreshold(test_operator, w, channel)
 
 display_rel_short(::_RelationId)  = "Id"
 display_rel_short(::_RelationAll) = ""
@@ -528,11 +518,11 @@ display_rel_short(::_RelationAll) = ""
 # abstract type AbstractRelation end
 struct _UnionOfRelations{T<:NTuple{N,<:AbstractRelation} where N} <: AbstractRelation end;
 
-# WExtremaModal(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-# 	WExtrema(test_operator, w, channel)
+# computeModalThresholdDual(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	computePropositionalThresholdDual(test_operator, w, channel)
 # 	fieldtypes(relsTuple)
-# WExtremeModal(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-# 	WExtreme(test_operator, w, channel)
+# computeModalThreshold(test_operator::TestOperator, w::WorldType, relation::R where R<:_UnionOfRelations{relsTuple}, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	computePropositionalThreshold(test_operator, w, channel)
 # 	fieldtypes(relsTuple)
 
 
@@ -546,11 +536,11 @@ modalStep(S::WorldSetType,
 					threshold::T) where {W<:AbstractWorld, WorldSetType<:Union{AbstractSet{W},AbstractVector{W}}, R<:AbstractRelation, T, N} = begin
 	@logmsg DTDetail "modalStep" S relation display_modal_test(relation, test_operator, -1, threshold)
 	satisfied = false
-	worlds = enumAcc(S, relation, channel)
+	worlds = enumAccessibles(S, relation, channel)
 	if length(collect(Iterators.take(worlds, 1))) > 0
 		new_worlds = WorldSetType()
 		for w in worlds
-			if TestCondition(test_operator, w, channel, threshold)
+			if testCondition(test_operator, w, channel, threshold)
 				@logmsg DTDetail " Found world " w readWorld(w,channel)
 				satisfied = true
 				push!(new_worlds, w)

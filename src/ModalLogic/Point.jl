@@ -19,7 +19,7 @@
 # show(io::IO, r::Interval) = print(io, "($(x)×$(y))")
 
 # enumAccBare(w::Point, ::_RelationId, XYZ::Vararg{Integer,N}) where N = [(w.x,)]
-# enumAcc(S::AbstractWorldSet{Point}, r::_RelationAll, X::Integer) =
+# enumAccessibles(S::AbstractWorldSet{Point}, r::_RelationAll, X::Integer) =
 # 	IterTools.imap(Point, 1:X)
 
 # worldTypeSize(::Type{Interval}) = 1
