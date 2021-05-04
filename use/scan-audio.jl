@@ -82,19 +82,19 @@ round_dataset_to_datatype = false
 # - RF with:
 forest_args = []
 
-# for n_trees in [1,50,100]
-# 	for n_subfeatures in [id_f, sqrt_f]
-# 		for n_subrelations in [id_f, sqrt_f]
-# 			push!(forest_args, (
-# 				n_subfeatures       = n_subfeatures,
-# 				n_trees             = n_trees,
-# 				partial_sampling    = 1.0,
-# 				n_subrelations      = n_subrelations,
-# 				forest_tree_args...
-# 			))
-# 		end
-# 	end
-# end
+for n_trees in [1,50,100]
+	for n_subfeatures in [id_f, sqrt_f]
+		for n_subrelations in [id_f, sqrt_f]
+			push!(forest_args, (
+				n_subfeatures       = n_subfeatures,
+				n_trees             = n_trees,
+				partial_sampling    = 1.0,
+				n_subrelations      = n_subrelations,
+				forest_tree_args...
+			))
+		end
+	end
+end
 
 split_threshold = 0.8
 
@@ -111,13 +111,13 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 5,
+							max_points = 30,
 							ma_size = 75,
 							ma_step = 50,
-#						),(
-#							max_points = 30,
-#							ma_size = 45,
-#							ma_step = 30,
+						),(
+							max_points = 30,
+							ma_size = 45,
+							ma_step = 30,
 #						),(
 #							max_points = 30,
 #							ma_size = 25,
@@ -185,43 +185,28 @@ iteration_whitelist = [
 #		nbands = 20,
 #		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50),
 #	),
-	# TASK 1
-	# (
-	# 	n_version = 1,
-	# 	nbands = 40,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 25, ma_step = 15)
-	# ),
-	# (
-	# 	n_version = 1,
-	# 	nbands = 60,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	# ),
-	# (
-	# 	n_version = 1,
-	# 	nbands = 60,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	# ),
-	# # TASK 2
-	# (
-	# 	n_version = 2,
-	# 	nbands = 20,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	# ),
-	# (
-	# 	n_version = 2,
-	# 	nbands = 20,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	# ),
-	# (
-	# 	n_version = 2,
-	# 	nbands = 40,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	# ),
-	# (
-	# 	n_version = 2,
-	# 	nbands = 40,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	# ),
+#	TASK 1
+	(
+		n_version = 1,
+		nbands = 40,
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	),
+	(
+		n_version = 1,
+		nbands = 60,
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	),
+	# TASK 2
+	(
+		n_version = 2,
+		nbands = 20,
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	),
+	(
+		n_version = 2,
+		nbands = 40,
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	)
 ]
 
 iteration_blacklist = []
@@ -254,8 +239,6 @@ for i in exec_runs
 
 	for params_combination in IterTools.product(exec_ranges...)
 		# Unpack params combination
-		println(params_combination)
-
 		params_namedtuple = (zip(map(Symbol, exec_ranges_names), params_combination) |> Dict |> namedtuple)
 
 		# FILTER ITERATIONS
@@ -280,6 +263,7 @@ for i in exec_runs
 		if just_test_filters
 			continue
 		end
+		println(params_combination)
 
 		if done && !just_produce_datasets_jld
 			println("Iteration $(params_combination) already done, skipping...")
