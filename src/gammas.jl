@@ -264,7 +264,7 @@ function computeGammas(
 	
 	# print(actual_test_operators)
 	n_actual_operators = length(test_operators)
-
+	
 	# Prepare gammas array
 	gammas = initGammas(worldType, T, channel_size(X), n_actual_operators, n_instances, n_relations, n_vars)
 
@@ -312,7 +312,6 @@ function computeGammas(
 	@inline computeModalThresholdMany(gammasId, test_operators::Vector{<:ModalLogic.TestOperator}, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 		ModalLogic.computeModalThresholdMany(test_operators, w, relation, channel)
 	end
-
 
 	# @inbounds for feature in 1:n_vars
 	# TODO maybe swap the two fors on features and instances

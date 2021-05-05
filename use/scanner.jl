@@ -237,7 +237,7 @@ function testDataset(
 
 			# Apply scaling
 			if round_dataset_to_datatype != false
-				X, Y = scaleDataset((X, Y), round_dataset_to_datatype)
+				X, Y = roundDataset((X, Y), round_dataset_to_datatype)
 			end
 			
 			# Calculate gammas for the full set of instances
@@ -273,8 +273,7 @@ function testDataset(
 
 			# Apply scaling
 			if round_dataset_to_datatype != false
-				(X_train, Y_train) = scaleDataset((X_train, Y_train), round_dataset_to_datatype)
-				(X_test,  Y_test) = scaleDataset((X_test,  Y_test), round_dataset_to_datatype)
+				(X_train, Y_train), (X_test,  Y_test) = roundDataset(((X_train, Y_train), (X_test,  Y_test)), round_dataset_to_datatype)
 			end
 			
 			# Calculate gammas for the training instances
