@@ -23,6 +23,16 @@ function print_function(func::Core.Function)::String
 	end
 end
 
+function human_readable_time(ms::Dates.Millisecond)::String
+	result = ms.value / 1000
+	seconds = round(Int64, result % 60)
+	result /= 60
+	minutes = round(Int64, result % 60)
+	result /= 60
+	hours = round(Int64, result % 24)
+	return string(string(hours; pad=2), ":", string(minutes; pad=2), ":", string(seconds; pad=2))
+end
+
 function get_creation_date_string_format(file_name::String)::String
 	Dates.format(Dates.unix2datetime(ctime(file_name)), "HH.MM.SS_dd.mm.yyyy")
 end
@@ -30,7 +40,7 @@ end
 function backup_file_using_creation_date(file_name::String)
 	splitted_name = Base.Filesystem.splitext(file_name)
 	backup_file_name = splitted_name[1] * "_" * get_creation_date_string_format(file_name) * splitted_name[2]
-	mv(file_name, backup_file_name)
+	mv(file_name, backup_file_name * ".bkp")
 end
 
 function string_tree_head(tree_args)::String
@@ -45,8 +55,8 @@ function string_head(
 		tree_args::AbstractArray,
 		forest_args::AbstractArray;
 		separator = ";",
-		tree_columns = ["K", "sensitivity", "specificity", "precision", "accuracy"],
-		forest_columns = ["K", "σ² K", "sensitivity", "σ² sensitivity", "specificity", "σ² specificity", "precision", "σ² precision", "accuracy", "σ² accuracy", "oob_error", "σ² oob_error"],
+		tree_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "t"],
+		forest_columns = ["K", "σ² K", "sensitivity", "σ² sensitivity", "specificity", "σ² specificity", "precision", "σ² precision", "accuracy", "σ² accuracy", "oob_error", "σ² oob_error", "t"],
         empty_columns_before = 1
 	)::String
 
@@ -103,7 +113,8 @@ end
 # Print a tree entry in a row
 function data_to_string(
 		M::Union{DecisionTree.DTree{S, T},DecisionTree.DTNode{S, T}},
-		cm::ConfusionMatrix;
+		cm::ConfusionMatrix,
+		time::Dates.Millisecond;
 		start_s = "(",
 		end_s = ")",
 		separator = ";",
@@ -115,7 +126,8 @@ function data_to_string(
 	result *= string(percent(cm.sensitivities[1]), alt_separator)
 	result *= string(percent(cm.specificities[1]), alt_separator)
 	result *= string(percent(cm.PPVs[1]), alt_separator)
-	result *= string(percent(cm.overall_accuracy))
+	result *= string(percent(cm.overall_accuracy), alt_separator)
+	result *= human_readable_time(time)
 	result *= end_s
 
 	result
@@ -124,7 +136,8 @@ end
 # Print a forest entry in a row
 function data_to_string(
 		Ms::AbstractVector{DecisionTree.Forest{S, T}},
-		cms::AbstractVector{ConfusionMatrix};
+		cms::AbstractVector{ConfusionMatrix},
+		time::Dates.Millisecond;
 		start_s = "(",
 		end_s = ")",
 		separator = ";",
@@ -147,6 +160,10 @@ function data_to_string(
 	result *= string(var(map(cm->cm.PPVs[1], cms)), alt_separator)
 	result *= string(var(map(cm->cm.overall_accuracy, cms)), alt_separator)
 	result *= string(var(map(M->M.oob_error, Ms)))
+	result *= end_s
+	result *= separator
+	result *= start_s
+	result *= human_readable_time(time)
 	result *= end_s
 
 	result

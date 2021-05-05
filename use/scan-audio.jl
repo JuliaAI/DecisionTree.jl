@@ -89,11 +89,9 @@ modal_args = (
 exec_test_operators = [ "TestOp", "TestOp_80" ]
 
 test_operators_dict = Dict(
+	"TestOp_80" => [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
 	"TestOp" => [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	"TestOp_80" => [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80]
 )
-
-preprocess_wavs = [ noise_gate!, normalize! ]
 
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview
@@ -113,19 +111,19 @@ round_dataset_to_datatype = false
 # - RF with:
 forest_args = []
 
-#for n_trees in [1,50,100]
-#	for n_subfeatures in [id_f, sqrt_f]
-#		for n_subrelations in [id_f, sqrt_f]
-#			push!(forest_args, (
-#				n_subfeatures       = n_subfeatures,
-#				n_trees             = n_trees,
-#				partial_sampling    = 1.0,
-#				n_subrelations      = n_subrelations,
-#				forest_tree_args...
-#			))
-#		end
-#	end
-#end
+for n_trees in [5,10]
+	for n_subfeatures in [id_f, half_f]
+		for n_subrelations in [id_f]
+			push!(forest_args, (
+				n_subfeatures       = n_subfeatures,
+				n_trees             = n_trees,
+				partial_sampling    = 1.0,
+				n_subrelations      = n_subrelations,
+				forest_tree_args...
+			))
+		end
+	end
+end
 
 split_threshold = 0.8
 
@@ -142,24 +140,38 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 30,
+							max_points = 10,
 							ma_size = 75,
 							ma_step = 50,
 						),(
-							max_points = 30,
+							max_points = 10,
 							ma_size = 45,
 							ma_step = 30,
-#						),(
-#							max_points = 30,
-#							ma_size = 25,
-#							ma_step = 15,
 						)
 						]
 
-exec_use_full_mfcc = [true, false]
+wav_preprocessors = Dict(
+	"NG" => noise_gate!,
+	"Normalize" => normalize!,
+)
+						
+exec_use_full_mfcc = [false]
 
-exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs, exec_use_full_mfcc, exec_test_operators ]
-exec_ranges_names = ["n_task", "n_version", "nbands", "dataset_kwargs", "use_full_mfcc", "test_operators" ]
+exec_preprocess_wavs = [
+	["Normalize"],
+	[],
+	["NG", "Normalize"]
+]
+
+exec_ranges_dict = (
+	n_task           = exec_n_tasks,
+	n_version        = exec_n_versions,
+	nbands           = exec_nbands,
+	dataset_kwargs   = exec_dataset_kwargs,
+	use_full_mfcc    = exec_use_full_mfcc,
+	test_operators   = exec_test_operators,
+	preprocess_wavs  = exec_preprocess_wavs
+)
 
 forest_runs = 5
 optimize_forest_computation = true
@@ -194,6 +206,7 @@ if "-f" in ARGS
 	end
 end
 
+exec_ranges_names, exec_ranges = collect(string.(keys(exec_ranges_dict))), collect(values(exec_ranges_dict))
 exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_ranges, exec_ranges_names
 )
@@ -220,32 +233,32 @@ iteration_whitelist = [
 	(
 		n_version = 1,
 		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50)
 	),
 	(
 		n_version = 1,
 		nbands = 60,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50)
 	),
 	# TASK 2
 	(
 		n_version = 2,
 		nbands = 20,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 10, ma_size = 45, ma_step = 30)
 	),
 	(
 		n_version = 2,
 		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 10, ma_size = 45, ma_step = 30)
 	)
 ]
 
 iteration_blacklist = []
 
 # if the output files does not exists initilize them
-print_head(concise_output_file_path, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²"], separator = column_separator)
+print_head(concise_output_file_path, tree_args, forest_args, tree_columns = [""], forest_columns = ["", "σ²", "t"], separator = column_separator)
 print_head(full_output_file_path, tree_args, forest_args, separator = column_separator,
-	forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error", "σ² K", "σ² sensitivity", "σ² specificity", "σ² precision", "σ² accuracy", "σ² oob_error"],
+	forest_columns = ["K", "sensitivity", "specificity", "precision", "accuracy", "oob_error", "σ² K", "σ² sensitivity", "σ² specificity", "σ² precision", "σ² accuracy", "σ² oob_error", "t"],
 )
 
 # a = KDDDataset_not_stratified((1,1), merge(audio_kwargs, (nbands=40,)); exec_dataset_kwargs[1]...)
@@ -260,11 +273,11 @@ print_head(full_output_file_path, tree_args, forest_args, separator = column_sep
 #)
 
 
+train_seed = 1
 
 # RUN
 for i in exec_runs
 	dataset_seed = i
-	train_seed = i
 
 	println("DATA SEED: $(dataset_seed)")
 
@@ -301,7 +314,7 @@ for i in exec_runs
 			continue
 		end
 		#####################################################
-		n_task, n_version, nbands, dataset_kwargs, use_full_mfcc, test_operators = params_combination
+		n_task, n_version, nbands, dataset_kwargs, use_full_mfcc, test_operators, preprocess_wavs = params_combination
 
 		# LOAD DATASET
 		dataset_file_name = saved_datasets_path * "/" * row_ref
@@ -320,6 +333,8 @@ for i in exec_runs
 
 		cur_modal_args = merge(modal_args, (test_operators = test_operators_dict[test_operators],))
 		
+		cur_preprocess_wavs = [ wav_preprocessors[k] for k in preprocess_wavs ]
+
 		dataset = 
 			if save_datasets && isfile(dataset_file_name * ".jld")
 				if just_produce_datasets_jld
@@ -353,7 +368,13 @@ for i in exec_runs
 			else
 				checkpoint_stdout("Creating dataset...")
 				# TODO wrap dataset creation into a function accepting the rng and other parameters...
-				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., preprocess_wavs = preprocess_wavs, use_full_mfcc = use_full_mfcc) # , rng = dataset_rng)
+				dataset, n_pos, n_neg = KDDDataset_not_stratified(
+					(n_task,n_version),
+					cur_audio_kwargs;
+					dataset_kwargs...,
+					preprocess_wavs = cur_preprocess_wavs,
+					use_full_mfcc = use_full_mfcc
+				)
 				n_per_class = min(n_pos, n_neg)
 				# using Random
 				# n_pos = 10
@@ -392,7 +413,7 @@ for i in exec_runs
 		)
 
 		# ACTUAL COMPUTATION
-		Ts, Fs, Tcms, Fcms = testDataset(
+		Ts, Fs, Tcms, Fcms, Tts, Fts = testDataset(
 					"($(n_task),$(n_version))", # TODO more verbose name?
 					dataset,
 					split_threshold,
@@ -418,11 +439,11 @@ for i in exec_runs
 		# PRINT CONCISE
 		concise_output_string = string(row_ref, column_separator)
 		for j in 1:length(tree_args)
-			concise_output_string *= string(data_to_string(Ts[j], Tcms[j]; alt_separator=", ", separator = column_separator))
+			concise_output_string *= string(data_to_string(Ts[j], Tcms[j], Tts[j]; alt_separator=", ", separator = column_separator))
 			concise_output_string *= string(column_separator)
 		end
 		for j in 1:length(forest_args)
-			concise_output_string *= string(data_to_string(Fs[j], Fcms[j]; alt_separator=", ", separator = column_separator))
+			concise_output_string *= string(data_to_string(Fs[j], Fcms[j], Fts[j]; alt_separator=", ", separator = column_separator))
 			concise_output_string *= string(column_separator)
 		end
 		concise_output_string *= string("\n")
@@ -431,11 +452,11 @@ for i in exec_runs
 		# PRINT FULL
 		full_output_string = string(row_ref, column_separator)
 		for j in 1:length(tree_args)
-			full_output_string *= string(data_to_string(Ts[j], Tcms[j]; start_s = "", end_s = "", alt_separator = column_separator))
+			full_output_string *= string(data_to_string(Ts[j], Tcms[j], Tts[j]; start_s = "", end_s = "", alt_separator = column_separator))
 			full_output_string *= string(column_separator)
 		end
 		for j in 1:length(forest_args)
-			full_output_string *= string(data_to_string(Fs[j], Fcms[j]; start_s = "", end_s = "", alt_separator = column_separator))
+			full_output_string *= string(data_to_string(Fs[j], Fcms[j], Fts[j]; start_s = "", end_s = "", alt_separator = column_separator))
 			full_output_string *= string(column_separator)
 		end
 		full_output_string *= string("\n")

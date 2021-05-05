@@ -24,6 +24,7 @@ using Test
 using SHA
 using Serialization
 import JLD2
+import Dates
 
 function get_hash_sha256(var)::String
 	io = IOBuffer();
@@ -40,8 +41,9 @@ mutable struct ForestEvaluationSupport <: Support
 	f::Union{Nothing,Support,AbstractVector{DecisionTree.Forest{S, Ta}}} where {S, Ta}
 	f_args::NamedTuple{T, N} where {T, N}
 	cm::Union{Nothing,AbstractVector{ConfusionMatrix}}
+	time::Dates.Millisecond
 	enqueued::Bool
-	ForestEvaluationSupport(f_args) = new(nothing, f_args, nothing, false)
+	ForestEvaluationSupport(f_args) = new(nothing, f_args, nothing, Dates.Millisecond(0), false)
 end
 
 function will_produce_same_forest_with_different_number_of_trees(f1::ForestEvaluationSupport, f2::ForestEvaluationSupport)
@@ -59,7 +61,15 @@ function will_produce_same_forest_with_different_number_of_trees(f1::ForestEvalu
 	true
 end
 
-import Dates
+function human_readable_time(ms::Dates.Millisecond)::String
+	result = ms.value / 1000
+	seconds = round(Int64, result % 60)
+	result /= 60
+	minutes = round(Int64, result % 60)
+	result /= 60
+	hours = round(Int64, result % 24)
+	return string(string(hours; pad=2), ":", string(minutes; pad=2), ":", string(seconds; pad=2))
+end
 
 function checkpoint_stdout(string::String)
 	println("● ", Dates.format(Dates.now(), "[ dd/mm/yyyy HH:MM:SS ] "), string)
@@ -157,6 +167,7 @@ function testDataset(
 					Serialization.deserialize(gammas_jld_path)
 				else
 					checkpoint_stdout("Computing gammas for $(dataset_hash)...")
+					started = Dates.now()
 					gammas = 
 						if timeit == 0
 							DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids);
@@ -165,6 +176,8 @@ function testDataset(
 						elseif timeit == 2
 							@btime DecisionTree.computeGammas($X_all,$worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids);
 					end
+					gammas_computation_time = (Dates.now() - started)
+					checkpoint_stdout("Computed gammas in $(human_readable_time(gammas_computation_time))...")
 
 					if !isnothing(gammas_jld_path)
 						checkpoint_stdout("Saving gammas to file \"$(gammas_jld_path)\"...")
@@ -311,14 +324,16 @@ function testDataset(
 	end
 
 	go_tree(tree_args, rng) = begin
-		T = 
+		started = Dates.now()
+		T, Tt = 
 			if timeit == 0
-				build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng);
+				build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng)
 			elseif timeit == 1
-				@time build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng);
+				@time build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng)
 			elseif timeit == 2
-				@btime build_tree($Y_train, $X_train; $tree_args..., $modal_args..., gammas = $gammas_train, rng = $rng);
-		end
+				@btime build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng)
+			end
+		Tt = Dates.now() - started
 		println("Train tree:")
 		print(T)
 
@@ -351,12 +366,13 @@ function testDataset(
 
 			# println("nodes: ($(num_nodes(T_pruned)), height: $(height(T_pruned)))")
 		end
-		return (T, cm);
+		return (T, cm, Tt);
 	end
 
 	go_forest(f_args, rng; prebuilt_model::Union{Nothing,AbstractVector{DecisionTree.Forest{S, T}}} = nothing) where {S,T} = begin
-		Fs = 
+		Fs, Ft = 
 			if isnothing(prebuilt_model)
+				started = Dates.now()
 				[
 					if timeit == 0
 						build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
@@ -366,7 +382,7 @@ function testDataset(
 						@btime build_forest($Y_train, $X_train; $f_args..., $modal_args..., gammas = $gammas_train, rng = $rng);
 					end
 					for i in 1:forest_runs
-				]
+				], (Dates.now() - started)
 			else
 				println("Using slice of a prebuilt forest.")
 				# !!! HUGE PROBLEM HERE !!! #
@@ -377,7 +393,7 @@ function testDataset(
 					v_cms = @views f.cm[Random.randperm(rng, length(f.cm))[1:f_args.n_trees]]
 					push!(forests, DecisionTree.Forest{S, T}(v_forest, v_cms, 0.0))
 				end
-				forests
+				forests, Dates.Millisecond(0)
 			end
 
 		for F in Fs
@@ -407,7 +423,7 @@ function testDataset(
 			push!(cms, cm)
 		end
 
-		return (Fs, cms);
+		return (Fs, cms, Ft);
 	end
 
 	go() = begin
@@ -415,14 +431,17 @@ function testDataset(
 		Fs = []
 		Tcms = []
 		Fcms = []
+		Tts = []
+		Fts = []
 
 		old_logger = global_logger(ConsoleLogger(stderr, log_level))
 
 		for (i_model, this_args) in enumerate(tree_args)
 			checkpoint_stdout("Computing Tree $(i_model) / $(length(tree_args))...")
-			this_T, this_Tcm = go_tree(this_args, Random.MersenneTwister(train_seed))
+			this_T, this_Tcm, this_Tt = go_tree(this_args, Random.MersenneTwister(train_seed))
 			push!(Ts, this_T)
 			push!(Tcms, this_Tcm)
+			push!(Tts, this_Tt)
 		end
 
 		# # TODO
@@ -476,7 +495,7 @@ function testDataset(
 					model = model.f
 				end
 
-				forest_supports_build_order[i].f, forest_supports_build_order[i].cm = go_forest(f.f_args, Random.MersenneTwister(train_seed), prebuilt_model = model)
+				forest_supports_build_order[i].f, forest_supports_build_order[i].cm, forest_supports_build_order[i].time = go_forest(f.f_args, Random.MersenneTwister(train_seed), prebuilt_model = model)
 			end
 
 			# put resulting forests in vector in the order the user gave them
@@ -489,19 +508,21 @@ function testDataset(
 
 				push!(Fs, f.f)
 				push!(Fcms, f.cm)
+				push!(Fts, f.time)
 			end
 		else
 			for (i_forest, f_args) in enumerate(forest_args)
 				checkpoint_stdout("Computing Random Forest $(i_forest) / $(length(forest_args))...")
-				this_F, this_Fcm = go_forest(f_args, Random.MersenneTwister(train_seed))
+				this_F, this_Fcm, this_Ft = go_forest(f_args, Random.MersenneTwister(train_seed))
 				push!(Fs, this_F)
 				push!(Fcms, this_Fcm)
+				push!(Fts, this_Ft)
 			end
 		end
 
 		global_logger(old_logger);
 
-		Ts, Fs, Tcms, Fcms
+		Ts, Fs, Tcms, Fcms, Tts, Fts
 	end
 
 	if error_catching 
