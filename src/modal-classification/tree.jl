@@ -125,6 +125,7 @@ module treeclassifier
 		end
 
 		# Gather all values needed for the current set of instances
+		# TODO also slice gammas in gammasf?
 		@simd for i in 1:n_instances
 			Yf[i] = Y[indX[i + r_start]]
 			Wf[i] = W[indX[i + r_start]]
@@ -163,37 +164,6 @@ module treeclassifier
 			for relation_id in random_relations_ids
 				relation = relationSet[relation_id]
 				@logmsg DTDebug "Testing relation $(relation) (id: $(relation_id))..." # "/$(length(relation_ids))"
-				########################################################################
-				########################################################################
-				########################################################################
-				# Find, for each instance, the highest value for any world
-				#                       and the lowest value for any world
-				# @info "Computing peaks..." # channel
-				# opGeqMaxThresh_old     = fill(typemin(T), n_instances)
-				# opLesMinThresh_old     = fill(typemax(T), n_instances)
-				# for i in 1:n_instances
-				# 	# if relation == ModalLogic.Topo_TPP println("relation ", relation, " ", relation_id) end
-				# 	# if relation == ModalLogic.Topo_TPP println("instance ", i) end
-				# 	# if relation == ModalLogic.Topo_TPP println("Sf[i] ", Sf[i]) end
-				# 	channel = ModalLogic.getChannel(Xf but remember this is not computed anymore, i)
-				# 	# if relation == ModalLogic.Topo_TPP println("channel ", channel) end
-				# 	# @info " instance $i/$n_instances" # channel
-				# 	# TODO this findmin/findmax can be made more efficient, and even more efficient for intervals.
-				# 	for w in ModalLogic.enumAccessibles(Sf[i], relation, channel)
-				# 		# if relation == ModalLogic.Topo_TPP println("world ", w) end
-				#     TODO expand this code to multiple test_operators
-				# 		(_wmin,_wmax) = ModalLogic.computePropositionalThresholdDual(test_operators, w, channel)
-				# 		# if relation == ModalLogic.Topo_TPP println("wmin, wmax ", _wmin, " ", _wmax) end
-				# 		opGeqMaxThresh_old[i] = max(opGeqMaxThresh_old[i], _wmin)
-				# 		opLesMinThresh_old[i] = min(opLesMinThresh_old[i], _wmax)
-				# 	end
-				# 	# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh_old ", opGeqMaxThresh_old[i]) end
-				# 	# if relation == ModalLogic.Topo_TPP println("opLesMinThresh_old ", opLesMinThresh_old[i]) end
-				# end
-
-				########################################################################
-				########################################################################
-				########################################################################
 
 				thresholds = Array{T,2}(undef, length(test_operators), n_instances)
 				for (i_test_operator,test_operator) in enumerate(test_operators)
@@ -206,7 +176,6 @@ module treeclassifier
 				# TODO optimize this!!
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 				for i in 1:n_instances
-					# TODO slice gammas in gammasf?
 					@logmsg DTDetail " Instance $(i)/$(n_instances)" indX[i + r_start]
 					worlds = if (relation != ModalLogic.RelationAll)
 							Sf[i]
@@ -215,24 +184,15 @@ module treeclassifier
 						end
 					for w in worlds
 						# TODO maybe read the specific value of gammas referred to the test_operator?
-						cur_gammas = DecisionTree.readGamma(gammas, w, indX[i + r_start], relation_id, feature)
-						@logmsg DTDetail " cur_gammas" w cur_gammas
+						# cur_gammas = DecisionTree.readGamma(gammas, w, indX[i + r_start], relation_id, feature)
+						# @logmsg DTDetail " cur_gammas" w cur_gammas
 						# TODO try using reduce for each operator instead.
 						for (i_test_operator,test_operator) in enumerate(test_operators) # TODO use correct indexing for test_operators
-							# if relation == ModalLogic.Topo_TPP println("world ", w) end
-							# if relation == ModalLogic.Topo_TPP println("w_opGeqMaxThresh, w_opLesMinThresh ", w_opGeqMaxThresh, " ", w_opLesMinThresh) end
-							# (w_opGeqMaxThresh,w_opLesMinThresh) = readGamma(gammas, w, indX[i + r_start], relation_id, feature)
-							# @logmsg DTDetail "w_opGeqMaxThresh,w_opLesMinThresh " w w_opGeqMaxThresh w_opLesMinThresh
-							# opGeqMaxThresh[i] = max(opGeqMaxThresh[i], w_opGeqMaxThresh)
-							# opLesMinThresh[i] = min(opLesMinThresh[i], w_opLesMinThresh)
 
-							# opExtremeThreshArr,optimizer = ModalLogic.polarity(test_operator) ? (opGeqMaxThresh,max) : (opLesMinThresh,min)
-							# opExtremeThreshArr[i] = optimizer(opExtremeThreshArr[i], cur_gammas[i_test_operator])
-
-							thresholds[i_test_operator,i] = ModalLogic.opt(test_operator)(thresholds[i_test_operator,i], cur_gammas[i_test_operator])
+							# thresholds[i_test_operator,i] = ModalLogic.opt(test_operator)(thresholds[i_test_operator,i], cur_gammas[i_test_operator])
+							gamma = DecisionTree.readGamma(gammas, i_test_operator, w, indX[i + r_start], relation_id, feature)
+							thresholds[i_test_operator,i] = ModalLogic.opt(test_operator)(thresholds[i_test_operator,i], gamma)
 						end
-						# if relation == ModalLogic.Topo_TPP println("opGeqMaxThresh ", opGeqMaxThresh[i]) end
-						# if relation == ModalLogic.Topo_TPP println("opLesMinThresh ", opLesMinThresh[i]) end
 					end
 				end
 
@@ -244,7 +204,6 @@ module treeclassifier
 
 				# @logmsg DTDebug "Thresholds computed: " thresholds
 				# readline()
-
 
 				# Look for the correct test operator
 				for (i_test_operator,test_operator) in enumerate(test_operators)
@@ -417,7 +376,7 @@ module treeclassifier
 			throw("min_loss_at_leaf for loss $(loss_function) must be in (0,1]"
 				* "(given $(min_loss_at_leaf))")
 		end
-		
+
 		# TODO make sure how nothing and NaN and infinite can be handled
 		if nothing in X.domain
 			throw("Warning! This algorithm doesn't allow nothing values in X.domain")
@@ -425,8 +384,8 @@ module treeclassifier
 			throw("Warning! This algorithm doesn't allow NaN values in X.domain")
 		elseif nothing in Y
 			throw("Warning! This algorithm doesn't allow nothing values in Y")
-		elseif any(isnan.(Y))
-			throw("Warning! This algorithm doesn't allow NaN values in Y")
+		# elseif any(isnan.(Y))
+		# 	throw("Warning! This algorithm doesn't allow NaN values in Y")
 		elseif nothing in W
 			throw("Warning! This algorithm doesn't allow nothing values in W")
 		elseif any(isnan.(W))

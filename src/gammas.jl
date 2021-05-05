@@ -95,9 +95,10 @@ end
 	if return_view @view gammas[:,inds,:,:] else gammas[:,inds,:,:] end
 @inline function readGamma(
 	gammas     :: AbstractArray{T, 4},
+	i_test_operator,
 	w          :: ModalLogic.OneWorld,
 	i, relation_id, feature) where {T}
-	gammas[:,i, relation_id, feature]
+	gammas[i_test_operator, i, relation_id, feature]
 end
 
 
@@ -118,12 +119,19 @@ end
 	gammaSlice[i_test_operators, w.x, w.y]
 @inline sliceGammasByInstances(worldType::Type{ModalLogic.Interval}, gammas::AbstractArray{T, 6}, inds::AbstractVector{<:Integer}; return_view = false) where {T} =
 	if return_view @view gammas[:, :,:, inds,:,:] else gammas[:, :,:, inds,:,:] end
-@inline function readGamma(
+@inline function readGamma( # TODO add this interface for other cases
 	gammas     :: AbstractArray{T, 6},
+	i_test_operator,
 	w          :: ModalLogic.Interval,
 	i, relation_id, feature) where {T}
-	@view gammas[:,w.x, w.y, i, relation_id, feature] # TODO try without view
+	gammas[i_test_operator, w.x, w.y, i, relation_id, feature]
+	# (optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+	# train size = (5, 226, 40)
+	# gammas[i_test_operator, w.x, w.y, i, relation_id, feature]     # 3.981 ms (92645 allocations: 4.01 MiB)
+	# @view gammas[:,w.x, w.y, i, relation_id, feature]           # 6.813 ms (119765 allocations: 5.66 MiB)
+	# gammas[:,w.x, w.y, i, relation_id, feature]                 # 7.679 ms (119765 allocations: 5.80 MiB)
 end
+
 
 # 2D Interval case (worldType = ModalLogic.Interval2D)
 @inline initGammas(worldType::Type{ModalLogic.Interval2D}, T::Type, (X,Y)::NTuple{2,Integer}, n_test_operators::Integer, n_instances::Integer, n_relations::Integer, n_vars::Integer) =
@@ -144,9 +152,10 @@ end
 	if return_view @view gammas[:, :,:,:,:, inds,:,:] else gammas[:, :,:,:,:, inds,:,:] end
 @inline function readGamma(
 	gammas     :: AbstractArray{T, 8},
+	i_test_operator,
 	w          :: ModalLogic.Interval2D,
 	i, relation_id, feature) where {T}
-	@view gammas[:,w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO try without view
+	gammas[i_test_operator, w.x.x, w.x.y, w.y.x, w.y.y, i, relation_id, feature] # TODO try without view
 end
 
 # TODO test which implementation is the best for the 2D case with different memory layout for gammas

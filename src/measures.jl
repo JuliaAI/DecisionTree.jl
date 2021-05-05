@@ -174,20 +174,28 @@ end
 function confusion_matrix(actual::AbstractVector, predicted::AbstractVector)
 	@assert length(actual) == length(predicted)
 	N = length(actual)
-	_actual = zeros(Int,N)
-	_predicted = zeros(Int,N)
-	classes = sort(unique([actual; predicted]))
-	N = length(classes)
+	_actual = zeros(Int, N)
+	_predicted = zeros(Int, N)
+
+	class_labels = unique([actual; predicted])
+	class_labels = sort(class_labels)
+
+	# Binary case: sort the classes with as ["YES_...", "NO_..."]
+	if length(class_labels) == 2
+		class_labels = reverse(class_labels)
+	end
+
+	N = length(class_labels)
 	for i in 1:N
-		_actual[actual .== classes[i]] .= i
-		_predicted[predicted .== classes[i]] .= i
+		_actual[actual .== class_labels[i]] .= i
+		_predicted[predicted .== class_labels[i]] .= i
 	end
 	# CM[actual,predicted]
 	CM = zeros(Int,N,N)
 	for i in zip(_actual, _predicted)
 		CM[i[1],i[2]] += 1
 	end
-	return ConfusionMatrix(classes, CM)
+	return ConfusionMatrix(class_labels, CM)
 end
 
 function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::AbstractMatrix{S}, args...; verbose, rng) where {S, T}
