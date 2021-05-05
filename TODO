@@ -1,54 +1,49 @@
-☐	Generalize feature subset (e.g. providing a function vars_sampling_distr(n_vars, rng) = 1:n_vars vars_sampling_distr(n_vars, rng) = round(Int, Statistics.gaussrand_(rng, mean=sqrt(n_vars), var=1)))
-
-
 ☐	computation of softened operators takes too much time (optimize at least <A> in the temporal case?)
-☐	rename gammas
-☐	Add the use of an unbalanced test set, and allow ConfusionMatrix to compute the overall accuracy in a balanced way.
-☐ Allow instances of different size
-☐	Add IA7 relations: Complete by writing enumAccBare, enumAcc, enumAccRepr.
-☐	Add the generalized solution for union of relations: _UnionOfRelations and its WExtremaModal, WExtrema, WExtremeModal, WExtreme, enumAcc, enumAccRepr. _UnionOfRelations{typeof((RelationId,))} _UnionOfRelations{typeof((RelationId,))} Tuple{_RelationId}
-☐	Check whether @inbounds improves performances
-☐	Test whether ordering thresholdDomain and then performing binary search is actually better
-☐	Parallelize. Does this require manual copy of dynamic structures used in _split! ?
-☐	Determine whether it's faster to use SoglId or recalculate. (If SoglId is better, use it in WExtrema?)
+☐	Refactor and distinguish between testoperators and functions; and opt/aggregator/polarity
+☐	Support for dataframes aziché MatricialDatasets (this allows instances of different size. Is there a way of supporting instances of different size using nothing or missing?
+☐	check that missing is not in X or Y
+☐	Write optimized ArrayOfOnes struct for W
+☐	clean ModalLogic.jl
+☐	timeit -> symbol
+☐	Add the generalized solution for union of relations: _UnionOfRelations and its WExtremaModal, WExtrema, WExtremeModal, WExtreme, enumAcc, enumAccRepr. _UnionOfRelations{typeof((RelationId,))} _UnionOfRelations{typeof((RelationId,))} Tuple{_RelationId} (so you can rewrite RCC5 from RCC8 relations and RCC8 from IA, maybe it's cleaner in some cases?)
+☐	rename gammas (into thresholds?)
+☐	dataset-loading functions should tell about how they balanced, and how they randomized
+☐	Check that gammasId can't be optimized any further
+☐	Check whether @inbounds improves performances https://github.com/JuliaLang/julia/issues/39340
 ☐	Fix naming style (e.g. variables, etc. Order of struct's members)
-☐	Add IA7^2 relations.
-
-
-☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)
-☐	Interpolate impurity function and find best threshold by interpolation
-☐	new hard operator valuesbetween(a,b) (doesn't make the tree more expressive, just maybe faster at capturing patterns)
-☐	Optimize RCC5
-☐	Custom pretty printing, instead of display_... See https://docs.julialang.org/en/v1/manual/types/#man-custom-pretty-printing
-☐	Add possibility of barely joining two relations with a disjunction (so you can get RCC5 from RCC8 relations)
-☐	Add IA3, IA3^7 relations
-☐	Use specific sampling on the image
-☐	Valuta quale estensione di array e' bello tenere. Array piccoli e compatti? Array con nomi nelle dimensioni? Etc.
-☐	Add point-based ontology, and test point-based + rectangle algebra?
+☐	Add comments
 ☐	Clean initCondition and worldType code
-☐	Parametrize worldTypes forcing things such as minimum size?
-
-☐	Try slicing with JuliennedArrays? https://bramtayl.github.io/JuliennedArrays.jl/latest/
-☐	@inbounds ? https://github.com/JuliaLang/julia/issues/39340
-
-☐	allow to reconsider previous worldsets and modal depths
 ☐	Add tree parser
 ☐	Add convenience methods for tree editing.
-☐	Generalize World as a tuple of parameters ( https://stackoverflow.com/questions/40160120/generic-constructors-for-subtypes-of-an-abstract-type )
-☐	use staticArrays for small domains (matrices/vectors) https://github.com/JuliaArrays/StaticArrays.jl
-		X = OntologicalDataset(IntervalOntology,Array{SMatrix{3,3,Int},2}(undef, 20, 10))
+☐	Try slicing with JuliennedArrays? https://bramtayl.github.io/JuliennedArrays.jl/latest/
+☐	Custom pretty printing, instead of display_... See https://docs.julialang.org/en/v1/manual/types/#man-custom-pretty-printing
+☐	Different array implementations? Array with named dimensions? staticArrays for small domains (matrices/vectors) https://github.com/JuliaArrays/StaticArrays.jl Etc.
 
+☐	Add the use of an unbalanced test set, and allow ConfusionMatrix to compute the overall accuracy in a balanced way.
+☐	Add IA7 relations: Complete by writing enumAccBare, enumAcc, enumAccRepr.
+☐	Find out whether it's faster to use gammasId or recalculate them. (If gammasId is better, use it in WExtrema?)
+☐	Add IA7^2 relations.
+
+☐	Parallelize tree construction? Does this require manual copy of dynamic structures used in _split! ?
+☐	Optimize RCC5
+☐	Add IA3, IA3^7 relations
+☐	Parametrize worldTypes forcing things such as minimum size?
+
+☐	Generalize sampling of the feature subset (e.g. providing a function vars_sampling_distr(n_vars, rng) = 1:n_vars vars_sampling_distr(n_vars, rng) = round(Int, Statistics.gaussrand_(rng, mean=sqrt(n_vars), var=1)))
 ☐ Half-an-idea: variables are just another dimension without order
+☐	An ontology interpreted over an N-dimensional domain gives rise to a Kripke model/frame, but one can *generalize for a Kripke model/frame in graph form*.
+	abstract type AbstractKripkeFrame end
+	Generic Kripke frame: worlds & relations
+	struct KripkeFrame{T} <: AbstractKripkeFrame{T}
+☐	Methodically check the consistency of thresholds lookup table with the actual computed values; not only for the best split (it's suspicious how many relations are always discarted)
+☐	Interpolate impurity function and find best threshold by interpolation
+☐	Add point-based ontology, and test point-based + rectangle algebra?
+☐	Generalize World as a tuple of parameters ( https://stackoverflow.com/questions/40160120/generic-constructors-for-subtypes-of-an-abstract-type )
+☐	Maybe add new hard operator valuesbetween(a,b) (doesn't make the tree more expressive, just maybe faster at capturing patterns)
 ☐	Try adding ProgressMeter? https://github.com/timholy/ProgressMeter.jl
 ☐	Generalize greedy step to greedy-n step.
 ☐	Generalize to beam-search and then beam-search-n?
-☐	An ontology interpreted over an N-dimensional domain gives rise to a Kripke model/frame,
-	but one can generalize for a Kripke model/frame in graph form.
-		abstract type AbstractKripkeFrame end
-		Generic Kripke frame: worlds & relations
-		struct KripkeFrame{T} <: AbstractKripkeFrame{T}
 ☐	Extend to categorical variables
-
 
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
