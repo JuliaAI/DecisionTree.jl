@@ -1,7 +1,7 @@
 # julia -i -t4 test-manzella.jl
 # julia -i test-manzella.jl
 
-include("test-header.jl")
+include("scanner.jl")
 
 rng = my_rng()
 

@@ -1,4 +1,4 @@
-include("test-header.jl")
+include("scanner.jl")
 include("table-printer.jl")
 include("progressive-iterator-manager.jl")
 
@@ -39,7 +39,7 @@ forest_tree_args = (
 	min_loss_at_leaf = 0.0,
 )
 
-audio_kwargs = (
+audio_kwargs_partial_mfcc = (
 	wintime = 0.025, # in ms          # 0.020-0.040
 	steptime = 0.010, # in ms         # 0.010-0.015
 	fbtype = :mel,                    # [:mel, :htkmel, :fcmel]
@@ -53,6 +53,25 @@ audio_kwargs = (
 	# maxfreq = (sr)->(sr/2),
 	# usecmp = false,
 )
+
+audio_kwargs_full_mfcc = (
+	wintime=0.025,
+	steptime=0.01,
+	numcep=13,
+	lifterexp=-22,
+	sumpower=false,
+	preemph=0.97,
+	dither=false,
+	minfreq=0.0,
+	# maxfreq=sr/2,
+	nbands=20,
+	bwidth=1.0,
+	dcttype=3,
+	fbtype=:htkmel,
+	usecmp=false,
+	modelorder=0
+)
+
 
 modal_args = (
 	initCondition = DecisionTree.startWithRelationAll,
@@ -123,9 +142,10 @@ exec_dataset_kwargs =   [(
 							ma_step = 15,
 						)
 						]
+exec_use_full_mfcc = [false, true]
 
-exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs]
-exec_ranges_names = ["n_task", "n_version", "nbands", "dataset_kwargs"]
+exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs, exec_use_full_mfcc]
+exec_ranges_names = ["n_task", "n_version", "nbands", "dataset_kwargs", "use_full_mfcc"]
 
 forest_runs = 5
 optimize_forest_computation = true
@@ -281,7 +301,7 @@ for i in exec_runs
 			continue
 		end
 		#####################################################
-		n_task, n_version, nbands, dataset_kwargs = params_combination
+		n_task, n_version, nbands, dataset_kwargs, use_full_mfcc = params_combination
 
 		# LOAD DATASET
 		dataset_file_name = saved_datasets_path * "/" * row_ref
@@ -289,7 +309,15 @@ for i in exec_runs
 		dataset = nothing
 		n_pos = nothing
 		n_neg = nothing
-		cur_audio_kwargs = merge(audio_kwargs, (nbands=nbands,))
+		
+		cur_audio_kwargs = merge(
+			if use_full_mfcc
+				audio_kwargs_full_mfcc
+			else
+				audio_kwargs_partial_mfcc
+			end
+			, (nbands=nbands,))
+
 		dataset = 
 			if save_datasets && isfile(dataset_file_name * ".jld")
 				if just_produce_datasets_jld
@@ -321,8 +349,9 @@ for i in exec_runs
 				# Y = [ (y == 0 ? "yes" : "no") for y in Y]
 				dataset = (X,Y)
 			else
+				checkpoint_stdout("Creating dataset...")
 				# TODO wrap dataset creation into a function accepting the rng and other parameters...
-				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs...) # , rng = dataset_rng)
+				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., use_full_mfcc = use_full_mfcc) # , rng = dataset_rng)
 				n_per_class = min(n_pos, n_neg)
 				# using Random
 				# n_pos = 10

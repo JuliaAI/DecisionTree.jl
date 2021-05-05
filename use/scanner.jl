@@ -63,12 +63,10 @@ end
 # TODO note that these splitting functions simply cut the dataset in two,
 #  and they don't necessarily produce balanced cuts. To produce balanced cuts,
 #  one must manually stratify the dataset beforehand
-traintestsplit(data::Tuple{MatricialDataset{D,3},AbstractVector{String}},threshold; gammas = nothing, worldType = nothing) where {D} = begin
-	is_balanced = true
-	(X,Y) = data
+traintestsplit((X,Y)::Tuple{MatricialDataset{D,N},AbstractVector{String}}, split_threshold::AbstractFloat; gammas = nothing, worldType = nothing, is_balanced = true) where {D,N} = begin
 	num_instances = length(Y)
-	spl = ceil(Int, num_instances*threshold)
-	# make it even
+	spl = ceil(Int, num_instances*split_threshold)
+	# In the binary case, make it even
 	if length(unique(Y)) == 2 && is_balanced
 		spl = isodd(spl) ? (spl-1) : spl
 	end

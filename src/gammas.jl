@@ -275,8 +275,9 @@ function computeGammas(
 	# print(actual_test_operators)
 	# readline()
 
-	@inline computeModalThresholdDual(gammasId::GammaSliceType{NTO, T}, i_test_operator::Integer, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,NTO,T,N} = begin
-		worlds = enumAccessibles([w], relation, channel)
+	# TODO Note: this only optimizes two generic operators with different polarity, and also works with non-dual pairs of operators. Maybe this function is not needed
+	@inline computeModalThresholdWithIdentityLookupDual(gammasId::GammaSliceType{NTO, T}, i_test_operator::Integer, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,NTO,T,N} = begin
+		worlds = ModalLogic.enumAccessibles([w], relation, channel)
 		extr = (typemin(T),typemax(T))
 		for w in worlds
 			e = (readGammaSlice(gammasId, w, i_test_operator), readGammaSlice(gammasId, w, i_test_operator+1))
@@ -284,30 +285,33 @@ function computeGammas(
 		end
 		extr
 	end
-	@inline computeModalThreshold(gammasId::GammaSliceType{NTO, T}, i_test_operator::Integer, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,NTO,T,N} = begin
-		worlds = enumAccessibles([w], relation, channel) 
+	@inline computeModalThresholdWithIdentityLookup(gammasId::GammaSliceType{NTO, T}, i_test_operator::Integer, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,NTO,T,N} = begin
+		test_operator = test_operators[i_test_operator]
+		opt = ModalLogic.opt(test_operator)
+		worlds = ModalLogic.enumAccessibles([w], relation, channel)
 			# TODO use reduce()
-		v = bottom(T) # TODO write with reduce
+		v = ModalLogic.bottom(test_operator, T) # TODO write with reduce
 		for w in worlds
 			e = readGammaSlice(gammasId, w, i_test_operator)
 			v = opt(v,e)
 		end
 		v
 	end
-	@inline computeModalThresholdMany(gammasId::GammaSliceType{NTO, T}, i_test_operators::Vector{<:Integer}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,NTO,T,N} = begin
-		[readGammaSlice(gammasId, w, i_test_operator) for i_test_operator in i_test_operators]
+	@inline computeModalThresholWithIdentityLookupdMany(gammasId::GammaSliceType{NTO, T}, i_test_operators::Vector{<:Integer}, w::WorldType, relation::AbstractRelation, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,NTO,T,N} = begin
+		[computeModalThresholdWithIdentityLookup(gammasId, i_test_operator, w, relation, channel) for i_test_operator in i_test_operators]
+		# computeModalThresholdWithIdentityLookupDual(gammasId, w, i_test_operator)
 	end
 
 	# Avoid using already-computed propositional thresholds
-	# @inline computeModalThresholdDual(gammasId, test_operator::ModalLogic.TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
-	# 	ModalLogic.computeModalThresholdDual(test_operator, w, relation, channel)
-	# end
-	# @inline computeModalThreshold(gammasId, test_operator::ModalLogic.TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
-	# 	ModalLogic.computeModalThreshold(test_operator, w, relation, channel)
-	# end
-	# @inline computeModalThresholdMany(gammasId, test_operators::Vector{<:ModalLogic.TestOperator}, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
-	# 	ModalLogic.computeModalThresholdMany(test_operators, w, relation, channel)
-	# end
+	@inline computeModalThresholdDual(gammasId, test_operator::ModalLogic.TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+		ModalLogic.computeModalThresholdDual(test_operator, w, relation, channel)
+	end
+	@inline computeModalThreshold(gammasId, test_operator::ModalLogic.TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+		ModalLogic.computeModalThreshold(test_operator, w, relation, channel)
+	end
+	@inline computeModalThresholdMany(gammasId, test_operators::Vector{<:ModalLogic.TestOperator}, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+		ModalLogic.computeModalThresholdMany(test_operators, w, relation, channel)
+	end
 
 
 	# @inbounds for feature in 1:n_vars
@@ -406,18 +410,18 @@ function computeGammas(
 					for (mode,test_operator) in actual_test_operators
 						if mode == 0
 							# threshold = computeModalThreshold(gammasId, test_operator, w, relation, channel)
-							threshold = computeModalThreshold(gammasId, i_to, w, relation, channel)
+							threshold = computeModalThresholdWithIdentityLookup(gammasId, i_to, w, relation, channel)
 							setGammaSlice(cur_gammas, w, i_to, threshold)
 							i_to+=1
 						elseif mode == 1
 							# thresholds = computeModalThresholdDual(gammasId, test_operator, w, relation, channel)
-							thresholds = computeModalThresholdDual(gammasId, i_to, w, relation, channel)
+							thresholds = computeModalThresholdWithIdentityLookupDual(gammasId, i_to, w, relation, channel)
 							setGammaSlice(cur_gammas, w, i_to, thresholds[1])
 							setGammaSlice(cur_gammas, w, i_to+1, thresholds[2])
 							i_to+=2
 						elseif mode == 2
 							# thresholds = computeModalThresholdMany(gammasId, test_operator, w, relation, channel)
-							thresholds = computeModalThresholdMany(gammasId, collect(i_to:i_to+length(test_operator)-1), w, relation, channel)
+							thresholds = computeModalThresholWithIdentityLookupdMany(gammasId, collect(i_to:i_to+length(test_operator)-1), w, relation, channel)
 							for (i_t,threshold) in enumerate(thresholds)
 								setGammaSlice(cur_gammas, w, i_to+i_t-1, threshold)
 							end

@@ -346,6 +346,7 @@ KDDDataset_not_stratified((n_task,n_version),
 		audio_kwargs; ma_size = 1,
 		ma_step = 1,
 		max_points = -1,
+		use_full_mfcc = false,
 		# rng = Random.GLOBAL_RNG :: Random.AbstractRNG
 	) = begin
 	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
@@ -395,7 +396,7 @@ KDDDataset_not_stratified((n_task,n_version),
 		for folder in folders
 			cur_folder_timeseries = Array{Array{Array{Float64, 2}, 1}, 1}(undef, length(files_map[folder]))
 
-			# collect is necessary because the threads macro supports only arrays
+			# collect is necessary because the threads macro only supports arrays
 			# https://stackoverflow.com/questions/57633477/multi-threading-julia-shows-error-with-enumerate-iterator
 			Threads.@threads for (i_samples, samples) in collect(enumerate(files_map[folder]))
 				samples = 
@@ -407,9 +408,16 @@ KDDDataset_not_stratified((n_task,n_version),
 					end
 
 				cur_file_timeseries = Array{Array{Float64, 2}, 1}(undef, length(samples))
+				valid_i_filenames = []
 				for (i_filename, filename) in collect(enumerate(samples))
 					filepath = kdd_data_dir * "$filename"
-					ts = moving_average(wav2stft_time_series(filepath, audio_kwargs), ma_size, ma_step)
+					ts = wav2stft_time_series(filepath, audio_kwargs; use_full_mfcc = use_full_mfcc)
+					# Ignore instances with NaN (careful! this may leave with just a few instances)
+					# if any(isnan.(ts))
+					# 	@warn "Instance with NaN values was ignored"
+					# 	continue
+					# end
+					ts = moving_average(ts, ma_size, ma_step)
 					# Drop first point
 					ts = @views ts[:,2:end]
 					# println(size(ts))
@@ -420,9 +428,10 @@ KDDDataset_not_stratified((n_task,n_version),
 					# readline()
 					# println(size(wav2stft_time_series(filepath, audio_kwargs)))
 					cur_file_timeseries[i_filename] = ts
+					push!(valid_i_filenames, i_filename)
 					n_samples += 1
 				end
-				cur_folder_timeseries[i_samples] = cur_file_timeseries
+				cur_folder_timeseries[i_samples] = cur_file_timeseries[valid_i_filenames]
 				# break
 			end
 			append!(timeseries, [j for i in cur_folder_timeseries for j in i])
@@ -458,10 +467,10 @@ KDDDataset_not_stratified((n_task,n_version),
 
 	# println([size(ts, 1) for ts in timeseries])
 	max_timepoints = maximum(size(ts, 1) for ts in timeseries)
-	nfreqs = unique(size(ts, 2) for ts in timeseries)
-	@assert length(nfreqs) == 1 "KDDDataset: length(nfreqs) != 1: {$nfreqs} != 1"
-	nfreqs = nfreqs[1]
-	X = zeros((max_timepoints, length(timeseries), nfreqs))
+	n_unique_freqs = unique(size(ts, 2) for ts in timeseries)
+	@assert length(n_unique_freqs) == 1 "KDDDataset: length(n_unique_freqs) != 1: {$n_unique_freqs} != 1"
+	n_unique_freqs = n_unique_freqs[1]
+	X = zeros((max_timepoints, length(timeseries), n_unique_freqs))
 	for (i,ts) in enumerate(timeseries)
 		# println(size(ts))
 		X[1:size(ts, 1),i,:] = ts

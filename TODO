@@ -2,6 +2,7 @@
 
 
 ☐	computation of softened operators takes too much time (optimize at least <A> in the temporal case?)
+☐	rename gammas
 ☐	Add the use of an unbalanced test set, and allow ConfusionMatrix to compute the overall accuracy in a balanced way.
 ☐ Allow instances of different size
 ☐	Add IA7 relations: Complete by writing enumAccBare, enumAcc, enumAccRepr.

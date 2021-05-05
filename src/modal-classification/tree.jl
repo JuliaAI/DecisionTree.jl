@@ -391,12 +391,13 @@ module treeclassifier
 			Y                   :: AbstractVector{S},
 			W                   :: AbstractVector{U},
 			loss_function       :: Function,
-			max_features		:: Int,
+			max_features        :: Int,
 			max_depth           :: Int,
 			min_samples_leaf    :: Int,
 			min_loss_at_leaf    :: AbstractFloat,
 			min_purity_increase :: AbstractFloat) where {T, S, U, N}
 			n_instances, n_vars = n_samples(X), n_variables(X)
+
 		if length(Y) != n_instances
 			throw("dimension mismatch between X and Y ($(size(X.domain)) vs $(size(Y))")
 		elseif length(W) != n_instances
@@ -425,8 +426,19 @@ module treeclassifier
 				println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
 					* "(given $(min_purity_increase))")
 			end
+		# TODO make sure how nothing and NaN and infinite can be handled
 		elseif nothing in X.domain
-			throw("This algorithm doesn't allow nothing values.")
+			throw("Warning! This algorithm doesn't allow nothing values in X.domain")
+		elseif any(isnan.(X.domain)) # TODO make sure that this does its job.
+			throw("Warning! This algorithm doesn't allow NaN values in X.domain")
+		elseif nothing in Y
+			throw("Warning! This algorithm doesn't allow nothing values in Y")
+		elseif any(isnan.(Y))
+			throw("Warning! This algorithm doesn't allow NaN values in Y")
+		elseif nothing in W
+			throw("Warning! This algorithm doesn't allow nothing values in W")
+		elseif any(isnan.(W))
+			throw("Warning! This algorithm doesn't allow NaN values in W")
 		end
 	end
 

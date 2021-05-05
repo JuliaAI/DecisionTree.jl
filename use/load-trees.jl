@@ -1,4 +1,4 @@
-include("test-header.jl")
+include("scanner.jl")
 
 using FileIO
 

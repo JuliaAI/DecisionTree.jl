@@ -82,7 +82,7 @@ end
 
 merge_channels(samps) = vec(sum(samps, dims=2)/size(samps, 2))
 
-function wav2stft_time_series(filepath, kwargs)
+function wav2stft_time_series(filepath, kwargs; use_full_mfcc = false)
 	samps, sr = wavread(filepath)
 	samps = merge_channels(samps)
 
@@ -93,15 +93,13 @@ function wav2stft_time_series(filepath, kwargs)
 	# #window_f = (nwin)->tukey(nwin, 0.25)
 	# window_f = hamming
 
-	my_stft(samps, sr; kwargs...)
-	# my_stft(samps, sr,
-	# 	wintime=wintime, steptime=steptime,
-	# 	pre_emphasis=0.97,
-	# 	fbtype=:mel,
-	# 	nbands=40,
-	# 	sumpower=false, dither=false, bwidth=1.0,
-	# 	minfreq=0.0, maxfreq=sr/2,
-	# 	usecmp=false, window_f=window_f)
+	ts = if use_full_mfcc
+		mfcc(samps, sr; kwargs...)[1]'
+	else
+		my_stft(samps, sr; kwargs...)
+	end
+	# print(size(ts))
+	ts
 end
 
 # wav2stft_time_series(wav_example_filepath)
