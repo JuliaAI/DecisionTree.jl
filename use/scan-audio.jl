@@ -89,6 +89,7 @@ modal_args = (
 exec_test_operators = [ "TestOp", "TestOp_80" ]
 
 test_operators_dict = Dict(
+	"TestOp_70" => [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
 	"TestOp_80" => [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
 	"TestOp" => [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 )
@@ -111,7 +112,7 @@ round_dataset_to_datatype = false
 # - RF with:
 forest_args = []
 
-for n_trees in [5,10]
+for n_trees in [50,100]
 	for n_subfeatures in [id_f, half_f]
 		for n_subrelations in [id_f]
 			push!(forest_args, (
@@ -140,11 +141,11 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 10,
+							max_points = 30,
 							ma_size = 75,
 							ma_step = 50,
 						),(
-							max_points = 10,
+							max_points = 30,
 							ma_size = 45,
 							ma_step = 30,
 						)
@@ -160,7 +161,8 @@ exec_use_full_mfcc = [false]
 exec_preprocess_wavs = [
 	["Normalize"],
 	[],
-	["NG", "Normalize"]
+	# TODO: Make NoiseGate worke properly (currently there is a problem)
+#	["NG", "Normalize"]
 ]
 
 exec_ranges_dict = (
@@ -186,7 +188,7 @@ save_tree_path = results_dir * "/trees"
 
 column_separator = ";"
 
-save_datasets = false
+save_datasets = true
 just_produce_datasets_jld = false
 saved_datasets_path = results_dir * "/datasets"
 mkpath(saved_datasets_path)
@@ -211,7 +213,7 @@ exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_ranges, exec_ranges_names
 )
 
-just_test_filters = false
+just_test_filters = true
 iteration_whitelist = [
 	# FOR TESTING
 #	(
@@ -233,23 +235,23 @@ iteration_whitelist = [
 	(
 		n_version = 1,
 		nbands = 40,
-		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
 	),
 	(
 		n_version = 1,
 		nbands = 60,
-		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
 	),
 	# TASK 2
 	(
 		n_version = 2,
 		nbands = 20,
-		dataset_kwargs = (max_points = 10, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
 	),
 	(
 		n_version = 2,
 		nbands = 40,
-		dataset_kwargs = (max_points = 10, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
 	)
 ]
 

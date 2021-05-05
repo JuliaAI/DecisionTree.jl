@@ -325,7 +325,7 @@ function testDataset(
 
 	go_tree(tree_args, rng) = begin
 		started = Dates.now()
-		T, Tt = 
+		T =
 			if timeit == 0
 				build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng)
 			elseif timeit == 1
