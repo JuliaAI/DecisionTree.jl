@@ -417,7 +417,7 @@ module treeclassifier
 			throw("min_loss_at_leaf for loss $(loss_function) must be in (0,1]"
 				* "(given $(min_loss_at_leaf))")
 		end
-
+		
 		# TODO make sure how nothing and NaN and infinite can be handled
 		if nothing in X.domain
 			throw("Warning! This algorithm doesn't allow nothing values in X.domain")
