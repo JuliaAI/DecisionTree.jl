@@ -78,9 +78,13 @@ modal_args = (
 	useRelationId = true,
 	useRelationAll = false,
 	ontology = getIntervalOntologyOfDim(Val(1)),
-	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
+#	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
+	test_operators = [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
+	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 )
 
+
+preprocess_wavs = [ noise_gate!, normalize! ]
 
 # log_level = Logging.Warn
 log_level = DecisionTree.DTOverview
@@ -100,19 +104,19 @@ round_dataset_to_datatype = false
 # - RF with:
 forest_args = []
 
-# for n_trees in [1,50,100]
-# 	for n_subfeatures in [id_f, sqrt_f]
-# 		for n_subrelations in [id_f, sqrt_f]
-# 			push!(forest_args, (
-# 				n_subfeatures       = n_subfeatures,
-# 				n_trees             = n_trees,
-# 				partial_sampling    = 1.0,
-# 				n_subrelations      = n_subrelations,
-# 				forest_tree_args...
-# 			))
-# 		end
-# 	end
-# end
+for n_trees in [1,50,100]
+	for n_subfeatures in [id_f, sqrt_f]
+		for n_subrelations in [id_f, sqrt_f]
+			push!(forest_args, (
+				n_subfeatures       = n_subfeatures,
+				n_trees             = n_trees,
+				partial_sampling    = 1.0,
+				n_subrelations      = n_subrelations,
+				forest_tree_args...
+			))
+		end
+	end
+end
 
 split_threshold = 0.8
 
@@ -136,10 +140,10 @@ exec_dataset_kwargs =   [(
 							max_points = 30,
 							ma_size = 45,
 							ma_step = 30,
-						),(
-							max_points = 30,
-							ma_size = 25,
-							ma_step = 15,
+#						),(
+#							max_points = 30,
+#							ma_size = 25,
+#							ma_step = 15,
 						)
 						]
 exec_use_full_mfcc = [false, true]
@@ -160,23 +164,23 @@ save_tree_path = results_dir * "/trees"
 
 column_separator = ";"
 
-save_datasets = true
+save_datasets = false
 just_produce_datasets_jld = false
 saved_datasets_path = results_dir * "/datasets"
 mkpath(saved_datasets_path)
 
 if "-f" in ARGS
 	if isfile(iteration_progress_json_file_path)
-		println("Removing existing $(iteration_progress_json_file_path)...")
-		rm(iteration_progress_json_file_path)
+		println("Backing up existing $(iteration_progress_json_file_path)...")
+		backup_file_using_creation_date(iteration_progress_json_file_path)
 	end
 	if isfile(concise_output_file_path)
-		println("Removing existing $(concise_output_file_path)...")
-		rm(concise_output_file_path)
+		println("Backing up existing $(concise_output_file_path)...")
+		backup_file_using_creation_date(concise_output_file_path)
 	end
 	if isfile(full_output_file_path)
-		println("Removing existing $(full_output_file_path)...")
-		rm(full_output_file_path)
+		println("Backing up existing $(full_output_file_path)...")
+		backup_file_using_creation_date(full_output_file_path)
 	end
 end
 
@@ -202,43 +206,28 @@ iteration_whitelist = [
 #		nbands = 20,
 #		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50),
 #	),
-	# TASK 1
-	# (
-	# 	n_version = 1,
-	# 	nbands = 40,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 25, ma_step = 15)
-	# ),
-	# (
-	# 	n_version = 1,
-	# 	nbands = 60,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	# ),
-	# (
-	# 	n_version = 1,
-	# 	nbands = 60,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	# ),
-	# # TASK 2
-	# (
-	# 	n_version = 2,
-	# 	nbands = 20,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	# ),
-	# (
-	# 	n_version = 2,
-	# 	nbands = 20,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	# ),
-	# (
-	# 	n_version = 2,
-	# 	nbands = 40,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	# ),
-	# (
-	# 	n_version = 2,
-	# 	nbands = 40,
-	# 	dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	# ),
+#	TASK 1
+	(
+		n_version = 1,
+		nbands = 40,
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	),
+	(
+		n_version = 1,
+		nbands = 60,
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+	),
+	# TASK 2
+	(
+		n_version = 2,
+		nbands = 20,
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	),
+	(
+		n_version = 2,
+		nbands = 40,
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+	)
 ]
 
 iteration_blacklist = []
@@ -260,16 +249,17 @@ print_head(full_output_file_path, tree_args, forest_args, separator = column_sep
 #	5 => 1107158645723204584
 #)
 
+
+
 # RUN
 for i in exec_runs
-	rng = spawn_rng(main_rng)
 	dataset_seed = i
+	train_seed = i
+
 	println("DATA SEED: $(dataset_seed)")
 
 	for params_combination in IterTools.product(exec_ranges...)
 		# Unpack params combination
-		println(params_combination)
-
 		params_namedtuple = (zip(map(Symbol, exec_ranges_names), params_combination) |> Dict |> namedtuple)
 
 		# FILTER ITERATIONS
@@ -282,7 +272,6 @@ for i in exec_runs
 		done = is_combination_already_computed(exec_dicts, exec_ranges_names, params_combination, i)
 
 		dataset_rng = Random.MersenneTwister(dataset_seed)
-		train_rng = spawn_rng(rng)
 
 		row_ref = string(
 			string(dataset_seed),
@@ -295,6 +284,7 @@ for i in exec_runs
 		if just_test_filters
 			continue
 		end
+		println(params_combination)
 
 		if done && !just_produce_datasets_jld
 			println("Iteration $(params_combination) already done, skipping...")
@@ -351,7 +341,7 @@ for i in exec_runs
 			else
 				checkpoint_stdout("Creating dataset...")
 				# TODO wrap dataset creation into a function accepting the rng and other parameters...
-				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., use_full_mfcc = use_full_mfcc) # , rng = dataset_rng)
+				dataset, n_pos, n_neg = KDDDataset_not_stratified((n_task,n_version), cur_audio_kwargs; dataset_kwargs..., preprocess_wavs = preprocess_wavs, use_full_mfcc = use_full_mfcc) # , rng = dataset_rng)
 				n_per_class = min(n_pos, n_neg)
 				# using Random
 				# n_pos = 10
@@ -395,7 +385,7 @@ for i in exec_runs
 					dataset,
 					split_threshold,
 					log_level                   =   log_level,
-					round_dataset_to_datatype               =   round_dataset_to_datatype,
+					round_dataset_to_datatype   =   round_dataset_to_datatype,
 					dataset_slice               =   dataset_slice,
 					forest_args                 =   forest_args,
 					tree_args                   =   tree_args,
@@ -406,9 +396,9 @@ for i in exec_runs
 					forest_runs                 =   forest_runs,
 					gammas_save_path            =   (gammas_save_path, dataset_name_str),
 					save_tree_path              =   save_tree_path,
-					rng                         =   train_rng,
-					timeit                      =   timeit,
-					);
+					train_seed                  =   train_seed,
+					timeit                      =   timeit
+				);
 		#####################################################
 		# PRINT RESULT IN FILES
 		#####################################################

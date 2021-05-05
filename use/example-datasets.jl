@@ -347,6 +347,7 @@ KDDDataset_not_stratified((n_task,n_version),
 		ma_step = 1,
 		max_points = -1,
 		use_full_mfcc = false,
+		preprocess_wavs = [],
 		# rng = Random.GLOBAL_RNG :: Random.AbstractRNG
 	) = begin
 	@assert n_task in [1,2,3] "KDDDataset: invalid n_task: {$n_task}"
@@ -411,7 +412,7 @@ KDDDataset_not_stratified((n_task,n_version),
 				valid_i_filenames = []
 				for (i_filename, filename) in collect(enumerate(samples))
 					filepath = kdd_data_dir * "$filename"
-					ts = wav2stft_time_series(filepath, audio_kwargs; use_full_mfcc = use_full_mfcc)
+					ts = wav2stft_time_series(filepath, audio_kwargs; preprocess_sample = preprocess_wavs, use_full_mfcc = use_full_mfcc)
 					# Ignore instances with NaN (careful! this may leave with just a few instances)
 					# if any(isnan.(ts))
 					# 	@warn "Instance with NaN values was ignored"

@@ -100,7 +100,7 @@ function testDataset(
 		dataset                         ::Tuple,
 		split_threshold                 ::Union{Bool,AbstractFloat};
 		log_level                       = DecisionTree.DTOverview,
-		round_dataset_to_datatype           ::Union{Bool,Type} = false,
+		round_dataset_to_datatype       ::Union{Bool,Type} = false,
 		post_pruning_purity_thresholds  = [],
 		forest_args                     = [],
 		tree_args                       = [],
@@ -113,10 +113,10 @@ function testDataset(
 		save_tree_path                  ::Union{String,Nothing} = nothing,
 		dataset_slice                   ::Union{AbstractVector,Nothing} = nothing,
 		error_catching                  = false,
-		rng                             = my_rng(),
+		train_seed                      ::Integer = 1,
 		timeit                          ::Integer = 0,
 	)
-	println("Benchmarking dataset '$name'...")
+	println("Benchmarking dataset '$name' (train_seed = $(train_seed))...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
 
 	calculateGammas(modal_args, X_all_d) = begin
@@ -335,7 +335,7 @@ function testDataset(
 		""
 	end
 
-	go_tree(tree_args) = begin
+	go_tree(tree_args, rng) = begin
 		T = 
 			if timeit == 0
 				build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng);
@@ -379,7 +379,7 @@ function testDataset(
 		return (T, cm);
 	end
 
-	go_forest(f_args; prebuilt_model::Union{Nothing,AbstractVector{DecisionTree.Forest{S, T}}} = nothing) where {S,T} = begin
+	go_forest(f_args, rng; prebuilt_model::Union{Nothing,AbstractVector{DecisionTree.Forest{S, T}}} = nothing) where {S,T} = begin
 		Fs = 
 			if isnothing(prebuilt_model)
 				[
@@ -445,7 +445,7 @@ function testDataset(
 
 		for (i_model, this_args) in enumerate(tree_args)
 			checkpoint_stdout("Computing Tree $(i_model) / $(length(tree_args))...")
-			this_T, this_Tcm = go_tree(this_args)
+			this_T, this_Tcm = go_tree(this_args, Random.MersenneTwister(train_seed))
 			push!(Ts, this_T)
 			push!(Tcms, this_Tcm)
 		end
@@ -501,7 +501,7 @@ function testDataset(
 					model = model.f
 				end
 
-				forest_supports_build_order[i].f, forest_supports_build_order[i].cm = go_forest(f.f_args, prebuilt_model = model)
+				forest_supports_build_order[i].f, forest_supports_build_order[i].cm = go_forest(f.f_args, Random.MersenneTwister(train_seed), prebuilt_model = model)
 			end
 
 			# put resulting forests in vector in the order the user gave them
@@ -518,7 +518,7 @@ function testDataset(
 		else
 			for (i_forest, f_args) in enumerate(forest_args)
 				checkpoint_stdout("Computing Random Forest $(i_forest) / $(length(forest_args))...")
-				this_F, this_Fcm = go_forest(f_args)
+				this_F, this_Fcm = go_forest(f_args, Random.MersenneTwister(train_seed))
 				push!(Fs, this_F)
 				push!(Fcms, this_Fcm)
 			end
