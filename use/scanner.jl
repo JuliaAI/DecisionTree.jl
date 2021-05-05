@@ -59,31 +59,6 @@ function will_produce_same_forest_with_different_number_of_trees(f1::ForestEvalu
 	true
 end
 
-
-# TODO note that these splitting functions simply cut the dataset in two,
-#  and they don't necessarily produce balanced cuts. To produce balanced cuts,
-#  one must manually stratify the dataset beforehand
-traintestsplit((X,Y)::Tuple{MatricialDataset{D,N},AbstractVector{String}}, split_threshold::AbstractFloat; gammas = nothing, worldType = nothing, is_balanced = true) where {D,N} = begin
-	num_instances = length(Y)
-	spl = ceil(Int, num_instances*split_threshold)
-	# In the binary case, make it even
-	if length(unique(Y)) == 2 && is_balanced
-		spl = isodd(spl) ? (spl-1) : spl
-	end
-	X_train = ModalLogic.sliceDomainByInstances(X, 1:spl)
-	Y_train = Y[1:spl]
-	gammas_train = 
-		if isnothing(gammas) # || isnothing(worldType)
-			gammas
-		else
-			DecisionTree.sliceGammasByInstances(worldType, gammas, 1:spl; return_view = true)
-		end
-	X_test  = ModalLogic.sliceDomainByInstances(X, spl+1:num_instances)
-	Y_test  = Y[spl+1:end]
-	(X_train,Y_train), (X_test,Y_test), gammas_train
-	# end
-end
-
 import Dates
 
 function checkpoint_stdout(string::String)
@@ -91,7 +66,8 @@ function checkpoint_stdout(string::String)
 	flush(stdout)
 end
 
-include("example-datasets.jl")
+include("datasets.jl")
+include("dataset-utils.jl")
 
 #gammas_saving_task = nothing
 

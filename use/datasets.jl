@@ -8,36 +8,6 @@ include("wav2stft_time_series.jl")
 # Generate a new rng from a random pick from a given one.
 spawn_rng(rng) = Random.MersenneTwister(abs(rand(rng, Int)))
 
-# Scale and round dataset to fit into a certain datatype's range:
-# For integers: find minimum and maximum (ignoring Infs), and rescale the dataset
-# For floating-point, numbers, round
-# TODO roundDataset 
-roundDataset((X,Y)::Tuple, type::Type = UInt8) = (mapArrayToDataType(type, X),Y)
-roundDataset(((X_train,Y_train),(X_test,Y_test))::Tuple, type::Type = UInt8) = begin
-	X_train, X_test = mapArrayToDataType(type, (X_train, X_test))
-	(X_train,Y_train),(X_test,Y_test)
-end
-
-mapArrayToDataType(type::Type{<:Integer}, array::AbstractArray; minVal = minimum(array), maxVal = maximum(array)) = begin
-	normalized_array = (array.-minVal)./(maxVal-minVal)
-	typemin(type) .+ round.(type, (big(typemax(type))-big(typemin(type)))*normalized_array)
-end
-
-mapArrayToDataType(type::Type{<:Integer}, arrays::Tuple) = begin
-	minVal, maxVal = minimum(minimum.(array)), maximum(maximum.(array))
-	map((array)->mapArrayToDataType(type,array), arrays; minVal = minVal, maxVal = maxVal)
-end
-
-mapArrayToDataType(type::Type{<:AbstractFloat}, array::AbstractArray) = begin
-	# TODO worry about eps of the target type and the magnitude of values in array
-	#  (and eventually scale up or down the array). Also change mapArrayToDataType(type, Xs::Tuple) then
-	type.(array)
-end
-
-mapArrayToDataType(type::Type{<:AbstractFloat}, arrays::Tuple) = begin
-	map((array)->mapArrayToDataType(type,array), arrays)
-end
-
 SplatEduardDataset(N) = begin
 
 	readDataset(filepath::String, ::Val{N}) where {N} = open(filepath, "r") do io
