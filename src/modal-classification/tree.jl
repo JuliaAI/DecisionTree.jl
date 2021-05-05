@@ -416,18 +416,10 @@ module treeclassifier
 		elseif loss_function in [util.gini, util.zero_one] && (min_loss_at_leaf > 1.0 || min_loss_at_leaf <= 0.0)
 			throw("min_loss_at_leaf for loss $(loss_function) must be in (0,1]"
 				* "(given $(min_loss_at_leaf))")
-		elseif loss_function in [util.entropy]
-			min_loss_at_leaf_thresh = 0.75 # min_purity_increase 0.01
-			min_purity_increase_thresh = 0.5
-			if (min_loss_at_leaf >= min_loss_at_leaf_thresh)
-				println("Warning! It is advised to use min_loss_at_leaf<$(min_loss_at_leaf_thresh) with loss $(loss_function)"
-					* "(given $(min_loss_at_leaf))")
-			elseif (min_purity_increase >= min_purity_increase_thresh)
-				println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
-					* "(given $(min_purity_increase))")
-			end
+		end
+
 		# TODO make sure how nothing and NaN and infinite can be handled
-		elseif nothing in X.domain
+		if nothing in X.domain
 			throw("Warning! This algorithm doesn't allow nothing values in X.domain")
 		elseif any(isnan.(X.domain)) # TODO make sure that this does its job.
 			throw("Warning! This algorithm doesn't allow NaN values in X.domain")
@@ -440,6 +432,17 @@ module treeclassifier
 		elseif any(isnan.(W))
 			throw("Warning! This algorithm doesn't allow NaN values in W")
 		end
+
+		# if loss_function in [util.entropy]
+		# 	min_loss_at_leaf_thresh = 0.75 # min_purity_increase 0.01
+		# 	min_purity_increase_thresh = 0.5
+		# 	if (min_loss_at_leaf >= min_loss_at_leaf_thresh)
+		# 		println("Warning! It is advised to use min_loss_at_leaf<$(min_loss_at_leaf_thresh) with loss $(loss_function)"
+		# 			* "(given $(min_loss_at_leaf))")
+		# 	elseif (min_purity_increase >= min_purity_increase_thresh)
+		# 		println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
+		# 			* "(given $(min_purity_increase))")
+		# end
 	end
 
 	function optimize_tree_parameters!(
