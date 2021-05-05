@@ -425,8 +425,9 @@ module treeclassifier
 			throw("Warning! This algorithm doesn't allow NaN values in X.domain")
 		elseif nothing in Y
 			throw("Warning! This algorithm doesn't allow nothing values in Y")
-		elseif any(isnan.(Y))
-			throw("Warning! This algorithm doesn't allow NaN values in Y")
+		# This check in not necessary anymore
+		#elseif any(isnan.(Y))
+		#	throw("Warning! This algorithm doesn't allow NaN values in Y")
 		elseif nothing in W
 			throw("Warning! This algorithm doesn't allow nothing values in W")
 		elseif any(isnan.(W))
