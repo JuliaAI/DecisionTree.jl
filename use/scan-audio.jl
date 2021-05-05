@@ -79,10 +79,19 @@ modal_args = (
 	useRelationAll = false,
 	ontology = getIntervalOntologyOfDim(Val(1)),
 #	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
-	test_operators = [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
-	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+#	test_operators = [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
+#	test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
 )
 
+# https://github.com/JuliaIO/JSON.jl/issues/203
+# https://discourse.julialang.org/t/json-type-serialization/9794
+# TODO: make test operators types serializable
+exec_test_operators = [ "TestOp", "TestOp_80" ]
+
+test_operators_dict = Dict(
+	"TestOp" => [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	"TestOp_80" => [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80]
+)
 
 preprocess_wavs = [ noise_gate!, normalize! ]
 
@@ -104,19 +113,19 @@ round_dataset_to_datatype = false
 # - RF with:
 forest_args = []
 
-for n_trees in [1,50,100]
-	for n_subfeatures in [id_f, sqrt_f]
-		for n_subrelations in [id_f, sqrt_f]
-			push!(forest_args, (
-				n_subfeatures       = n_subfeatures,
-				n_trees             = n_trees,
-				partial_sampling    = 1.0,
-				n_subrelations      = n_subrelations,
-				forest_tree_args...
-			))
-		end
-	end
-end
+#for n_trees in [1,50,100]
+#	for n_subfeatures in [id_f, sqrt_f]
+#		for n_subrelations in [id_f, sqrt_f]
+#			push!(forest_args, (
+#				n_subfeatures       = n_subfeatures,
+#				n_trees             = n_trees,
+#				partial_sampling    = 1.0,
+#				n_subrelations      = n_subrelations,
+#				forest_tree_args...
+#			))
+#		end
+#	end
+#end
 
 split_threshold = 0.8
 
@@ -133,11 +142,11 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 30,
+							max_points = 10,
 							ma_size = 75,
 							ma_step = 50,
 						),(
-							max_points = 30,
+							max_points = 10,
 							ma_size = 45,
 							ma_step = 30,
 #						),(
@@ -146,10 +155,11 @@ exec_dataset_kwargs =   [(
 #							ma_step = 15,
 						)
 						]
-exec_use_full_mfcc = [false, true]
 
-exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs, exec_use_full_mfcc]
-exec_ranges_names = ["n_task", "n_version", "nbands", "dataset_kwargs", "use_full_mfcc"]
+exec_use_full_mfcc = [true, false]
+
+exec_ranges = [exec_n_tasks, exec_n_versions, exec_nbands, exec_dataset_kwargs, exec_use_full_mfcc, exec_test_operators ]
+exec_ranges_names = ["n_task", "n_version", "nbands", "dataset_kwargs", "use_full_mfcc", "test_operators" ]
 
 forest_runs = 5
 optimize_forest_computation = true
@@ -207,27 +217,27 @@ iteration_whitelist = [
 #		dataset_kwargs = (max_points = 10, ma_size = 75, ma_step = 50),
 #	),
 #	TASK 1
-	(
-		n_version = 1,
-		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	),
-	(
-		n_version = 1,
-		nbands = 60,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
-	),
-	# TASK 2
-	(
-		n_version = 2,
-		nbands = 20,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	),
-	(
-		n_version = 2,
-		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
-	)
+#	(
+#		n_version = 1,
+#		nbands = 40,
+#		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+#	),
+#	(
+#		n_version = 1,
+#		nbands = 60,
+#		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+#	),
+#	# TASK 2
+#	(
+#		n_version = 2,
+#		nbands = 20,
+#		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+#	),
+#	(
+#		n_version = 2,
+#		nbands = 40,
+#		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+#	)
 ]
 
 iteration_blacklist = []
@@ -291,7 +301,7 @@ for i in exec_runs
 			continue
 		end
 		#####################################################
-		n_task, n_version, nbands, dataset_kwargs, use_full_mfcc = params_combination
+		n_task, n_version, nbands, dataset_kwargs, use_full_mfcc, test_operators = params_combination
 
 		# LOAD DATASET
 		dataset_file_name = saved_datasets_path * "/" * row_ref
@@ -389,7 +399,7 @@ for i in exec_runs
 					dataset_slice               =   dataset_slice,
 					forest_args                 =   forest_args,
 					tree_args                   =   tree_args,
-					modal_args                  =   modal_args,
+					modal_args                  =   merge(modal_args, (test_operators = test_operators_dict[test_operators],)),
 					test_flattened              =   test_flattened,
 					precompute_gammas           =   precompute_gammas,
 					optimize_forest_computation =   optimize_forest_computation,

@@ -426,8 +426,9 @@ module treeclassifier
 				println("Warning! It is advised to use min_loss_at_leaf<$(min_purity_increase_thresh) with loss $(loss_function)"
 					* "(given $(min_purity_increase))")
 			end
+		end
 		# TODO make sure how nothing and NaN and infinite can be handled
-		elseif nothing in X.domain
+		if nothing in X.domain
 			throw("Warning! This algorithm doesn't allow nothing values in X.domain")
 		elseif any(isnan.(X.domain)) # TODO make sure that this does its job.
 			throw("Warning! This algorithm doesn't allow NaN values in X.domain")
