@@ -216,6 +216,24 @@ channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain
 
 include("testOperators.jl")
 
+display_propositional_test(test_operator::TestOperator, lhs::String, featval::Number) =
+	"$(lhs) $(test_operator) $(featval)"
+
+display_modal_test(modality::AbstractRelation, test_operator::TestOperator, featid::Integer, featval::Number) = begin
+	test = display_propositional_test(test_operator, "V$(featid)", featval)
+	if modality != RelationId
+		"$(display_existential_modality(modality)) ($test)"
+	else
+		"$test"
+	end
+end
+
+################################################################################
+################################################################################
+
+show(io::IO, r::AbstractRelation) = print(io, display_existential_modality(r))
+display_existential_modality(r) = "⟨" * display_rel_short(r) * "⟩"
+
 # Utility type for enhanced computation of thresholds
 abstract type _ReprTreatment end
 struct _ReprFake{worldType<:AbstractWorld} <: _ReprTreatment w :: worldType end
@@ -224,13 +242,12 @@ struct _ReprMin{worldType<:AbstractWorld}  <: _ReprTreatment w :: worldType end
 struct _ReprVal{worldType<:AbstractWorld}  <: _ReprTreatment w :: worldType end
 struct _ReprNone{worldType<:AbstractWorld} <: _ReprTreatment end
 
-
 ## Enumerate accessible worlds
 
 # Fallback: enumAccessibles works with domains AND their dimensions
 enumAccessibles(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAccessibles(S, r, size(channel)...)
 enumAccRepr(S::Any, r::AbstractRelation, channel::MatricialChannel{T,N}) where {T,N} = enumAccRepr(S, r, size(channel)...)
-# Fallback: enumAccessibles for world sets maps to enumAccessibles-ing their elements
+# Fallback: enumAccessibles for world sets maps to enumAcc-ing their elements
 #  (note: one may overload this function to provide improved implementations for special cases (e.g. <L> of a world set in interval algebra))
 enumAccessibles(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg{Integer,N}) where {T,N,WorldType<:AbstractWorld} = begin
 	IterTools.imap(WorldType,
@@ -238,27 +255,55 @@ enumAccessibles(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg
 	)
 end
 
-# Ontology-agnostic relations:
-# - None relation      (RelationNone)  =  Used as the "nothing" constant
-# - Identity relation  (RelationId)    =  S -> S
-# - Universal relation (RelationAll)   =  S -> all-worlds
+## Basic, ontology-agnostic relations:
+
+# None relation      (RelationNone)  =  Used as the "nothing" constant
 struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
+
+# Identity relation  (RelationId)    =  S -> S
 struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId();
-struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
-enumAccessibles(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
+enumAccessibles(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w] # IterTools.imap(identity, [w])
 enumAccessibles(S::AbstractWorldSet{W}, ::_RelationId, XYZ::Vararg{Integer,N}) where {W<:AbstractWorld,N} = S # TODO try IterTools.imap(identity, S) ?
-# Maybe this will have a use: enumAccessiblesW1(w::AbstractWorld, ::_RelationId,   X::Integer) where T = [w] # IterTools.imap(identity, [w])
 
-# TODO parametrize on test operator (any test operator in this case)
-enumAccRepr(w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
-computeModalThresholdDual(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-	computePropositionalThresholdDual(test_operator, w, channel)
-computeModalThreshold(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
-	computePropositionalThreshold(test_operator, w, channel)
+enumAccRepr(::_TestOpGeq, w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = _ReprMin(w)
+enumAccRepr(::_TestOpLeq, w::WorldType, ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = _ReprMax(w)
+
+# computeModalThresholdDual(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	computePropositionalThresholdDual(test_operator, w, channel)
+# computeModalThreshold(test_operator::TestOperator, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	computePropositionalThreshold(test_operator, w, channel)
+# computeModalThresholdMany(test_ops::Vector{<:TestOperator}, w::WorldType, relation::_RelationId, channel::MatricialChannel{T,N}) where {WorldType<:AbstractWorld,T,N} =
+# 	computeModalThresholdMany(test_ops, w, channel)
 
 display_rel_short(::_RelationId)  = "Id"
+
+# Global relation    (RelationAll)   =  S -> all-worlds
+struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
+
 display_rel_short(::_RelationAll) = ""
+
+################################################################################
+################################################################################
+
+minExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(min(fst,f),max(snd,s)), extr; init=(typemax(T),typemin(T)))
+maxExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(max(fst,f),min(snd,s)), extr; init=(typemin(T),typemax(T)))
+minExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = minExtrema(extr)
+maxExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = maxExtrema(extr)
+
+include("OneWorld.jl")
+# include("Point.jl")
+
+include("Interval.jl")
+include("IARelations.jl")
+include("TopoRelations.jl")
+
+include("Interval2D.jl")
+include("IA2DRelations.jl")
+include("Topo2DRelations.jl")
+
+################################################################################
+################################################################################
 
 # TODO
 # A relation can be defined as a union of other relations.
@@ -274,10 +319,12 @@ struct _UnionOfRelations{T<:NTuple{N,<:AbstractRelation} where N} <: AbstractRel
 # 	computePropositionalThreshold(test_operator, w, channel)
 # 	fieldtypes(relsTuple)
 
+################################################################################
+################################################################################
 
 # Perform the modal step, that is, evaluate a modal formula
 #  on a domain, and eventually compute the new world set.
-# TODO perhaps fastMode never needed, figure out
+# TODO write better
 modalStep(S::WorldSetType,
 					relation::R,
 					channel::AbstractArray{T,N},
@@ -315,27 +362,6 @@ end
 
 ################################################################################
 ################################################################################
-################################################################################
-
-show(io::IO, r::AbstractRelation) = print(io, display_existential_modality(r))
-display_existential_modality(r) = "⟨" * display_rel_short(r) * "⟩"
-
-minExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(min(fst,f),max(snd,s)), extr; init=(typemax(T),typemin(T)))
-maxExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(max(fst,f),min(snd,s)), extr; init=(typemin(T),typemax(T)))
-minExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = minExtrema(extr)
-maxExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = maxExtrema(extr)
-
-include("OneWorld.jl")
-# include("Point.jl")
-
-include("Interval.jl")
-include("IARelations.jl")
-include("TopoRelations.jl")
-
-include("Interval2D.jl")
-include("IA2DRelations.jl")
-include("Topo2DRelations.jl")
-
 
 export genericIntervalOntology,
 				IntervalOntology,

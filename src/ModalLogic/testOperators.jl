@@ -239,15 +239,3 @@ const all_test_operators_order = [
 sort_test_operators!(x::Vector{TO}) where {TO<:TestOperator} = begin
 	intersect(all_test_operators_order, x)
 end
-
-display_propositional_test(test_operator::TestOperator, lhs::String, featval::Number) =
-	"$(lhs) $(test_operator) $(featval)"
-
-display_modal_test(modality::AbstractRelation, test_operator::TestOperator, featid::Integer, featval::Number) = begin
-	test = display_propositional_test(test_operator, "V$(featid)", featval)
-	if modality != RelationId
-		"$(display_existential_modality(modality)) ($test)"
-	else
-		"$test"
-	end
-end

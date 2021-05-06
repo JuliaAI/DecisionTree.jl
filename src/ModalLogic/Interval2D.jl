@@ -43,8 +43,6 @@ yieldRepr(test_operator::_TestOpGeq, repr::_ReprNone{Interval2D}, channel::Matri
 yieldRepr(test_operator::_TestOpLeq, repr::_ReprNone{Interval2D}, channel::MatricialChannel{T,2}) where {T} =
 	typemax(T)::T
 
-enumAccRepr(test_operator::_TestOpGeq, w::Interval2D, ::_RelationId,  X::Integer, Y::Integer) = _ReprMin(w)
-enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, ::_RelationId,  X::Integer, Y::Integer) = _ReprMax(w)
 enumAccRepr(test_operator::_TestOpGeq, w::Interval2D, ::_RelationAll, X::Integer, Y::Integer) = _ReprMax(Interval2D(Interval(1,X+1), Interval(1,Y+1)))
 enumAccRepr(test_operator::_TestOpLeq, w::Interval2D, ::_RelationAll, X::Integer, Y::Integer) = _ReprMin(Interval2D(Interval(1,X+1), Interval(1,Y+1)))
 
