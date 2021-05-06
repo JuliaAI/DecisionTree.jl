@@ -87,7 +87,7 @@ module treeclassifier
 							gammas              :: GammaType{NTO, T},
 							# TODO Ef                  :: AbstractArray{T},
 							
-							relationSet         :: Vector{<:ModalLogic.AbstractRelation},
+							relationSet         :: Vector{<:AbstractRelation},
 							relation_ids        :: AbstractVector{Int},
 							rng                 :: Random.AbstractRNG,
 							) where {WorldType<:AbstractWorld, T, U, N, M, NTO, L}  # WT<:X.ontology.worldType
@@ -211,7 +211,7 @@ module treeclassifier
 					thresholdDomain = setdiff(Set(thresholdArr),Set([typemin(T), typemax(T)]))
 					# Look for thresholdArr 'a' for the propositions like "feature >= a"
 					for threshold in thresholdDomain
-						@logmsg DTDebug " Testing condition: $(ModalLogic.display_modal_test(relation, test_operator, feature, threshold))"
+						@logmsg DTDebug " Testing condition: $(display_modal_test(relation, test_operator, feature, threshold))"
 						# Re-initialize right class counts
 						nr = zero(U)
 						ncr[:] .= zero(U)
@@ -290,7 +290,7 @@ module treeclassifier
 				unsatisfied_flags[i] = !satisfied # I'm using unsatisfied because then sorting puts YES instances first but TODO use the inverse sorting and use satisfied flag instead
 			end
 
-			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
+			@logmsg DTOverview " Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
 
 			@logmsg DTDetail " unsatisfied_flags" unsatisfied_flags
 
@@ -298,7 +298,7 @@ module treeclassifier
 			# TODO bring back if best_unsatisfied != unsatisfied_flags || best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 			if best_nl != n_instances-sum(unsatisfied_flags) || length(unique(unsatisfied_flags)) == 1
 				errStr = "Something's wrong with the optimization steps.\n"
-				errStr *= "Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(ModalLogic.display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
+				errStr *= "Branch ($(sum(unsatisfied_flags))+$(n_instances-sum(unsatisfied_flags))=$(n_instances) samples) on condition: $(display_modal_test(best_relation, best_test_operator, best_feature, best_threshold)), purity $(best_purity)"
 				if length(unique(unsatisfied_flags)) == 1
 					errStr *= "Uninformative split.\n$(unsatisfied_flags)\n"
 				end

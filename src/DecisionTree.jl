@@ -173,7 +173,7 @@ function print_tree(tree::DTInternal, depth=-1, indent=0, indent_guides=[]; n_to
 				return
 		end
 
-		println(ModalLogic.display_modal_test(tree.modality, tree.test_operator, tree.featid, tree.featval)) # TODO print purity?
+		println(display_modal_test(tree.modality, tree.test_operator, tree.featid, tree.featval)) # TODO print purity?
 		# indent_str = " " ^ indent
 		indent_str = reduce(*, [i == 1 ? "│" : " " for i in indent_guides])
 		# print(indent_str * "╭✔")

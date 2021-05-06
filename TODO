@@ -2,8 +2,8 @@
 ☐	Write optimized ArrayOfOnes struct for W. Someone did this already and it looks ok: https://github.com/emmt/StructuredArrays.jl . Also try: https://github.com/JuliaArrays/FillArrays.jl
 ☐	Support for dataframes, as opposed to MatricialDatasets (this allows instances of different size)
 ☐	Maybe there is an implementation of multi-dimensional array where one can specify that along one axis subArrays have non-uniform size?! https://juliaarrays.github.io/ArraysOfArrays.jl/stable/ https://github.com/JuliaArrays/BlockArrays.jl
-☐	clean ModalLogic.jl
-☐	Fix naming style (e.g. variables, etc. Order of struct's members)
+✔	clean ModalLogic.jl @done (21-05-06 12:55)
+☐	Fix naming style (e.g. variables/features/attributes, etc. Order of struct's members)
 ✔	timeit -> symbol @done (21-05-06 10:51)
 ☐	dataset-loading functions should tell about how they balanced, and how they randomized
 ☐	Check whether \@propagate_inbounds, \@inbounds improves performances https://github.com/JuliaLang/julia/issues/39340
