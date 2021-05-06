@@ -86,7 +86,7 @@ modal_args = (
 # https://github.com/JuliaIO/JSON.jl/issues/203
 # https://discourse.julialang.org/t/json-type-serialization/9794
 # TODO: make test operators types serializable
-exec_test_operators = [ "TestOp", "TestOp_80" ]
+exec_test_operators = [ "TestOp_80" ]
 
 test_operators_dict = Dict(
 	"TestOp_70" => [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
@@ -213,7 +213,7 @@ exec_dicts = load_or_create_execution_progress_dictionary(
 	iteration_progress_json_file_path, exec_ranges, exec_ranges_names
 )
 
-just_test_filters = true
+just_test_filters = false
 iteration_whitelist = [
 	# FOR TESTING
 #	(
