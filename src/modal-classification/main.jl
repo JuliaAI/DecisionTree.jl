@@ -111,12 +111,7 @@ function build_tree(
 		rng                 = rng)
 
 	root = _convert(t.root, t.list, Y[t.labels])
-	# TODO remove This is in order to restore full compatibility with the rest of the package
-	if initCondition == startWithRelationAll && X.ontology == ModalLogic.getIntervalOntologyOfDim(Val(N))
-		root
-	else
-		DTree{T, String}(root, X.ontology.worldType, initCondition)
-	end
+	DTree{T, String}(root, X.ontology.worldType, initCondition)
 end
 
 # TODO fix this using specified purity
