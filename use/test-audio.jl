@@ -21,10 +21,10 @@ modal_args = (
 	useRelationId = true,
 	useRelationAll = false,
 	ontology = getIntervalOntologyOfDim(Val(1)),
-	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
-	# test_operators = [ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
-	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
+	# test_operators = [TestOpGeq, TestOpLeq],
+	test_operators = [TestOpGeq_70, TestOpLeq_70],
+	# test_operators = [TestOpGeq_85, TestOpLeq_85],
+	# test_operators = [TestOpGeq, TestOpLeq, TestOpGeq_85, TestOpLeq_85],
 	# rng = my_rng,
 )
 

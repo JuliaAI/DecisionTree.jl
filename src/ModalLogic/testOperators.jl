@@ -1,3 +1,8 @@
+export TestOperator,
+				TestOpNone,
+				TestOpGeq, TestOpLeq,
+				_TestOpGeqSoft, _TestOpLeqSoft
+
 abstract type TestOperator end
 
 ################################################################################
@@ -64,8 +69,8 @@ primary_test_operator(x::_TestOpLeq) = TestOpGeq # dual_test_operator(x)
 siblings(::_TestOpGeq) = []
 siblings(::_TestOpLeq) = []
 
-Base.show(io::IO, ::MIME"text/plain", test_operator::_TestOpGeq) = print(io, "⫺")
-Base.show(io::IO, ::MIME"text/plain", test_operator::_TestOpLeq) = print(io, "⫹")
+Base.show(io::IO, test_operator::_TestOpGeq) = print(io, "⫺")
+Base.show(io::IO, test_operator::_TestOpLeq) = print(io, "⫹")
 
 @inline computePropositionalThreshold(::_TestOpGeq, w::AbstractWorld, channel::MatricialChannel{T,N}) where {T,N} = begin
 	# println(_TestOpGeq)
@@ -108,6 +113,9 @@ end
 
 ################################################################################
 ################################################################################
+
+export TestOpGeq_95, TestOpGeq_90, TestOpGeq_85, TestOpGeq_80, TestOpGeq_75, TestOpGeq_70, TestOpGeq_60,
+				TestOpLeq_95, TestOpLeq_90, TestOpLeq_85, TestOpLeq_80, TestOpLeq_75, TestOpLeq_70, TestOpLeq_60
 
 # ⫺_α and ⫹_α, that is, "*at least α⋅100 percent* of the values on this world are at least, or at most ..."
 
@@ -161,8 +169,8 @@ const SoftenedOperators = [
 
 siblings(x::Union{_TestOpGeqSoft,_TestOpLeqSoft}) = SoftenedOperators
 
-Base.show(io::IO, ::MIME"text/plain", test_operator::_TestOpGeqSoft) = print(io, "⫺" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.')))
-Base.show(io::IO, ::MIME"text/plain", test_operator::_TestOpLeqSoft) = print(io, "⫹" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.')))
+Base.show(io::IO, test_operator::_TestOpGeqSoft) = print(io, "⫺" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.')))
+Base.show(io::IO, test_operator::_TestOpLeqSoft) = print(io, "⫹" * subscriptnumber(rstrip(rstrip(string(alpha(test_operator)*100), '0'), '.')))
 
 # TODO improved version for Rational numbers
 # TODO check

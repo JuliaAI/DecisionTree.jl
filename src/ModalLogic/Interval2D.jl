@@ -63,7 +63,7 @@ computeModalThreshold(test_operator::Union{_TestOpGeq,_TestOpLeq}, w::Interval2D
 # w = ModalLogic.Interval(3,9)
 # # w = ModalLogic.Interval(3,4)
 # for relation in ModalLogic.IARelations
-# 	ModalLogic.computeModalThresholdDual(ModalLogic.TestOpGeq, w, relation, channel)
+# 	ModalLogic.computeModalThresholdDual(TestOpGeq, w, relation, channel)
 # end
 
 # channel2 = randn(3,4)

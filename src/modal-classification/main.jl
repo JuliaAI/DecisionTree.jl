@@ -84,7 +84,7 @@ function build_tree(
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
-	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	test_operators      :: AbstractVector{<:TestOperator}     = [TestOpGeq, TestOpLeq],
 	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, N, S, U, NTO, Ta}
 
 	if max_depth == -1
@@ -387,7 +387,7 @@ function build_forest(
 	initCondition       :: _initCondition     = startWithRelationAll,
 	useRelationAll      :: Bool               = true,
 	useRelationId       :: Bool               = true,
-	test_operators      :: AbstractVector{<:ModalLogic.TestOperator}     = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	test_operators      :: AbstractVector{<:TestOperator}     = [TestOpGeq, TestOpLeq],
 	rng                 :: Random.AbstractRNG = Random.GLOBAL_RNG) where {T, N, S, U, NTO, Ta}
 
 	rng = mk_rng(rng)

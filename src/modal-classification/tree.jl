@@ -29,7 +29,7 @@ module treeclassifier
 		r                :: NodeMeta{S,U}                    # right child
 		modality         :: R where R<:AbstractRelation      # modal operator (e.g. RelationId for the propositional case)
 		feature          :: Int                              # feature used for splitting
-		test_operator    :: ModalLogic.TestOperator          # test_operator (e.g. <=)
+		test_operator    :: TestOperator          # test_operator (e.g. <=)
 		threshold        :: S                                # threshold value
 		function NodeMeta{S,U}(
 				region      :: UnitRange{Int},
@@ -70,7 +70,7 @@ module treeclassifier
 							min_loss_at_leaf    :: AbstractFloat,            # maximum purity allowed on a leaf
 							min_purity_increase :: AbstractFloat,            # minimum purity increase needed for a split
 							max_relations       :: Function,
-							test_operators      :: AbstractVector{<:ModalLogic.TestOperator},
+							test_operators      :: AbstractVector{<:TestOperator},
 							
 							indX                :: AbstractVector{Int},      # an array of sample indices (we split using samples in indX[node.region])
 							
@@ -134,9 +134,9 @@ module treeclassifier
 
 		# Optimization-tracking variables
 		best_purity__nt = typemin(U)
-		best_relation = ModalLogic.RelationNone
+		best_relation = RelationNone
 		best_feature = -1
-		best_test_operator = ModalLogic.TestOpNone
+		best_test_operator = TestOpNone
 		best_threshold = typemin(U)
 
 		# TODO these are just for checking the consistency of gamma-optimizations
@@ -177,7 +177,7 @@ module treeclassifier
 				firstWorld = X.ontology.worldType(ModalLogic.firstWorld)
 				for i in 1:n_instances
 					@logmsg DTDetail " Instance $(i)/$(n_instances)" indX[i + r_start]
-					worlds = if (relation != ModalLogic.RelationAll)
+					worlds = if (relation != RelationAll)
 							Sf[i]
 						else
 							[firstWorld]
@@ -338,7 +338,7 @@ module treeclassifier
 		ind = node.split_at
 		region = node.region
 		depth = node.depth+1
-		mdepth = (node.modality == ModalLogic.RelationId ? node.modal_depth : node.modal_depth+1)
+		mdepth = (node.modality == RelationId ? node.modal_depth : node.modal_depth+1)
 		@logmsg DTDetail "fork!(...): " node ind region mdepth
 		# no need to copy because we will copy at the end
 		node.l = NodeMeta{S,U}(region[    1:ind], depth, mdepth)
@@ -409,7 +409,7 @@ module treeclassifier
 			initCondition   :: DecisionTree._initCondition,
 			useRelationAll  :: Bool,
 			useRelationId	  :: Bool,
-			test_operators  :: AbstractVector{<:ModalLogic.TestOperator}
+			test_operators  :: AbstractVector{<:TestOperator}
 		) where {T, N}
 
 		# Adimensional ontological datasets:
@@ -433,8 +433,8 @@ module treeclassifier
 			# No ontological relation
 			ontology_relations = []
 			if test_operators ⊆ ModalLogic.all_lowlevel_test_operators
-				test_operators = [ModalLogic.TestOpGeq]
-				# test_operators = filter(e->e ≠ ModalLogic.TestOpGeq,test_operators)
+				test_operators = [TestOpGeq]
+				# test_operators = filter(e->e ≠ TestOpGeq,test_operators)
 			else
 				warn("Test operators set includes non-lowlevel test operators. Update this part of the code accordingly.")
 			end
@@ -444,11 +444,11 @@ module treeclassifier
 		#  when the biggest world only has a few values, softened operators fallback
 		#  to being hard operators
 		max_world_wratio = 1/prod(channel_size(X))
-		if ModalLogic.TestOpGeq in test_operators
-			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpGeqSoft || e.alpha < 1-max_world_wratio), test_operators)
+		if TestOpGeq in test_operators
+			test_operators = filter((e)->(typeof(e) != _TestOpGeqSoft || e.alpha < 1-max_world_wratio), test_operators)
 		end
-		if ModalLogic.TestOpLeq in test_operators
-			test_operators = filter((e)->(typeof(e) != ModalLogic._TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
+		if TestOpLeq in test_operators
+			test_operators = filter((e)->(typeof(e) != _TestOpLeqSoft || e.alpha < 1-max_world_wratio), test_operators)
 		end
 
 
@@ -456,19 +456,19 @@ module treeclassifier
 		# Note: the identity relation is the first, and it is the one representing
 		#  propositional splits.
 		
-		if ModalLogic.RelationId in ontology_relations
+		if RelationId in ontology_relations
 			println("Warning! Found RelationId in ontology provided. Use useRelationId = true instead.")
-			ontology_relations = filter(e->e ≠ ModalLogic.RelationId, ontology_relations)
+			ontology_relations = filter(e->e ≠ RelationId, ontology_relations)
 			useRelationId = true
 		end
 
-		if ModalLogic.RelationAll in ontology_relations
+		if RelationAll in ontology_relations
 			println("Warning! Found RelationAll in ontology provided. Use useRelationAll = true instead.")
-			ontology_relations = filter(e->e ≠ ModalLogic.RelationAll, ontology_relations)
+			ontology_relations = filter(e->e ≠ RelationAll, ontology_relations)
 			useRelationAll = true
 		end
 
-		relationSet = [ModalLogic.RelationId, ModalLogic.RelationAll, ontology_relations...]
+		relationSet = [RelationId, RelationAll, ontology_relations...]
 		relationId_id = 1
 		relationAll_id = 2
 		ontology_relation_ids = map((x)->x+2, 1:length(ontology_relations))
@@ -509,7 +509,7 @@ module treeclassifier
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
-			test_operators          :: AbstractVector{<:ModalLogic.TestOperator},
+			test_operators          :: AbstractVector{<:TestOperator},
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG;
 			gammas                  :: Union{GammaType{NTO, Ta},Nothing} = nothing) where {T, U, N, NTO, Ta}
 
@@ -626,7 +626,7 @@ module treeclassifier
 			initCondition           :: DecisionTree._initCondition,
 			useRelationAll          :: Bool,
 			useRelationId           :: Bool,
-			test_operators          :: AbstractVector{<:ModalLogic.TestOperator} = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+			test_operators          :: AbstractVector{<:TestOperator} = [TestOpGeq, TestOpLeq],
 			rng = Random.GLOBAL_RNG :: Random.AbstractRNG) where {T, S, U, N, NTO, Ta}
 
 		# Obtain the dataset's "outer size": number of samples and number of features

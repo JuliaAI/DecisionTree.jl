@@ -71,7 +71,7 @@ struct DTInternal{S<:Real, T}
 	# Split label
 	modality      :: R where R<:AbstractRelation
 	featid        :: Int
-	test_operator :: ModalLogic.TestOperator # Test operator (e.g. <=, ==)
+	test_operator :: TestOperator # Test operator (e.g. <=, ==)
 	featval       :: featType where featType<:S
 	# Child nodes
 	left          :: Union{DTLeaf{T}, DTInternal{S, T}}
@@ -99,11 +99,11 @@ is_leaf(l::DTLeaf) = true
 is_leaf(n::DTInternal) = false
 is_leaf(t::DTree) = is_leaf(t.root)
 
-is_modal_node(n::DTInternal) = (!is_leaf(n) && n.modality != ModalLogic.RelationId)
+is_modal_node(n::DTInternal) = (!is_leaf(n) && n.modality != RelationId)
 is_modal_node(t::DTree) = is_modal_node(t.root)
 
 zero(String) = ""
-convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(ModalLogic.RelationNone, 0, :(nothing), zero(S), lf, DTLeaf(zero(T), [zero(T)]))
+convert(::Type{DTInternal{S, T}}, lf::DTLeaf{T}) where {S, T} = DTInternal(RelationNone, 0, :(nothing), zero(S), lf, DTLeaf(zero(T), [zero(T)]))
 
 promote_rule(::Type{DTInternal{S, T}}, ::Type{DTLeaf{T}}) where {S, T} = DTInternal{S, T}
 

@@ -78,9 +78,9 @@ modal_args = (
 	useRelationId = true,
 	useRelationAll = false,
 	ontology = getIntervalOntologyOfDim(Val(1)),
-#	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
-#	test_operators = [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
-#	test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+#	test_operators = [TestOpGeq_70, TestOpLeq_70],
+#	test_operators = [TestOpGeq_80, TestOpLeq_80],
+#	test_operators = [TestOpGeq, TestOpLeq],
 )
 
 # https://github.com/JuliaIO/JSON.jl/issues/203
@@ -89,9 +89,9 @@ modal_args = (
 exec_test_operators = [ "TestOp_80" ]
 
 test_operators_dict = Dict(
-	"TestOp_70" => [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
-	"TestOp_80" => [ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80],
-	"TestOp" => [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+	"TestOp_70" => [TestOpGeq_70, TestOpLeq_70],
+	"TestOp_80" => [TestOpGeq_80, TestOpLeq_80],
+	"TestOp" => [TestOpGeq, TestOpLeq],
 )
 
 # log_level = Logging.Warn

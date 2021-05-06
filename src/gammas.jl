@@ -36,7 +36,7 @@ Union{
 # gammas = Vector{Dict{AbstractRelation,Vector{Dict{X.ontology.worldType,NTuple{NTO,T}}}}}(undef, n_variables(X))		
 # TODO maybe use offset-arrays? https://docs.julialang.org/en/v1/devdocs/offset-arrays/
 
-@inline function checkGammasConsistency(gammas, X::OntologicalDataset{T, N}, worldType::Type{WorldType}, test_operators::AbstractVector{<:ModalLogic.TestOperator}, allAvailableRelation_ids::AbstractVector{Int}) where {T, N, WorldType<:AbstractWorld}
+@inline function checkGammasConsistency(gammas, X::OntologicalDataset{T, N}, worldType::Type{WorldType}, test_operators::AbstractVector{<:TestOperator}, allAvailableRelation_ids::AbstractVector{Int}) where {T, N, WorldType<:AbstractWorld}
 	if !(gammasIsConsistent(gammas, X, worldType, length(test_operators), max(2, length(allAvailableRelation_ids)))) # Note: max(2, ...) because at least RelationId and RelationAll are always present.
 		throw("The provided gammas structure is not consistent with the expected dataset, test operators and/or relations!"
 			* "\n$(typeof(gammas))"
@@ -125,7 +125,7 @@ end
 	w          :: ModalLogic.Interval,
 	i, relation_id, feature) where {T}
 	gammas[i_test_operator, w.x, w.y, i, relation_id, feature]
-	# (optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.ModalLogic.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
+	# (optimized) modal_args = (initCondition = DecisionTree._startWithRelationAll(), useRelationId = true, useRelationAll = false, ontology = Ontology(DecisionTree.ModalLogic.Interval,IARelations), test_operators = DecisionTree.TestOperator[DecisionTree.ModalLogic._TestOpGeq(), DecisionTree.ModalLogic._TestOpLeq()])
 	# train size = (5, 226, 40)
 	# gammas[i_test_operator, w.x, w.y, i, relation_id, feature]     # 3.981 ms (92645 allocations: 4.01 MiB)
 	# @view gammas[:,w.x, w.y, i, relation_id, feature]           # 6.813 ms (119765 allocations: 5.66 MiB)
@@ -224,7 +224,7 @@ end
 function computeGammas(
 		X                  :: OntologicalDataset{T, N},
 		worldType          :: Type{WorldType},
-		test_operators     :: AbstractVector{<:ModalLogic.TestOperator},
+		test_operators     :: AbstractVector{<:TestOperator},
 		relationSet        :: Vector{<:AbstractRelation},
 		relationId_id      :: Int,
 		relation_ids       :: AbstractVector{Int},
@@ -238,8 +238,8 @@ function computeGammas(
 
 	# With sorted test_operators
 	# TODO fix
-	actual_test_operators = Tuple{Integer,Union{<:ModalLogic.TestOperator,Vector{<:ModalLogic.TestOperator}}}[]
-	already_inserted_test_operators = ModalLogic.TestOperator[]
+	actual_test_operators = Tuple{Integer,Union{<:TestOperator,Vector{<:TestOperator}}}[]
+	already_inserted_test_operators = TestOperator[]
 	i_test_operator = 1
 	n_actual_operators = 0
 	while i_test_operator <= length(test_operators)
@@ -249,7 +249,7 @@ function computeGammas(
 		# readline()
 		if test_operator in already_inserted_test_operators
 			# Skip test_operator
-		elseif length(test_operators) >= i_test_operator+1 && ModalLogic.dual_test_operator(test_operator) != ModalLogic.TestOpNone && ModalLogic.dual_test_operator(test_operator) == test_operators[i_test_operator+1]
+		elseif length(test_operators) >= i_test_operator+1 && ModalLogic.dual_test_operator(test_operator) != TestOpNone && ModalLogic.dual_test_operator(test_operator) == test_operators[i_test_operator+1]
 			push!(actual_test_operators, (1,ModalLogic.primary_test_operator(test_operator))) # "prim/dual"
 			n_actual_operators+=2
 			push!(already_inserted_test_operators,test_operators[i_test_operator+1])
@@ -312,13 +312,13 @@ function computeGammas(
 	end
 
 	# Avoid using already-computed propositional thresholds
-	@inline computeModalThresholdDual(gammasId, test_operator::ModalLogic.TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+	@inline computeModalThresholdDual(gammasId, test_operator::TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 		ModalLogic.computeModalThresholdDual(test_operator, w, relation, channel)
 	end
-	@inline computeModalThreshold(gammasId, test_operator::ModalLogic.TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+	@inline computeModalThreshold(gammasId, test_operator::TestOperator, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 		ModalLogic.computeModalThreshold(test_operator, w, relation, channel)
 	end
-	@inline computeModalThresholdMany(gammasId, test_operators::Vector{<:ModalLogic.TestOperator}, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
+	@inline computeModalThresholdMany(gammasId, test_operators::Vector{<:TestOperator}, w::AbstractWorld, relation::AbstractRelation, channel::ModalLogic.MatricialChannel{T,N}) where {T,N} = begin
 		ModalLogic.computeModalThresholdMany(test_operators, w, relation, channel)
 	end
 
@@ -339,7 +339,7 @@ function computeGammas(
 			channel = ModalLogic.getFeature(X.domain, i, feature) # TODO check that @views actually avoids copying
 			initGammaSlice(worldType, gammas, i, relationId_id, feature)
 			# println(channel)
-			for w in ModalLogic.enumAccessibles(worldType[], ModalLogic.RelationAll, channel)
+			for w in ModalLogic.enumAccessibles(worldType[], RelationAll, channel)
 				@logmsg DTDetail "World" w
 
 				i_to = 1
@@ -406,8 +406,8 @@ function computeGammas(
 				# TODO Check if cur_gammas improves performances
 				@views cur_gammas = sliceGammas(worldType, gammas, i, relation_id, feature)
 				# For each world w and each relation, compute the thresholds of all v worlds, with w<R>v
-				worlds = if relation != ModalLogic.RelationAll
-						ModalLogic.enumAccessibles(worldType[], ModalLogic.RelationAll, channel)
+				worlds = if relation != RelationAll
+						ModalLogic.enumAccessibles(worldType[], RelationAll, channel)
 					else
 						[firstWorld]
 					end

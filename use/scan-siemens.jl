@@ -30,7 +30,7 @@ modal_args = (
 	useRelationId = true,
 	useRelationAll = false,
 	ontology = getIntervalOntologyOfDim(Val(1)),
-	test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
+	test_operators = [TestOpGeq_70, TestOpLeq_70],
 )
 
 ################################################################################

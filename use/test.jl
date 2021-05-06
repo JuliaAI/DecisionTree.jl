@@ -35,13 +35,13 @@ kwargs = (
 	# useRelationId = false,
 	# useRelationAll = true,
 	useRelationAll = false,
-	# test_operators = [ModalLogic.TestOpGeq],
-	# test_operators = [ModalLogic.TestOpLeq],
-	test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-	# test_operators = [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
-	# test_operators = [ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70],
-	# test_operators = [ModalLogic.TestOpGeq_85, ModalLogic.TestOpLeq_85],
-	# test_operators = [ModalLogic.TestOpGeq_75],
+	# test_operators = [TestOpGeq],
+	# test_operators = [TestOpLeq],
+	test_operators = [TestOpGeq, TestOpLeq],
+	# test_operators = [TestOpGeq, TestOpLeq, TestOpGeq_85, TestOpLeq_85],
+	# test_operators = [TestOpGeq_70, TestOpLeq_70],
+	# test_operators = [TestOpGeq_85, TestOpLeq_85],
+	# test_operators = [TestOpGeq_75],
 	# rng = my_rng,
 	# rng = DecisionTree.mk_rng(123),
 )
@@ -96,7 +96,7 @@ rng_i = DecisionTree.mk_rng(1)
 # i_relation = 1
 # while i_relation <= length(relations)
 # relation = relations[i_relation]
-# # relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
+# # relation = ModalLogic._IA2DRel(RelationId , ModalLogic.IA_O)
 # println(relation)
 # cur_kwargs = merge(kwargs, (ontology=Ontology(ModalLogic.Interval2D,relation),))
 # T = testDataset(datasets[databatch*3+3], timing_mode, log_level = Logging.Warn, args=args, kwargs=cur_kwargs);
@@ -181,13 +181,13 @@ for dataset_name in ["Salinas", "Salinas-A", "PaviaCentre", "Pavia", "IndianPine
 			for useRelationAll in [false] # true]
 				for initCondition in [DecisionTree.startAtCenter]
 					for test_operators in [
-							[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq,
-								ModalLogic.TestOpGeq_60, ModalLogic.TestOpLeq_60,
-								ModalLogic.TestOpGeq_70, ModalLogic.TestOpLeq_70,
-								ModalLogic.TestOpGeq_80, ModalLogic.TestOpLeq_80,
-								ModalLogic.TestOpGeq_90, ModalLogic.TestOpLeq_90],
-							# [ModalLogic.TestOpLeq_90,ModalLogic.TestOpLeq_80],
-							# [ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+							[TestOpGeq, TestOpLeq,
+								TestOpGeq_60, TestOpLeq_60,
+								TestOpGeq_70, TestOpLeq_70,
+								TestOpGeq_80, TestOpLeq_80,
+								TestOpGeq_90, TestOpLeq_90],
+							# [TestOpLeq_90,TestOpLeq_80],
+							# [TestOpGeq, TestOpLeq],
 																	]
 
 						cur_args = selected_args
@@ -248,14 +248,14 @@ relations = [ModalLogic.RCC8Relations...,ModalLogic.IA2DRelations...,]
 i_relation = 1
 while i_relation <= length(relations)
 	relation = relations[i_relation]
-	# relation = ModalLogic._IA2DRel(ModalLogic.RelationId , ModalLogic.IA_O)
+	# relation = ModalLogic._IA2DRel(RelationId , ModalLogic.IA_O)
 	println(relation)
 	kwargs = (
 		initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,3),(3,4))),
 		# initCondition=DecisionTree._startAtWorld(ModalLogic.Interval2D((1,4),(1,6))),
 		useRelationId = false,
 		useRelationAll = false,
-		test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
+		test_operators=[TestOpGeq, TestOpLeq],
 		ontology=Ontology(ModalLogic.Interval2D,[relation]),
 		# ontology=Ontology(ModalLogic.Interval2D,relation_set),
 	)
@@ -292,9 +292,9 @@ for min_purity_increase in [0.0, 0.02]
 				kwargs = (
 					initCondition=initCondition,
 					ontology=ontology,
-					# test_operators=[ModalLogic.TestOpLeq],
-					test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq],
-					# test_operators=[ModalLogic.TestOpGeq, ModalLogic.TestOpLeq, ModalLogic.TestOpGeq075, ModalLogic.TestOpLeq075],
+					# test_operators=[TestOpLeq],
+					test_operators=[TestOpGeq, TestOpLeq],
+					# test_operators=[TestOpGeq, TestOpLeq, TestOpGeq075, TestOpLeq075],
 				)
 
 				T = testDataset(datasets[1], timing_mode, args=args, kwargs=kwargs);
@@ -358,4 +358,4 @@ end
 # println(X, " ", Y, " ", (X*(X+1))/2 * (Y*(Y+1))/2 - 1, " ", sum)
 @assert SUM == ((X*(X+1))/2 * (Y*(Y+1))/2 - 1)
 
-# Test that T = testDataset(datasets[1], timing_mode, args=args, kwargs=kwargs); with test_operators=[ModalLogic.TestOpLeq] and without is equivalent
+# Test that T = testDataset(datasets[1], timing_mode, args=args, kwargs=kwargs); with test_operators=[TestOpLeq] and without is equivalent

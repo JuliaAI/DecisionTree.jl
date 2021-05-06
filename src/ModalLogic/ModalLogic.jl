@@ -16,9 +16,8 @@ export AbstractWorld, AbstractRelation,
 				MatricialChannel,
 				WorldSet,
 				display_propositional_test,
-				display_modal_test
-				# , TestOperator
-				# RelationAll, RelationNone, RelationId,
+				display_modal_test,
+				RelationAll, RelationNone, RelationId
 				# enumAccessibles, enumAccRepr
 
 # Fix
@@ -216,6 +215,7 @@ channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain
 ################################################################################
 
 include("testOperators.jl")
+
 # Utility type for enhanced computation of thresholds
 abstract type _ReprTreatment end
 struct _ReprFake{worldType<:AbstractWorld} <: _ReprTreatment w :: worldType end
@@ -239,11 +239,11 @@ enumAccessibles(S::AbstractWorldSet{WorldType}, r::AbstractRelation, XYZ::Vararg
 end
 
 # Ontology-agnostic relations:
-# - Identity relation  (RelationId)    =  S -> S
 # - None relation      (RelationNone)  =  Used as the "nothing" constant
+# - Identity relation  (RelationId)    =  S -> S
 # - Universal relation (RelationAll)   =  S -> all-worlds
-struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId();
 struct _RelationNone  <: AbstractRelation end; const RelationNone = _RelationNone();
+struct _RelationId    <: AbstractRelation end; const RelationId   = _RelationId();
 struct _RelationAll   <: AbstractRelation end; const RelationAll  = _RelationAll();
 
 enumAccessibles(w::WorldType,           ::_RelationId, XYZ::Vararg{Integer,N}) where {WorldType<:AbstractWorld,N} = [w]
