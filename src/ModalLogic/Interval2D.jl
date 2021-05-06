@@ -1,7 +1,3 @@
-################################################################################
-# BEGIN Interval2D
-################################################################################
-
 # TODO generalize this as NTuple{4,Interval} ?
 # 2-dimensional Interval counterpart: combination of two Intervals 
 struct Interval2D <: AbstractWorld
@@ -126,7 +122,3 @@ n_worlds(::Type{Interval2D}, channel_size::Tuple{Integer,Integer}) = n_worlds(In
 print_world(w::Interval2D) = println("Interval2D [$(w.x.x),$(w.x.y)) × [$(w.y.x),$(w.y.y)), length $(w.x.y-w.x.x)×$(w.y.y-w.y.x) = $((w.x.y-w.x.x)*(w.y.y-w.y.x))")
 
 @inline readWorld(w::Interval2D, channel::MatricialChannel{T,2}) where {T} = channel[w.x.x:w.x.y-1,w.y.x:w.y.y-1]
-
-################################################################################
-# END Interval2D
-################################################################################

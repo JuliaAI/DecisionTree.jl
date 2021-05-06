@@ -28,27 +28,6 @@ Base.keys(g::Base.Generator) = g.iter
 abstract type AbstractWorld end
 abstract type AbstractRelation end
 
-# This constant is used to create the default world for each WorldType
-#  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
-struct _firstWorld end;    const firstWorld    = _firstWorld();
-struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
-struct _centeredWorld end; const centeredWorld = _centeredWorld();
-
-# One unique world
-struct OneWorld    <: AbstractWorld
-	OneWorld() = new()
-	OneWorld(w::_emptyWorld) = new()
-	OneWorld(w::_firstWorld) = new()
-	OneWorld(w::_centeredWorld) = new()
-end;
-
-show(io::IO, w::OneWorld) = begin
-	print(io, "−")
-end
-
-worldTypeDimensionality(::Type{OneWorld}) = 0
-print_world(::OneWorld) = println("−")
-
 # Concrete class for ontology models (world type + set of relations)
 struct Ontology
 	worldType   :: Type{<:AbstractWorld}
@@ -65,7 +44,23 @@ struct Ontology
 	# Ontology(worldType, relationSet) = new(worldType, relationSet)
 end
 
-strip_ontology(ontology::Ontology) = Ontology(OneWorld,AbstractRelation[])
+# strip_ontology(ontology::Ontology) = Ontology(OneWorld,AbstractRelation[])
+
+
+# This constant is used to create the default world for each WorldType
+#  (e.g. Interval(ModalLogic.emptyWorld) = Interval(-1,0))
+struct _firstWorld end;    const firstWorld    = _firstWorld();
+struct _emptyWorld end;    const emptyWorld    = _emptyWorld();
+struct _centeredWorld end; const centeredWorld = _centeredWorld();
+
+# World generators/enumerators and array/set-like structures
+# TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
+const AbstractWorldSet{W} = Union{AbstractVector{W},AbstractSet{W}} where {W<:AbstractWorld}
+# Concrete type for sets: vectors are faster than sets, so we
+# const WorldSet = AbstractSet{W} where W<:AbstractWorld
+const WorldSet{W} = Vector{W} where {W<:AbstractWorld}
+WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
+
 
 # TODO improve, decouple from relationSets definitions
 # Actually, this will not work because relationSet does this collect(set(...)) thing... mh maybe better avoid that thing?
@@ -219,14 +214,6 @@ channel_size(X::OntologicalDataset{T,N})     where {T,N} = channel_size(X.domain
 ################################################################################
 # END Matricial dataset & Ontological dataset
 ################################################################################
-
-# World generators/enumerators and array/set-like structures
-# TODO test the functions for WorldSets with Sets and Arrays, and find the performance optimum
-const AbstractWorldSet{W} = Union{AbstractVector{W},AbstractSet{W}} where {W<:AbstractWorld}
-# Concrete type for sets: vectors are faster than sets, so we
-# const WorldSet = AbstractSet{W} where W<:AbstractWorld
-const WorldSet{W} = Vector{W} where {W<:AbstractWorld}
-WorldSet{W}(S::WorldSet{W}) where {W<:AbstractWorld} = S
 
 ################################################################################
 # BEGIN Test operators
@@ -571,31 +558,21 @@ end
 show(io::IO, r::AbstractRelation) = print(io, display_existential_modality(r))
 display_existential_modality(r) = "⟨" * display_rel_short(r) * "⟩"
 
-# Note: with under 10 values, computation on tuples is faster
-# xtup = (zip(randn(2),randn(2)) |> collect |> Tuple);
-# xarr = (zip(randn(2),randn(2)) |> collect);
-# @btime min3Extrema($xtup)
-# @btime min3Extrema($xarr)
-# xtup = (zip(randn(10),randn(10)) |> collect |> Tuple);
-# xarr = (zip(randn(10),randn(10)) |> collect);
-# @btime min3Extrema($xtup)
-# @btime min3Extrema($xarr)
-# xtup = (zip(randn(1000),randn(1000)) |> collect |> Tuple);
-# xarr = (zip(randn(1000),randn(1000)) |> collect);
-# @btime min3Extrema($xtup)
-# @btime min3Extrema($xarr)
 minExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(min(fst,f),max(snd,s)), extr; init=(typemax(T),typemin(T)))
 maxExtrema(extr::Union{NTuple{N,NTuple{2,T}},AbstractVector{NTuple{2,T}}}) where {T<:Number,N} = reduce(((fst,snd),(f,s))->(max(fst,f),min(snd,s)), extr; init=(typemin(T),typemax(T)))
 minExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = minExtrema(extr)
 maxExtrema(extr::Vararg{NTuple{2,T}}) where {T<:Number} = maxExtrema(extr)
 
+include("OneWorld.jl")
+# include("Point.jl")
+
 include("Interval.jl")
 include("IARelations.jl")
 include("TopoRelations.jl")
+
 include("Interval2D.jl")
 include("IA2DRelations.jl")
 include("Topo2DRelations.jl")
-# include("Point.jl")
 
 
 export genericIntervalOntology,
