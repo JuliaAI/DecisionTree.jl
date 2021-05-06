@@ -100,7 +100,7 @@ function testDataset(
 		dataset_slice                   ::Union{AbstractVector,Nothing} = nothing,
 		error_catching                  = false,
 		train_seed                      ::Integer = 1,
-		timeit                          ::Integer = 0,
+		timing_mode                     ::Symbol = :time,
 	)
 	println("Benchmarking dataset '$name' (train_seed = $(train_seed))...")
 	global_logger(ConsoleLogger(stderr, Logging.Warn));
@@ -169,11 +169,11 @@ function testDataset(
 					checkpoint_stdout("Computing gammas for $(dataset_hash)...")
 					started = Dates.now()
 					gammas = 
-						if timeit == 0
+						if timing_mode == :none
 							DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids);
-						elseif timeit == 1
+						elseif timing_mode == :time
 							@time DecisionTree.computeGammas(X_all,worldType,test_operators,relationSet,relationId_id,availableModalRelation_ids);
-						elseif timeit == 2
+						elseif timing_mode == :btime
 							@btime DecisionTree.computeGammas($X_all,$worldType,$test_operators,$relationSet,$relationId_id,$availableModalRelation_ids);
 					end
 					gammas_computation_time = (Dates.now() - started)
@@ -326,11 +326,11 @@ function testDataset(
 	go_tree(tree_args, rng) = begin
 		started = Dates.now()
 		T =
-			if timeit == 0
+			if timing_mode == :none
 				build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng)
-			elseif timeit == 1
+			elseif timing_mode == :time
 				@time build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng)
-			elseif timeit == 2
+			elseif timing_mode == :btime
 				@btime build_tree(Y_train, X_train; tree_args..., modal_args..., gammas = gammas_train, rng = rng)
 			end
 		Tt = Dates.now() - started
@@ -374,11 +374,11 @@ function testDataset(
 			if isnothing(prebuilt_model)
 				started = Dates.now()
 				[
-					if timeit == 0
+					if timing_mode == :none
 						build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
-					elseif timeit == 1
+					elseif timing_mode == :time
 						@time build_forest(Y_train, X_train; f_args..., modal_args..., gammas = gammas_train, rng = rng);
-					elseif timeit == 2
+					elseif timing_mode == :btime
 						@btime build_forest($Y_train, $X_train; $f_args..., $modal_args..., gammas = $gammas_train, rng = $rng);
 					end
 					for i in 1:forest_runs

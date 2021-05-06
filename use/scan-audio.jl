@@ -98,9 +98,9 @@ test_operators_dict = Dict(
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
 
-timeit = 0
-# timeit = 1
-# timeit = 2
+timing_mode = :none
+# timing_mode = :time
+# timing_mode = :btime
 
 #round_dataset_to_datatype = Float32
 # round_dataset_to_datatype = UInt16
@@ -141,7 +141,7 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 30,
+							max_points = 5,
 							ma_size = 75,
 							ma_step = 50,
 						),(
@@ -235,23 +235,23 @@ iteration_whitelist = [
 	(
 		n_version = 1,
 		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 5, ma_size = 75, ma_step = 50)
 	),
 	(
 		n_version = 1,
 		nbands = 60,
-		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 5, ma_size = 75, ma_step = 50)
 	),
 	# TASK 2
 	(
 		n_version = 2,
 		nbands = 20,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 5, ma_size = 45, ma_step = 30)
 	),
 	(
 		n_version = 2,
 		nbands = 40,
-		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 5, ma_size = 45, ma_step = 30)
 	)
 ]
 
@@ -432,7 +432,7 @@ for i in exec_runs
 					gammas_save_path            =   (gammas_save_path, dataset_name_str),
 					save_tree_path              =   save_tree_path,
 					train_seed                  =   train_seed,
-					timeit                      =   timeit
+					timing_mode                      =   timing_mode
 				);
 		#####################################################
 		# PRINT RESULT IN FILES

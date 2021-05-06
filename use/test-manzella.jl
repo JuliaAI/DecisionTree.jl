@@ -91,8 +91,8 @@ end
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
 
-# timeit = 2
-timeit = 0
+# timing_mode = :btime
+timing_mode = :none
 round_dataset_to_datatype = false
 # round_dataset_to_datatype = UInt8
 

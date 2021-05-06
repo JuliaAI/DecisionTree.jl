@@ -100,8 +100,8 @@ log_level = DecisionTree.DTOverview
 
 test_flattened = false
 
-timeit = 0
-# timeit = 2
+timing_mode = :none
+# timing_mode = :btime
 
 # round_dataset_to_datatype = false
 # round_dataset_to_datatype = UInt16
@@ -218,7 +218,7 @@ for i in exec_runs
 				dataset_slice                   = dataset_slice,
 				error_catching                  = error_catching,
 				rng                             = train_rng,
-				timeit                          = timeit,
+				timing_mode                          = timing_mode,
 			);
 		############################################################################
 

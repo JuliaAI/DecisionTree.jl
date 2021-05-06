@@ -43,8 +43,8 @@ forest_args = [(
 log_level = DecisionTree.DTOverview
 # log_level = DecisionTree.DTDebug
 
-timeit = 0
-# timeit = 2
+timing_mode = :none
+# timing_mode = :btime
 
 # rng_i = spawn_rng(rng)
 

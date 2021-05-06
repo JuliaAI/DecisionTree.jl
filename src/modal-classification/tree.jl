@@ -380,20 +380,14 @@ module treeclassifier
 		# TODO make sure how missing, nothing, NaN & infinite can be handled
 		if nothing in X.domain
 			throw("Warning! This algorithm doesn't allow nothing values in X.domain")
-		elseif missing in X.domain
-			throw("Warning! This algorithm doesn't allow missing values in X.domain")
 		elseif any(isnan.(X.domain)) # TODO make sure that this does its job.
 			throw("Warning! This algorithm doesn't allow NaN values in X.domain")
 		elseif nothing in Y
 			throw("Warning! This algorithm doesn't allow nothing values in Y")
-		elseif missing in Y
-			throw("Warning! This algorithm doesn't allow missing values in Y")
 		# elseif any(isnan.(Y))
 		# 	throw("Warning! This algorithm doesn't allow NaN values in Y")
 		elseif nothing in W
 			throw("Warning! This algorithm doesn't allow nothing values in W")
-		elseif missing in W
-			throw("Warning! This algorithm doesn't allow missing values in W")
 		elseif any(isnan.(W))
 			throw("Warning! This algorithm doesn't allow NaN values in W")
 		end
