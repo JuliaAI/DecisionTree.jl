@@ -141,7 +141,7 @@ exec_n_tasks = 1:1
 exec_n_versions = 1:2
 exec_nbands = [20,40,60]
 exec_dataset_kwargs =   [(
-							max_points = 5,
+							max_points = 30,
 							ma_size = 75,
 							ma_step = 50,
 						),(
@@ -235,23 +235,23 @@ iteration_whitelist = [
 	(
 		n_version = 1,
 		nbands = 40,
-		dataset_kwargs = (max_points = 5, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
 	),
 	(
 		n_version = 1,
 		nbands = 60,
-		dataset_kwargs = (max_points = 5, ma_size = 75, ma_step = 50)
+		dataset_kwargs = (max_points = 30, ma_size = 75, ma_step = 50)
 	),
 	# TASK 2
 	(
 		n_version = 2,
 		nbands = 20,
-		dataset_kwargs = (max_points = 5, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
 	),
 	(
 		n_version = 2,
 		nbands = 40,
-		dataset_kwargs = (max_points = 5, ma_size = 45, ma_step = 30)
+		dataset_kwargs = (max_points = 30, ma_size = 45, ma_step = 30)
 	)
 ]
 
