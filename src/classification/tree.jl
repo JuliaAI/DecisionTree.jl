@@ -225,37 +225,6 @@ module treeclassifier
         node.r = NodeMeta{S}(features, region[ind+1:end], node.depth+1)
     end
 
-    function check_input(
-            X                   :: AbstractMatrix{S},
-            Y                   :: AbstractVector{T},
-            W                   :: AbstractVector{U},
-            max_features        :: Int,
-            max_depth           :: Int,
-            min_samples_leaf    :: Int,
-            min_samples_split   :: Int,
-            min_purity_increase :: Float64) where {S, T, U}
-        n_samples, n_features = size(X)
-        if length(Y) != n_samples
-            throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
-        elseif length(W) != n_samples
-            throw("dimension mismatch between X and W ($(size(X)) vs $(size(W))")
-        elseif max_depth < -1
-            throw("unexpected value for max_depth: $(max_depth) (expected:"
-                * " max_depth >= 0, or max_depth = -1 for infinite depth)")
-        elseif n_features < max_features
-            throw("number of features $(n_features) is less than the number "
-                * "of max features $(max_features)")
-        elseif max_features < 0
-            throw("number of features $(max_features) must be >= zero ")
-        elseif min_samples_leaf < 1
-            throw("min_samples_leaf must be a positive integer "
-                * "(given $(min_samples_leaf))")
-        elseif min_samples_split < 2
-            throw("min_samples_split must be at least 2 "
-                * "(given $(min_samples_split))")
-        end
-    end
-
     function _fit(
             X                     :: AbstractMatrix{S},
             Y                     :: AbstractVector{Int},
@@ -321,7 +290,7 @@ module treeclassifier
             W = fill(1, n_samples)
         end
 
-        check_input(
+        util.check_input(
             X, Y, W,
             max_features,
             max_depth,
