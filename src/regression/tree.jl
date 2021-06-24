@@ -256,6 +256,7 @@ function check_input(
     min_samples_leaf::Int,
     min_samples_split::Int,
     min_purity_increase::Float64,
+    adj::Union{AbstractMatrix{Int}, Nothing} = nothing,
 ) where {S,T,U}
     n_samples, n_features = size(X)
     if length(Y) != n_samples
@@ -280,6 +281,8 @@ function check_input(
         )
     elseif min_samples_split < 2
         throw("min_samples_split must be at least 2 " * "(given $(min_samples_split))")
+    elseif !isnothing(adj) && adj != transpose(adj)
+        throw("graph adjacency matrix is invalid (not symmetric)")
     end
 end
 
@@ -329,24 +332,36 @@ function _fit(
                 rng,
             )
         else
-            # TODO: select adjacent features using tree_features
-            _split!(
-                X,
-                Y,
-                W,
-                node,
-                max_features,
-                max_depth,
-                min_samples_leaf,
-                min_samples_split,
-                min_purity_increase,
-                indX,
-                Xf,
-                Yf,
-                Wf,
-                rng,
-                adjacent_features,
-                )
+            # get the features which are next to the features already used 
+            # in the tree
+            features_adj = adj[unique(tree_features),:]
+            adjacent_features = [i[2] for i in findall(!iszero, features_adj)]
+            
+            # if there aren't adjacent features call the node a leaf and move
+            # on. Otherwise attempt to split the node on one of the adjacent
+            # features
+            if length(adjacent_features) == 0
+                node.is_leaf = true
+            else
+                _split!(
+                    X,
+                    Y,
+                    W,
+                    node,
+                    max_features,
+                    max_depth,
+                    min_samples_leaf,
+                    min_samples_split,
+                    min_purity_increase,
+                    indX,
+                    Xf,
+                    Yf,
+                    Wf,
+                    rng,
+                    unique(vcat(tree_features, adjacent_features)),
+                    )
+            end
+        end 
         push!(tree_features, node.feature)
         if !node.is_leaf
             fork!(node)
@@ -367,6 +382,7 @@ function fit(;
     min_samples_split::Int,
     min_purity_increase::Float64,
     rng = Random.GLOBAL_RNG::Random.AbstractRNG,
+    adj::Union{AbstractMatrix{Int}, Nothing} = nothing,
 ) where {S,U}
 
     n_samples, n_features = size(X)
@@ -383,6 +399,7 @@ function fit(;
         min_samples_leaf,
         min_samples_split,
         min_purity_increase,
+        adj,
     )
 
     root, indX = _fit(
@@ -395,6 +412,7 @@ function fit(;
         min_samples_split,
         min_purity_increase,
         rng,
+        adj,
     )
 
     return Tree{S}(root, indX)

@@ -17,6 +17,7 @@ end
 function build_tree(
         labels             :: AbstractVector{T},
         features           :: AbstractMatrix{S},
+        adj                 = nothing,
         n_subfeatures       = 0,
         max_depth           = -1,
         min_samples_leaf    = 5,
@@ -41,7 +42,9 @@ function build_tree(
         min_samples_leaf    = Int(min_samples_leaf),
         min_samples_split   = Int(min_samples_split),
         min_purity_increase = Float64(min_purity_increase),
-        rng                 = rng)
+        rng                 = rng,
+        adj                 = adj
+        )
 
     return _convert(t.root, labels[t.labels])
 end
@@ -49,6 +52,7 @@ end
 function build_forest(
         labels              :: AbstractVector{T},
         features            :: AbstractMatrix{S},
+        adj                 = nothing,
         n_subfeatures       = -1,
         n_trees             = 10,
         partial_sampling    = 0.7,
@@ -81,6 +85,7 @@ function build_forest(
             forest[i] = build_tree(
                 labels[inds],
                 features[inds,:],
+                adj,
                 n_subfeatures,
                 max_depth,
                 min_samples_leaf,
@@ -95,6 +100,7 @@ function build_forest(
             forest[i] = build_tree(
                 labels[inds],
                 features[inds,:],
+                adj,
                 n_subfeatures,
                 max_depth,
                 min_samples_leaf,
