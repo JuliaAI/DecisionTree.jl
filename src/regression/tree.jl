@@ -46,7 +46,7 @@ function _split!(
     X::AbstractMatrix{S}, # the feature array
     Y::AbstractVector{Float64}, # the label array
     W::AbstractVector{U},
-    node::NodeMeta{Any}, # the node to split
+    node::NodeMeta{Float64}, # the node to split
     max_features::Int, # number of features to consider
     max_depth::Int, # the maximum depth of the resultant tree
     min_samples_leaf::Int, # the minimum number of samples each leaf needs to have
@@ -95,7 +95,7 @@ function _split!(
     end
 
     # filter features here by changing node.features attribute
-    if isnothing(features)
+    if !isnothing(features)
         node.features = features
     else
         features = node.features
@@ -314,7 +314,7 @@ function _fit(
 
     @inbounds while length(stack) > 0
         node = pop!(stack)
-        if node == root
+        if node == root || isnothing(adj)
             _split!(
                 X,
                 Y,
