@@ -46,7 +46,7 @@ function _split!(
     X::AbstractMatrix{S}, # the feature array
     Y::AbstractVector{Float64}, # the label array
     W::AbstractVector{U},
-    node::NodeMeta{Float64}, # the node to split
+    node::NodeMeta{S}, # the node to split
     max_features::Int, # number of features to consider
     max_depth::Int, # the maximum depth of the resultant tree
     min_samples_leaf::Int, # the minimum number of samples each leaf needs to have
