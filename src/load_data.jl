@@ -1,5 +1,5 @@
 function load_data(name)
-    datasets = ["iris", "adult", "digits"]
+    datasets = ["iris", "adult", "digits", "graph_regression"]
     data_path = joinpath(dirname(pathof(DecisionTree)), "..", "test/data/")
 
     if name == "digits"
@@ -22,10 +22,26 @@ function load_data(name)
     end
 
     if name == "adult"
-        adult = DelimitedFiles.readdlm(joinpath(data_path, "adult.csv"), ',');
+        adult = DelimitedFiles.readdlm(joinpath(data_path, "adult.csv"), ',')
         X = adult[:, 1:14];
         Y = adult[:, 15];
         return X, Y
+    end
+
+    if name == "graph_regression"
+        X = DelimitedFiles.readdlm(
+            joinpath(data_path, "graph_features.csv"), 
+            ','
+        )
+        Y = DelimitedFiles.readdlm(
+            joinpath(data_path, "graph_labels.csv"), 
+            ','
+        )
+        adj = DelimitedFiles.readdlm(
+            joinpath(data_path, "graph_adjacency_matrix.csv"), 
+            ','
+        )
+        return X, Y, adj
     end
 
     if !(name in datasets)
