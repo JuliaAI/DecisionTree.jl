@@ -36,6 +36,7 @@ struct Node{S, T}
     featval :: S
     left    :: Union{Leaf{T}, Node{S, T}}
     right   :: Union{Leaf{T}, Node{S, T}}
+    depth   :: Int
 end
 
 const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
