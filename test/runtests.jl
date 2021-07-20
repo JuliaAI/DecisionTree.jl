@@ -30,6 +30,7 @@ regression =     [
     "regression/low_precision.jl",
     "regression/digits.jl",
     "regression/scikitlearn.jl"
+    "regression/graph_regression.jl"
 ]
 
 miscellaneous =  [

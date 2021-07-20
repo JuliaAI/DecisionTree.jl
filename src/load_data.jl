@@ -37,10 +37,12 @@ function load_data(name)
             joinpath(data_path, "graph_labels.csv"), 
             ','
         )
+        Y = vec(Y)
         adj = DelimitedFiles.readdlm(
             joinpath(data_path, "graph_adjacency_matrix.csv"), 
             ','
         )
+        adj = Int.(adj)
         return X, Y, adj
     end
 
