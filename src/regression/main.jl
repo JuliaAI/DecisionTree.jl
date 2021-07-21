@@ -6,7 +6,7 @@ function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T
     else
         left = _convert(node.l, labels)
         right = _convert(node.r, labels)
-        return Node{S, T}(node.feature, node.threshold, left, right, node.depth)
+        return Node{S, T}(node.feature, node.threshold, left, right)
     end
 end
 
