@@ -8,10 +8,10 @@ function check_tree(tree, adj)
     tree_features = Vector{Int}()
     function walk_tree(node)
         push!(tree_features, node.featid)
-        if is_leaf(node.left)
+        if DecisionTree.is_leaf(node.left)
             walk_tree(node.left)
         end
-        if is_leaf(node.right)
+        if DecisionTree.is_leaf(node.right)
             walk_tree(node.right)
         end
     end
@@ -24,7 +24,6 @@ function check_tree(tree, adj)
     push!(legal_features, tree.featid)
     for i in tree_features
         if i ∉ legal_features
-            println(i, " is not a legal feature")
             return false
         end
     end
