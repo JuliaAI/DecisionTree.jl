@@ -46,7 +46,7 @@ function _split!(
     X::AbstractMatrix{S}, # the feature array
     Y::AbstractVector{Float64}, # the label array
     W::AbstractVector{U},
-    node::NodeMeta{S}, # the node to split
+    node::NodeMeta{S}, # the node to split    
     max_features::Int, # number of features to consider
     max_depth::Int, # the maximum depth of the resultant tree
     min_samples_leaf::Int, # the minimum number of samples each leaf needs to have
@@ -54,13 +54,11 @@ function _split!(
     min_purity_increase::Float64, # minimum purity needed for a split
     indX::AbstractVector{Int}, # an array of sample indices,
     # we split using samples in indX[node.region]
-    # the two arrays below are given for optimization purposes
+    # the two arrays below are given for optimization purposes    
     Xf::AbstractVector{S},
     Yf::AbstractVector{Float64},
     Wf::AbstractVector{U},
-    rng::Random.AbstractRNG,
-    features::Union{Vector{Int}, Nothing} = nothing
-) where {S,U}
+    rng::Random.AbstractRNG) where {S,U}
 
     region = node.region
     n_samples = length(region)
@@ -94,12 +92,7 @@ function _split!(
         return
     end
 
-    # filter features here by changing node.features attribute
-    if !isnothing(features)
-        node.features = features
-    else
-        features = node.features
-    end
+    features = node.features
     n_features = length(features)
     best_purity = typemin(U)
     best_feature = -1
@@ -336,13 +329,14 @@ function _fit(
             # in the tree
             features_adj = adj[unique(tree_features),:]
             adjacent_features = [i[2] for i in findall(!iszero, features_adj)]
-            
+
             # if there aren't adjacent features call the node a leaf and move
             # on. Otherwise attempt to split the node on one of the adjacent
             # features
             if length(adjacent_features) == 0
                 node.is_leaf = true
             else
+                node.features = unique(vcat(tree_features, adjacent_features))
                 _split!(
                     X,
                     Y,
@@ -358,12 +352,11 @@ function _fit(
                     Yf,
                     Wf,
                     rng,
-                    unique(vcat(tree_features, adjacent_features)),
                     )
             end
-        end 
-        push!(tree_features, node.feature)
+        end
         if !node.is_leaf
+            push!(tree_features, node.feature)
             fork!(node)
             push!(stack, node.r)
             push!(stack, node.l)
