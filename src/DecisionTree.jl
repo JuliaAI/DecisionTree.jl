@@ -77,22 +77,26 @@ length(ensemble::Ensemble) = length(ensemble.trees)
 depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
-function print_tree(leaf::Leaf, depth=-1, indent=0)
+function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
     matches = findall(leaf.values .== leaf.majority)
     ratio = string(length(matches)) * "/" * string(length(leaf.values))
     println("$(leaf.majority) : $(ratio)")
 end
 
-function print_tree(tree::Node, depth=-1, indent=0)
+function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
     if depth == indent
         println()
         return
     end
-    println("Feature $(tree.featid), Threshold $(tree.featval)")
+    if isnothing(feature_names)
+        println("Feature $(tree.featid), Threshold $(tree.featval)")
+    else
+        println("Feature \"$(feature_names[tree.featid])\", Threshold $(tree.featval)")
+    end
     print("    " ^ indent * "L-> ")
-    print_tree(tree.left, depth, indent + 1)
+    print_tree(tree.left, depth, indent + 1; feature_names)
     print("    " ^ indent * "R-> ")
-    print_tree(tree.right, depth, indent + 1)
+    print_tree(tree.right, depth, indent + 1; feature_names)
 end
 
 function show(io::IO, leaf::Leaf)
