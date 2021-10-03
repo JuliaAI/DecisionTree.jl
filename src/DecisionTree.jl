@@ -91,7 +91,7 @@ function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
     if isnothing(feature_names)
         println("Feature $(tree.featid), Threshold $(tree.featval)")
     else
-        println("Feature \"$(feature_names[tree.featid])\", Threshold $(tree.featval)")
+        println("Feature $(tree.featid): \"$(feature_names[tree.featid])\", Threshold $(tree.featval)")
     end
     print("    " ^ indent * "L-> ")
     print_tree(tree.left, depth, indent + 1; feature_names)
