@@ -9,15 +9,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - 1.6
+        version:          
+          - '1.0'
+          - '1' # automatically expands to the latest stable 1.x release of Julia
         os:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
-        julia-arch:
-          - 'x64'
-          - 'x86'
+        arch:
+          - x64
+          - x86
         exclude:
           - os: macOS-latest
             julia-arch: x86
