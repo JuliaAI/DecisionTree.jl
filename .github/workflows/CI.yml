@@ -18,10 +18,6 @@ jobs:
           - windows-latest
         arch:
           - x64
-          - x86
-        exclude:
-          - os: macOS-latest
-            arch: x86
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -40,9 +36,10 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
-      - uses: julia-actions/julia-uploadcoveralls@v1
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+      - uses: julia-actions/julia-uploadcodecov@v0.1
+        continue-on-error: true
+      - uses: julia-actions/julia-uploadcoveralls@v0.1
+        continue-on-error: true
   docs:
     name: Documentation
     runs-on: ubuntu-latest
