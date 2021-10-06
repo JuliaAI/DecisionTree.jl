@@ -1,8 +1,8 @@
 # DecisionTree.jl
 
-[![Build Status](https://travis-ci.org/bensadeghi/DecisionTree.jl.svg?branch=master)](https://travis-ci.org/bensadeghi/DecisionTree.jl)
-[![Coverage Status](https://coveralls.io/repos/bensadeghi/DecisionTree.jl/badge.svg?branch=master)](https://coveralls.io/r/bensadeghi/DecisionTree.jl?branch=master)
-[![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.8/)
+[![CI](https://github.com/bensadeghi/DecisionTree.jl/workflows/CI/badge.svg)](https://github.com/bensadeghi/DecisionTree.jl/actions?query=workflow%3ACI)
+[![Codecov](https://codecov.io/gh/bensadeghi/DecisionTree.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/bensadeghi/DecisionTree.jl)
+[![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.11/)
 
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
 
