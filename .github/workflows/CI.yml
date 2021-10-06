@@ -40,22 +40,3 @@ jobs:
         continue-on-error: true
       - uses: julia-actions/julia-uploadcoveralls@v0.1
         continue-on-error: true
-  docs:
-    name: Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1'
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-docdeploy@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-      - run: |
-          julia --project=docs -e '
-            using Documenter: DocMeta, doctest
-            using DecisionTree
-            DocMeta.setdocmeta!(DecisionTree, :DocTestSetup, :(using DecisionTree); recursive=true)
-            doctest(DecisionTree)'
