@@ -306,7 +306,12 @@ module util
             min_samples_leaf    :: Int,
             min_samples_split   :: Int,
             min_purity_increase :: Float64) where {S, T, U}
-        n_samples, n_features = size(X)
+        if isa(X, AbstractVector)
+            n_samples = length(X)
+            n_features = 1
+        elseif isa(X, AbstractMatrix)
+            n_samples, n_features = size(X)
+        end
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
         elseif length(W) != n_samples
