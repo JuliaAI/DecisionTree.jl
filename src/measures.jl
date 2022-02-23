@@ -72,7 +72,7 @@ function confusion_matrix(actual::AbstractVector, predicted::AbstractVector)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
-function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::AbstractMatrix{S}, args...; verbose, rng) where {S, T}
+function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::AbstractVecOrMat{S}, args...; verbose, rng) where {S, T}
     _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
     if nfolds < 2
@@ -151,7 +151,7 @@ end
 
 function nfoldCV_tree(
         labels              :: AbstractVector{T},
-        features            :: AbstractMatrix{S},
+        features            :: AbstractVecOrMat{S},
         n_folds             :: Integer,
         pruning_purity      :: Float64 = 1.0,
         max_depth           :: Integer = -1,
@@ -165,7 +165,7 @@ function nfoldCV_tree(
 end
 function nfoldCV_forest(
         labels              :: AbstractVector{T},
-        features            :: AbstractMatrix{S},
+        features            :: AbstractVecOrMat{S},
         n_folds             :: Integer,
         n_subfeatures       :: Integer = -1,
         n_trees             :: Integer = 10,
@@ -181,7 +181,7 @@ function nfoldCV_forest(
 end
 function nfoldCV_stumps(
         labels       ::AbstractVector{T},
-        features     ::AbstractMatrix{S},
+        features     ::AbstractVecOrMat{S},
         n_folds      ::Integer,
         n_iterations ::Integer = 10;
         verbose             :: Bool = true,
@@ -203,7 +203,7 @@ function R2(actual, predicted)
     return 1.0 - ss_residual/ss_total
 end
 
-function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::AbstractMatrix, args...; verbose, rng) where T <: Float64
+function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::AbstractVecOrMat, args...; verbose, rng) where T <: Float64
     _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
     if nfolds < 2
@@ -279,7 +279,7 @@ end
 
 function nfoldCV_tree(
     labels              :: AbstractVector{T},
-    features            :: AbstractMatrix{S},
+    features            :: AbstractVecOrMat{S},
     n_folds             :: Integer,
     pruning_purity      :: Float64 = 1.0,
     max_depth           :: Integer = -1,
@@ -293,7 +293,7 @@ _nfoldCV(:tree, labels, features, n_folds, pruning_purity, max_depth,
 end
 function nfoldCV_forest(
     labels              :: AbstractVector{T},
-    features            :: AbstractMatrix{S},
+    features            :: AbstractVecOrMat{S},
     n_folds             :: Integer,
     n_subfeatures       :: Integer = -1,
     n_trees             :: Integer = 10,

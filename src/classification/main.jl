@@ -23,7 +23,7 @@ end
 
 # Applies `row_fun(X_row)::AbstractVector` to each row in X
 # and returns a matrix containing the resulting vectors, stacked vertically
-function stack_function_results(row_fun::Function, X::AbstractMatrix)
+function stack_function_results(row_fun::Function, X::AbstractVecOrMat)
     N = size(X, 1)
     N_cols = length(row_fun(X[1, :])) # gets the number of columns
     out = Array{Float64}(undef, N, N_cols)
@@ -52,7 +52,7 @@ end
 
 function build_stump(
         labels      :: AbstractVector{T},
-        features    :: AbstractMatrix{S},
+        features    :: AbstractVecOrMat{S},
         weights      = nothing;
         rng          = Random.GLOBAL_RNG) where {S, T}
 
@@ -73,7 +73,7 @@ end
 
 function build_tree(
         labels              :: AbstractVector{T},
-        features            :: AbstractMatrix{S},
+        features            :: AbstractVecOrMat{S},
         n_subfeatures        = 0,
         max_depth            = -1,
         min_samples_leaf     = 1,
@@ -150,7 +150,7 @@ function apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
     end
 end
 
-function apply_tree(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}) where {S, T}
+function apply_tree(tree::LeafOrNode{S, T}, features::AbstractVecOrMat{S}) where {S, T}
     N = size(features,1)
     predictions = Array{T}(undef, N)
     for i in 1:N
@@ -184,12 +184,12 @@ function apply_tree_proba(tree::Node{S, T}, features::AbstractVector{S}, labels)
     end
 end
 
-apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
+apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractVecOrMat{S}, labels) where {S, T} =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
 function build_forest(
         labels              :: AbstractVector{T},
-        features            :: AbstractMatrix{S},
+        features            :: AbstractVecOrMat{S},
         n_subfeatures       = -1,
         n_trees             = 10,
         partial_sampling    = 0.7,
@@ -268,7 +268,7 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where
     end
 end
 
-function apply_forest(forest::Ensemble{S, T}, features::AbstractMatrix{S}) where {S, T}
+function apply_forest(forest::Ensemble{S, T}, features::AbstractVecOrMat{S}) where {S, T}
     N = size(features,1)
     predictions = Array{T}(undef, N)
     for i in 1:N
@@ -290,13 +290,13 @@ function apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVector{S},
     return compute_probabilities(labels, votes)
 end
 
-apply_forest_proba(forest::Ensemble{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
+apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVecOrMat{S}, labels) where {S, T} =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 
 function build_adaboost_stumps(
         labels       :: AbstractVector{T},
-        features     :: AbstractMatrix{S},
+        features     :: AbstractVecOrMat{S},
         n_iterations :: Integer;
         rng           = Random.GLOBAL_RNG) where {S, T}
     N = length(labels)
@@ -339,7 +339,7 @@ function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Fl
     return top_prediction
 end
 
-function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64}, features::AbstractMatrix{S}) where {S, T}
+function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64}, features::AbstractVecOrMat{S}) where {S, T}
     n_samples = size(features, 1)
     predictions = Array{T}(undef, n_samples)
     for i in 1:n_samples
@@ -363,6 +363,6 @@ function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVec
 end
 
 function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
-                                    features::AbstractMatrix{S}, labels::AbstractVector{T}) where {S, T}
+                                    features::AbstractVecOrMat{S}, labels::AbstractVector{T}) where {S, T}
     stack_function_results(row->apply_adaboost_stumps_proba(stumps, coeffs, row, labels), features)
 end

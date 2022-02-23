@@ -298,7 +298,7 @@ module util
     end
 
     function check_input(
-            X                   :: AbstractMatrix{S},
+            X                   :: AbstractVecOrMat{S},
             Y                   :: AbstractVector{T},
             W                   :: AbstractVector{U},
             max_features        :: Int,

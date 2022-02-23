@@ -136,7 +136,7 @@ end
                          [:pruning_purity_threshold, :min_samples_leaf, :n_subfeatures,
                           :max_depth, :min_samples_split, :min_purity_increase, :rng])
 
-function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
+function fit!(dt::DecisionTreeRegressor, X::AbstractVecOrMat, y::AbstractVector)
     n_samples, n_features = size(X)
     dt.root = build_tree(
         float.(y), X,
@@ -213,7 +213,7 @@ get_classes(rf::RandomForestClassifier) = rf.classes
                           :min_samples_leaf, :min_samples_split, :min_purity_increase,
                           :rng])
 
-function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
+function fit!(rf::RandomForestClassifier, X::AbstractVecOrMat, y::AbstractVector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
         y, X,
@@ -297,7 +297,7 @@ end
                           # since it'll change throughout fitting, but it works
                           :max_depth, :rng])
 
-function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
+function fit!(rf::RandomForestRegressor, X::AbstractVecOrMat, y::AbstractVector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
         float.(y), X,
