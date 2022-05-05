@@ -92,7 +92,7 @@ In the example output below, the top node considers whether
 If the value of "Feature 3" is strictly below the threshold for some input to be classified, 
 we move to the `L->` part underneath, which is a node 
 looking at if "Feature 2" is above or below -161.04351901384842.
-If the value of "Feature 2" is below the threshold for some input to be classified, 
+If the value of "Feature 2" is strictly below the threshold for some input to be classified, 
 we end up at `L-> 5 : 842/3650`. This is to be read as "In the left split, 
 the tree will classify the input as class 5, as 842 of the 3650 datapoints 
 in the training data that ended up here were of class 5."
