@@ -1,4 +1,4 @@
-# DecisionTree.jl 
+# DecisionTree.jl
 
 [![CI](https://github.com/JuliaAI/DecisionTree.jl/workflows/CI/badge.svg)](https://github.com/JuliaAI/DecisionTree.jl/actions?query=workflow%3ACI)
 [![Codecov](https://codecov.io/gh/JuliaAI/DecisionTree.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaAI/DecisionTree.jl)
@@ -12,7 +12,7 @@ the [JuliaAI](https://github.com/JuliaAI) organization.
 Available via:
 * [AutoMLPipeline.jl](https://github.com/IBM/AutoMLPipeline.jl) - create complex ML pipeline structures using simple expressions
 * [CombineML.jl](https://github.com/ppalmes/CombineML.jl) - a heterogeneous ensemble learning package
-* [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl) - a machine learning framework for Julia
+* [MLJ.jl](https://alan-turing-institute.github.io/MLJ.jl/dev/) - a machine learning framework for Julia
 * [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) - Julia implementation of the scikit-learn API
 
 ## Classification
@@ -284,6 +284,33 @@ r2 =  nfoldCV_forest(labels, features,
                      verbose = true,
                      rng = seed)
 ```
+
+## MLJ.jl API
+
+To use with
+'[MLJ](https://alan-turing-institute.github.io/MLJ.jl/dev/), first
+ensure MLJ.jl and MLJDecisionTreeInterface.jl are both in your Julia
+environment. For example, for installation in a fresh environment:
+
+```julia
+using Pkg
+Pkg.activate("my_fresh_mlj_environment", shared=true)
+Pkg.add("MLJ")
+Pkg.add("MLJDecisionTreeInterface")
+```
+
+Detailed usage instructions are availaible for each model using the
+`doc` method. For example:
+
+```julia
+using MLJ
+doc("DecisionTreeClassifier", pkg="DecisionTree")
+```
+
+Available models are: 'AdaBoostStumpClassifier',
+'DecisionTreeClassifier', 'DecisionTreeRegressor',
+'RandomForestClassifier', 'RandomForestRegressor'.
+
 
 ## Saving Models
 Models can be saved to disk and loaded back with the use of the [JLD2.jl](https://github.com/JuliaIO/JLD2.jl) package.
