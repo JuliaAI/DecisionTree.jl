@@ -287,10 +287,10 @@ r2 =  nfoldCV_forest(labels, features,
 
 ## MLJ.jl API
 
-To use with
-'[MLJ](https://alan-turing-institute.github.io/MLJ.jl/dev/), first
+To use DecsionTree.jl models in
+[MLJ](https://alan-turing-institute.github.io/MLJ.jl/dev/), first
 ensure MLJ.jl and MLJDecisionTreeInterface.jl are both in your Julia
-environment. For example, for installation in a fresh environment:
+environment. For example, to install in a fresh environment:
 
 ```julia
 using Pkg
@@ -307,9 +307,9 @@ using MLJ
 doc("DecisionTreeClassifier", pkg="DecisionTree")
 ```
 
-Available models are: 'AdaBoostStumpClassifier',
-'DecisionTreeClassifier', 'DecisionTreeRegressor',
-'RandomForestClassifier', 'RandomForestRegressor'.
+Available models are: `AdaBoostStumpClassifier`,
+`DecisionTreeClassifier`, `DecisionTreeRegressor`,
+`RandomForestClassifier`, `RandomForestRegressor`.
 
 
 ## Saving Models
