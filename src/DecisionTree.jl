@@ -89,7 +89,7 @@ end
 Print a textual visualization of the given decision tree `tree`.
 In the example output below, the top node considers whether 
 "Feature 3" is above or below the threshold -28.156052806422238.
-If the value of "Feature 3" is below the threshold for some input to be classified, 
+If the value of "Feature 3" is strictly below the threshold for some input to be classified, 
 we move to the `L->` part underneath, which is a node 
 looking at if "Feature 2" is above or below -161.04351901384842.
 If the value of "Feature 2" is below the threshold for some input to be classified, 
