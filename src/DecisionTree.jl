@@ -87,7 +87,7 @@ end
        print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
 
 Print a textual visualization of the given decision tree `tree`.
-In the example output below, the top node look at if 
+In the example output below, the top node considers whether 
 "Feature 3" is above or below the threshold -28.156052806422238.
 If the value of "Feature 3" is below the threshold for some input to be classified, 
 we move to the `L->` part underneath, which is a node 
