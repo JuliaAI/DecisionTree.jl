@@ -1,12 +1,13 @@
 # DecisionTree.jl
 
-[![CI](https://github.com/bensadeghi/DecisionTree.jl/workflows/CI/badge.svg)](https://github.com/bensadeghi/DecisionTree.jl/actions?query=workflow%3ACI)
-[![Codecov](https://codecov.io/gh/bensadeghi/DecisionTree.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/bensadeghi/DecisionTree.jl)
+[![CI](https://github.com/JuliaAI/DecisionTree.jl/workflows/CI/badge.svg)](https://github.com/JuliaAI/DecisionTree.jl/actions?query=workflow%3ACI)
+[![Codecov](https://codecov.io/gh/JuliaAI/DecisionTree.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaAI/DecisionTree.jl)
 [![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.11/)
 
-### Disclaimer: this package is no longer maintained.
-
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
+
+Created and developed by Ben Sadeghi (@bensadeghi). Now maintained by
+the [JuliaAI](https://github.com/JuliaAI) organization.
 
 Available via:
 * [AutoMLPipeline.jl](https://github.com/IBM/AutoMLPipeline.jl) - create complex ML pipeline structures using simple expressions
