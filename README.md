@@ -299,7 +299,7 @@ Pkg.add("MLJ")
 Pkg.add("MLJDecisionTreeInterface")
 ```
 
-Detailed usage instructions are availaible for each model using the
+Detailed usage instructions are available for each model using the
 `doc` method. For example:
 
 ```julia
