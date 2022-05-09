@@ -80,11 +80,6 @@ length(ensemble::Ensemble) = length(ensemble.trees)
 depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
-"""
-To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object or 
-`DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the 
-AbstractTrees.jl interface. See  [`wrap`](@ref)` for details. 
-"""
 function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
     matches = findall(leaf.values .== leaf.majority)
     ratio = string(length(matches)) * "/" * string(length(leaf.values))
@@ -115,6 +110,10 @@ R-> Feature 7, Threshold 108.1408338577021
     L-> 2 : 2434/15287
     R-> 8 : 1227/3508
 ```
+
+To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object or 
+`DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the 
+AbstractTrees.jl interface. See  [`wrap`](@ref)` for details. 
 """
 function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
     if depth == indent
