@@ -7,8 +7,9 @@ The functions `children` and `printnode` make up the interface traits of `Abstra
 
 The goal of this implementation is to wrap a `DecisionTree` in this abstract layer, 
 so that a plot recipe for visualization of the tree can be created that doesn't rely 
-on any implementation details of `DecisionTree`. The plot recipe is part of `MLJ.jl` 
-where all tree-like models may be visualized using this approach.
+on any implementation details of `DecisionTree`. That opens the possibility to create
+a plot recipe which can be used by a variety of tree-like models. Actually there is 
+the idea to extend `MLJ.jl` in the future with a collection of such (generic) recipes.
 
 For a more detailed explanation of this concept have a look at the follwing article 
 in "Towards Data Science": 
@@ -41,13 +42,20 @@ struct InfoLeaf{T}
 end
 
 """
-    wrap(node, info = NamedTuple())
-    wrap(leaf, info = NamedTuple())
+    wrap(node::DecisionTree.Node, info = NamedTuple())
+    wrap(leaf::DecisionTree.Leaf, info = NamedTuple())
 
 Add to each `node` (or `leaf`) the additional information `info` 
 and wrap both in an `InfoNode`/`InfoLeaf`.
 
-To use a DecisionTree `dc` with the abstraction layer 
+Typically a `node` or a `leaf` is obtained by creating a decision tree using either
+the native interface of `DecisionTree.jl` or its `MLJ` interface: 
+- The function `build_tree` of the native interface returns such an object. 
+- When using `MLJ`, the model gets trained by calling `fit!(machine)`. After this step 
+  the resulting decision tree (again a `node` or a `leaf` object) can be accessed by calling 
+  `fitted_params(machine).tree`.
+
+To use a DecisionTree `dc` (obtained this way) with the abstraction layer 
 provided by the `AbstractTrees`-interface implemented here
 and optionally add feature names `feature_names` and/or `class_labels` 
 (both: arrays of strings) use the following syntax:
