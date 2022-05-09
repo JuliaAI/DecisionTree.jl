@@ -1,6 +1,6 @@
 __precompile__()
 
-module DecisionTree
+module DecisionTree 
 
 import Base: length, show, convert, promote_rule, zero
 using DelimitedFiles
@@ -91,6 +91,31 @@ function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
     println("$(leaf.majority) : $(ratio)")
 end
 
+"""
+       print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
+
+Print a textual visualization of the given decision tree `tree`.
+In the example output below, the top node considers whether 
+"Feature 3" is above or below the threshold -28.156052806422238.
+If the value of "Feature 3" is strictly below the threshold for some input to be classified, 
+we move to the `L->` part underneath, which is a node 
+looking at if "Feature 2" is above or below -161.04351901384842.
+If the value of "Feature 2" is strictly below the threshold for some input to be classified, 
+we end up at `L-> 5 : 842/3650`. This is to be read as "In the left split, 
+the tree will classify the input as class 5, as 842 of the 3650 datapoints 
+in the training data that ended up here were of class 5."
+
+# Example output:
+```
+Feature 3, Threshold -28.156052806422238
+L-> Feature 2, Threshold -161.04351901384842
+    L-> 5 : 842/3650
+    R-> 7 : 2493/10555
+R-> Feature 7, Threshold 108.1408338577021
+    L-> 2 : 2434/15287
+    R-> 8 : 1227/3508
+```
+"""
 function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
     if depth == indent
         println()
