@@ -23,7 +23,7 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
        # `using ScikitLearnBase`.
        predict, predict_proba, fit!, get_classes
 
-export InfoNode, InfoLeaf, wrap, children, printnode
+export InfoNode, InfoLeaf, wrap
 
 ###########################
 ########## Types ##########
