@@ -104,12 +104,17 @@ If `node.info`/`leaf.info` have a field called
   They will be used for printing instead of the ids.
   (Note: DecisionTrees created using MLJ use ids in their leaves; 
   otherwise class labels are present)
+
+For the condition of the form `feature < value` which gets printed in the `printnode` 
+variant for `InfoNode`, the left subtree is the 'yes-branch' and the right subtree
+accordingly the 'no-branch'. `AbstractTrees.print_tree` outputs the left subtree first
+and then below the right subtree.
 """
 function AbstractTrees.printnode(io::IO, node::InfoNode)
     if :featurenames ∈ keys(node.info) 
-        print(io, node.info.featurenames[node.node.featid], " --> ", node.node.featval)
+        print(io, node.info.featurenames[node.node.featid], " < ", node.node.featval)
     else
-	    print(io, "Feature: ", node.node.featid, " --> ", node.node.featval)
+	    print(io, "Feature: ", node.node.featid, " < ", node.node.featval)
     end
 end
 

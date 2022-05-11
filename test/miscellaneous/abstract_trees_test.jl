@@ -10,7 +10,7 @@
 featid_pattern          = "Feature: "               # feature ids are prepended by this text
 classid_pattern         = "Class: "                 # `Leaf.majority` is prepended by this text
 # if feature names and class labels are given, they can be identified within the tree using these patterns
-fname_pattern(fname)    = fname * " -->"            # feature names are followed by " -->"
+fname_pattern(fname)    = fname * " <"            # feature names are followed by " <"
 clabel_pattern(clabel)  = "─ " * clabel * " ("      # class labels are embedded in "─ " and " ("
 
 # occur all elements of `pool` in the form defined by `fname_/clabel_pattern` in `str_tree`?  
