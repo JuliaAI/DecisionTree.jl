@@ -48,11 +48,9 @@ Add to each `node` (or `leaf`) the additional information `info`
 and wrap both in an `InfoNode`/`InfoLeaf`.
 
 Typically a `node` or a `leaf` is obtained by creating a decision tree using either
-the native interface of `DecisionTree.jl` or its `MLJ` interface: 
-- The function `build_tree` of the native interface returns such an object. 
-- When using `MLJ`, the model gets trained by calling `fit!(machine)`. After this step 
-  the resulting decision tree (again a `node` or a `leaf` object) can be accessed by calling 
-  `fitted_params(machine).tree`.
+the native interface of `DecisionTree.jl` or via other interfaces which are available
+for this package (like `MLJ`, ScikitLearn; see their docs for further details).
+Using the function `build_tree` of the native interface returns such an object. 
 
 To use a DecisionTree `dc` (obtained this way) with the abstraction layer 
 provided by the `AbstractTrees`-interface implemented here
