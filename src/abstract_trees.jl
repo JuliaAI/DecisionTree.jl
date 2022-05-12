@@ -7,9 +7,8 @@ The functions `children` and `printnode` make up the interface traits of `Abstra
 
 The goal of this implementation is to wrap a `DecisionTree` in this abstract layer, 
 so that a plot recipe for visualization of the tree can be created that doesn't rely 
-on any implementation details of `DecisionTree`. That opens the possibility to create
-a plot recipe which can be used by a variety of tree-like models. Actually there is 
-the idea to extend `MLJ.jl` in the future with a collection of such (generic) recipes.
+on any implementation details of `DecisionTree.jl`. That opens the possibility to create
+a plot recipe which can be used by a variety of tree-like models. 
 
 For a more detailed explanation of this concept have a look at the follwing article 
 in "Towards Data Science": 
@@ -37,7 +36,7 @@ struct InfoNode{S, T}
 end
 
 struct InfoLeaf{T}
-	leaf    :: DecisionTree.Leaf{T}
+    leaf    :: DecisionTree.Leaf{T}
     info    :: NamedTuple
 end
 
