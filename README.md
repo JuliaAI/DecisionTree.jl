@@ -319,3 +319,12 @@ using JLD2
 @save "model_file.jld2" model
 ```
 Note that even though features and labels of type `Array{Any}` are supported, it is highly recommended that data be cast to explicit types (ie with `float.(), string.()`, etc). This significantly improves model training and prediction execution times, and also drastically reduces the size of saved models.
+
+## Visualization
+A `DecisionTree` model can be visualized using the `print_tree`-function of its native interface
+(for an example see above in section 'Classification Example').
+
+Apart from this, an abstraction layer using `AbstractTrees.jl` has been implemented with the intention to facilitate visualizations, which don't rely on any implementation details of `DecisionTree`. For more information have a look at the docs in `src/abstract_trees.jl` and the [`wrap`](@ref)-function, which creates this layer for a `DecisionTree` model.
+
+Apart from this, `AbstractTrees.jl` brings its own implementation of `print_tree`. 
+
