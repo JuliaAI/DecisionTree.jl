@@ -1,7 +1,14 @@
 name: CI
 on:
-  - push
-  - pull_request
+  pull_request:
+    branches:
+      - master
+      - dev
+  push:
+    branches:
+      - master
+      - dev
+    tags: '*'
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -11,6 +18,7 @@ jobs:
       matrix:
         version:          
           - '1.0'
+          - '1.6'
           - '1' # automatically expands to the latest stable 1.x release of Julia
         os:
           - ubuntu-latest
