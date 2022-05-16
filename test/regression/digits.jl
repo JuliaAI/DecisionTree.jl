@@ -82,7 +82,7 @@ preds = apply_forest(model, X)
 println("\n##### 3 foldCV Regression Tree #####")
 n_folds = 5
 r2 = nfoldCV_tree(Y, X, n_folds; verbose=false);
-@test mean(r2) > 0.6
+@test mean(r2) > 0.55
 
 println("\n##### 3 foldCV Regression Forest #####")
 n_subfeatures = 2
