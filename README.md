@@ -4,6 +4,8 @@
 [![Codecov](https://codecov.io/gh/bensadeghi/DecisionTree.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/bensadeghi/DecisionTree.jl)
 [![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.11/)
 
+Most of this work is not mine, but since the original repo is no longer maintained, I will try to adapt this fork to my own needs.
+
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
 
 Available via:
