@@ -138,15 +138,15 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=1.0) where {S, T}
 end
 
 
-apply_tree(leaf::Leaf{T}, feature::AbstractVector{S}) where {S, T} = leaf.majority
+_apply_tree(leaf::Leaf{T}, feature::AbstractVector{S}) where {S, T} = leaf.majority
 
-function apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
+function _apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
     if tree.featid == 0
-        return apply_tree(tree.left, features)
+        return _apply_tree(tree.left, features)
     elseif features[tree.featid] < tree.featval
-        return apply_tree(tree.left, features)
+        return _apply_tree(tree.left, features)
     else
-        return apply_tree(tree.right, features)
+        return _apply_tree(tree.right, features)
     end
 end
 
@@ -154,7 +154,7 @@ function apply_tree(tree::LeafOrNode{S, T}, features::AbstractVecOrMat{S}) where
     N = size(features,1)
     predictions = Array{T}(undef, N)
     for i in 1:N
-        predictions[i] = apply_tree(tree, features[i, :])
+        predictions[i] = _apply_tree(tree, features[i, :])
     end
     if T <: Float64
         return Float64.(predictions)
@@ -171,16 +171,16 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-apply_tree_proba(leaf::Leaf{T}, features::AbstractVector{S}, labels) where {S, T} =
+_apply_tree_proba(leaf::Leaf{T}, features::AbstractVector{S}, labels) where {S, T} =
     compute_probabilities(labels, leaf.values)
 
-function apply_tree_proba(tree::Node{S, T}, features::AbstractVector{S}, labels) where {S, T}
+function _apply_tree_proba(tree::Node{S, T}, features::AbstractVector{S}, labels) where {S, T}
     if tree.featval === nothing
-        return apply_tree_proba(tree.left, features, labels)
+        return _apply_tree_proba(tree.left, features, labels)
     elseif features[tree.featid] < tree.featval
-        return apply_tree_proba(tree.left, features, labels)
+        return _apply_tree_proba(tree.left, features, labels)
     else
-        return apply_tree_proba(tree.right, features, labels)
+        return _apply_tree_proba(tree.right, features, labels)
     end
 end
 
@@ -254,11 +254,11 @@ function build_forest(
     return Ensemble{S, T}(forest)
 end
 
-function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where {S, T}
+function _apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where {S, T}
     n_trees = length(forest)
     votes = Array{T}(undef, n_trees)
     for i in 1:n_trees
-        votes[i] = apply_tree(forest.trees[i], features)
+        votes[i] = _apply_tree(forest.trees[i], features)
     end
 
     if T <: Float64
@@ -272,7 +272,7 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractVecOrMat{S}) whe
     N = size(features,1)
     predictions = Array{T}(undef, N)
     for i in 1:N
-        predictions[i] = apply_forest(forest, features[i, :])
+        predictions[i] = _apply_forest(forest, features[i, :])
     end
     return predictions
 end
@@ -285,13 +285,13 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-function apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVector{S}, labels) where {S, T}
-    votes = [apply_tree(tree, features) for tree in forest.trees]
+function _apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVector{S}, labels) where {S, T}
+    votes = [_apply_tree(tree, features) for tree in forest.trees]
     return compute_probabilities(labels, votes)
 end
 
 apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVecOrMat{S}, labels) where {S, T} =
-    stack_function_results(row->apply_forest_proba(forest, row, labels),
+    stack_function_results(row->_apply_forest_proba(forest, row, labels),
                            features)
 
 function build_adaboost_stumps(
@@ -321,11 +321,11 @@ function build_adaboost_stumps(
     return (Ensemble{S, T}(stumps), coeffs)
 end
 
-function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64}, features::AbstractVector{S}) where {S, T}
+function _apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64}, features::AbstractVector{S}) where {S, T}
     n_stumps = length(stumps)
     counts = Dict()
     for i in 1:n_stumps
-        prediction = apply_tree(stumps.trees[i], features)
+        prediction = _apply_tree(stumps.trees[i], features)
         counts[prediction] = get(counts, prediction, 0.0) + coeffs[i]
     end
     top_prediction = stumps.trees[1].left.majority
@@ -343,7 +343,7 @@ function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Fl
     n_samples = size(features, 1)
     predictions = Array{T}(undef, n_samples)
     for i in 1:n_samples
-        predictions[i] = apply_adaboost_stumps(stumps, coeffs, features[i,:])
+        predictions[i] = _apply_adaboost_stumps(stumps, coeffs, features[i,:])
     end
     return predictions
 end
@@ -356,7 +356,7 @@ n_labels` matrix of probabilities, each row summing up to 1.
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
 of the output matrix. """
-function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
+function _apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
                                      features::AbstractVector{S}, labels::AbstractVector{T}) where {S, T}
     votes = [apply_tree(stump, features) for stump in stumps.trees]
     compute_probabilities(labels, votes, coeffs)
@@ -364,5 +364,5 @@ end
 
 function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
                                     features::AbstractVecOrMat{S}, labels::AbstractVector{T}) where {S, T}
-    stack_function_results(row->apply_adaboost_stumps_proba(stumps, coeffs, row, labels), features)
+    stack_function_results(row->_apply_adaboost_stumps_proba(stumps, coeffs, row, labels), features)
 end

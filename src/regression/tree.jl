@@ -239,12 +239,7 @@ module treeregressor
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
-        if isa(X, AbstractVector)
-            n_samples = length(X)
-            n_features = 1
-        elseif isa(X, AbstractMatrix)
-            n_samples, n_features = size(X)
-        end
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         Yf  = Array{Float64}(undef, n_samples)
         Xf  = Array{S}(undef, n_samples)
         Wf  = Array{U}(undef, n_samples)
@@ -285,12 +280,8 @@ module treeregressor
             min_samples_split     :: Int,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
-        if isa(X, AbstractVector)
-            n_samples = length(X)
-            n_features = 1
-        elseif isa(X, AbstractMatrix)
-            n_samples, n_features = size(X)
-        end
+
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         if W == nothing
             W = fill(1.0, n_samples)
         end

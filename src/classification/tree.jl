@@ -237,9 +237,8 @@ module treeclassifier
             min_samples_split     :: Int,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
-
-        n_samples, n_features = size(X)
-
+        
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         nc  = Array{U}(undef, n_classes)
         ncl = Array{U}(undef, n_classes)
         ncr = Array{U}(undef, n_classes)
@@ -284,7 +283,7 @@ module treeclassifier
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
 
-        n_samples, n_features = size(X)
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         list, Y_ = util.assign(Y)
         if W == nothing
             W = fill(1, n_samples)
