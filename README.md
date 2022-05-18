@@ -1,17 +1,18 @@
 # DecisionTree.jl
 
-[![CI](https://github.com/bensadeghi/DecisionTree.jl/workflows/CI/badge.svg)](https://github.com/bensadeghi/DecisionTree.jl/actions?query=workflow%3ACI)
-[![Codecov](https://codecov.io/gh/bensadeghi/DecisionTree.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/bensadeghi/DecisionTree.jl)
+[![CI](https://github.com/JuliaAI/DecisionTree.jl/workflows/CI/badge.svg)](https://github.com/JuliaAI/DecisionTree.jl/actions?query=workflow%3ACI)
+[![Codecov](https://codecov.io/gh/JuliaAI/DecisionTree.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaAI/DecisionTree.jl)
 [![Docs Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliahub.com/docs/DecisionTree/pEDeB/0.10.11/)
 
-Most of this work is not mine, but since the original repo is no longer maintained, I will try to adapt this fork to my own needs.
-
 Julia implementation of Decision Tree (CART) and Random Forest algorithms
+
+Created and developed by Ben Sadeghi (@bensadeghi). Now maintained by
+the [JuliaAI](https://github.com/JuliaAI) organization.
 
 Available via:
 * [AutoMLPipeline.jl](https://github.com/IBM/AutoMLPipeline.jl) - create complex ML pipeline structures using simple expressions
 * [CombineML.jl](https://github.com/ppalmes/CombineML.jl) - a heterogeneous ensemble learning package
-* [MLJ.jl](https://github.com/alan-turing-institute/MLJ.jl) - a machine learning framework for Julia
+* [MLJ.jl](https://alan-turing-institute.github.io/MLJ.jl/dev/) - a machine learning framework for Julia
 * [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) - Julia implementation of the scikit-learn API
 
 ## Classification
@@ -284,6 +285,33 @@ r2 =  nfoldCV_forest(labels, features,
                      rng = seed)
 ```
 
+## MLJ.jl API
+
+To use DecsionTree.jl models in
+[MLJ](https://alan-turing-institute.github.io/MLJ.jl/dev/), first
+ensure MLJ.jl and MLJDecisionTreeInterface.jl are both in your Julia
+environment. For example, to install in a fresh environment:
+
+```julia
+using Pkg
+Pkg.activate("my_fresh_mlj_environment", shared=true)
+Pkg.add("MLJ")
+Pkg.add("MLJDecisionTreeInterface")
+```
+
+Detailed usage instructions are available for each model using the
+`doc` method. For example:
+
+```julia
+using MLJ
+doc("DecisionTreeClassifier", pkg="DecisionTree")
+```
+
+Available models are: `AdaBoostStumpClassifier`,
+`DecisionTreeClassifier`, `DecisionTreeRegressor`,
+`RandomForestClassifier`, `RandomForestRegressor`.
+
+
 ## Saving Models
 Models can be saved to disk and loaded back with the use of the [JLD2.jl](https://github.com/JuliaIO/JLD2.jl) package.
 ```julia
@@ -291,3 +319,12 @@ using JLD2
 @save "model_file.jld2" model
 ```
 Note that even though features and labels of type `Array{Any}` are supported, it is highly recommended that data be cast to explicit types (ie with `float.(), string.()`, etc). This significantly improves model training and prediction execution times, and also drastically reduces the size of saved models.
+
+## Visualization
+A `DecisionTree` model can be visualized using the `print_tree`-function of its native interface
+(for an example see above in section 'Classification Example').
+
+In addition, an abstraction layer using `AbstractTrees.jl` has been implemented with the intention to facilitate visualizations, which don't rely on any implementation details of `DecisionTree`. For more information have a look at the docs in `src/abstract_trees.jl` and the [`wrap`](@ref)-function, which creates this layer for a `DecisionTree` model.
+
+Apart from this, `AbstractTrees.jl` brings its own implementation of `print_tree`. 
+
