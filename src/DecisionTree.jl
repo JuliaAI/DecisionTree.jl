@@ -7,6 +7,7 @@ using DelimitedFiles
 using LinearAlgebra
 using Random
 using Statistics
+import AbstractTrees
 
 export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
@@ -22,6 +23,7 @@ export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
        # `using ScikitLearnBase`.
        predict, predict_proba, fit!, get_classes
 
+export InfoNode, InfoLeaf, wrap
 
 ###########################
 ########## Types ##########
@@ -65,6 +67,7 @@ include("util.jl")
 include("classification/main.jl")
 include("regression/main.jl")
 include("scikitlearnAPI.jl")
+include("abstract_trees.jl")
 
 
 #############################
@@ -107,6 +110,10 @@ R-> Feature 7, Threshold 108.1408338577021
     L-> 2 : 2434/15287
     R-> 8 : 1227/3508
 ```
+
+To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object or 
+`DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the 
+AbstractTrees.jl interface. See  [`wrap`](@ref)` for details. 
 """
 function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
     if depth == indent

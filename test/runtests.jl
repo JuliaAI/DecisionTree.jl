@@ -3,6 +3,7 @@ using DelimitedFiles
 using Random
 using ScikitLearnBase
 using Statistics
+import AbstractTrees
 using Test
 
 println("Julia version: ", VERSION)
@@ -33,8 +34,10 @@ regression =     [
 ]
 
 miscellaneous =  [
-    "miscellaneous/convert.jl"
+    "miscellaneous/convert.jl",
+    "miscellaneous/abstract_trees_test.jl"
 #    "miscellaneous/parallel.jl"
+
 ]
 
 test_suites = [
