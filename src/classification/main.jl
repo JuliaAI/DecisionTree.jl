@@ -185,7 +185,7 @@ function _apply_tree_proba(tree::Node{S, T}, features::AbstractVector{S}, labels
 end
 
 apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractVecOrMat{S}, labels) where {S, T} =
-    stack_function_results(row->apply_tree_proba(tree, row, labels), features)
+    stack_function_results(row->_apply_tree_proba(tree, row, labels), features)
 
 function build_forest(
         labels              :: AbstractVector{T},
@@ -358,7 +358,7 @@ n_labels` matrix of probabilities, each row summing up to 1.
 of the output matrix. """
 function _apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
                                      features::AbstractVector{S}, labels::AbstractVector{T}) where {S, T}
-    votes = [apply_tree(stump, features) for stump in stumps.trees]
+    votes = [_apply_tree(stump, features) for stump in stumps.trees]
     compute_probabilities(labels, votes, coeffs)
 end
 

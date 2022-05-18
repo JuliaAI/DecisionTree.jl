@@ -18,6 +18,21 @@ model = fit!(AdaBoostStumpClassifier(), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
 mean(predict(model, features) .== labels)
 
+# Repeat above but for input as vector
+features = rand(n);
+labels = round.(Int, features);
+
+model = fit!(DecisionTreeClassifier(pruning_purity_threshold=0.9), features, labels)
+@test mean(predict(model, features) .== labels) > 0.8
+
+model = fit!(RandomForestClassifier(), features, labels)
+@test mean(predict(model, features) .== labels) > 0.8
+
+model = fit!(AdaBoostStumpClassifier(), features, labels)
+# Adaboost isn't so hot on this task, disabled for now
+mean(predict(model, features) .== labels)
+# End Vector input tests
+
 Random.seed!(2)
 N = 3000
 X = randn(N, 10)
