@@ -13,7 +13,8 @@ export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data
+       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
+       feature_importances, permutation_importances, dropcol_importances, accuracy
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
@@ -40,19 +41,44 @@ struct Node{S, T}
     right   :: Union{Leaf{T}, Node{S, T}}
 end
 
-const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
+struct RootNode{S, T}
+    featid  :: Int
+    featval :: S
+    left    :: Union{Leaf{T}, Node{S, T}}
+    right   :: Union{Leaf{T}, Node{S, T}}
+    featim  :: Vector{Float64}
+end
+
+const Nodes{S, T} = Union{Node{S, T}, RootNode{S, T}}
+
+const LeafOrNode{S, T} = Union{Leaf{T}, Nodes{S, T}}
 
 struct Ensemble{S, T}
     trees :: Vector{LeafOrNode{S, T}}
+    featim:: Vector{Float64}
+    
+    Ensemble{S, T}(trees::Vector{<: LeafOrNode{S, T}}, fi::Vector{Float64}) where {S, T} = new{S, T}(trees, fi)
+    Ensemble{S, T}(trees::Vector{<: LeafOrNode{S, T}}) where {S, T} = new{S, T}(trees)
 end
 
-is_leaf(l::Leaf) = true
-is_leaf(n::Node) = false
 
-zero(String) = ""
+is_leaf(l::Leaf) = true
+is_leaf(n::Nodes) = false
+
+zero(::Type{String}) = ""
 convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, zero(S), lf, Leaf(zero(T), [zero(T)]))
+convert(::Type{RootNode{S, T}}, lf::Leaf{T}) where {S, T} = RootNode(0, zero(S), lf, Leaf(zero(T), [zero(T)]), Float64[])
+convert(::Type{RootNode{S, T}}, node::Node{S, T}) where {S, T} = RootNode(node.featid, node.featval, node.left, node.right, Float64[])
 promote_rule(::Type{Node{S, T}}, ::Type{Leaf{T}}) where {S, T} = Node{S, T}
 promote_rule(::Type{Leaf{T}}, ::Type{Node{S, T}}) where {S, T} = Node{S, T}
+promote_rule(::Type{RootNode{S, T}}, ::Type{Leaf{T}}) where {S, T} = RootNode{S, T}
+promote_rule(::Type{Leaf{T}}, ::Type{RootNode{S, T}}) where {S, T} = RootNode{S, T}
+promote_rule(::Type{Node{S, T}}, ::Type{RootNode{S, T}}) where {S, T} = RootNode{S, T}
+promote_rule(::Type{RootNode{S, T}}, ::Type{Node{S, T}}) where {S, T} = RootNode{S, T}
+
+_convert_root(tree::RootNode{S, T}) where {S, T} = Node{S, T}(tree.featid, tree.featval, tree.left, tree.right)
+_convert_root(leaf::Leaf{T}) where T = leaf
+_convert_root(tree::Node{S, T}) where {S, T} = tree
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
@@ -74,11 +100,11 @@ include("abstract_trees.jl")
 ########## Methods ##########
 
 length(leaf::Leaf) = 1
-length(tree::Node) = length(tree.left) + length(tree.right)
+length(tree::Nodes) = length(tree.left) + length(tree.right)
 length(ensemble::Ensemble) = length(ensemble.trees)
 
 depth(leaf::Leaf) = 0
-depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
+depth(tree::Nodes) = 1 + max(depth(tree.left), depth(tree.right))
 
 function print_tree(io::IO, leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
     n_matches = count(leaf.values .== leaf.majority)
@@ -143,7 +169,7 @@ function show(io::IO, leaf::Leaf)
     print(io,   "Samples:  $(length(leaf.values))")
 end
 
-function show(io::IO, tree::Node)
+function show(io::IO, tree::Nodes)
     println(io, "Decision Tree")
     println(io, "Leaves: $(length(tree))")
     print(io,   "Depth:  $(depth(tree))")

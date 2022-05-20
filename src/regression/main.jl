@@ -10,8 +10,16 @@ function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T
     end
 end
 
+function get_ni!(feature_importance::Vector{Float64}, tree)
+    if !tree.is_leaf
+        get_ni!(feature_importance, tree.l)
+        get_ni!(feature_importance, tree.r)
+        feature_importance[tree.feature] = tree.ni - tree.l.ni - tree.r.ni
+    end
+end
+
 function build_stump(labels::AbstractVector{T}, features::AbstractMatrix{S}; rng = Random.GLOBAL_RNG) where {S, T <: Float64}
-    return build_tree(labels, features, 0, 1)
+    return build_tree(labels, features, 0, 1; rng=rng, calc_fi=false)
 end
 
 function build_tree(
@@ -22,7 +30,8 @@ function build_tree(
         min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
-        rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
+        rng                 = Random.GLOBAL_RNG,
+        calc_fi            :: Bool = true) where {S, T <: Float64}
 
     if max_depth == -1
         max_depth = typemax(Int)
@@ -42,8 +51,17 @@ function build_tree(
         min_samples_split   = Int(min_samples_split),
         min_purity_increase = Float64(min_purity_increase),
         rng                 = rng)
-
-    return _convert(t.root, labels[t.labels])
+    if !calc_fi
+        return _convert(t.root, labels[t.labels])
+    elseif t.root.is_leaf
+        return Leaf{T}(t.root.label, labels[t.root.region])
+    else
+        fi = zeros(Float64, size(features, 2))
+        left = _convert(t.root.l, labels)
+        right = _convert(t.root.r, labels)
+        get_ni!(fi, t.root)
+        return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 2))
+    end
 end
 
 function build_forest(
@@ -104,9 +122,27 @@ function build_forest(
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
-                min_purity_increase)
+                min_purity_increase,
+                calc_fi = calc_fi)
         end
     end
 
-    return Ensemble{S, T}(forest)
+    if !calc_fi
+        return Ensemble{S, T}(forest)
+    else
+        fi = zeros(Float64, size(features, 2))
+        for tree in forest
+            ti = feature_importances(tree, normalize = true)
+            if !isempty(ti)
+                fi .+= ti
+            end
+        end
+
+        forest_new = Vector{LeafOrNode{S, T}}(undef, n_trees)
+        Threads.@threads for i in 1:n_trees
+            forest_new[i] = _convert_root(forest[i])
+        end
+
+        return Ensemble{S, T}(forest_new, fi ./ n_trees)
+    end
 end

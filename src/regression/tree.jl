@@ -21,15 +21,18 @@ module treeregressor
         region      :: UnitRange{Int} # a slice of the samples used to decide the split of the node
         features    :: Vector{Int}    # a list of features not known to be constant
         split_at    :: Int            # index of samples
+        ni          :: Float64
         function NodeMeta{S}(
             features :: Vector{Int},
             region   :: UnitRange{Int},
-            depth    :: Int) where S
+            depth    :: Int,
+            ni       :: Float64 = 0.0) where S
         node = new{S}()
         node.depth = depth
         node.region = region
         node.features = features
         node.is_leaf = false
+        node.ni = ni
         node
     end
     end
@@ -78,6 +81,7 @@ module treeregressor
         end
 
         node.label =  tsum / wsum
+        node.ni = tssq  - wsum * node.label ^ 2
         if (min_samples_leaf * 2 >  n_samples
          || min_samples_split    >  n_samples
          || max_depth            <= node.depth
