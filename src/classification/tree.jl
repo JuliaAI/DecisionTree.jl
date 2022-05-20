@@ -21,15 +21,18 @@ module treeclassifier
         region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
         features    :: Vector{Int}      # a list of features not known to be constant
         split_at    :: Int              # index of samples
+        ni          :: Float64
         function NodeMeta{S}(
                 features :: Vector{Int},
                 region   :: UnitRange{Int},
-                depth    :: Int) where S
+                depth    :: Int,
+                ni       :: Float64 = 0.0) where S
             node = new{S}()
             node.depth = depth
             node.region = region
             node.features = features
             node.is_leaf = false
+            node.ni = ni
             node
         end
     end
@@ -74,6 +77,7 @@ module treeclassifier
         end
         nt = sum(nc)
         node.label = argmax(nc)
+        node.ni = nt * purity_function(nc, nt)
         if (min_samples_leaf * 2 >  n_samples
          || min_samples_split    >  n_samples
          || max_depth            <= node.depth
@@ -191,7 +195,7 @@ module treeclassifier
 
         # no splits honor min_samples_leaf
         @inbounds if (unsplittable
-            || (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
+            || ((best_purity + node.ni) / nt < min_purity_increase))
             node.is_leaf = true
             return
         else

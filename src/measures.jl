@@ -116,7 +116,8 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
                    min_samples_leaf,
                    min_samples_split,
                    min_purity_increase;
-                   rng = rng)
+                   rng = rng,
+                   calc_fi = false)
             if pruning_purity < 1.0
                 model = prune_tree(model, pruning_purity)
             end
@@ -131,11 +132,12 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
                         min_samples_leaf,
                         min_samples_split,
                         min_purity_increase;
-                        rng = rng)
+                        rng = rng,
+                        calc_fi = false)
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
             model, coeffs = build_adaboost_stumps(
-                train_labels, train_features, n_iterations)
+                train_labels, train_features, n_iterations; calc_fi = false)
             predictions = apply_adaboost_stumps(model, coeffs, test_features)
         end
         cm = confusion_matrix(test_labels, predictions)
@@ -244,7 +246,8 @@ function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::Abstra
                    min_samples_leaf,
                    min_samples_split,
                    min_purity_increase;
-                   rng = rng)
+                   rng = rng,
+                   calc_fi = false)
             if pruning_purity < 1.0
                 model = prune_tree(model, pruning_purity)
             end
@@ -259,7 +262,8 @@ function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::Abstra
                         min_samples_leaf,
                         min_samples_split,
                         min_purity_increase;
-                        rng = rng)
+                        rng = rng,
+                        calc_fi = false)
             predictions = apply_forest(model, test_features)
         end
         err = mean_squared_error(test_labels, predictions)
@@ -306,4 +310,84 @@ function nfoldCV_forest(
     rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
 _nfoldCV(:forest, labels, features, n_folds, n_subfeatures, n_trees, partial_sampling,
             max_depth, min_samples_leaf, min_samples_split, min_purity_increase; verbose=verbose, rng=rng)
+end
+
+metric_fn(::Type{<: AbstractFloat}) = R2
+metric_fn(::Type) = accuracy
+
+predict_fn(::Type{<: DecisionTree.Nodes}) = apply_tree
+predict_fn(::Type{<: Ensemble}) = apply_forest
+predict_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = apply_adaboost_stumps
+
+build_fn(::Type{<: DecisionTree.Nodes}) = build_tree
+build_fn(::Type{<: Ensemble}) = build_forest
+build_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = build_adaboost_stumps
+
+#decategorical(y::AbstractArray) = y
+#decategorical(y::CategoricalArray) = levelcode.(y)
+
+function accuracy(actual, predicted)
+    length(actual) == length(predicted) || error(DimensionMismatch("actrual values and predicted values should have the same length."))
+    sum(actual .== predicted)/length(actual)
+end
+
+function permutation_importances(
+                                trees::U, 
+                                labels  ::AbstractVector{T}, 
+                                features::AbstractMatrix{S}; 
+                                metric = metric_fn(T),
+                                predict_fn = predict_fn(U), 
+                                normalize::Bool = false,
+                                niter::Int = 3
+                                ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
+
+    base = mean(1:niter) do i
+        metric(labels, predict_fn(trees, features))
+    end
+    importance = Vector{Float64}(undef, size(features, 2))
+    for (i, col) in enumerate(eachcol(features))
+        origin = copy(col)
+        score = mean(1:niter) do i
+            shuffle!(col)
+            metric(labels, predict_fn(trees, features))
+        end
+        importance[i] = base - score
+        features[:, i] = origin
+    end
+    normalize ? importance ./ sum(importance) : importance
+end
+
+function feature_importances(trees::T; normalize::Bool = false) where {T <: DecisionTree.RootNode}
+    fi = trees.featim
+    normalize ? fi./sum(fi) : fi
+end
+
+feature_importances(trees::T; kwargs...) where {T <: Ensemble} = trees.featim
+feature_importances(trees::T; kwargs...) where {T <: Tuple{<: Ensemble, AbstractVector{Float64}}} = first(trees).featim
+feature_importances(tree::T; kwargs...) where {T <: DecisionTree.Node} = Float64[]
+feature_importances(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
+
+function dropcol_importances(
+            trees   ::U, 
+            labels  ::AbstractVector{T}, 
+            features::AbstractMatrix{S}, 
+            args...; 
+            metric = metric_fn(T),
+            predict_fn = predict_fn(U),
+            build_fn = build_fn(U),
+            normalize::Bool = false,
+            kwargs...
+            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
+    
+    base = metric(labels, predict_fn(trees, features))
+    nfeat = size(features, 2)
+    importance = Vector{Float64}(undef, nfeat)
+    for i in 1:nfeat
+        inds = deleteat!(collect(1:nfeat), i)
+        features_new = features[:, inds]
+        tree_new = build_fn(labels, features_new, args...; kwargs...)
+        score = metric(labels, predict_fn(tree_new, features_new))
+        importance[i] = base - score
+    end
+    normalize ? importance ./ sum(importance) : importance
 end
