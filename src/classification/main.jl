@@ -120,8 +120,8 @@ function build_tree(
         return Leaf{T}(t.list[t.root.label], labels[t.root.region])
     else
         fi = zeros(Float64, size(features, 2))
-        left = _convert(t.root.l, t.list,  labels)
-        right = _convert(t.root.r, t.list, labels)
+        left = _convert(t.root.l, t.list,  labels[t.labels])
+        right = _convert(t.root.r, t.list, labels[t.labels])
         get_ni!(fi, t.root)
         return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 2))
     end
@@ -160,10 +160,15 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=1.0, loss = util.entro
         end
     end
     function _prune_run(tree::RootNode{S, T}, purity_thresh::Real) where {S, T}
-        fi = copy(tree.featim)
-        left = _prune_run(tree.left, purity_thresh, fi)
-        right = _prune_run(tree.right, purity_thresh, fi)
-        return RootNode{S, T}(tree.featid, tree.featval, left, right, fi)
+        N = length(tree)
+        if N == 2    ## a stump
+            return _prune_run_stump(tree, purity_thresh)
+        else
+            fi = copy(tree.featim)
+            left = _prune_run(tree.left, purity_thresh, fi)
+            right = _prune_run(tree.right, purity_thresh, fi)
+            return RootNode{S, T}(tree.featid, tree.featval, left, right, fi)
+        end
     end
     function _prune_run(tree::Union{Leaf{T}, Node{S, T}}, purity_thresh::Real, fi::Vector{Float64} = Float64[]) where {S, T}
         N = length(tree)
