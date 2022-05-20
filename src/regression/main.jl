@@ -57,8 +57,8 @@ function build_tree(
         return Leaf{T}(t.root.label, labels[t.root.region])
     else
         fi = zeros(Float64, size(features, 2))
-        left = _convert(t.root.l, labels)
-        right = _convert(t.root.r, labels)
+        left = _convert(t.root.l, labels[t.labels])
+        right = _convert(t.root.r, labels[t.labels])
         get_ni!(fi, t.root)
         return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 2))
     end
