@@ -323,9 +323,6 @@ build_fn(::Type{<: DecisionTree.Nodes}) = build_tree
 build_fn(::Type{<: Ensemble}) = build_forest
 build_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = build_adaboost_stumps
 
-#decategorical(y::AbstractArray) = y
-#decategorical(y::CategoricalArray) = levelcode.(y)
-
 function accuracy(actual, predicted)
     length(actual) == length(predicted) || error(DimensionMismatch("actrual values and predicted values should have the same length."))
     sum(actual .== predicted)/length(actual)
