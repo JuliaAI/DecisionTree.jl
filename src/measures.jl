@@ -311,7 +311,8 @@ function nfoldCV_forest(
 _nfoldCV(:forest, labels, features, n_folds, n_subfeatures, n_trees, partial_sampling,
             max_depth, min_samples_leaf, min_samples_split, min_purity_increase; verbose=verbose, rng=rng)
 end
-
+#################################################################################################
+# Trait functions
 metric_fn(::Type{<: AbstractFloat}) = R2
 metric_fn(::Type) = accuracy
 
@@ -328,41 +329,53 @@ function accuracy(actual, predicted)
     sum(actual .== predicted)/length(actual)
 end
 
+# Feature importances
+feature_importances(trees::T; normalize::Bool = false) where {T <: DecisionTree.RootNode} = 
+    normalize ? trees.featim ./ sum(trees.featim) : trees.featim
+
+feature_importances(trees::T; kwargs...) where {T <: Ensemble} = trees.featim
+feature_importances(trees::T; kwargs...) where {T <: Tuple{<: Ensemble, AbstractVector{Float64}}} = first(trees).featim
+feature_importances(tree::T; kwargs...) where {T <: DecisionTree.Node} = Float64[]
+feature_importances(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
+
 function permutation_importances(
                                 trees::U, 
                                 labels  ::AbstractVector{T}, 
                                 features::AbstractMatrix{S}; 
                                 metric = metric_fn(T),
                                 predict_fn = predict_fn(U), 
-                                normalize::Bool = false,
                                 niter::Int = 3
-                                ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
+                                ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}}}
 
-    base = mean(1:niter) do i
-        metric(labels, predict_fn(trees, features))
-    end
-    importance = Vector{Float64}(undef, size(features, 2))
+    base = metric(labels, predict_fn(trees, features))
+    importances = Matrix{Float64}(undef, size(features, 2), niter)
     for (i, col) in enumerate(eachcol(features))
         origin = copy(col)
-        score = mean(1:niter) do i
+        importances[:, i] = map(1:niter) do i
             shuffle!(col)
             metric(labels, predict_fn(trees, features))
         end
-        importance[i] = base - score
         features[:, i] = origin
     end
-    normalize ? importance ./ sum(importance) : importance
+
+    (mean = mapslices(importances, dims = 2) do im
+        base - mean(im)
+    end, 
+    std = mapslices(importances, dims = 2) do im
+        std(im)
+    end, 
+    importances = importances)
 end
 
-function feature_importances(trees::T; normalize::Bool = false) where {T <: DecisionTree.RootNode}
-    fi = trees.featim
-    normalize ? fi./sum(fi) : fi
-end
-
-feature_importances(trees::T; kwargs...) where {T <: Ensemble} = trees.featim
-feature_importances(trees::T; kwargs...) where {T <: Tuple{<: Ensemble, AbstractVector{Float64}}} = first(trees).featim
-feature_importances(tree::T; kwargs...) where {T <: DecisionTree.Node} = Float64[]
-feature_importances(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
+permutation_importances(
+                        trees::U, 
+                        labels  ::AbstractVector{T}, 
+                        features::AbstractMatrix{S}; 
+                        metric = metric_fn(T),
+                        predict_fn = predict_fn(U), 
+                        niter::Int = 3
+                        ) where {S, T, U <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}} = 
+    permutation_importances(first(trees), labels, features; metric = metric, predict_fn = predict_fn, niter = niter)
 
 function dropcol_importances(
             trees   ::U, 
@@ -372,9 +385,9 @@ function dropcol_importances(
             metric = metric_fn(T),
             predict_fn = predict_fn(U),
             build_fn = build_fn(U),
-            normalize::Bool = false,
+            pruning_purity_threshold = 1.0,
             kwargs...
-            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
+            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}}}
     
     base = metric(labels, predict_fn(trees, features))
     nfeat = size(features, 2)
@@ -383,8 +396,24 @@ function dropcol_importances(
         inds = deleteat!(collect(1:nfeat), i)
         features_new = features[:, inds]
         tree_new = build_fn(labels, features_new, args...; kwargs...)
+        if pruning_purity_threshold < 1.0
+            tree_new = prune_tree(tree_new, pruning_purity_threshold)
+        end
         score = metric(labels, predict_fn(tree_new, features_new))
         importance[i] = base - score
     end
-    normalize ? importance ./ sum(importance) : importance
+    importance
 end
+
+dropcol_importances(
+                    trees   ::U, 
+                    labels  ::AbstractVector{T}, 
+                    features::AbstractMatrix{S}, 
+                    args...; 
+                    metric = metric_fn(T),
+                    predict_fn = predict_fn(U),
+                    build_fn = build_fn(U),
+                    kwargs...
+                    ) where {S, T, U <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}} = 
+    dropcol_importances(first(trees), labels, features, args..., metric = metric, predict_fn = predict_fn, build_fn = build_fn, kwargs...)
+            
