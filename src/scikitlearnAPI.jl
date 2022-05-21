@@ -11,7 +11,8 @@ import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
                            min_samples_split::Int=2,
                            min_purity_increase::Float=0.0,
                            n_subfeatures::Int=0,
-                           rng=Random.GLOBAL_RNG)
+                           rng=Random.GLOBAL_RNG,
+                           calc_fi::Bool=true)
 
 Decision tree classifier. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -25,6 +26,7 @@ Hyperparameters:
 - `n_subfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
+- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -36,18 +38,19 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     min_purity_increase::Float64
     n_subfeatures::Int
     rng::Random.Random.AbstractRNG
+    calc_fi::Bool
     root::Union{LeafOrNode, Nothing}
     classes::Union{Vector, Nothing}
     DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
-                           min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing, classes=nothing) =
+                           min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, calc_fi=true, root=nothing, classes=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, n_subfeatures, mk_rng(rng), root, classes)
+            min_purity_increase, n_subfeatures, mk_rng(rng), calc_fi, root, classes)
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
 @declare_hyperparameters(DecisionTreeClassifier,
                          [:pruning_purity_threshold, :max_depth, :min_samples_leaf,
-                          :min_samples_split, :min_purity_increase, :rng])
+                          :min_samples_split, :min_purity_increase, :rng, :calc_fi])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
     n_samples, n_features = size(X)
@@ -58,7 +61,8 @@ function fit!(dt::DecisionTreeClassifier, X, y)
         dt.min_samples_leaf,
         dt.min_samples_split,
         dt.min_purity_increase;
-        rng = dt.rng)
+        rng = dt.rng,
+        calc_fi = dt.calc_fi)
 
     dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt.classes = sort(unique(y))
@@ -95,7 +99,8 @@ end
                           min_samples_split::Int=2,
                           min_purity_increase::Float=0.0,
                           n_subfeatures::Int=0,
-                          rng=Random.GLOBAL_RNG)
+                          rng=Random.GLOBAL_RNG,
+                          calc_fi::Bool=true)
 Decision tree regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -108,6 +113,7 @@ Hyperparameters:
 - `n_subfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
+- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
 
 Implements `fit!`, `predict`, `get_classes`
 """
@@ -119,9 +125,10 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
     min_purity_increase::Float64
     n_subfeatures::Int
     rng::Random.AbstractRNG
+    calc_fi::Bool
     root::Union{LeafOrNode, Nothing}
     DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
-                          min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, root=nothing) =
+                          min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, calc_fi=true, root=nothing) =
         new(pruning_purity_threshold,
             max_depth,
             min_samples_leaf,
@@ -129,12 +136,13 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
             min_purity_increase,
             n_subfeatures,
             mk_rng(rng),
+            calc_fi,
             root)
 end
 
 @declare_hyperparameters(DecisionTreeRegressor,
                          [:pruning_purity_threshold, :min_samples_leaf, :n_subfeatures,
-                          :max_depth, :min_samples_split, :min_purity_increase, :rng])
+                          :max_depth, :min_samples_split, :min_purity_increase, :rng, :calc_fi])
 
 function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
@@ -145,8 +153,9 @@ function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
         dt.min_samples_leaf,
         dt.min_samples_split,
         dt.min_purity_increase;
-        rng = dt.rng)
-    dt.pruning_purity_threshold
+        rng = dt.rng,
+        calc_fi = dt.calc_fi)
+    
     dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt
 end
@@ -172,7 +181,8 @@ end
                            n_trees::Int=10,
                            partial_sampling::Float=0.7,
                            max_depth::Int=-1,
-                           rng=Random.GLOBAL_RNG)
+                           rng=Random.GLOBAL_RNG,
+                           calc_fi::Bool=true)
 Random forest classification. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -186,6 +196,7 @@ Hyperparameters:
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
+- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -198,20 +209,21 @@ mutable struct RandomForestClassifier <: BaseClassifier
     min_samples_split::Int
     min_purity_increase::Float64
     rng::Union{Random.AbstractRNG, Int}
+    calc_fi:: Bool
     ensemble::Union{Ensemble, Nothing}
     classes::Union{Vector, Nothing}
     RandomForestClassifier(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                            max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
-                           rng=Random.GLOBAL_RNG, ensemble=nothing, classes=nothing) =
+                           rng=Random.GLOBAL_RNG, calc_fi=true,ensemble=nothing, classes=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, rng, ensemble, classes)
+            min_purity_increase, rng, calc_fi, ensemble, classes)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
 @declare_hyperparameters(RandomForestClassifier,
                          [:n_subfeatures, :n_trees, :partial_sampling, :max_depth,
                           :min_samples_leaf, :min_samples_split, :min_purity_increase,
-                          :rng])
+                          :rng, :calc_fi])
 
 function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
@@ -224,7 +236,8 @@ function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
         rf.min_samples_leaf,
         rf.min_samples_split,
         rf.min_purity_increase;
-        rng = rf.rng)
+        rng = rf.rng,
+        calc_fi = rf.calc_fi)
     rf.classes = sort(unique(y))
     rf
 end
@@ -256,7 +269,8 @@ end
                           partial_sampling::Float=0.7,
                           max_depth::Int=-1,
                           min_samples_leaf::Int=5,
-                          rng=Random.GLOBAL_RNG)
+                          rng=Random.GLOBAL_RNG,
+                          calc_fi::Bool=true)
 Random forest regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -270,6 +284,7 @@ Hyperparameters:
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
+- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
 
 Implements `fit!`, `predict`, `get_classes`
 """
@@ -282,12 +297,13 @@ mutable struct RandomForestRegressor <: BaseRegressor
     min_samples_split::Int
     min_purity_increase::Float64
     rng::Union{Random.AbstractRNG, Int}
+    calc_fi::Bool
     ensemble::Union{Ensemble, Nothing}
     RandomForestRegressor(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                             max_depth=-1, min_samples_leaf=5, min_samples_split=2, min_purity_increase=0.0,
-                            rng=Random.GLOBAL_RNG, ensemble=nothing) =
+                            rng=Random.GLOBAL_RNG, calc_fi=true, ensemble=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, rng, ensemble)
+            min_purity_increase, rng, calc_fi, ensemble)
 end
 
 @declare_hyperparameters(RandomForestRegressor,
@@ -295,7 +311,7 @@ end
                           :min_samples_leaf, :min_samples_split, :min_purity_increase,
                           # I'm not crazy about :rng being a hyperparameter,
                           # since it'll change throughout fitting, but it works
-                          :max_depth, :rng])
+                          :max_depth, :rng, :calc_fi])
 
 function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
@@ -308,7 +324,8 @@ function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
         rf.min_samples_leaf,
         rf.min_samples_split,
         rf.min_purity_increase;
-        rng = rf.rng)
+        rng = rf.rng,
+        calc_fi = rf.calc_fi)
     rf
 end
 
@@ -330,8 +347,9 @@ end
 # AdaBoost Stump Classifier
 
 """
-    AdaBoostStumpClassifier(; n_iterations::Int=0)
-
+    AdaBoostStumpClassifier(; n_iterations::Int=10,
+                            rng=Random.GLOBAL_RNG,
+                            calc_fi::Bool=true)
 Adaboosted decision tree stumps. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -340,25 +358,27 @@ Hyperparameters:
 - `n_iterations`: number of iterations of AdaBoost
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
+- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
     n_iterations::Int
     rng::Random.AbstractRNG
+    calc_fi::Bool
     ensemble::Union{Ensemble, Nothing}
     coeffs::Union{Vector{Float64}, Nothing}
     classes::Union{Vector, Nothing}
-    AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
-        new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
+    AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, calc_fi=true, ensemble=nothing, coeffs=nothing, classes=nothing) =
+        new(n_iterations, mk_rng(rng), calc_fi, ensemble, coeffs, classes)
 end
 
-@declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng])
+@declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng, :calc_fi])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 
 function fit!(ada::AdaBoostStumpClassifier, X, y)
     ada.ensemble, ada.coeffs =
-        build_adaboost_stumps(y, X, ada.n_iterations; rng=ada.rng)
+        build_adaboost_stumps(y, X, ada.n_iterations; rng=ada.rng, calc_fi=ada.calc_fi)
     ada.classes = sort(unique(y))
     ada
 end
