@@ -10,12 +10,13 @@ function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T
     end
 end
 
-function get_ni!(feature_importance::Vector{Float64}, tree)
-    if !tree.is_leaf
-        get_ni!(feature_importance, tree.l)
-        get_ni!(feature_importance, tree.r)
-        feature_importance[tree.feature] = tree.ni - tree.l.ni - tree.r.ni
+function get_ni!(feature_importance::Vector{Float64}, node::treeregressor.NodeMeta{S}) where S
+    if !node.is_leaf
+        get_ni!(feature_importance, node.l)
+        get_ni!(feature_importance, node.r)
+        feature_importance[node.feature] = node.ni - node.l.ni - node.r.ni
     end
+    return
 end
 
 function build_stump(labels::AbstractVector{T}, features::AbstractMatrix{S}; rng = Random.GLOBAL_RNG) where {S, T <: Float64}
