@@ -49,12 +49,13 @@ function _convert(
     end
 end
 
-function get_ni!(feature_importance::Vector{Float64}, tree)
-    if !tree.is_leaf
-        get_ni!(feature_importance, tree.l)
-        get_ni!(feature_importance, tree.r)
-        feature_importance[tree.feature] = tree.ni - tree.l.ni - tree.r.ni
+function get_ni!(feature_importance::Vector{Float64}, node::treeclassifier.NodeMeta{S}) where S
+    if !node.is_leaf
+        get_ni!(feature_importance, node.l)
+        get_ni!(feature_importance, node.r)
+        feature_importance[node.feature] = node.ni - node.l.ni - node.r.ni
     end
+    return 
 end
 
 nsample(leaf::Leaf) = length(leaf.values)
@@ -400,10 +401,10 @@ function build_adaboost_stumps(
     end
     if calc_fi
         fi = zeros(Float64, size(features, 2))
-        for stump in stumps
-            fi[stump.featid] += 1.0
+        for (coeff, stump) in zip(coeffs, stumps)
+            fi[stump.featid] += coeff
         end
-        return (Ensemble{S, T}(stumps, fi ./ length(stumps)), coeffs)
+        return (Ensemble{S, T}(stumps, fi ./ sum(coeffs)), coeffs)
     else
         return (Ensemble{S, T}(stumps), coeffs)
     end
