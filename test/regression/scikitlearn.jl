@@ -13,6 +13,11 @@ end
 
 model = fit!(DecisionTreeRegressor(; rng=StableRNG(1), min_samples_split=5), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
+@test feature_importances(model) == feature_importances(model.root)
+p1 = permutation_importances(model, features, labels)
+p2 = permutation_importances(model, features, labels)
+@test all(@. (p1.mean - p2.mean) / sqrt((p1.std ^ 2 + p2.std ^2)/2) < 3)
+@test findall(>(0.1), dropcol_importances(model, features, labels).mean) == [2, 5]
 
 let
     regressor = RandomForestRegressor(; rng=StableRNG(1), n_trees=10, min_samples_leaf=5, n_subfeatures=2)

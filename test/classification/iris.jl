@@ -33,6 +33,7 @@ probs = apply_tree_proba(model, features, classes)
 pruning_purity = 0.9
 pt = prune_tree(model, pruning_purity)
 @test length(pt) == 8
+@test all(isapprox.(feature_importances(pt), feature_importances(model).+ [0, 0, 0, (47*log(47/48) + log(1/48))/150]))
 preds = apply_tree(pt, features)
 cm = confusion_matrix(labels, preds)
 @test 0.99 < cm.accuracy < 1.0
@@ -99,5 +100,18 @@ n_iterations = 15
 nfolds = 3
 accuracy = nfoldCV_stumps(labels, features, nfolds, n_iterations; rng=StableRNG(1))
 @test mean(accuracy) > 0.85
+
+# feature importances
+f1 = features[:, 1:3]
+model = build_tree(labels, f1)
+@test argmax(feature_importances(model)) == argmax(permutation_importances(model, labels, f1).mean) == argmax(dropcol_importances(model, labels, f1).mean)
+n_trees = 10
+n_subfeatures = 2
+partial_sampling = 0.5
+model = build_forest(labels, f1, n_subfeatures, n_trees, partial_sampling)
+@test argmax(feature_importances(model)) == argmax(permutation_importances(model, labels, f1).mean) == argmax(dropcol_importances(model, labels, f1).mean)
+n_iterations = 15
+model = build_adaboost_stumps(labels, f1, n_iterations)
+@test argmax(feature_importances(model)) == argmax(permutation_importances(model, labels, f1).mean) == argmax(dropcol_importances(model, labels, f1).mean)
 
 end # @testset
