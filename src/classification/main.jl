@@ -403,6 +403,8 @@ function build_adaboost_stumps(
     end
 end
 
+apply_adaboost_stumps(trees::Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}, features::AbstractVecOrMat{S}) where {S, T} = apply_adaboost_stumps(trees..., features)
+
 function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64}, features::AbstractVector{S}) where {S, T}
     n_stumps = length(stumps)
     counts = Dict()
