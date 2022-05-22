@@ -321,9 +321,9 @@ predict_fn(::Type{<: DecisionTree.Nodes}) = apply_tree
 predict_fn(::Type{<: Ensemble}) = apply_forest
 predict_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = apply_adaboost_stumps
 
-build_fn(::Type{<: DecisionTree.Nodes}) = build_tree
-build_fn(::Type{<: Ensemble}) = build_forest
-build_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = build_adaboost_stumps
+cv_fn(::Type{<: DecisionTree.Nodes}) = nfoldCV_tree
+cv_fn(::Type{<: Ensemble}) = nfoldCV_forest
+cv_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = nfoldCV_stumps
 
 function accuracy(actual, predicted)
     length(actual) == length(predicted) || error(DimensionMismatch("actrual values and predicted values should have the same length."))
@@ -342,79 +342,56 @@ feature_importances(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
 function permutation_importances(
                                 trees::U, 
                                 labels  ::AbstractVector{T}, 
-                                features::AbstractMatrix{S}; 
+                                features::AbstractVecOrMat{S}; 
                                 metric = metric_fn(T),
                                 predict_fn = predict_fn(U), 
                                 niter::Int = 3
-                                ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}}}
+                                ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
 
     base = metric(labels, predict_fn(trees, features))
     importances = Matrix{Float64}(undef, size(features, 2), niter)
     for (i, col) in enumerate(eachcol(features))
         origin = copy(col)
-        importances[:, i] = map(1:niter) do i
+        importances[i, :] = map(1:niter) do i
             shuffle!(col)
-            metric(labels, predict_fn(trees, features))
+            base - metric(labels, predict_fn(trees, features))
         end
         features[:, i] = origin
     end
 
-    (mean = mapslices(importances, dims = 2) do im
-        base - mean(im)
-    end, 
-    std = mapslices(importances, dims = 2) do im
+    (mean = reshape(mapslices(importances, dims = 2) do im
+        mean(im)
+    end, :), 
+    std = reshape(mapslices(importances, dims = 2) do im
         std(im)
-    end, 
+    end, :), 
     importances = importances)
 end
-
-permutation_importances(
-                        trees::U, 
-                        labels  ::AbstractVector{T}, 
-                        features::AbstractMatrix{S}; 
-                        metric = metric_fn(T),
-                        predict_fn = predict_fn(U), 
-                        niter::Int = 3
-                        ) where {S, T, U <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}} = 
-    permutation_importances(first(trees), labels, features; metric = metric, predict_fn = predict_fn, niter = niter)
 
 function dropcol_importances(
             trees   ::U, 
             labels  ::AbstractVector{T}, 
-            features::AbstractMatrix{S}, 
+            features::AbstractVecOrMat{S}, 
             args...; 
-            metric = metric_fn(T),
-            predict_fn = predict_fn(U),
-            build_fn = build_fn(U),
-            pruning_purity_threshold = 1.0,
+            cv_fn = cv_fn(U),
+            n_folds::Int = 10,
             kwargs...
-            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}}}
+            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
     
-    base = metric(labels, predict_fn(trees, features))
+    base_scores = cv_fn(labels, features, n_folds, args...; verbose = false, kwargs...)
     nfeat = size(features, 2)
-    importance = Vector{Float64}(undef, nfeat)
+    dropcol_scores = Matrix{Float64}(undef, nfeat, n_folds)
     for i in 1:nfeat
         inds = deleteat!(collect(1:nfeat), i)
         features_new = features[:, inds]
-        tree_new = build_fn(labels, features_new, args...; kwargs...)
-        if pruning_purity_threshold < 1.0
-            tree_new = prune_tree(tree_new, pruning_purity_threshold)
-        end
-        score = metric(labels, predict_fn(tree_new, features_new))
-        importance[i] = base - score
+        dropcol_scores[i, :] = cv_fn(labels, features_new, n_folds, args...; verbose = false, kwargs...)
     end
-    importance
+    (mean = reshape(mapslices(dropcol_scores, dims = 2) do score
+        mean(base_scores - score)
+    end, :),
+    std = reshape(mapslices(dropcol_scores, dims = 2) do score
+        sqrt((var(score) + var(base_scores))/2)
+    end, :), 
+    base_scores = base_scores,
+    dropcol_scores = dropcol_scores)
 end
-
-dropcol_importances(
-                    trees   ::U, 
-                    labels  ::AbstractVector{T}, 
-                    features::AbstractMatrix{S}, 
-                    args...; 
-                    metric = metric_fn(T),
-                    predict_fn = predict_fn(U),
-                    build_fn = build_fn(U),
-                    kwargs...
-                    ) where {S, T, U <: Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}} = 
-    dropcol_importances(first(trees), labels, features, args..., metric = metric, predict_fn = predict_fn, build_fn = build_fn, kwargs...)
-            
