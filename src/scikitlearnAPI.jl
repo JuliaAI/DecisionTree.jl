@@ -415,19 +415,19 @@ metric_fn(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoo
 metric_fn(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}) = R2
 
 y_convert(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier}}, y) = y
-y_convert(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}) = float.(y)
+y_convert(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}, y) = float.(y)
 
 predict_fn(::Type{<: Union{DecisionTreeClassifier, DecisionTreeRegressor}}) = apply_tree
 predict_fn(::Type{<: Union{RandomForestClassifier, RandomForestRegressor}}) = apply_forest
 predict_fn(::Type{<: AdaBoostStumpClassifier}) = apply_adaboost_stumps
 
-build_fn(::Type{<: Union{DecisionTreeClassifier, DecisionTreeRegressor}}) = build_tree
-build_fn(::Type{<: Union{RandomForestClassifier, RandomForestRegressor}}) = build_forest
-build_fn(::Type{<: AdaBoostStumpClassifier}) = build_adaboost_stumps
+cv_fn(::Type{<: Union{DecisionTreeClassifier, DecisionTreeRegressor}}) = nfoldCV_tree
+cv_fn(::Type{<: Union{RandomForestClassifier, RandomForestRegressor}}) = nfoldCV_forest
+cv_fn(::Type{<: AdaBoostStumpClassifier}) = nfoldCV_adaboost_stumps
 
 model(dt::Union{DecisionTreeClassifier, DecisionTreeRegressor}) = dt.root
-model(rf::Union{RandomForestClassifier, RandomForestRegressor, AdaBoostStumpClassifier}) = rf.ensemble
-
+model(rf::Union{RandomForestClassifier, RandomForestRegressor}) = rf.ensemble
+model(ada::AdaBoostStumpClassifier) = ada.ensemble, ada.coeffs
 # Feature importances
 feature_importances(trees::T; 
     normalize::Bool = false) where { T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}} = 
@@ -447,39 +447,31 @@ dropcol_importances(
                     dt::T, 
                     X::AbstractMatrix,
                     y::AbstractVector; 
-                    metric = metric_fn(T),
-                    predict_fn = predict_fn(T), 
-                    build_fn = build_fn(T),
+                    cv_fn = cv_fn(T),
+                    n_folds::Int = 10,
                     pruning_purity_threshold = dt.pruning_purity_threshold,
                     max_depth = dt.max_depth, 
                     min_samples_leaf = dt.min_samples_leaf, 
                     min_samples_split = dt.min_samples_split,
                     min_purity_increase = dt.min_purity_increase, 
-                    n_subfeatures = dt.n_subfeatures, 
-                    rng = dt.rng, 
-                    calc_fi = false
+                    rng = dt.rng
                     ) where {T <: Union{DecisionTreeClassifier, DecisionTreeRegressor}} = 
     dropcol_importances(dt.root, y_convert(T, y), X, 
-                        n_subfeatures, 
+                        pruning_purity_threshold,
                         max_depth, 
                         min_samples_leaf, 
                         min_samples_split, 
                         min_purity_increase;
-                        metric = metric, 
-                        predict_fn = predict_fn, 
-                        build_fn = build_fn,
-                        niter = niter,
-                        pruning_purity_threshold = pruning_purity_threshold,
-                        rng = rng, 
-                        calc_fi = calc_fi)
+                        cv_fn = cv_fn,
+                        n_folds = n_folds,
+                        rng = rng)
     
 dropcol_importances(
                     rf::T, 
                     X::AbstractMatrix,
                     y::AbstractVector; 
-                    metric = accuracy,
-                    predict_fn = apply_forest, 
-                    niter::Int = 3,
+                    cv_fn = cv_fn(T),
+                    n_folds::Int = 10,
                     n_subfeatures = rf.n_subfeatures, 
                     n_trees = rf.n_trees, 
                     partial_sampling = rf.partial_sampling,
@@ -487,8 +479,7 @@ dropcol_importances(
                     min_samples_leaf = rf.min_samples_leaf, 
                     min_samples_split = rf.min_samples_split, 
                     min_purity_increase = rf.min_purity_increase,
-                    rng = rf.rng, 
-                    calc_fi = false
+                    rng = rf.rng
                     ) where {T <: Union{RandomForestClassifier, RandomForestRegressor}} = 
     dropcol_importances(rf.ensemble, y_convert(T, y), X, 
                         n_subfeatures, 
@@ -498,21 +489,18 @@ dropcol_importances(
                         min_samples_leaf, 
                         min_samples_split, 
                         min_purity_increase;
-                        metric = metric, 
-                        predict_fn = predict_fn, 
-                        niter = niter, 
-                        rng = rng, 
-                        calc_fi = calc_fi)
+                        cv_fn = cv_fn,
+                        n_folds = n_folds, 
+                        rng = rng)
 
 dropcol_importances(
                     ada::AdaBoostStumpClassifier, 
                     X::AbstractMatrix,
                     y::AbstractVector; 
-                    metric = accuracy,
-                    predict_fn = apply_adaboost_stumps, 
+                    cv_fn = nfoldCV_stumps, 
+                    n_folds::Int = 10,
                     n_iterations = ada.n_iterations,
-                    rng = ada.rng,
-                    calc_fi = ada.calc_fi
+                    rng = ada.rng
                     ) = 
-    dropcol_importances(ada.ensemble, y, X, n_iterations; 
-                        metric = metric, predict_fn = predict_fn, niter = niter, rng = rng, calc_fi = calc_fi)
+    dropcol_importances(model(ada), y, X, n_iterations; 
+                        cv_fn = cv_fn, n_folds = n_folds, rng = rng)
