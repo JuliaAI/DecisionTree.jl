@@ -10,13 +10,28 @@ labels = round.(Int, features * weights);
 # installing it on Travis
 model = fit!(DecisionTreeClassifier(pruning_purity_threshold=0.9), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8
+@test feature_importances(model) == feature_importances(model.root)
+p1 = permutation_importances(model, features, labels)
+p2 = permutation_importances(model, features, labels)
+@test all(@. (p1.mean - p2.mean) / sqrt((p1.std ^ 2 + p2.std ^2)/2) < 3)
+@test findall(>(0.1), dropcol_importances(model, features, labels).mean) == [2, 5]
 
 model = fit!(RandomForestClassifier(), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8
+@test feature_importances(model) == feature_importances(model.ensemble)
+p1 = permutation_importances(model, features, labels)
+p2 = permutation_importances(model, features, labels)
+@test all(@. (p1.mean - p2.mean) / sqrt((p1.std ^ 2 + p2.std ^2)/2) < 3)
+@test findall(>(0.1), dropcol_importances(model, features, labels).mean) == [2, 5]
 
 model = fit!(AdaBoostStumpClassifier(), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
 mean(predict(model, features) .== labels)
+@test feature_importances(model) == feature_importances((model.ensemble, model.coeffs))
+p1 = permutation_importances(model, features, labels)
+p2 = permutation_importances(model, features, labels)
+@test all(filter(!isnan, @. (p1.mean - p2.mean) / sqrt((p1.std ^ 2 + p2.std ^2)/2)) .< 3)
+@test argmax(dropcol_importances(model, features, labels).mean) in [2, 5]
 
 Random.seed!(2)
 N = 3000
