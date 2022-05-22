@@ -348,8 +348,10 @@ function permutation_importances(
                                 ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
 
     base = metric(labels, predict_fn(trees, features))
-    importances = Matrix{Float64}(undef, size(features, 2), niter)
-    for (i, col) in enumerate(eachcol(features))
+    nfeat = size(features, 2)
+    importances = Matrix{Float64}(undef, nfeat, niter)
+    for i in 1:nfeat
+        col = @view features[:, i]
         origin = copy(col)
         importances[i, :] = map(1:niter) do i
             shuffle!(col)
