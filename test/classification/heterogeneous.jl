@@ -18,6 +18,9 @@ model = build_tree(labels, features; rng=StableRNG(1))
 preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y,x)->accuracy(y, apply_tree(model, x))).mean
+@test similarity(p1, f1) > 0.99
 
 n_subfeatures = 2
 n_trees = 3
@@ -25,11 +28,17 @@ model = build_forest(labels, features, n_subfeatures, n_trees; rng=StableRNG(1))
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y,x)->accuracy(y, apply_forest(model, x))).mean
+@test similarity(p1, f1) > 0.9
 
 n_subfeatures = 7
 model, coeffs = build_adaboost_stumps(labels, features, n_subfeatures; rng=StableRNG(1))
 preds = apply_adaboost_stumps(model, coeffs, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
+f1 = feature_importances(model)
+p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
+@test similarity(p1, f1) > 0.9
 
 end # @testset

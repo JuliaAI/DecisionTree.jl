@@ -11,6 +11,9 @@ labels = round.(Int, features * weights);
 model = build_stump(labels, round.(Int, features))
 preds = apply_tree(model, round.(Int, features))
 @test depth(model) == 1
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, round.(Int, features), (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.99
 
 max_depth = 3
 model = build_tree(labels, features, 0, max_depth)
@@ -34,6 +37,9 @@ preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # test RNG param of trees
 n_subfeatures = 2
@@ -54,6 +60,9 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 n_subfeatures       = 3
 n_trees             = 9
@@ -76,6 +85,9 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 @test length(model) == n_trees
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # test n_subfeatures
 n_subfeatures       = 0
@@ -129,6 +141,9 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 @test typeof(preds) == Vector{Int}
 @test length(model) == n_iterations
+f1 = feature_importances(model)
+p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 """
 RNGs can look like they produce stable results, but do in fact differ when you run it many times.

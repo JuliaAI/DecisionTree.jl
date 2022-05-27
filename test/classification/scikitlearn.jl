@@ -11,18 +11,18 @@ labels = round.(Int, features * weights);
 model = fit!(DecisionTreeClassifier(; rng=StableRNG(1), pruning_purity_threshold=0.9), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8
 @test feature_importances(model) == feature_importances(model.root)
-@test cor(permutation_importances(model, features, labels).mean, dropcol_importances(model, features, labels).mean) > 0.9
+@test maximum(dropcol_importances(model, features, labels).mean) < maximum(permutation_importances(model, features, labels).mean)
 
 model = fit!(RandomForestClassifier(; rng=StableRNG(1)), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8
 @test feature_importances(model) == feature_importances(model.ensemble)
-@test cor(permutation_importances(model, features, labels).mean, dropcol_importances(model, features, labels).mean) > 0.9
+@test maximum(dropcol_importances(model, features, labels).mean) < maximum(permutation_importances(model, features, labels).mean)
 
 model = fit!(AdaBoostStumpClassifier(; rng=StableRNG(1)), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
 mean(predict(model, features) .== labels)
-feature_importances(model) == feature_importances((model.ensemble, model.coeffs))
-cor(permutation_importances(model, features, labels).mean, dropcol_importances(model, features, labels).mean) > 0.9
+feature_importances(model) == feature_importances(model.ensemble)
+maximum(dropcol_importances(model, features, labels).mean) < maximum(permutation_importances(model, features, labels).mean)
 
 N = 3000
 X = randn(StableRNG(1), N, 10)
@@ -31,6 +31,8 @@ y = convert(Vector{Bool}, randn(N) .< 0)
 max_depth = 5
 model = fit!(DecisionTreeClassifier(; rng=StableRNG(1), max_depth=max_depth), X, y)
 @test depth(model) == max_depth
+@test feature_importances(model) == feature_importances(model.root)
+@test maximum(dropcol_importances(model, X, y).mean) < maximum(permutation_importances(model, X, y).mean)
 
 
 ## Test that the RNG arguments work as expected

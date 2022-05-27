@@ -16,6 +16,9 @@ cm = confusion_matrix(labels, preds)
 @test depth(model) == 1
 probs = apply_tree_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.99
 
 # train full-tree classifier (over-fit)
 model = build_tree(labels, features)
@@ -28,15 +31,21 @@ cm = confusion_matrix(labels, preds)
 print_tree(model)
 probs = apply_tree_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # prune tree to 8 leaves
 pruning_purity = 0.9
 pt = prune_tree(model, pruning_purity)
 @test length(pt) == 8
-@test all(isapprox.(feature_importances(pt), feature_importances(model).+ [0, 0, 0, (47*log(47/48) + log(1/48))/150]))
 preds = apply_tree(pt, features)
 cm = confusion_matrix(labels, preds)
 @test 0.99 < cm.accuracy < 1.0
+f2 = feature_importances(pt)
+p2 = permutation_importances(pt, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test isapprox(f2, f1.+ [0, 0, 0, (47*log(47/48) + log(1/48))/150])
+@test similarity(f2, p2) > 0.9
 
 # prune tree to 3 leaves
 pruning_purity = 0.6
@@ -47,6 +56,9 @@ cm = confusion_matrix(labels, preds)
 @test 0.95 < cm.accuracy < 1.0
 probs = apply_tree_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+f1 = feature_importances(pt)
+p1 = permutation_importances(pt, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # prune tree to a stump, 2 leaves
 pruning_purity = 0.5
@@ -55,7 +67,10 @@ pt = prune_tree(model, pruning_purity)
 preds = apply_tree(pt, features)
 cm = confusion_matrix(labels, preds)
 @test 0.66 < cm.accuracy < 1.0
-
+f1 = feature_importances(pt)
+p1 = permutation_importances(pt, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
+@test length(findall(x -> !isapprox(x, 0, atol = 1e-7), f1)) == 1
 
 # run n-fold cross validation for pruned tree
 println("\n##### nfoldCV Classification Tree #####")
@@ -74,6 +89,9 @@ cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{String}
 probs = apply_forest_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+@test similarity(f1, p1) > 0.8
 
 # run n-fold cross validation for forests
 println("\n##### nfoldCV Classification Forest #####")
@@ -93,6 +111,9 @@ cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{String}
 probs = apply_adaboost_stumps_proba(model, coeffs, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+f1 = feature_importances(model)
+p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")

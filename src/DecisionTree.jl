@@ -7,9 +7,10 @@ using DelimitedFiles
 using LinearAlgebra
 using Random
 using Statistics
+import StatsBase: sample
 import AbstractTrees
 
-export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
+export Leaf, Node, RootNode, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
