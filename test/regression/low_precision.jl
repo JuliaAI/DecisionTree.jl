@@ -27,7 +27,7 @@ preds = apply_tree(model, round.(Int32, features))
 @test typeof(preds) <: Vector{Float64}
 f1 = feature_importances(model)
 p1 = permutation_importances(model, labels, round.(Int32, features), (model, y, X)->accuracy(y, apply_tree(model, X))).mean
-@test similarity(f1, p1) > 0.9
+@test similarity(f1, p1) > 0.6
 
 n_subfeatures       = Int32(3)
 n_trees             = Int32(10)
