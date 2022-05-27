@@ -5,8 +5,11 @@ using ScikitLearnBase
 using Statistics
 import AbstractTrees
 using Test
+using LinearAlgebra
 
 println("Julia version: ", VERSION)
+
+similarity(a, b) = only(reshape(a, 1, :) * b / norm(a) / norm(b))
 
 function run_tests(list)
     for test in list

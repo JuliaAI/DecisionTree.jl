@@ -11,10 +11,16 @@ labels = round.(Int, features * weights);
 model = build_stump(labels, round.(Int, features))
 preds = apply_tree(model, round.(Int, features))
 @test depth(model) == 1
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, round.(Int, features), (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.99
 
 max_depth = 3
 model = build_tree(labels, features, 0, max_depth)
 @test depth(model) == max_depth
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
 print_tree(model, 3)
 
 model = build_tree(labels, features)
@@ -22,6 +28,9 @@ preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # test RNG param of trees
 n_subfeatures = 2
@@ -42,6 +51,9 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 n_subfeatures       = 3
 n_trees             = 9
@@ -63,6 +75,9 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 @test length(model) == n_trees
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # test n_subfeatures
 n_subfeatures       = 0
@@ -116,37 +131,40 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 @test typeof(preds) == Vector{Int}
 @test length(model) == n_iterations
+f1 = feature_importances(model)
+p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 println("\n##### nfoldCV Classification Tree #####")
 nfolds          = 3
 pruning_purity  = 1.0
 max_depth       = 5
-accuracy  = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10, verbose=false)
+accuracy1  = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10, verbose=false)
 accuracy2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
 accuracy3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
-@test mean(accuracy) > 0.7
-@test accuracy == accuracy2
-@test accuracy != accuracy3
+@test mean(accuracy1) > 0.7
+@test accuracy1 == accuracy2
+@test accuracy1 != accuracy3
 
 println("\n##### nfoldCV Classification Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
-accuracy  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10, verbose=false)
+accuracy1  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10, verbose=false)
 accuracy2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
 accuracy3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=5)
-@test mean(accuracy) > 0.7
-@test accuracy == accuracy2
-@test accuracy != accuracy3
+@test mean(accuracy1) > 0.7
+@test accuracy1 == accuracy2
+@test accuracy1 != accuracy3
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations = 25
 n_folds = 3
-accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10, verbose=false)
+accuracy1  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10, verbose=false)
 accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10)
 accuracy3 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=5)
-@test mean(accuracy) > 0.6
-@test accuracy == accuracy2
-@test accuracy != accuracy3
+@test mean(accuracy1) > 0.6
+@test accuracy1 == accuracy2
+@test accuracy1 != accuracy3
 
 end # @testset

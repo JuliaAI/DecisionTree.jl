@@ -11,6 +11,9 @@ labels = float.(features * weights);            # cast to Array{Float64,1}
 
 model = build_stump(labels, features)
 @test depth(model) == 1
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.99
 
 # over-fitting
 min_samples_leaf    = 1
@@ -24,6 +27,9 @@ model = build_tree(
 preds = apply_tree(model, features);
 @test R2(labels, preds) > 0.99      # R2: coeff of determination
 @test typeof(preds) <: Vector{Float64}
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
 ### @test length(model) == n        # can / should this be enforced ???
 
 # under-fitting
@@ -35,6 +41,9 @@ model = build_tree(
         min_samples_leaf)
 preds = apply_tree(model, round.(Int, features));
 @test R2(labels, preds) < 0.8
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, round.(Int, features), (model, y, X)->R2(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.99
 
 min_samples_leaf    = 5
 max_depth           = 3
@@ -45,6 +54,9 @@ model = build_tree(
         max_depth,
         min_samples_leaf)
 @test depth(model) == max_depth
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.99
 
 min_samples_leaf    = 1
 n_subfeatures       = 0
@@ -58,6 +70,9 @@ model = build_tree(
         min_samples_split)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.8
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.99
 
 n_subfeatures       = 0
 max_depth           = -1
@@ -73,6 +88,9 @@ model = build_tree(
         min_purity_increase)
 preds = apply_tree(model, features);
 @test R2(labels, preds) < 0.95
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_tree(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # test RNG param of trees
 n_subfeatures       = 2
@@ -92,6 +110,9 @@ model = build_forest(labels, features)
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_forest(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 n_subfeatures       = 3
 n_trees             = 9
@@ -112,6 +133,9 @@ model = build_forest(
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test length(model) == n_trees
+f1 = feature_importances(model)
+p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_forest(model, X))).mean
+@test similarity(f1, p1) > 0.9
 
 # test n_subfeatures
 n_trees             = 10
