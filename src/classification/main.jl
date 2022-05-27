@@ -52,7 +52,7 @@ function get_ni!(feature_importance::Vector{Float64}, node::treeclassifier.NodeM
     if !node.is_leaf
         get_ni!(feature_importance, node.l)
         get_ni!(feature_importance, node.r)
-        feature_importance[node.feature] = node.ni - node.l.ni - node.r.ni
+        feature_importance[node.feature] += node.ni - node.l.ni - node.r.ni
     end
     return 
 end
@@ -66,8 +66,10 @@ function build_stump(
         labels      :: AbstractVector{T},
         features    :: AbstractMatrix{S},
         weights      = nothing;
-        rng          = Random.GLOBAL_RNG) where {S, T}
+        rng          = Random.GLOBAL_RNG,
+        calc_fi             :: Bool = true) where {S, T}
 
+    rng = mk_rng(rng)::Random.AbstractRNG
     t = treeclassifier.fit(
         X                   = features,
         Y                   = labels,
@@ -80,7 +82,17 @@ function build_stump(
         min_purity_increase = 0.0;
         rng                 = rng)
 
-    return _convert(t.root, t.list, labels[t.labels])
+    if !calc_fi
+        _convert(t.root, t.list, labels[t.labels])
+    elseif t.root.is_leaf
+        return Leaf{T}(t.list[t.root.label], labels[t.root.region])
+    else
+        fi = zeros(Float64, size(features, 2))
+        left = _convert(t.root.l, t.list,  labels[t.labels])
+        right = _convert(t.root.r, t.list, labels[t.labels])
+        get_ni!(fi, t.root)
+        return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 1))
+    end
 end
 
 function build_tree(
@@ -123,7 +135,7 @@ function build_tree(
         left = _convert(t.root.l, t.list,  labels[t.labels])
         right = _convert(t.root.r, t.list, labels[t.labels])
         get_ni!(fi, t.root)
-        return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 2))
+        return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 1))
     end
 end
 
@@ -164,7 +176,7 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=1.0, loss = util.entro
         if N == 2    ## a stump
             return _prune_run_stump(tree, purity_thresh)
         else
-            fi = copy(tree.featim)
+            fi = deepcopy(tree.featim)
             left = _prune_run(tree.left, purity_thresh, fi)
             right = _prune_run(tree.right, purity_thresh, fi)
             return RootNode{S, T}(tree.featid, tree.featval, left, right, fi)
@@ -378,7 +390,7 @@ function build_adaboost_stumps(
     stumps = Node{S, T}[]
     coeffs = Float64[]
     for i in 1:n_iterations
-        new_stump = build_stump(labels, features, weights; rng=rng)
+        new_stump = build_stump(labels, features, weights; rng=mk_rng(rng), calc_fi=false)
         predictions = apply_tree(new_stump, features)
         err = _weighted_error(labels, predictions, weights)
         new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))
@@ -395,9 +407,9 @@ function build_adaboost_stumps(
     if calc_fi
         fi = zeros(Float64, size(features, 2))
         for (coeff, stump) in zip(coeffs, stumps)
-            fi[stump.featid] += coeff
+            fi[stump.featid] = exp(coeff) * (fi[stump.featid] > 0 ? fi[stump.featid] : 1)
         end
-        return (Ensemble{S, T}(stumps, fi ./ sum(coeffs)), coeffs)
+        return (Ensemble{S, T}(stumps, fi ./ sum(fi)), coeffs)
     else
         return (Ensemble{S, T}(stumps), coeffs)
     end
