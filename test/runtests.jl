@@ -9,7 +9,7 @@ using LinearAlgebra
 
 println("Julia version: ", VERSION)
 
-similarity(a, b) = only(reshape(a, 1, :) * b / norm(a) / norm(b))
+similarity(a, b) = first(reshape(a, 1, :) * b / norm(a) / norm(b))
 
 function run_tests(list)
     for test in list
