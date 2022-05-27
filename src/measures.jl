@@ -72,6 +72,11 @@ function confusion_matrix(actual::AbstractVector, predicted::AbstractVector)
     return ConfusionMatrix(classes, CM, accuracy, kappa)
 end
 
+function accuracy(actual, predicted)
+    length(actual) == length(predicted) || error(DimensionMismatch("actrual values and predicted values should have the same length."))
+    sum(actual .== predicted)/length(actual)
+end
+
 function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::AbstractMatrix{S}, args...; verbose, rng) where {S, T}
     _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
@@ -325,75 +330,71 @@ cv_fn(::Type{<: DecisionTree.Nodes}) = nfoldCV_tree
 cv_fn(::Type{<: Ensemble}) = nfoldCV_forest
 cv_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = nfoldCV_stumps
 
-function accuracy(actual, predicted)
-    length(actual) == length(predicted) || error(DimensionMismatch("actrual values and predicted values should have the same length."))
-    sum(actual .== predicted)/length(actual)
-end
-
 # Feature importances
+"""
+    feature_importances(trees; normalize::Bool = false)
+
+Return an vector of feature importances calculated by `Mean Decrease in Impurity (MDI)`.
+If `calc_fi` was set false, this function returns an empty vector.
+
+!!! warn
+    The feature importnaces might be misleading because it is a biased methods.
+
+See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more detailed dicussion.
+"""
 feature_importances(trees::T; normalize::Bool = false) where {T <: DecisionTree.RootNode} = 
     normalize ? trees.featim ./ sum(trees.featim) : trees.featim
 
-feature_importances(trees::T; kwargs...) where {T <: Ensemble} = trees.featim
-feature_importances(trees::T; kwargs...) where {T <: Tuple{<: Ensemble, AbstractVector{Float64}}} = first(trees).featim
+feature_importances(trees::T; kwargs...) where {T <: Ensemble} = isdefined(trees, :featim) ? trees.featim : Float64[]
 feature_importances(tree::T; kwargs...) where {T <: DecisionTree.Node} = Float64[]
 feature_importances(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
 
+"""
+    permutation_importances(
+                            trees::U, 
+                            labels  ::AbstractVector{T}, 
+                            features::AbstractVecOrMat{S},
+                            score::Function,
+                            n_iter::Int = 3
+                            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
+
+Calculate feature importances by shuffling each features.
+* `score`: a function to evaluating model performance with the form of `score(model, X, y)`
+
+# Return an `NamedTuple`
+* Fields 
+1. `mean`: mean of feature importances of each shuffle.
+2. `std`: std of feature importances of each shuffle.
+3. `scores`: scores of each shuffles
+
+For algorithm details, please see [Permutation feature importanc](https://scikit-learn.org/stable/modules/permutation_importance.html).
+"""
 function permutation_importances(
                                 trees::U, 
                                 labels  ::AbstractVector{T}, 
-                                features::AbstractVecOrMat{S}; 
-                                metric = metric_fn(T),
-                                predict_fn = predict_fn(U), 
-                                niter::Int = 3
+                                features::AbstractVecOrMat{S},
+                                score::Function,
+                                n_iter::Int = 3
                                 ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
 
-    base = metric(labels, predict_fn(trees, features))
-    nfeat = size(features, 2)
-    importances = Matrix{Float64}(undef, nfeat, niter)
-    for i in 1:nfeat
+    base = score(trees, labels, features)
+    n_feat = size(features, 2)
+    scores = Matrix{Float64}(undef, n_feat, n_iter)
+    for i in 1:n_feat
         col = @view features[:, i]
         origin = copy(col)
-        importances[i, :] = map(1:niter) do i
+        scores[i, :] = map(1:n_iter) do i
             shuffle!(col)
-            base - metric(labels, predict_fn(trees, features))
+            base - score(trees, labels, features)
         end
         features[:, i] = origin
     end
 
-    (mean = reshape(mapslices(importances, dims = 2) do im
+    (mean = reshape(mapslices(scores, dims = 2) do im
         mean(im)
     end, :), 
-    std = reshape(mapslices(importances, dims = 2) do im
+    std = reshape(mapslices(scores, dims = 2) do im
         std(im)
     end, :), 
-    importances = importances)
-end
-
-function dropcol_importances(
-            trees   ::U, 
-            labels  ::AbstractVector{T}, 
-            features::AbstractVecOrMat{S}, 
-            args...; 
-            cv_fn = cv_fn(U),
-            n_folds::Int = 10,
-            kwargs...
-            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
-    
-    base_scores = cv_fn(labels, features, n_folds, args...; verbose = false, kwargs...)
-    nfeat = size(features, 2)
-    dropcol_scores = Matrix{Float64}(undef, nfeat, n_folds)
-    for i in 1:nfeat
-        inds = deleteat!(collect(1:nfeat), i)
-        features_new = features[:, inds]
-        dropcol_scores[i, :] = cv_fn(labels, features_new, n_folds, args...; verbose = false, kwargs...)
-    end
-    (mean = reshape(mapslices(dropcol_scores, dims = 2) do score
-        mean(base_scores - score)
-    end, :),
-    std = reshape(mapslices(dropcol_scores, dims = 2) do score
-        sqrt((var(score) + var(base_scores))/2)
-    end, :), 
-    base_scores = base_scores,
-    dropcol_scores = dropcol_scores)
+    scores = scores)
 end
