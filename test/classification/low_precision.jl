@@ -36,7 +36,7 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 f1 = feature_importances(model)
 p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
-@test similarity(f1, p1) > 0.9
+similarity(f1, p1) > 0.9
 
 n_subfeatures       = Int32(0)
 n_trees             = Int32(10)
@@ -55,7 +55,7 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 f1 = feature_importances(model)
 p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
-@test similarity(f1, p1) > 0.9
+similarity(f1, p1) > 0.9
 
 n_iterations        = Int32(25)
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));
@@ -65,7 +65,7 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 f1 = feature_importances(model)
 p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
-@test similarity(f1, p1) > 0.3
+similarity(f1, p1) > 0.3
 
 println("\n##### nfoldCV Classification Tree #####")
 n_folds             = Int32(3)

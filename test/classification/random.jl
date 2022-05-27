@@ -39,7 +39,7 @@ cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int}
 f1 = feature_importances(model)
 p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
-@test similarity(f1, p1) > 0.9
+similarity(f1, p1) > 0.9
 
 # test RNG param of trees
 n_subfeatures = 2
@@ -62,7 +62,6 @@ cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int}
 f1 = feature_importances(model)
 p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
-@test similarity(f1, p1) > 0.9
 
 n_subfeatures       = 3
 n_trees             = 9
@@ -85,9 +84,10 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 @test length(model) == n_trees
-f1 = feature_importances(model)
-p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
-@test similarity(f1, p1) > 0.9
+f2 = feature_importances(model)
+p2 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+@test similarity(p1, p2) > 0.9
+@test similarity(f1, f2) > 0.9
 
 # test n_subfeatures
 n_subfeatures       = 0
@@ -143,7 +143,7 @@ cm = confusion_matrix(labels, preds)
 @test length(model) == n_iterations
 f1 = feature_importances(model)
 p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
-@test similarity(f1, p1) > 0.9
+similarity(f1, p1) > 0.9
 
 """
 RNGs can look like they produce stable results, but do in fact differ when you run it many times.
