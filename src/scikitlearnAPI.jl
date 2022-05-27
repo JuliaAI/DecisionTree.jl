@@ -506,7 +506,7 @@ function permutation_importances(
     X, y = sampling(X, y, n_sample, sampling_rate)
     y = y_convert(T, y)
     n_feat = size(X, 2)
-    if isnothing(cv_score)
+    if cv_score === nothing
         base = score(trees, X, y)
         scores = Matrix{Float64}(undef, n_feat, n_iter)
         for i in 1:n_feat
@@ -595,7 +595,7 @@ function dropcol_importances(
     end
     trees_.rng = mk_rng(rng)
     trees_.calc_fi = false
-    if isnothing(cv_score)
+    if cv_score === nothing
         fit!(trees_, X, y)
         base = score(trees_, X, y)
         im = Vector{Float64}(undef, n_feat)
