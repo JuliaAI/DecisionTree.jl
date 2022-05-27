@@ -14,13 +14,13 @@ function get_ni!(feature_importance::Vector{Float64}, node::treeregressor.NodeMe
     if !node.is_leaf
         get_ni!(feature_importance, node.l)
         get_ni!(feature_importance, node.r)
-        feature_importance[node.feature] = node.ni - node.l.ni - node.r.ni
+        feature_importance[node.feature] += node.ni - node.l.ni - node.r.ni
     end
     return
 end
 
-function build_stump(labels::AbstractVector{T}, features::AbstractMatrix{S}; rng = Random.GLOBAL_RNG) where {S, T <: Float64}
-    return build_tree(labels, features, 0, 1; rng=rng, calc_fi=false)
+function build_stump(labels::AbstractVector{T}, features::AbstractMatrix{S}; rng = Random.GLOBAL_RNG, calc_fi::Bool = true) where {S, T <: Float64}
+    return build_tree(labels, features, 0, 1; rng=rng, calc_fi=calc_fi)
 end
 
 function build_tree(
@@ -61,7 +61,7 @@ function build_tree(
         left = _convert(t.root.l, labels[t.labels])
         right = _convert(t.root.r, labels[t.labels])
         get_ni!(fi, t.root)
-        return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 2))
+        return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 1))
     end
 end
 
