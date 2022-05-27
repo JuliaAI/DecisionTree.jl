@@ -411,96 +411,221 @@ print_tree(n::Nothing, depth=-1; kwargs...)                 = show(n)
 
 #################################################################################
 # Trait functions
-metric_fn(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier}}) = accuracy
-metric_fn(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}) = R2
-
 y_convert(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier}}, y) = y
 y_convert(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}, y) = float.(y)
 
-predict_fn(::Type{<: Union{DecisionTreeClassifier, DecisionTreeRegressor}}) = apply_tree
-predict_fn(::Type{<: Union{RandomForestClassifier, RandomForestRegressor}}) = apply_forest
-predict_fn(::Type{<: AdaBoostStumpClassifier}) = apply_adaboost_stumps
-
-cv_fn(::Type{<: Union{DecisionTreeClassifier, DecisionTreeRegressor}}) = nfoldCV_tree
-cv_fn(::Type{<: Union{RandomForestClassifier, RandomForestRegressor}}) = nfoldCV_forest
-cv_fn(::Type{<: AdaBoostStumpClassifier}) = nfoldCV_adaboost_stumps
-
 model(dt::Union{DecisionTreeClassifier, DecisionTreeRegressor}) = dt.root
 model(rf::Union{RandomForestClassifier, RandomForestRegressor}) = rf.ensemble
-model(ada::AdaBoostStumpClassifier) = ada.ensemble, ada.coeffs
-# Feature importances
+model(ada::AdaBoostStumpClassifier) = ada.ensemble
+
+score_fn(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier}}) = accuracy
+score_fn(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}) = R2
+
+# score functino
+R2(model::T, X::AbstractMatrix, y::AbstractVector) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}= 
+    R2(y, predict(model, X))
+accuracy(model::T, X::AbstractMatrix, y::AbstractVector) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}= 
+    accuracy(y, predict(model, X))
+
+const DecisionTreeEstimator = Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}
+
+"""
+    feature_importances(trees::T; normalize::Bool = false) where {T <: DecisionTreeEstimator}
+
+Return an vector of feature importances calculated by `Mean Decrease in Impurity (MDI)`.
+If `calc_fi` was set false, this function returns an empty vector.
+
+!!! warn
+    The feature importnaces might be misleading because it is a biased methods.
+
+See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more detailed dicussion.
+"""
 feature_importances(trees::T; 
-    normalize::Bool = false) where { T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}} = 
+    normalize::Bool = false) where {T <: DecisionTreeEstimator} = 
     feature_importances(model(trees), normalize = normalize)
 
-permutation_importances(
-    trees::T, 
-    X::AbstractMatrix,
-    y::AbstractVector; 
-    metric = metric_fn(T),
-    predict_fn = predict_fn(T), 
-    niter::Int = 3
-    ) where { T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}} = 
-        permutation_importances(model(trees), y_convert(T, y), X, metric = metric, predict_fn = predict_fn, niter = niter)
+function sampling(X::AbstractMatrix, y::AbstractVector, n_sample::Int, sampling_rate::Float64 = 1.0)
+    if iszero(n_sample)
+        n_sample = ceil(Int, length(y) * sampling_rate)
+    else
+        n_sample > length(y) && @warn "Sampling size is larger than total number of samples; calculating with all samples."
+        n_sample = min(n_sample, length(y))
+    end
+    samples = sample(1:length(y), n_sample, replace = false)
+    if n_sample != length(y)
+        y = y[samples]
+        X = X[samples, :]
+    end
+    X, y
+end
 
-dropcol_importances(
-                    dt::T, 
-                    X::AbstractMatrix,
-                    y::AbstractVector; 
-                    cv_fn = cv_fn(T),
-                    n_folds::Int = 10,
-                    pruning_purity_threshold = dt.pruning_purity_threshold,
-                    max_depth = dt.max_depth, 
-                    min_samples_leaf = dt.min_samples_leaf, 
-                    min_samples_split = dt.min_samples_split,
-                    min_purity_increase = dt.min_purity_increase, 
-                    rng = dt.rng
-                    ) where {T <: Union{DecisionTreeClassifier, DecisionTreeRegressor}} = 
-    dropcol_importances(dt.root, y_convert(T, y), X, 
-                        pruning_purity_threshold,
-                        max_depth, 
-                        min_samples_leaf, 
-                        min_samples_split, 
-                        min_purity_increase;
-                        cv_fn = cv_fn,
-                        n_folds = n_folds,
-                        rng = rng)
+"""
+    permutation_importances(
+                            trees::T, 
+                            X::AbstractMatrix,
+                            y::AbstractVector; 
+                            score::Function = score_fn(T),
+                            n_iter::Int = 3, 
+                            cv_score = nothing,
+                            cv = nothing, 
+                            n_sample::Int = 0,
+                            sampling_rate::Float64 = 1.0
+                            ) where {T <: DecisionTreeEstimator}
+
+Calculate feature importances by shuffling each features.
+* Keyword arguments:
+1. `score`: a function to evaluating model performance with the form of `score(model, X, y)`. The default value is determined by function `score_fn`.
+2. `cv_score`: a function to do cross validation. It's designed to be `cross_val_score` from `ScikitLearn.jl`, but any function in the form of `cv_score(model, X, y; scoring = score, cv = cv)` is okay.
+3. `cv`: keyword argument for `cv_score`.
+4. `n_sample`: maximum number of samples. The default is zero. 
+5. `sampling_rate`: the proportion of sampling. If `n_sample` is zero, `sampling_rate` is used. The default is one.
+
+# Return an `NamedTuple`
+* Fields 
+1. `mean`: mean of feature importances of each shuffle.
+2. `std`: std of feature importances of each shuffle.
+3. `scores`: scores of each shuffles
+4. `base_scores`: scores of base models if using cross validation.
+
+Evaluating with multiple shuffles is generally quite robust and much more efficient than using cross validation.
+For algorithm details, please see [Permutation feature importanc](https://scikit-learn.org/stable/modules/permutation_importance.html).
+"""
+function permutation_importances(
+                                trees::T, 
+                                X::AbstractMatrix,
+                                y::AbstractVector; 
+                                score::Function = score_fn(T),
+                                n_iter::Int = 3, 
+                                cv_score = nothing,
+                                cv = nothing, 
+                                n_sample::Int = 0,
+                                sampling_rate::Float64 = 1.0
+                                ) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}
     
-dropcol_importances(
-                    rf::T, 
-                    X::AbstractMatrix,
-                    y::AbstractVector; 
-                    cv_fn = cv_fn(T),
-                    n_folds::Int = 10,
-                    n_subfeatures = rf.n_subfeatures, 
-                    n_trees = rf.n_trees, 
-                    partial_sampling = rf.partial_sampling,
-                    max_depth = rf.max_depth, 
-                    min_samples_leaf = rf.min_samples_leaf, 
-                    min_samples_split = rf.min_samples_split, 
-                    min_purity_increase = rf.min_purity_increase,
-                    rng = rf.rng
-                    ) where {T <: Union{RandomForestClassifier, RandomForestRegressor}} = 
-    dropcol_importances(rf.ensemble, y_convert(T, y), X, 
-                        n_subfeatures, 
-                        n_trees, 
-                        partial_sampling, 
-                        max_depth, 
-                        min_samples_leaf, 
-                        min_samples_split, 
-                        min_purity_increase;
-                        cv_fn = cv_fn,
-                        n_folds = n_folds, 
-                        rng = rng)
+    length(y) == size(X, 1) || error(DimensionMismatch("X and y should have the same number of rows."))               
+    X, y = sampling(X, y, n_sample, sampling_rate)
+    y = y_convert(T, y)
+    n_feat = size(X, 2)
+    if isnothing(cv_score)
+        base = score(trees, X, y)
+        scores = Matrix{Float64}(undef, n_feat, n_iter)
+        for i in 1:n_feat
+            col = @view X[:, i]
+            origin = copy(col)
+            scores[i, :] = map(1:n_iter) do i
+                shuffle!(col)
+                score(trees, X, y)
+            end
+            X[:, i] = origin
+        end
+        (mean = reshape(mapslices(scores, dims = 2) do im
+            base - mean(im)
+        end, :), 
+        std = reshape(mapslices(scores, dims = 2) do im
+            std(im)
+        end, :), 
+        scores = scores)
+    else
+        n_iter = isa(cv, Number) ? cv : length(cv)
+        base_scores = cv_score(trees, X, y; scoring = score, cv = cv)
+        scores = Matrix{Float64}(undef, n_feat, n_iter)
+        for i in 1:n_feat
+            col = @view X[:, i]
+            origin = copy(col)
+            scores[i, :] = cv_score(trees, X, y; scoring = score, cv = cv)
+            X[:, i] = origin
+        end
+        (mean = reshape(mapslices(scores, dims = 2) do im
+            mean(base_scores) - mean(im)
+        end, :), 
+        std = reshape(mapslices(scores, dims = 2) do im
+            sqrt((var(scores) + var(base_scores))/2)
+        end, :), 
+        scores = scores,
+        base_scores = base_scores)
+    end
+end
 
-dropcol_importances(
-                    ada::AdaBoostStumpClassifier, 
-                    X::AbstractMatrix,
-                    y::AbstractVector; 
-                    cv_fn = nfoldCV_stumps, 
-                    n_folds::Int = 10,
-                    n_iterations = ada.n_iterations,
-                    rng = ada.rng
-                    ) = 
-    dropcol_importances(model(ada), y, X, n_iterations; 
-                        cv_fn = cv_fn, n_folds = n_folds, rng = rng)
+"""
+    dropcol_importances(
+                        trees::T, 
+                        X::AbstractMatrix,
+                        y::AbstractVector;    
+                        score::Function = score_fn(T),
+                        cv_score = nothing,
+                        cv = nothing, 
+                        rng = nothing
+                        ) where {T <: DecisionTreeEstimator}
+
+Calculate feature importances by dropping each features.
+* Keyword arguments:
+1. `score`: a function to evaluating model performance with the form of `score(model, X, y)`. The default value is determined by function `score_fn`.
+2. `cv_score`: a function to do cross validation. It's designed to be `cross_val_score` from `ScikitLearn.jl`, but any function in the form of `cv_score(model, X, y; scoring = score, cv = cv)` is okay.
+3. `cv`: keyword argument for `cv_score`.
+4. `rng`: specific seed for training new models. The default is `nothing` and a random number is selected.
+
+# Return an `NamedTuple`
+* Fields 
+1. `mean`: mean of feature importances.
+2. `std`: std of feature importances.
+3. `scores`: scores of each feature if using cross validation.
+4. `base_scores`: scores of base models if using cross validation.
+
+!!! warn 
+    The importnaces without cross validation may be quite biased if the model is overfitting.
+
+See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) and [rfpimp](https://github.com/parrt/random-forest-importances) for more detailed dicussion and alogrithm.
+"""
+function dropcol_importances(
+                            trees::T, 
+                            X::AbstractMatrix,
+                            y::AbstractVector;    
+                            score::Function = score_fn(T),
+                            cv_score = nothing,
+                            cv = nothing, 
+                            rng = nothing
+                            ) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}
+    
+    length(y) == size(X, 1) || error(DimensionMismatch("X and y should have the same number of rows."))               
+    y = y_convert(T, y)
+    n_feat = size(X, 2)
+    trees_ = deepcopy(trees)
+    if isnothing(rng)
+        rng = rand(1:typemax(Int))
+    end
+    trees_.rng = mk_rng(rng)
+    trees_.calc_fi = false
+    if isnothing(cv_score)
+        fit!(trees_, X, y)
+        base = score(trees_, X, y)
+        im = Vector{Float64}(undef, n_feat)
+        for i in 1:n_feat
+            inds = deleteat!(collect(1:n_feat), i)
+            X_new = X[:, inds]
+            trees_.rng = mk_rng(rng)
+            fit!(trees_, X_new, y)
+            im[i] = base - score(trees_, X_new, y)
+        end
+        (mean = im, 
+        std = std.(im))
+    else
+        n_iter = isa(cv, Number) ? cv : length(cv)
+        base_scores = cv_score(trees, X, y; scoring = score, cv = cv)
+        scores = Matrix{Float64}(undef, n_feat, n_iter)
+        for i in 1:n_feat
+            inds = deleteat!(collect(1:n_feat), i)
+            X_new = X[:, inds]
+            trees_.rng = mk_rng(rng)
+            fit!(trees_, X_new, y)
+            scores[i, :] = cv_score(trees_, X_new, y; scoring = score,  cv = cv)
+        end
+        (mean = reshape(mapslices(scores, dims = 2) do im
+            mean(base_scores) - mean(im)
+        end, :), 
+        std = reshape(mapslices(scores, dims = 2) do im
+            sqrt((var(scores) + var(base_scores))/2)
+        end, :), 
+        scores = scores,
+        base_scores = base_scores)
+    end
+end
