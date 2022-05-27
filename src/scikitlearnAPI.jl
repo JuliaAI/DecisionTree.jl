@@ -590,7 +590,7 @@ function dropcol_importances(
     y = y_convert(T, y)
     n_feat = size(X, 2)
     trees_ = deepcopy(trees)
-    if isnothing(rng)
+    if rng === nothing
         rng = rand(1:typemax(Int))
     end
     trees_.rng = mk_rng(rng)
