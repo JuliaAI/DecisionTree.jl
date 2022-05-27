@@ -113,7 +113,7 @@ probs = apply_adaboost_stumps_proba(model, coeffs, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
 f1 = feature_importances(model)
 p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
-@test similarity(f1, p1) > 0.9
+@test similarity(f1, p1) > 0.8
 
 # run n-fold cross validation for boosted stumps, using 7 iterations and 3 folds
 println("\n##### nfoldCV Classification Adaboosted Stumps #####")
