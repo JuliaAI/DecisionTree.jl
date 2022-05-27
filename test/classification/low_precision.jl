@@ -63,7 +63,7 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 f1 = feature_importances(model)
 p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
-@test similarity(f1, p1) > 0.9
+@test similarity(f1, p1) > 0.3
 
 println("\n##### nfoldCV Classification Tree #####")
 n_folds             = Int32(3)
