@@ -300,6 +300,9 @@ function build_adaboost_stumps(
         n_iterations :: Integer;
         rng           = Random.GLOBAL_RNG) where {S, T}
     N = length(labels)
+    n_labels = length(unique(labels))
+    base_coeff = log(n_labels - 1)
+    thresh = 1 - 1 / n_labels
     weights = ones(N) / N
     stumps = Node{S, T}[]
     coeffs = Float64[]
@@ -307,10 +310,13 @@ function build_adaboost_stumps(
         new_stump = build_stump(labels, features, weights; rng=rng)
         predictions = apply_tree(new_stump, features)
         err = _weighted_error(labels, predictions, weights)
-        new_coeff = 0.5 * log((1.0 + err) / (1.0 - err))
-        matches = labels .== predictions
-        weights[(!).(matches)] *= exp(new_coeff)
-        weights[matches] *= exp(-new_coeff)
+        if err >= thresh # should be better than random guess
+            continue
+        end
+        # SAMME algorithm
+        new_coeff = log((1.0 - err) / err) + base_coeff
+        unmatches = labels .!= predictions
+        weights[unmatches] *= exp(new_coeff)
         weights /= sum(weights)
         push!(coeffs, new_coeff)
         push!(stumps, new_stump)
