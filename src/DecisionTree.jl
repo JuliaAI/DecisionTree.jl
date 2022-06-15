@@ -102,11 +102,11 @@ in the training data that ended up here were of class 5."
 
 # Example output:
 ```
-Feature 3, Threshold -28.156052806422238
-L-> Feature 2, Threshold -161.04351901384842
+Feature 3, Threshold -28.16
+L-> Feature 2, Threshold -161.04
     L-> 5 : 842/3650
     R-> 7 : 2493/10555
-R-> Feature 7, Threshold 108.1408338577021
+R-> Feature 7, Threshold 108.14
     L-> 2 : 2434/15287
     R-> 8 : 1227/3508
 ```
