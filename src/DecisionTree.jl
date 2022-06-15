@@ -81,13 +81,13 @@ depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
 function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
-    matches = findall(leaf.values .== leaf.majority)
-    ratio = string(length(matches)) * "/" * string(length(leaf.values))
+    n_matches = count(leaf.values .== leaf.majority)
+    ratio = string(n_matches, "/", length(leaf.values))
     println("$(leaf.majority) : $(ratio)")
 end
 
 """
-       print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
+       print_tree(tree::Node, depth=-1, indent=0; digits=2, feature_names=nothing)
 
 Print a textual visualization of the given decision tree `tree`.
 In the example output below, the top node considers whether 
@@ -115,15 +115,16 @@ To facilitate visualisation of trees using third party packages, a `DecisionTree
 `DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the 
 AbstractTrees.jl interface. See  [`wrap`](@ref)` for details. 
 """
-function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
+function print_tree(tree::Node, depth=-1, indent=0; digits=2, feature_names=nothing)
     if depth == indent
         println()
         return
     end
+    featval = round(tree.featval; digits=digits)
     if feature_names === nothing
-        println("Feature $(tree.featid), Threshold $(tree.featval)")
+        println("Feature $(tree.featid), Threshold $featval")
     else
-        println("Feature $(tree.featid): \"$(feature_names[tree.featid])\", Threshold $(tree.featval)")
+        println("Feature $(tree.featid): \"$(feature_names[tree.featid])\", Threshold $featval")
     end
     print("    " ^ indent * "L-> ")
     print_tree(tree.left, depth, indent + 1; feature_names = feature_names)
