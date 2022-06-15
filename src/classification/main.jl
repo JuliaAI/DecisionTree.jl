@@ -37,7 +37,8 @@ end
 function _convert(
         node   :: treeclassifier.NodeMeta{S},
         list   :: AbstractVector{T},
-        labels :: AbstractVector{T}) where {S, T}
+        labels :: AbstractVector{T}
+    ) where {S, T}
 
     if node.is_leaf
         return Leaf{T}(list[node.label], labels[node.region])
@@ -138,7 +139,7 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=1.0) where {S, T}
 end
 
 
-apply_tree(leaf::Leaf{T}, feature::AbstractVector{S}) where {S, T} = leaf.majority
+apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.majority
 
 function apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
     if tree.featid == 0
@@ -163,16 +164,19 @@ function apply_tree(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}) where {
     end
 end
 
-"""    apply_tree_proba(::Node, features, col_labels::AbstractVector)
+"""
+    apply_tree_proba(leaf::Leaf, features::AbstractVector, labels)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
 
-`col_labels` is a vector containing the distinct labels
+`labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix. """
-apply_tree_proba(leaf::Leaf{T}, features::AbstractVector{S}, labels) where {S, T} =
-    compute_probabilities(labels, leaf.values)
+of the output matrix.
+"""
+function apply_tree_proba(leaf::Leaf, features::AbstractVector, labels)
+    return compute_probabilities(labels, leaf.values)
+end
 
 function apply_tree_proba(tree::Node{S, T}, features::AbstractVector{S}, labels) where {S, T}
     if tree.featval === nothing

@@ -142,11 +142,16 @@ accuracy3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations = 25
 n_folds = 3
+
+for rng in 7:10
+    accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=rng, verbose=false)
+    accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=rng)
+    @test mean(accuracy) > 0.6
+    @test accuracy == accuracy2
+end
+
 accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10, verbose=false)
-accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10)
 accuracy3 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=5)
-@test mean(accuracy) > 0.6
-@test accuracy == accuracy2
 @test accuracy != accuracy3
 
 end # @testset

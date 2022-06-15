@@ -125,7 +125,8 @@ m_partial = build_forest(
         n_trees,
         partial_sampling,
         max_depth,
-        min_samples_leaf)
+        min_samples_leaf;
+        rng=10)
 n_subfeatures       = 0
 m_full = build_forest(
         labels, features,
@@ -133,7 +134,8 @@ m_full = build_forest(
         n_trees,
         partial_sampling,
         max_depth,
-        min_samples_leaf)
+        min_samples_leaf;
+        rng=10)
 @test mean(depth.(m_full.trees)) < mean(depth.(m_partial.trees))
 
 # test partial_sampling parameter, train on single sample
