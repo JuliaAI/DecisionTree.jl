@@ -102,13 +102,13 @@ in the training data that ended up here were of class 5."
 
 # Example output:
 ```
-Feature 3, Threshold -28.156052806422238
-< then Feature 2, Threshold -161.04351901384842
-    < then 5 : 842/3650
-    ≥ then 7 : 2493/10555
-≥ then Feature 7, Threshold 108.1408338577021
-    < then 2 : 2434/15287
-    ≥ then 8 : 1227/3508
+Feature 3 < -28.156052806422238 ?
+├─ Feature 2 < -161.04351901384842 ?
+   ├─ 5 : 842/3650
+   └─ 7 : 2493/10555
+└─ Feature 7 < 108.1408338577021 ?
+   ├─ 2 : 2434/15287
+   └─ 8 : 1227/3508
 ```
 
 To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object or 
@@ -121,13 +121,13 @@ function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
         return
     end
     if feature_names === nothing
-        println("Feature $(tree.featid), Threshold $(tree.featval)")
+        println("Feature $(tree.featid) < $(tree.featval)")
     else
-        println("Feature $(tree.featid): \"$(feature_names[tree.featid])\", Threshold $(tree.featval)")
+        println("Feature $(tree.featid): \"$(feature_names[tree.featid])\" < $(tree.featval)")
     end
-    print("    " ^ indent * "< then ")
+    print("    " ^ indent * "├─ ")
     print_tree(tree.left, depth, indent + 1; feature_names = feature_names)
-    print("    " ^ indent * "≥ then ")
+    print("    " ^ indent * "└─ ")
     print_tree(tree.right, depth, indent + 1; feature_names = feature_names)
 end
 
