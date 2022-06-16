@@ -87,7 +87,7 @@ function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
 end
 
 """
-       print_tree(tree::Node, depth=-1, indent=0; digits=2, feature_names=nothing)
+       print_tree(tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
 
 Print a textual visualization of the given decision tree `tree`.
 In the example output below, the top node considers whether 
@@ -111,16 +111,16 @@ R-> Feature 7, Threshold 108.14
     R-> 8 : 1227/3508
 ```
 
-To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object or 
-`DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the 
-AbstractTrees.jl interface. See  [`wrap`](@ref)` for details. 
+To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object or
+`DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the
+AbstractTrees.jl interface. See  [`wrap`](@ref)` for details.
 """
-function print_tree(tree::Node, depth=-1, indent=0; digits=2, feature_names=nothing)
+function print_tree(tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
     if depth == indent
         println()
         return
     end
-    featval = round(tree.featval; digits=digits)
+    featval = round(tree.featval; sigdigits=sigdigits)
     if feature_names === nothing
         println("Feature $(tree.featid), Threshold $featval")
     else
