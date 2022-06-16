@@ -143,6 +143,9 @@ println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations = 25
 n_folds = 3
 
+# RNGs can look like they produce stable results, but do in fact differ when you run it many times.
+# In some RNGs the problem already shows up when doing two runs and comparing those.
+# This loop tests multiple RNGs to have a higher chance of spotting a problem.
 for rng in 7:10
     accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=rng, verbose=false)
     accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=rng)
