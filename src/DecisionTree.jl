@@ -87,7 +87,7 @@ function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
 end
 
 """
-       print_tree(tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
+       print_tree(tree::Node, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
 
 Print a textual visualization of the specified `tree`. For example, if
 for some input pattern the value of "Feature 3" is "-30" and the value
