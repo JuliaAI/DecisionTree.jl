@@ -271,7 +271,7 @@ end
 function apply_forest(forest::Ensemble{S, T}, features::AbstractMatrix{S}) where {S, T}
     N = size(features,1)
     predictions = Array{T}(undef, N)
-    for i in 1:N
+    Threads.@threads for i in 1:N
         predictions[i] = apply_forest(forest, features[i, :])
     end
     return predictions
