@@ -3,7 +3,7 @@
 
 module util
 
-    export gini, entropy, zero_one, q_bi_sort!, hypergeometric, check_input
+    export gini, entropy, zero_one, q_bi_sort!, hypergeometric, check_input, find_n_samples_and_n_features
 
     function assign(Y :: AbstractVector{T}, list :: AbstractVector{T}) where T
         dict = Dict{T, Int}()
@@ -297,8 +297,21 @@ module util
         end
     end
 
+    # Find the appropriate values for n_samples and n_features.
+    # This is a shared need across multiple functions and files.
+    function find_n_samples_and_n_features(X::AbstractVecOrMat)
+        n_samples, n_features = (0, 0)
+        if isa(X, AbstractVector)
+            n_samples = length(X)
+            n_features = 1
+        elseif isa(X, AbstractMatrix)
+            n_samples, n_features = size(X)
+        end
+        return (n_samples, n_features)
+    end
+    
     function check_input(
-            X                   :: AbstractMatrix{S},
+            X                   :: AbstractVecOrMat{S},
             Y                   :: AbstractVector{T},
             W                   :: AbstractVector{U},
             max_features        :: Int,
@@ -306,7 +319,12 @@ module util
             min_samples_leaf    :: Int,
             min_samples_split   :: Int,
             min_purity_increase :: Float64) where {S, T, U}
-        n_samples, n_features = size(X)
+        if isa(X, AbstractVector)
+            n_samples = length(X)
+            n_features = 1
+        elseif isa(X, AbstractMatrix)
+            n_samples, n_features = size(X)
+        end
         if length(Y) != n_samples
             throw("dimension mismatch between X and Y ($(size(X)) vs $(size(Y))")
         elseif length(W) != n_samples

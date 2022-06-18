@@ -49,8 +49,8 @@ get_classes(dt::DecisionTreeClassifier) = dt.classes
                          [:pruning_purity_threshold, :max_depth, :min_samples_leaf,
                           :min_samples_split, :min_purity_increase, :rng])
 
-function fit!(dt::DecisionTreeClassifier, X, y)
-    n_samples, n_features = size(X)
+function fit!(dt::DecisionTreeClassifier, X::AbstractVecOrMat, y)
+    n_samples, n_features = find_n_samples_and_n_features(X)
     dt.root = build_tree(
         y, X,
         dt.n_subfeatures,
@@ -136,8 +136,8 @@ end
                          [:pruning_purity_threshold, :min_samples_leaf, :n_subfeatures,
                           :max_depth, :min_samples_split, :min_purity_increase, :rng])
 
-function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
-    n_samples, n_features = size(X)
+function fit!(dt::DecisionTreeRegressor, X::AbstractVecOrMat, y::AbstractVector)
+    n_samples, n_features = find_n_samples_and_n_features(X)
     dt.root = build_tree(
         float.(y), X,
         dt.n_subfeatures,
@@ -213,8 +213,8 @@ get_classes(rf::RandomForestClassifier) = rf.classes
                           :min_samples_leaf, :min_samples_split, :min_purity_increase,
                           :rng])
 
-function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
-    n_samples, n_features = size(X)
+function fit!(rf::RandomForestClassifier, X::AbstractVecOrMat, y::AbstractVector)
+    n_samples, n_features = find_n_samples_and_n_features(X)
     rf.ensemble = build_forest(
         y, X,
         rf.n_subfeatures,
@@ -297,8 +297,8 @@ end
                           # since it'll change throughout fitting, but it works
                           :max_depth, :rng])
 
-function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
-    n_samples, n_features = size(X)
+function fit!(rf::RandomForestRegressor, X::AbstractVecOrMat, y::AbstractVector)
+    n_samples, n_features = find_n_samples_and_n_features(X)
     rf.ensemble = build_forest(
         float.(y), X,
         rf.n_subfeatures,
@@ -388,3 +388,15 @@ length(dt::DecisionTreeRegressor)   = length(dt.root)
 print_tree(dt::DecisionTreeClassifier, depth=-1; kwargs...) = print_tree(dt.root, depth; kwargs...)
 print_tree(dt::DecisionTreeRegressor,  depth=-1; kwargs...) = print_tree(dt.root, depth; kwargs...)
 print_tree(n::Nothing, depth=-1; kwargs...)                 = show(n)
+
+# Due to the current project structure, this can't currently be loaded from util
+function find_n_samples_and_n_features(X::AbstractVecOrMat)
+    n_samples, n_features = (0, 0)
+    if isa(X, AbstractVector)
+        n_samples = length(X)
+        n_features = 1
+    elseif isa(X, AbstractMatrix)
+        n_samples, n_features = size(X)
+    end
+    return (n_samples, n_features)
+end

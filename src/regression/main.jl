@@ -10,13 +10,13 @@ function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T
     end
 end
 
-function build_stump(labels::AbstractVector{T}, features::AbstractMatrix{S}; rng = Random.GLOBAL_RNG) where {S, T <: Float64}
+function build_stump(labels::AbstractVector{T}, features::AbstractVecOrMat{S}; rng = Random.GLOBAL_RNG) where {S, T <: Float64}
     return build_tree(labels, features, 0, 1)
 end
 
 function build_tree(
         labels             :: AbstractVector{T},
-        features           :: AbstractMatrix{S},
+        features           :: AbstractVecOrMat{S},
         n_subfeatures       = 0,
         max_depth           = -1,
         min_samples_leaf    = 5,
@@ -48,7 +48,7 @@ end
 
 function build_forest(
         labels              :: AbstractVector{T},
-        features            :: AbstractMatrix{S},
+        features            :: AbstractVecOrMat{S},
         n_subfeatures       = -1,
         n_trees             = 10,
         partial_sampling    = 0.7,

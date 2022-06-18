@@ -42,7 +42,7 @@ module treeregressor
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
-            X                   :: AbstractMatrix{S}, # the feature array
+            X                   :: AbstractVecOrMat{S}, # the feature array
             Y                   :: AbstractVector{Float64}, # the label array
             W                   :: AbstractVector{U},
             node                :: NodeMeta{S}, # the node to split
@@ -229,7 +229,7 @@ module treeregressor
     end
 
     function _fit(
-            X                     :: AbstractMatrix{S},
+            X                     :: AbstractVecOrMat{S},
             Y                     :: AbstractVector{Float64},
             W                     :: AbstractVector{U},
             max_features          :: Int,
@@ -239,8 +239,7 @@ module treeregressor
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
-        n_samples, n_features = size(X)
-
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         Yf  = Array{Float64}(undef, n_samples)
         Xf  = Array{S}(undef, n_samples)
         Wf  = Array{U}(undef, n_samples)
@@ -272,7 +271,7 @@ module treeregressor
     end
 
     function fit(;
-            X                     :: AbstractMatrix{S},
+            X                     :: AbstractVecOrMat{S},
             Y                     :: AbstractVector{Float64},
             W                     :: Union{Nothing, AbstractVector{U}},
             max_features          :: Int,
@@ -282,7 +281,7 @@ module treeregressor
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
 
-        n_samples, n_features = size(X)
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         if W == nothing
             W = fill(1.0, n_samples)
         end

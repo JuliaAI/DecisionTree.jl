@@ -15,6 +15,18 @@ model = fit!(DecisionTreeRegressor(min_samples_split=5), features, labels)
 model = fit!(RandomForestRegressor(n_trees=10, min_samples_leaf=5, n_subfeatures=2), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
 
+# Repeat the above but for single feature vector
+features = rand(n)
+labels = features .* 2
+model = fit!(DecisionTreeRegressor(min_samples_leaf=5, pruning_purity_threshold=0.1), features, labels)
+@test R2(labels, predict(model, features)) > 0.8
+
+model = fit!(DecisionTreeRegressor(min_samples_split=5), features, labels)
+@test R2(labels, predict(model, features)) > 0.8
+
+model = fit!(RandomForestRegressor(n_trees=10, min_samples_leaf=5, n_subfeatures=1), features, labels)
+@test R2(labels, predict(model, features)) > 0.8
+
 Random.seed!(2)
 N = 3000
 X = randn(N, 10)

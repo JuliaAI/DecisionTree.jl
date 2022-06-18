@@ -43,7 +43,7 @@ module treeclassifier
     # find an optimal split that satisfy the given constraints
     # (max_depth, min_samples_split, min_purity_increase)
     function _split!(
-            X                   :: AbstractMatrix{S},   # the feature array
+            X                   :: AbstractVecOrMat{S},   # the feature array
             Y                   :: AbstractVector{Int}, # the label array
             W                   :: AbstractVector{U},   # the weight vector
             purity_function     :: Function,
@@ -226,7 +226,7 @@ module treeclassifier
     end
 
     function _fit(
-            X                     :: AbstractMatrix{S},
+            X                     :: AbstractVecOrMat{S},
             Y                     :: AbstractVector{Int},
             W                     :: AbstractVector{U},
             loss                  :: Function,
@@ -237,9 +237,8 @@ module treeclassifier
             min_samples_split     :: Int,
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, U}
-
-        n_samples, n_features = size(X)
-
+        
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         nc  = Array{U}(undef, n_classes)
         ncl = Array{U}(undef, n_classes)
         ncr = Array{U}(undef, n_classes)
@@ -273,7 +272,7 @@ module treeclassifier
     end
 
     function fit(;
-            X                     :: AbstractMatrix{S},
+            X                     :: AbstractVecOrMat{S},
             Y                     :: AbstractVector{T},
             W                     :: Union{Nothing, AbstractVector{U}},
             loss=util.entropy     :: Function,
@@ -284,7 +283,7 @@ module treeclassifier
             min_purity_increase   :: Float64,
             rng=Random.GLOBAL_RNG :: Random.AbstractRNG) where {S, T, U}
 
-        n_samples, n_features = size(X)
+        n_samples, n_features = util.find_n_samples_and_n_features(X)
         list, Y_ = util.assign(Y)
         if W == nothing
             W = fill(1, n_samples)
