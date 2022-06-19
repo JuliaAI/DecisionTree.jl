@@ -12,7 +12,7 @@ import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
                            min_purity_increase::Float=0.0,
                            n_subfeatures::Int=0,
                            rng=Random.GLOBAL_RNG,
-                           calc_fi::Bool=true)
+                           impurity_importance::Bool=true)
 
 Decision tree classifier. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -26,7 +26,7 @@ Hyperparameters:
 - `n_subfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
-- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -38,19 +38,19 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     min_purity_increase::Float64
     n_subfeatures::Int
     rng::Random.Random.AbstractRNG
-    calc_fi::Bool
-    root::Union{LeafOrNode, Nothing}
+    impurity_importance::Bool
+    root::Union{Root, Nothing}
     classes::Union{Vector, Nothing}
     DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
-                           min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, calc_fi=true, root=nothing, classes=nothing) =
+                           min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, impurity_importance=true, root=nothing, classes=nothing) =
         new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, n_subfeatures, mk_rng(rng), calc_fi, root, classes)
+            min_purity_increase, n_subfeatures, mk_rng(rng), impurity_importance, root, classes)
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
 @declare_hyperparameters(DecisionTreeClassifier,
                          [:pruning_purity_threshold, :max_depth, :min_samples_leaf,
-                          :min_samples_split, :min_purity_increase, :rng, :calc_fi])
+                          :min_samples_split, :min_purity_increase, :rng, :impurity_importance])
 
 function fit!(dt::DecisionTreeClassifier, X, y)
     n_samples, n_features = size(X)
@@ -62,7 +62,7 @@ function fit!(dt::DecisionTreeClassifier, X, y)
         dt.min_samples_split,
         dt.min_purity_increase;
         rng = dt.rng,
-        calc_fi = dt.calc_fi)
+        impurity_importance = dt.impurity_importance)
 
     dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt.classes = sort(unique(y))
@@ -100,7 +100,7 @@ end
                           min_purity_increase::Float=0.0,
                           n_subfeatures::Int=0,
                           rng=Random.GLOBAL_RNG,
-                          calc_fi::Bool=true)
+                          impurity_importance::Bool=true)
 Decision tree regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -113,7 +113,7 @@ Hyperparameters:
 - `n_subfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
-- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
 
 Implements `fit!`, `predict`, `get_classes`
 """
@@ -125,10 +125,10 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
     min_purity_increase::Float64
     n_subfeatures::Int
     rng::Random.AbstractRNG
-    calc_fi::Bool
-    root::Union{LeafOrNode, Nothing}
+    impurity_importance::Bool
+    root::Union{Root, Nothing}
     DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
-                          min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, calc_fi=true, root=nothing) =
+                          min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, impurity_importance=true, root=nothing) =
         new(pruning_purity_threshold,
             max_depth,
             min_samples_leaf,
@@ -136,13 +136,13 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
             min_purity_increase,
             n_subfeatures,
             mk_rng(rng),
-            calc_fi,
+            impurity_importance,
             root)
 end
 
 @declare_hyperparameters(DecisionTreeRegressor,
                          [:pruning_purity_threshold, :min_samples_leaf, :n_subfeatures,
-                          :max_depth, :min_samples_split, :min_purity_increase, :rng, :calc_fi])
+                          :max_depth, :min_samples_split, :min_purity_increase, :rng, :impurity_importance])
 
 function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
@@ -154,7 +154,7 @@ function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
         dt.min_samples_split,
         dt.min_purity_increase;
         rng = dt.rng,
-        calc_fi = dt.calc_fi)
+        impurity_importance = dt.impurity_importance)
     
     dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt
@@ -182,7 +182,7 @@ end
                            partial_sampling::Float=0.7,
                            max_depth::Int=-1,
                            rng=Random.GLOBAL_RNG,
-                           calc_fi::Bool=true)
+                           impurity_importance::Bool=true)
 Random forest classification. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -196,7 +196,7 @@ Hyperparameters:
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
-- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -209,21 +209,21 @@ mutable struct RandomForestClassifier <: BaseClassifier
     min_samples_split::Int
     min_purity_increase::Float64
     rng::Union{Random.AbstractRNG, Int}
-    calc_fi:: Bool
+    impurity_importance:: Bool
     ensemble::Union{Ensemble, Nothing}
     classes::Union{Vector, Nothing}
     RandomForestClassifier(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                            max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
-                           rng=Random.GLOBAL_RNG, calc_fi=true,ensemble=nothing, classes=nothing) =
+                           rng=Random.GLOBAL_RNG, impurity_importance=true,ensemble=nothing, classes=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, rng, calc_fi, ensemble, classes)
+            min_purity_increase, rng, impurity_importance, ensemble, classes)
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
 @declare_hyperparameters(RandomForestClassifier,
                          [:n_subfeatures, :n_trees, :partial_sampling, :max_depth,
                           :min_samples_leaf, :min_samples_split, :min_purity_increase,
-                          :rng, :calc_fi])
+                          :rng, :impurity_importance])
 
 function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
@@ -237,7 +237,7 @@ function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
         rf.min_samples_split,
         rf.min_purity_increase;
         rng = rf.rng,
-        calc_fi = rf.calc_fi)
+        impurity_importance = rf.impurity_importance)
     rf.classes = sort(unique(y))
     rf
 end
@@ -270,7 +270,7 @@ end
                           max_depth::Int=-1,
                           min_samples_leaf::Int=5,
                           rng=Random.GLOBAL_RNG,
-                          calc_fi::Bool=true)
+                          impurity_importance::Bool=true)
 Random forest regression. See [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
 Hyperparameters:
@@ -284,7 +284,7 @@ Hyperparameters:
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
-- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
 
 Implements `fit!`, `predict`, `get_classes`
 """
@@ -297,13 +297,13 @@ mutable struct RandomForestRegressor <: BaseRegressor
     min_samples_split::Int
     min_purity_increase::Float64
     rng::Union{Random.AbstractRNG, Int}
-    calc_fi::Bool
+    impurity_importance::Bool
     ensemble::Union{Ensemble, Nothing}
     RandomForestRegressor(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
                             max_depth=-1, min_samples_leaf=5, min_samples_split=2, min_purity_increase=0.0,
-                            rng=Random.GLOBAL_RNG, calc_fi=true, ensemble=nothing) =
+                            rng=Random.GLOBAL_RNG, impurity_importance=true, ensemble=nothing) =
         new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, rng, calc_fi, ensemble)
+            min_purity_increase, rng, impurity_importance, ensemble)
 end
 
 @declare_hyperparameters(RandomForestRegressor,
@@ -311,7 +311,7 @@ end
                           :min_samples_leaf, :min_samples_split, :min_purity_increase,
                           # I'm not crazy about :rng being a hyperparameter,
                           # since it'll change throughout fitting, but it works
-                          :max_depth, :rng, :calc_fi])
+                          :max_depth, :rng, :impurity_importance])
 
 function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
@@ -325,7 +325,7 @@ function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
         rf.min_samples_split,
         rf.min_purity_increase;
         rng = rf.rng,
-        calc_fi = rf.calc_fi)
+        impurity_importance = rf.impurity_importance)
     rf
 end
 
@@ -348,8 +348,7 @@ end
 
 """
     AdaBoostStumpClassifier(; n_iterations::Int=10,
-                            rng=Random.GLOBAL_RNG,
-                            calc_fi::Bool=true)
+                            rng=Random.GLOBAL_RNG)
 Adaboosted decision tree stumps. See
 [DecisionTree.jl's documentation](https://github.com/bensadeghi/DecisionTree.jl)
 
@@ -358,27 +357,25 @@ Hyperparameters:
 - `n_iterations`: number of iterations of AdaBoost
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
-- `calc_fi`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
     n_iterations::Int
     rng::Random.AbstractRNG
-    calc_fi::Bool
     ensemble::Union{Ensemble, Nothing}
     coeffs::Union{Vector{Float64}, Nothing}
     classes::Union{Vector, Nothing}
-    AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, calc_fi=true, ensemble=nothing, coeffs=nothing, classes=nothing) =
-        new(n_iterations, mk_rng(rng), calc_fi, ensemble, coeffs, classes)
+    AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
+        new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
 end
 
-@declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng, :calc_fi])
+@declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 
 function fit!(ada::AdaBoostStumpClassifier, X, y)
     ada.ensemble, ada.coeffs =
-        build_adaboost_stumps(y, X, ada.n_iterations; rng=ada.rng, calc_fi=ada.calc_fi)
+        build_adaboost_stumps(y, X, ada.n_iterations; rng=ada.rng)
     ada.classes = sort(unique(y))
     ada
 end
@@ -411,9 +408,6 @@ print_tree(n::Nothing, depth=-1; kwargs...)                 = show(n)
 
 #################################################################################
 # Trait functions
-y_convert(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier}}, y) = y
-y_convert(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}, y) = float.(y)
-
 model(dt::Union{DecisionTreeClassifier, DecisionTreeRegressor}) = dt.root
 model(rf::Union{RandomForestClassifier, RandomForestRegressor}) = rf.ensemble
 model(ada::AdaBoostStumpClassifier) = ada.ensemble
@@ -421,7 +415,7 @@ model(ada::AdaBoostStumpClassifier) = ada.ensemble
 score_fn(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier}}) = accuracy
 score_fn(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}) = R2
 
-# score functino
+# score function
 R2(model::T, X::AbstractMatrix, y::AbstractVector) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}= 
     R2(y, predict(model, X))
 accuracy(model::T, X::AbstractMatrix, y::AbstractVector) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}= 
@@ -429,203 +423,46 @@ accuracy(model::T, X::AbstractMatrix, y::AbstractVector) where {T <: Union{Decis
 
 const DecisionTreeEstimator = Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}
 
-"""
-    feature_importances(trees::T; normalize::Bool = false) where {T <: DecisionTreeEstimator}
+# feature importances
+impurity_importance(trees::T; normalize::Bool = false) where {T <: DecisionTreeEstimator} = 
+    impurity_importance(model(trees), normalize = normalize)
 
-Return an vector of feature importances calculated by `Mean Decrease in Impurity (MDI)`.
-If `calc_fi` was set false, this function returns an empty vector.
+impurity_importance(ada::T; normalize::Bool = false) where {T <: AdaBoostStumpClassifier} = 
+    impurity_importance(ada.ensemble, ada.coeffs, normalize = normalize)
 
-!!! warn
-    The feature importnaces might be misleading because it is a biased methods.
+split_importance(trees::T; normalize::Bool = false) where {T <: DecisionTreeEstimator} = 
+    split_importance(model(trees), normalize = normalize)
 
-See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more detailed dicussion.
-"""
-feature_importances(trees::T; 
-    normalize::Bool = false) where {T <: DecisionTreeEstimator} = 
-    feature_importances(model(trees), normalize = normalize)
+split_importance(ada::T; normalize::Bool = false) where {T <: AdaBoostStumpClassifier} = 
+    split_importance(ada.ensemble, ada.coeffs, normalize = normalize)
 
-function sampling(X::AbstractMatrix, y::AbstractVector, n_sample::Int, sampling_rate::Float64 = 1.0)
-    if iszero(n_sample)
-        n_sample = ceil(Int, length(y) * sampling_rate)
-    else
-        n_sample > length(y) && @warn "Sampling size is larger than total number of samples; calculating with all samples."
-        n_sample = min(n_sample, length(y))
-    end
-    samples = sample(1:length(y), n_sample, replace = false)
-    if n_sample != length(y)
-        y = y[samples]
-        X = X[samples, :]
-    end
-    X, y
-end
-
-"""
-    permutation_importances(
-                            trees::T, 
-                            X::AbstractMatrix,
-                            y::AbstractVector; 
-                            score::Function = score_fn(T),
-                            n_iter::Int = 3, 
-                            cv_score = nothing,
-                            cv = nothing, 
-                            n_sample::Int = 0,
-                            sampling_rate::Float64 = 1.0
-                            ) where {T <: DecisionTreeEstimator}
-
-Calculate feature importances by shuffling each features.
-* Keyword arguments:
-1. `score`: a function to evaluating model performance with the form of `score(model, X, y)`. The default value is determined by function `score_fn`.
-2. `cv_score`: a function to do cross validation. It's designed to be `cross_val_score` from `ScikitLearn.jl`, but any function in the form of `cv_score(model, X, y; scoring = score, cv = cv)` is okay.
-3. `cv`: keyword argument for `cv_score`.
-4. `n_sample`: maximum number of samples. The default is zero. 
-5. `sampling_rate`: the proportion of sampling. If `n_sample` is zero, `sampling_rate` is used. The default is one.
-
-# Return an `NamedTuple`
-* Fields 
-1. `mean`: mean of feature importances of each shuffle.
-2. `std`: std of feature importances of each shuffle.
-3. `scores`: scores of each shuffles
-4. `base_scores`: scores of base models if using cross validation.
-
-Evaluating with multiple shuffles is generally quite robust and much more efficient than using cross validation.
-For algorithm details, please see [Permutation feature importanc](https://scikit-learn.org/stable/modules/permutation_importance.html).
-"""
-function permutation_importances(
-                                trees::T, 
-                                X::AbstractMatrix,
-                                y::AbstractVector; 
-                                score::Function = score_fn(T),
-                                n_iter::Int = 3, 
-                                cv_score = nothing,
-                                cv = nothing, 
-                                n_sample::Int = 0,
-                                sampling_rate::Float64 = 1.0
-                                ) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}
-    
-    length(y) == size(X, 1) || error(DimensionMismatch("X and y should have the same number of rows."))               
-    X, y = sampling(X, y, n_sample, sampling_rate)
-    y = y_convert(T, y)
-    n_feat = size(X, 2)
-    if cv_score === nothing
-        base = score(trees, X, y)
-        scores = Matrix{Float64}(undef, n_feat, n_iter)
-        for i in 1:n_feat
-            col = @view X[:, i]
-            origin = copy(col)
-            scores[i, :] = map(1:n_iter) do i
-                shuffle!(col)
-                score(trees, X, y)
-            end
-            X[:, i] = origin
-        end
-        (mean = reshape(mapslices(scores, dims = 2) do im
-            base - mean(im)
-        end, :), 
-        std = reshape(mapslices(scores, dims = 2) do im
-            std(im)
-        end, :), 
-        scores = scores)
-    else
-        n_iter = isa(cv, Number) ? cv : length(cv)
-        base_scores = cv_score(trees, X, y; scoring = score, cv = cv)
-        scores = Matrix{Float64}(undef, n_feat, n_iter)
-        for i in 1:n_feat
-            col = @view X[:, i]
-            origin = copy(col)
-            scores[i, :] = cv_score(trees, X, y; scoring = score, cv = cv)
-            X[:, i] = origin
-        end
-        (mean = reshape(mapslices(scores, dims = 2) do im
-            mean(base_scores) - mean(im)
-        end, :), 
-        std = reshape(mapslices(scores, dims = 2) do im
-            sqrt((var(scores) + var(base_scores))/2)
-        end, :), 
-        scores = scores,
-        base_scores = base_scores)
-    end
-end
-
-"""
-    dropcol_importances(
-                        trees::T, 
-                        X::AbstractMatrix,
-                        y::AbstractVector;    
-                        score::Function = score_fn(T),
-                        cv_score = nothing,
-                        cv = nothing, 
-                        rng = nothing
+function permutation_importance(
+                        trees   :: T, 
+                        X       :: AbstractMatrix,
+                        y       :: AbstractVector; 
+                        score   :: Function = score_fn(T),
+                        n_iter  :: Int = 3,
+                        rng     =  Random.GLOBAL_RNG
                         ) where {T <: DecisionTreeEstimator}
-
-Calculate feature importances by dropping each features.
-* Keyword arguments:
-1. `score`: a function to evaluating model performance with the form of `score(model, X, y)`. The default value is determined by function `score_fn`.
-2. `cv_score`: a function to do cross validation. It's designed to be `cross_val_score` from `ScikitLearn.jl`, but any function in the form of `cv_score(model, X, y; scoring = score, cv = cv)` is okay.
-3. `cv`: keyword argument for `cv_score`.
-4. `rng`: specific seed for training new models. The default is `nothing` and a random number is selected.
-
-# Return an `NamedTuple`
-* Fields 
-1. `mean`: mean of feature importances.
-2. `std`: std of feature importances.
-3. `scores`: scores of each feature if using cross validation.
-4. `base_scores`: scores of base models if using cross validation.
-
-!!! warn 
-    The importnaces without cross validation may be quite biased if the model is overfitting.
-
-See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) and [rfpimp](https://github.com/parrt/random-forest-importances) for more detailed dicussion and alogrithm.
-"""
-function dropcol_importances(
-                            trees::T, 
-                            X::AbstractMatrix,
-                            y::AbstractVector;    
-                            score::Function = score_fn(T),
-                            cv_score = nothing,
-                            cv = nothing, 
-                            rng = nothing
-                            ) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}
-    
-    length(y) == size(X, 1) || error(DimensionMismatch("X and y should have the same number of rows."))               
-    y = y_convert(T, y)
+    base = score(trees, X, y)
     n_feat = size(X, 2)
-    trees_ = deepcopy(trees)
-    if rng === nothing
-        rng = rand(1:typemax(Int))
-    end
-    trees_.rng = mk_rng(rng)
-    trees_.calc_fi = false
-    if cv_score === nothing
-        fit!(trees_, X, y)
-        base = score(trees_, X, y)
-        im = Vector{Float64}(undef, n_feat)
-        for i in 1:n_feat
-            inds = deleteat!(collect(1:n_feat), i)
-            X_new = X[:, inds]
-            trees_.rng = mk_rng(rng)
-            fit!(trees_, X_new, y)
-            im[i] = base - score(trees_, X_new, y)
+    scores = Matrix{Float64}(undef, n_feat, n_iter)
+    rng = mk_rng(rng)::Random.AbstractRNG
+    for i in 1:n_feat
+        col = @view X[:, i]
+        origin = copy(col)
+        scores[i, :] = map(1:n_iter) do i
+            shuffle!(rng, col)
+            base - score(trees, X, y)
         end
-        (mean = im, 
-        std = std.(im))
-    else
-        n_iter = isa(cv, Number) ? cv : length(cv)
-        base_scores = cv_score(trees, X, y; scoring = score, cv = cv)
-        scores = Matrix{Float64}(undef, n_feat, n_iter)
-        for i in 1:n_feat
-            inds = deleteat!(collect(1:n_feat), i)
-            X_new = X[:, inds]
-            trees_.rng = mk_rng(rng)
-            fit!(trees_, X_new, y)
-            scores[i, :] = cv_score(trees_, X_new, y; scoring = score,  cv = cv)
-        end
-        (mean = reshape(mapslices(scores, dims = 2) do im
-            mean(base_scores) - mean(im)
-        end, :), 
-        std = reshape(mapslices(scores, dims = 2) do im
-            sqrt((var(scores) + var(base_scores))/2)
-        end, :), 
-        scores = scores,
-        base_scores = base_scores)
+        X[:, i] = origin
     end
+
+    (mean = reshape(mapslices(scores, dims = 2) do im
+        mean(im)
+    end, :), 
+    std = reshape(mapslices(scores, dims = 2) do im
+        std(im)
+    end, :), 
+    scores = scores)
 end

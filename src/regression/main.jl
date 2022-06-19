@@ -10,17 +10,17 @@ function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T
     end
 end
 
-function get_ni!(feature_importance::Vector{Float64}, node::treeregressor.NodeMeta{S}) where S
+function update_using_impurity!(feature_importance::Vector{Float64}, node::treeregressor.NodeMeta{S}) where S
     if !node.is_leaf
-        get_ni!(feature_importance, node.l)
-        get_ni!(feature_importance, node.r)
-        feature_importance[node.feature] += node.ni - node.l.ni - node.r.ni
+        update_using_impurity!(feature_importance, node.l)
+        update_using_impurity!(feature_importance, node.r)
+        feature_importance[node.feature] += node.node_impurity - node.l.node_impurity - node.r.node_impurity
     end
     return
 end
 
-function build_stump(labels::AbstractVector{T}, features::AbstractMatrix{S}; rng = Random.GLOBAL_RNG, calc_fi::Bool = true) where {S, T <: Float64}
-    return build_tree(labels, features, 0, 1; rng=rng, calc_fi=calc_fi)
+function build_stump(labels::AbstractVector{T}, features::AbstractMatrix{S}; rng = Random.GLOBAL_RNG, impurity_importance::Bool = true) where {S, T <: Float64}
+    return build_tree(labels, features, 0, 1; rng=rng, impurity_importance=impurity_importance)
 end
 
 function build_tree(
@@ -32,7 +32,7 @@ function build_tree(
         min_samples_split   = 2,
         min_purity_increase = 0.0;
         rng                 = Random.GLOBAL_RNG,
-        calc_fi            :: Bool = true) where {S, T <: Float64}
+        impurity_importance:: Bool = true) where {S, T <: Float64}
 
     if max_depth == -1
         max_depth = typemax(Int)
@@ -52,16 +52,15 @@ function build_tree(
         min_samples_split   = Int(min_samples_split),
         min_purity_increase = Float64(min_purity_increase),
         rng                 = rng)
-    if !calc_fi
-        return _convert(t.root, labels[t.labels])
-    elseif t.root.is_leaf
-        return Leaf{T}(t.root.label, labels[t.root.region])
+
+    node = _convert(t.root, labels[t.labels])
+    n_features = size(features, 2)
+    if !impurity_importance
+        return Root{S, T}(node, n_features, Float64[])
     else
-        fi = zeros(Float64, size(features, 2))
-        left = _convert(t.root.l, labels[t.labels])
-        right = _convert(t.root.r, labels[t.labels])
-        get_ni!(fi, t.root)
-        return RootNode{S, T}(t.root.feature, t.root.threshold, left, right, fi ./ size(features, 1))
+        fi = zeros(Float64, n_features)
+        update_using_impurity!(fi, t.root)
+        return Root{S, T}(node, n_features, fi ./ size(features, 1))
     end
 end
 
@@ -76,7 +75,7 @@ function build_forest(
         min_samples_split   = 2,
         min_purity_increase = 0.0;
         rng                 = Random.GLOBAL_RNG,
-        calc_fi             :: Bool = true) where {S, T <: Float64}
+        impurity_importance :: Bool = true) where {S, T <: Float64}
 
     if n_trees < 1
         throw("the number of trees must be >= 1")
@@ -93,7 +92,7 @@ function build_forest(
     t_samples = length(labels)
     n_samples = floor(Int, partial_sampling * t_samples)
 
-    forest = Vector{LeafOrNode{S, T}}(undef, n_trees)
+    forest = impurity_importance ? Vector{Root{S, T}}(undef, n_trees) : Vector{LeafOrNode{S, T}}(undef, n_trees)
 
     if rng isa Random.AbstractRNG
         Threads.@threads for i in 1:n_trees
@@ -107,7 +106,7 @@ function build_forest(
                 min_samples_split,
                 min_purity_increase,
                 rng = rng,
-                calc_fi = calc_fi)
+                impurity_importance = impurity_importance)
         end
     elseif rng isa Integer # each thread gets its own seeded rng
         Threads.@threads for i in 1:n_trees
@@ -121,28 +120,11 @@ function build_forest(
                 min_samples_leaf,
                 min_samples_split,
                 min_purity_increase,
-                calc_fi = calc_fi)
+                impurity_importance = impurity_importance)
         end
     else
         throw("rng must of be type Integer or Random.AbstractRNG")
     end
 
-    if !calc_fi
-        return Ensemble{S, T}(forest)
-    else
-        fi = zeros(Float64, size(features, 2))
-        for tree in forest
-            ti = feature_importances(tree, normalize = true)
-            if !isempty(ti)
-                fi .+= ti
-            end
-        end
-
-        forest_new = Vector{LeafOrNode{S, T}}(undef, n_trees)
-        Threads.@threads for i in 1:n_trees
-            forest_new[i] = _convert_root(forest[i])
-        end
-
-        return Ensemble{S, T}(forest_new, fi ./ n_trees)
-    end
+    return _build_forest(forest, size(features, 2), n_trees, impurity_importance)
 end

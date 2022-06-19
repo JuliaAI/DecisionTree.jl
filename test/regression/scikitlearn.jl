@@ -8,18 +8,19 @@ labels = features * weights;
 
 model = fit!(DecisionTreeRegressor(min_samples_leaf=5, pruning_purity_threshold=0.1), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
-@test feature_importances(model) == feature_importances(model.root)
-@test similarity(permutation_importances(model, features, labels).mean, dropcol_importances(model, features, labels).mean) > 0.9
+@test impurity_importance(model) == impurity_importance(model.root)
+@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance(model.root, labels, features, (model, y, X) -> R2(y, apply_tree(model, X)), rng = 1).mean)
 
 model = fit!(DecisionTreeRegressor(min_samples_split=5), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
-@test feature_importances(model) == feature_importances(model.root)
-@test similarity(permutation_importances(model, features, labels).mean, dropcol_importances(model, features, labels).mean) > 0.9
+@test split_importance(model) == split_importance(model.root)
+@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance(model.root, labels, features, (model, y, X) -> R2(y, apply_tree(model, X)), rng = 1).mean)
 
 model = fit!(RandomForestRegressor(n_trees=10, min_samples_leaf=5, n_subfeatures=2), features, labels)
 @test R2(labels, predict(model, features)) > 0.8
-@test feature_importances(model) == feature_importances(model.ensemble)
-@test similarity(permutation_importances(model, features, labels).mean, dropcol_importances(model, features, labels).mean) > 0.9
+@test impurity_importance(model) == impurity_importance(model.ensemble)
+@test split_importance(model) == split_importance(model.ensemble)
+@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance(model.ensemble, labels, features, (model, y, X) -> R2(y, apply_forest(model, X)), rng = 1).mean)
 
 Random.seed!(2)
 N = 3000
@@ -28,9 +29,6 @@ y = randn(N)
 max_depth = 5
 model = fit!(DecisionTreeRegressor(max_depth=max_depth), X, y)
 @test depth(model) == max_depth
-@test feature_importances(model) == feature_importances(model.root)
-@test maximum(dropcol_importances(model, X, y).mean) < maximum(permutation_importances(model, X, y).mean)
-
 
 ## Test that the RNG arguments work as expected
 Random.seed!(2)

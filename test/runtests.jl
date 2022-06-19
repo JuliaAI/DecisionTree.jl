@@ -38,7 +38,8 @@ regression =     [
 
 miscellaneous =  [
     "miscellaneous/convert.jl",
-    "miscellaneous/abstract_trees_test.jl"
+    "miscellaneous/abstract_trees_test.jl",
+    "miscellaneous/feature_importance_test.jl",
 #    "miscellaneous/parallel.jl"
 
 ]

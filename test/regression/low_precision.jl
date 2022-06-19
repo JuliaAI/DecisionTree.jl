@@ -24,9 +24,6 @@ model = build_tree(
 preds = apply_tree(model, round.(Int32, features))
 @test R2(labels, preds) < 0.95
 @test typeof(preds) <: Vector{Float64}
-f1 = feature_importances(model)
-p1 = permutation_importances(model, labels, round.(Int32, features), (model, y, X)->accuracy(y, apply_tree(model, X))).mean
-similarity(f1, p1) > 0.6
 
 n_subfeatures       = Int32(3)
 n_trees             = Int32(10)
@@ -47,9 +44,6 @@ model = build_forest(
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}
-f1 = feature_importances(model)
-p1 = permutation_importances(model, labels, features, (model, y, X)->R2(y, apply_forest(model, X))).mean
-similarity(f1, p1) > 0.99
 
 println("\n##### nfoldCV Regression Tree #####")
 n_folds             = Int32(3)

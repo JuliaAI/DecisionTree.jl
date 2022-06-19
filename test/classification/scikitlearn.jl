@@ -10,19 +10,23 @@ labels = round.(Int, features * weights);
 # installing it on Travis
 model = fit!(DecisionTreeClassifier(pruning_purity_threshold=0.9), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8
-@test feature_importances(model) == feature_importances(model.root)
-@test maximum(dropcol_importances(model, features, labels).mean) < maximum(permutation_importances(model, features, labels).mean)
+@test impurity_importance(model) == impurity_importance(model.root)
+@test split_importance(model) == split_importance(model.root)
+@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance(model.root, labels, features, (model, y, X) -> accuracy(y, apply_tree(model, X)), rng = 1).mean)
 
 model = fit!(RandomForestClassifier(), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8
-@test feature_importances(model) == feature_importances(model.ensemble)
-@test maximum(dropcol_importances(model, features, labels).mean) < maximum(permutation_importances(model, features, labels).mean)
+@test impurity_importance(model) == impurity_importance(model.ensemble)
+@test split_importance(model) == split_importance(model.ensemble)
+@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance(model.ensemble, labels, features, (model, y, X) -> accuracy(y, apply_forest(model, X)), rng = 1).mean)
 
 model = fit!(AdaBoostStumpClassifier(), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
 mean(predict(model, features) .== labels)
-feature_importances(model) == feature_importances(model.ensemble)
-maximum(dropcol_importances(model, features, labels).mean) < maximum(permutation_importances(model, features, labels).mean)
+@test impurity_importance(model) == impurity_importance(model.ensemble, model.coeffs)
+@test split_importance(model) == split_importance(model.ensemble, model.coeffs)
+@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance((model.ensemble, model.coeffs), labels, features, (model, y, X) -> accuracy(y, apply_adaboost_stumps(model, X)), rng = 1).mean)
+
 
 Random.seed!(2)
 N = 3000
@@ -32,9 +36,6 @@ y = convert(Vector{Bool}, randn(N) .< 0)
 max_depth = 5
 model = fit!(DecisionTreeClassifier(max_depth=max_depth), X, y)
 @test depth(model) == max_depth
-@test feature_importances(model) == feature_importances(model.root)
-@test maximum(dropcol_importances(model, X, y).mean) < maximum(permutation_importances(model, X, y).mean)
-
 
 ## Test that the RNG arguments work as expected
 Random.seed!(2)
