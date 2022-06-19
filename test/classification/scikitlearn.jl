@@ -23,9 +23,10 @@ model = fit!(RandomForestClassifier(; rng=StableRNG(1)), features, labels)
 model = fit!(AdaBoostStumpClassifier(; rng=StableRNG(1)), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
 mean(predict(model, features) .== labels)
-@test impurity_importance(model) == impurity_importance(model.ensemble, model.coeffs)
-@test split_importance(model) == split_importance(model.ensemble, model.coeffs)
-@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance((model.ensemble, model.coeffs), labels, features, (model, y, X) -> accuracy(y, apply_adaboost_stumps(model, X)), rng = 1).mean)
+# On when switching to SAMME
+impurity_importance(model) == impurity_importance(model.ensemble, model.coeffs)
+split_importance(model) == split_importance(model.ensemble, model.coeffs)
+isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance((model.ensemble, model.coeffs), labels, features, (model, y, X) -> accuracy(y, apply_adaboost_stumps(model, X)), rng = 1).mean)
 
 
 N = 3000
