@@ -14,9 +14,6 @@ model = build_stump(labels, features)
 preds = apply_tree(model, features)
 @test typeof(preds) == Vector{Int32}
 @test depth(model) == 1
-f1 = feature_importances(model)
-p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
-@test similarity(f1, p1) > 0.99
 
 n_subfeatures       = Int32(0)
 max_depth           = Int32(-1)
@@ -34,9 +31,6 @@ preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.9
-f1 = feature_importances(model)
-p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_tree(model, X))).mean
-similarity(f1, p1) > 0.9
 
 n_subfeatures       = Int32(0)
 n_trees             = Int32(10)
@@ -53,9 +47,6 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.9
-f1 = feature_importances(model)
-p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
-similarity(f1, p1) > 0.9
 
 n_iterations        = Int32(25)
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));
@@ -63,9 +54,6 @@ preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.6
-f1 = feature_importances(model)
-p1 = permutation_importances((model, coeffs), labels, features, (model, y, X)->accuracy(y, apply_adaboost_stumps(model, X))).mean
-similarity(f1, p1) > 0.3
 
 println("\n##### nfoldCV Classification Tree #####")
 n_folds             = Int32(3)

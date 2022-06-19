@@ -31,7 +31,7 @@ the type of the feature values used within a node as a threshold for the splits
 between its children and `T` is the type of the classes given (these might be ids or labels).
 """
 struct InfoNode{S, T}
-    node    :: DecisionTree.Nodes{S, T}
+    node    :: DecisionTree.Node{S, T}
     info    :: NamedTuple
 end
 
@@ -41,7 +41,7 @@ struct InfoLeaf{T}
 end
 
 """
-    wrap(node::DecisionTree.Nodes, info = NamedTuple())
+    wrap(node::DecisionTree.Node, info = NamedTuple())
     wrap(leaf::DecisionTree.Leaf, info = NamedTuple())
 
 Add to each `node` (or `leaf`) the additional information `info` 
@@ -66,7 +66,8 @@ In the first case `dc` gets just wrapped, no information is added. No. 2 adds fe
 as well as class labels. In the last two cases either of this information is added (Note the 
 trailing comma; it's needed to make it a tuple).
 """
-wrap(node::DecisionTree.Nodes, info::NamedTuple = NamedTuple()) = InfoNode(node, info)
+wrap(tree::DecisionTree.Root, info::NamedTuple = NamedTuple()) = wrap(tree.node, info)
+wrap(node::DecisionTree.Node, info::NamedTuple = NamedTuple()) = InfoNode(node, info)
 wrap(leaf::DecisionTree.Leaf, info::NamedTuple = NamedTuple()) = InfoLeaf(leaf, info)
 
 """

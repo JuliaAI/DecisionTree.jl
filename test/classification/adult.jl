@@ -19,16 +19,16 @@ model = build_forest(labels, features, n_subfeatures, n_trees; rng=StableRNG(1))
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
-f1 = feature_importances(model)
-p1 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+f1 = impurity_importance(model)
+p1 = permutation_importance(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X)), rng = 1).mean
 
 n_iterations = 15
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds);
 @test cm.accuracy > 0.8
-f2 = feature_importances(model)
-p2 = permutation_importances(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X))).mean
+f2 = impurity_importance(model, coeffs)
+p2 = permutation_importance(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X)), rng = 1).mean
 
 @test similarity(p2, p2) > 0.8
 @test similarity(f1, f2) < 0.8

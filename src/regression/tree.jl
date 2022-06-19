@@ -11,28 +11,28 @@ module treeregressor
     export fit
 
     mutable struct NodeMeta{S}
-        l           :: NodeMeta{S}  # right child
-        r           :: NodeMeta{S}  # left child
-        label       :: Float64      # most likely label
-        feature     :: Int          # feature used for splitting
-        threshold   :: S            # threshold value
-        is_leaf     :: Bool
-        depth       :: Int
-        region      :: UnitRange{Int} # a slice of the samples used to decide the split of the node
-        features    :: Vector{Int}    # a list of features not known to be constant
-        split_at    :: Int            # index of samples
-        ni          :: Float64
+        l               :: NodeMeta{S}  # right child
+        r               :: NodeMeta{S}  # left child
+        label           :: Float64      # most likely label
+        feature         :: Int          # feature used for splitting
+        threshold       :: S            # threshold value
+        is_leaf         :: Bool
+        depth           :: Int
+        region          :: UnitRange{Int} # a slice of the samples used to decide the split of the node
+        features        :: Vector{Int}    # a list of features not known to be constant
+        split_at        :: Int            # index of samples
+        node_impurity   :: Float64
         function NodeMeta{S}(
-            features :: Vector{Int},
-            region   :: UnitRange{Int},
-            depth    :: Int,
-            ni       :: Float64 = 0.0) where S
+            features        :: Vector{Int},
+            region          :: UnitRange{Int},
+            depth           :: Int,
+            node_impurity   :: Float64 = 0.0) where S
         node = new{S}()
         node.depth = depth
         node.region = region
         node.features = features
         node.is_leaf = false
-        node.ni = ni
+        node.node_impurity = node_impurity
         node
     end
     end
@@ -81,7 +81,8 @@ module treeregressor
         end
 
         node.label =  tsum / wsum
-        node.ni = tssq  - wsum * node.label ^ 2
+        # Σy² - nȳ²
+        node.node_impurity = tssq  - wsum * node.label ^ 2
         if (min_samples_leaf * 2 >  n_samples
          || min_samples_split    >  n_samples
          || max_depth            <= node.depth

@@ -122,7 +122,7 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
                    min_samples_split,
                    min_purity_increase;
                    rng = rng,
-                   calc_fi = false)
+                   impurity_importance = false)
             if pruning_purity < 1.0
                 model = prune_tree(model, pruning_purity)
             end
@@ -138,11 +138,11 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
                         min_samples_split,
                         min_purity_increase;
                         rng = rng,
-                        calc_fi = false)
+                        impurity_importance = false)
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
             model, coeffs = build_adaboost_stumps(
-                train_labels, train_features, n_iterations; rng=rng)
+                train_labels, train_features, n_iterations; rng = rng)
             predictions = apply_adaboost_stumps(model, coeffs, test_features)
         end
         cm = confusion_matrix(test_labels, predictions)
@@ -253,7 +253,7 @@ function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::Abstra
                    min_samples_split,
                    min_purity_increase;
                    rng = rng,
-                   calc_fi = false)
+                   impurity_importance = false)
             if pruning_purity < 1.0
                 model = prune_tree(model, pruning_purity)
             end
@@ -269,7 +269,7 @@ function _nfoldCV(regressor::Symbol, labels::AbstractVector{T}, features::Abstra
                         min_samples_split,
                         min_purity_increase;
                         rng = rng,
-                        calc_fi = false)
+                        impurity_importance = false)
             predictions = apply_forest(model, test_features)
         end
         err = mean_squared_error(test_labels, predictions)
@@ -317,74 +317,139 @@ function nfoldCV_forest(
 _nfoldCV(:forest, labels, features, n_folds, n_subfeatures, n_trees, partial_sampling,
             max_depth, min_samples_leaf, min_samples_split, min_purity_increase; verbose=verbose, rng=rng)
 end
+
 #################################################################################################
-# Trait functions
-metric_fn(::Type{<: AbstractFloat}) = R2
-metric_fn(::Type) = accuracy
-
-predict_fn(::Type{<: DecisionTree.Nodes}) = apply_tree
-predict_fn(::Type{<: Ensemble}) = apply_forest
-predict_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = apply_adaboost_stumps
-
-cv_fn(::Type{<: DecisionTree.Nodes}) = nfoldCV_tree
-cv_fn(::Type{<: Ensemble}) = nfoldCV_forest
-cv_fn(::Type{<: Tuple{<: Ensemble, AbstractVector{Float64}}}) = nfoldCV_stumps
-
 # Feature importances
 """
-    feature_importances(trees; normalize::Bool = false)
+    impurity_importance(tree; normalize::Bool = false)
+    impurity_importance(forest)
+    impurity_importance(adaboost, coeffs)
 
-Return an vector of feature importances calculated by `Mean Decrease in Impurity (MDI)`.
-If `calc_fi` was set false, this function returns an empty vector.
+Return an vector of feature importance calculated by `Mean Decrease in Impurity (MDI)`.
 
-!!! warn
-    The feature importnaces might be misleading because it is a biased methods.
+Feature importance is computed as follows:
+* Single tree: For each feature the associated importance is the sum, over all splits based on that feature, of the impurity decreases for that split (the node impurity minus the sum of the child impurities) divided by the total number of training observations. When `normalize` was true, the feature importances were normalized by the sum of feature importances. 
+More explicitly, the impurity decrease for node i is:
 
-See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more detailed dicussion.
+    Δimpurityᵢ = nᵢ × lossᵢ - nₗ × lossₗ - nᵣ × lossᵣ
+
+where n is number of observations, loss is entropy, gini index or other measures of impurity, index i denotes quantity of node i, index l denotes quantity of left child node, index r denotes quantity of right child node.
+* Forests: The importance for a given feature is the average over trees in the forest of the **normalized** tree importances for that feature.
+* AdaBoost models: The features importance is as same as `split_importance`.
+
+For forests and adaboost models, feature imortance is normalized before avareging over trees, so keyword arguments `normalize` is useless.
+Whether to normalize or not is controversial, but current implementation is identical to `scikitlearn`'s RandomForestClassifier, RandomForestRegressor and AdaBoostClassifier which is different from feature importances described in G. Louppe, “Understanding Random Forests: From Theory to Practice”, PhD Thesis, U. of Liege, 2014. (https://arxiv.org/abs/1407.7502).
+See this [PR](https://github.com/scikit-learn/scikit-learn/issues/19972) for detailed discussion.
+
+If `impurity_importance` was set false when building the tree, this function returns an empty vector.
+
+Warn:
+    The importance might be misleading because MDI is a biased method.
+    See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more dicussion.
 """
-feature_importances(trees::T; normalize::Bool = false) where {T <: DecisionTree.RootNode} = 
-    normalize ? trees.featim ./ sum(trees.featim) : trees.featim
+impurity_importance(tree::T; normalize::Bool = false) where {T <: DecisionTree.Root} = 
+    (normalize && !isempty(tree.featim)) ? tree.featim ./ sum(tree.featim) : tree.featim
 
-feature_importances(trees::T; kwargs...) where {T <: Ensemble} = isdefined(trees, :featim) ? trees.featim : Float64[]
-feature_importances(tree::T; kwargs...) where {T <: DecisionTree.Node} = Float64[]
-feature_importances(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
+impurity_importance(forest::T; kwargs...) where {T <: DecisionTree.Ensemble} = forest.featim
+impurity_importance(stumps::T, coeffs::Vector{Float64}; kwargs...) where {T <: DecisionTree.Ensemble} = 
+    split_importance(stumps, coeffs)
+impurity_importance(node::T; kwargs...) where {T <: DecisionTree.Node} = Float64[]
+impurity_importance(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
+
+"""
+    split_importance(tree; normalize::Bool = false)
+    split_importance(forest)
+    split_importance(adaboost, coeffs)
+
+Return an vector of feature importance based on number of times feature was used in a split.
+
+Feature importance is computed as follows:
+* Single tree: For each feature the associated importance is the number of splits based on that feature.
+* Forests: The importance for a given feature is the average over trees in the forest of the **normalized** tree importances for that feature.
+* AdaBoost models: The importance of each feature is mean number of splits based on that feature across each stumps, that weighted by estimator weights (`coeffs`). 
+
+For forests and adaboost models, feature imortance is normalized before avareging over trees, so keyword arguments `normalize` is useless.
+"""
+function split_importance(tree::T; normalize::Bool = false) where {T <: DecisionTree.Root}
+    feature_importance = zeros(Float64, tree.n_feat)
+    update_using_split!(feature_importance, tree.node)
+    normalize ? feature_importance ./ sum(feature_importance) : feature_importance
+end
+
+function split_importance(forest::T; kwargs...) where {T <: DecisionTree.Ensemble}
+    feature_importance = zeros(Float64, forest.n_feat)
+    for tree in forest.trees
+        ti = _split_importance(tree, forest.n_feat)
+        if !isempty(ti)
+            feature_importance .+= ti
+        end
+    end
+    feature_importance ./ length(forest)
+end
+
+function split_importance(stumps::T, coeffs::Vector{Float64}; kwargs...) where {T <: DecisionTree.Ensemble}
+    feature_importance = zeros(Float64, stumps.n_feat)
+    for (coeff, stump) in zip(coeffs, stumps.trees)
+        feature_importance[stump.featid] += coeff
+    end
+    feature_importance ./ sum(coeffs)
+end
+
+function _split_importance(tree::T, n::Int) where {T <: DecisionTree.Node}
+    feature_importance = zeros(Float64, n)
+    update_using_split!(feature_importance, tree)
+    feature_importance ./ sum(feature_importance)
+end
+
+
+function update_using_split!(feature_importance::Vector{Float64}, node::T) where {T <: DecisionTree.Node}
+    feature_importance[node.featid] += 1
+    update_using_split!(feature_importance, node.left)
+    update_using_split!(feature_importance, node.right)
+    return
+end
+update_using_split!(feature_importance::Vector{Float64}, node::T) where {T <: DecisionTree.Leaf} = nothing
 
 """
     permutation_importances(
-                            trees::U, 
-                            labels  ::AbstractVector{T}, 
-                            features::AbstractVecOrMat{S},
-                            score::Function,
-                            n_iter::Int = 3
-                            ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
+                            trees   :: U, 
+                            labels  :: AbstractVector{T}, 
+                            features:: AbstractVecOrMat{S},
+                            score   :: Function,
+                            n_iter  :: Int = 3;
+                            rng     =  Random.GLOBAL_RNG
+                            )
 
-Calculate feature importances by shuffling each features.
+Calculate feature importance by shuffling each features.
+* `trees`: a `DecisionTree.Leaf` object, `DecisionTree.Node` object, `DecisionTree.Root` object, `DecisionTree.Ensemble` object or `Tuple{DecisionTree.Ensemble, AbstractVector}` object (for adaboost moddel)
 * `score`: a function to evaluating model performance with the form of `score(model, X, y)`
 
-# Return an `NamedTuple`
+# Return a `NamedTuple`
 * Fields 
-1. `mean`: mean of feature importances of each shuffle.
-2. `std`: std of feature importances of each shuffle.
+1. `mean`: mean of feature importance of each shuffle
+2. `std`: standard deviation of feature importance of each shuffle
 3. `scores`: scores of each shuffles
 
 For algorithm details, please see [Permutation feature importanc](https://scikit-learn.org/stable/modules/permutation_importance.html).
 """
-function permutation_importances(
-                                trees::U, 
-                                labels  ::AbstractVector{T}, 
-                                features::AbstractVecOrMat{S},
-                                score::Function,
-                                n_iter::Int = 3
-                                ) where {S, T, U <: Union{<: Ensemble{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
+function permutation_importance(
+                                trees   :: U, 
+                                labels  :: AbstractVector{T}, 
+                                features:: AbstractVecOrMat{S},
+                                score   :: Function,
+                                n_iter  :: Int = 3;
+                                rng     =  Random.GLOBAL_RNG
+                                ) where {S, T, U <: Union{<: Ensemble{S, T}, <: Root{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
 
     base = score(trees, labels, features)
     n_feat = size(features, 2)
     scores = Matrix{Float64}(undef, n_feat, n_iter)
+    rng = mk_rng(rng)::Random.AbstractRNG
     for i in 1:n_feat
         col = @view features[:, i]
         origin = copy(col)
         scores[i, :] = map(1:n_iter) do i
-            shuffle!(col)
+            shuffle!(rng, col)
             base - score(trees, labels, features)
         end
         features[:, i] = origin
