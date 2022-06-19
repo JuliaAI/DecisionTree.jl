@@ -115,14 +115,14 @@ model = build_tree(y, X, 0, 3, 1, 2; rng = 1)
 # sklearn equivalent: 
 # model = DecisionTreeClassifier(max_depth = 3, criterion = 'entropy', random_state = 1)
 # model.fit(X, y)
-@test isapprox(filter(>(0), impurity_importance(model, normalize = true)), [0.11896482, 0.15168659, 0.17920925, 0.29679316, 0.11104555, 0.14230064], atol = 0.0000005)
+@test isapprox(filter(x -> >(x, 0), impurity_importance(model, normalize = true)), [0.11896482, 0.15168659, 0.17920925, 0.29679316, 0.11104555, 0.14230064], atol = 0.0000005)
 
 # regressor
 model = build_tree(float.(y), X, 0, 3, 1, 2; rng = 1)
 # sklearn equivalent: 
 # model = DecisionTreeRegressor(max_depth = 3, random_state = 1)
 # model.fit(X, y)
-@test isapprox(filter(>(0), impurity_importance(model, normalize = true)), [0.1983883, 0.02315617, 0.09821539, 0.06591425, 0.19884457, 0.14939765, 0.26608367], atol = 0.0000005)
+@test isapprox(filter(x -> >(x, 0), impurity_importance(model, normalize = true)), [0.1983883, 0.02315617, 0.09821539, 0.06591425, 0.19884457, 0.14939765, 0.26608367], atol = 0.0000005)
 
 X, y = load_data("iris")
 y = String.(y)
