@@ -302,7 +302,7 @@ function build_adaboost_stumps(
         labels       :: AbstractVector{T},
         features     :: AbstractMatrix{S},
         n_iterations :: Integer;
-        rng           = Random.GLOBAL_RNG) where {S, T}
+        rng::AbstractRNG = Random.GLOBAL_RNG) where {S, T}
     N = length(labels)
     weights = ones(N) / N
     stumps = Node{S, T}[]
