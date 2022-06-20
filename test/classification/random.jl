@@ -136,11 +136,12 @@ This loop tests multiple RNGs to have a higher chance of spotting a problem.
 See https://github.com/JuliaAI/DecisionTree.jl/pull/174 for more information.
 """
 function test_rng(f::Function, args, expected_accuracy)
-    accuracy = f(args...; rng=10)
-    accuracy2 = f(args...; rng=5)
+    accuracy = f(args...; rng=StableRNG(10))
+    accuracy2 = f(args...; rng=StableRNG(5))
     @test accuracy != accuracy2
 
-    for rng in 10:14
+    for i in 10:14
+        rng = StableRNG(i)
         accuracy  = f(args...; rng=rng, verbose=false)
         accuracy2 = f(args...; rng=rng)
         @test mean(accuracy) > expected_accuracy

@@ -198,7 +198,7 @@ function build_forest(
         min_samples_leaf    = 1,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
-        rng                 = Random.GLOBAL_RNG) where {S, T}
+        rng::Union{Integer,AbstractRNG} = Random.GLOBAL_RNG) where {S, T}
 
     if n_trees < 1
         throw("the number of trees must be >= 1")
@@ -222,7 +222,9 @@ function build_forest(
 
     if rng isa Random.AbstractRNG
         Threads.@threads for i in 1:n_trees
-            inds = rand(rng, 1:t_samples, n_samples)
+            # The Mersenne Twister (Julia's default) is not thread-safe.
+            _rng = copy(rng)
+            inds = rand(_rng, 1:t_samples, n_samples)
             forest[i] = build_tree(
                 labels[inds],
                 features[inds,:],
@@ -232,7 +234,7 @@ function build_forest(
                 min_samples_split,
                 min_purity_increase,
                 loss = loss,
-                rng = rng)
+                rng = _rng)
         end
     elseif rng isa Integer # each thread gets its own seeded rng
         Threads.@threads for i in 1:n_trees
@@ -248,8 +250,6 @@ function build_forest(
                 min_purity_increase,
                 loss = loss)
         end
-    else
-        throw("rng must of be type Integer or Random.AbstractRNG")
     end
 
     return Ensemble{S, T}(forest)
@@ -299,7 +299,7 @@ function build_adaboost_stumps(
         labels       :: AbstractVector{T},
         features     :: AbstractMatrix{S},
         n_iterations :: Integer;
-        rng::AbstractRNG = Random.GLOBAL_RNG) where {S, T}
+        rng = Random.GLOBAL_RNG) where {S, T}
     N = length(labels)
     weights = ones(N) / N
     stumps = Node{S, T}[]
