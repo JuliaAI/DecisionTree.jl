@@ -80,14 +80,18 @@ length(ensemble::Ensemble) = length(ensemble.trees)
 depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 
+function print_tree(io::IO, leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
+    n_matches = count(leaf.values .== leaf.majority)
+    ratio = string(n_matches, "/", length(leaf.values))
+    println(io, "$(leaf.majority) : $(ratio)")
+end
 function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
-    matches = findall(leaf.values .== leaf.majority)
-    ratio = string(length(matches)) * "/" * string(length(leaf.values))
-    println("$(leaf.majority) : $(ratio)")
+    return print_tree(stdout, leaf, depth, indent; feature_names=feature_names)
 end
 
+
 """
-       print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
+    print_tree([io::IO,] tree::Node, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
 
 Print a textual visualization of the specified `tree`. For example, if
 for some input pattern the value of "Feature 3" is "-30" and the value
@@ -100,7 +104,7 @@ non-majority classes are not shown.
 
 # Example output:
 ```
-Feature 3 < -28.15
+Feature 3 < -28.15 ?
 ├─ Feature 2 < -161.0 ?
    ├─ 5 : 842/3650
    └─ 7 : 2493/10555
@@ -113,20 +117,24 @@ To facilitate visualisation of trees using third party packages, a `DecisionTree
 `DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the
 AbstractTrees.jl interface. See  [`wrap`](@ref)` for details.
 """
-function print_tree(tree::Node, depth=-1, indent=0; feature_names=nothing)
+function print_tree(io::IO, tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
     if depth == indent
-        println()
+        println(io)
         return
     end
+    featval = round(tree.featval; sigdigits=sigdigits)
     if feature_names === nothing
-        println("Feature $(tree.featid) < $(tree.featval)")
+        println(io, "Feature $(tree.featid) < $featval ?")
     else
-        println("Feature $(tree.featid): \"$(feature_names[tree.featid])\" < $(tree.featval)")
+        println(io, "Feature $(tree.featid): \"$(feature_names[tree.featid])\" < $featval ?")
     end
-    print("    " ^ indent * "├─ ")
-    print_tree(tree.left, depth, indent + 1; feature_names = feature_names)
-    print("    " ^ indent * "└─ ")
-    print_tree(tree.right, depth, indent + 1; feature_names = feature_names)
+    print(io, "    " ^ indent * "├─ ")
+    print_tree(io, tree.left, depth, indent + 1; feature_names=feature_names)
+    print(io, "    " ^ indent * "└─ ")
+    print_tree(io, tree.right, depth, indent + 1; feature_names=feature_names)
+end
+function print_tree(tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
+    return print_tree(stdout, tree, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
 end
 
 function show(io::IO, leaf::Leaf)
