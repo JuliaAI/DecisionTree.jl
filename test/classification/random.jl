@@ -129,45 +129,41 @@ cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int}
 @test length(model) == n_iterations
 
+"""
+RNGs can look like they produce stable results, but do in fact differ when you run it many times.
+In some RNGs the problem already shows up when doing two runs and comparing those.
+This loop tests multiple RNGs to have a higher chance of spotting a problem.
+See https://github.com/JuliaAI/DecisionTree.jl/pull/174 for more information.
+"""
+function test_rng(f::Function, args, expected_accuracy)
+    for rng in 7:10
+        accuracy  = f(args...; rng=rng, verbose=false)
+        accuracy2 = f(args...; rng=rng)
+        accuracy3 = f(args...; rng=5)
+        @test mean(accuracy) > expected_accuracy
+        @test accuracy == accuracy2
+        @test accuracy != accuracy3
+    end
+end
+
 println("\n##### nfoldCV Classification Tree #####")
 nfolds          = 3
 pruning_purity  = 1.0
 max_depth       = 5
-accuracy  = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10, verbose=false)
-accuracy2 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=10)
-accuracy3 = nfoldCV_tree(labels, features, nfolds, pruning_purity, max_depth; rng=5)
-@test mean(accuracy) > 0.7
-@test accuracy == accuracy2
-@test accuracy != accuracy3
+args = [labels, features, nfolds, pruning_purity, max_depth]
+test_rng(nfoldCV_tree, args, 0.7)
 
 println("\n##### nfoldCV Classification Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
-accuracy  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10, verbose=false)
-accuracy2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
-accuracy3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=5)
-@test mean(accuracy) > 0.7
-@test accuracy == accuracy2
-@test accuracy != accuracy3
+args = [labels, features, nfolds, n_subfeatures, n_trees]
+test_rng(nfoldCV_forest, args, 0.7)
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations = 25
 n_folds = 3
-
-# RNGs can look like they produce stable results, but do in fact differ when you run it many times.
-# In some RNGs the problem already shows up when doing two runs and comparing those.
-# This loop tests multiple RNGs to have a higher chance of spotting a problem.
-# See https://github.com/JuliaAI/DecisionTree.jl/pull/174 for more information.
-for rng in 7:10
-    accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=rng, verbose=false)
-    accuracy2 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=rng)
-    @test mean(accuracy) > 0.6
-    @test accuracy == accuracy2
-end
-
-accuracy  = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=10, verbose=false)
-accuracy3 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=5)
-@test accuracy != accuracy3
+args = [labels, features, n_folds, n_iterations]
+test_rng(nfoldCV_stumps, args, 0.6)
 
 end # @testset
