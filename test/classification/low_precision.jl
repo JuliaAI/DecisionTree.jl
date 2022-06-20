@@ -25,7 +25,8 @@ model = build_tree(
         n_subfeatures, max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 preds = apply_tree(model, features)
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
@@ -40,14 +41,15 @@ model = build_forest(
         n_subfeatures,
         n_trees,
         partial_sampling,
-        max_depth)
+        max_depth;
+        rng=StableRNG(1))
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.9
 
 n_iterations        = Int32(25)
-model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
+model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));
 preds = apply_adaboost_stumps(model, coeffs, features);
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
@@ -67,7 +69,8 @@ accuracy = nfoldCV_tree(
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
-                min_purity_increase)
+                min_purity_increase;
+                rng=StableRNG(1))
 @test mean(accuracy) > 0.7
 
 println("\n##### nfoldCV Classification Forest #####")
@@ -87,12 +90,13 @@ accuracy = nfoldCV_forest(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 @test mean(accuracy) > 0.7
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations        = Int32(25)
-accuracy = nfoldCV_stumps(labels, features, n_folds, n_iterations)
+accuracy = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=StableRNG(1))
 @test mean(accuracy) > 0.6
 
 
