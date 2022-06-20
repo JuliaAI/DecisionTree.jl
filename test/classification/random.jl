@@ -136,14 +136,14 @@ This loop tests multiple RNGs to have a higher chance of spotting a problem.
 See https://github.com/JuliaAI/DecisionTree.jl/pull/174 for more information.
 """
 function test_rng(f::Function, args, expected_accuracy)
-    accuracy = f(args...; rng=StableRNG(10))
-    accuracy2 = f(args...; rng=StableRNG(5))
+    println("Testing $f")
+    accuracy = f(args...; rng=StableRNG(10), verbose=false)
+    accuracy2 = f(args...; rng=StableRNG(5), verbose=false)
     @test accuracy != accuracy2
 
     for i in 10:14
-        rng = StableRNG(i)
-        accuracy  = f(args...; rng=rng, verbose=false)
-        accuracy2 = f(args...; rng=rng)
+        accuracy  = f(args...; rng=StableRNG(i), verbose=false)
+        accuracy2 = f(args...; rng=StableRNG(i), verbose=false)
         @test mean(accuracy) > expected_accuracy
         @test accuracy == accuracy2
     end
@@ -162,6 +162,9 @@ n_subfeatures   = 2
 n_trees         = 10
 args = [labels, features, nfolds, n_subfeatures, n_trees]
 test_rng(nfoldCV_forest, args, 0.65)
+
+# This is a smoke test to verify that the multi-threaded code doesn't crash.
+nfoldCV_forest(args...; rng=MersenneTwister(1))
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations = 25

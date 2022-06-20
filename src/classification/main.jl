@@ -224,6 +224,9 @@ function build_forest(
         Threads.@threads for i in 1:n_trees
             # The Mersenne Twister (Julia's default) is not thread-safe.
             _rng = copy(rng)
+            # Take some elements from the ring to have different states for each tree.
+            # This is the only way given that only a `copy` can be expected to exist for RNGs.
+            rand(_rng, i)
             inds = rand(_rng, 1:t_samples, n_samples)
             forest[i] = build_tree(
                 labels[inds],
@@ -236,7 +239,7 @@ function build_forest(
                 loss = loss,
                 rng = _rng)
         end
-    elseif rng isa Integer # each thread gets its own seeded rng
+    else # each thread gets its own seeded rng
         Threads.@threads for i in 1:n_trees
             Random.seed!(rng + i)
             inds = rand(1:t_samples, n_samples)
