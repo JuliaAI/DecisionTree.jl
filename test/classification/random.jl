@@ -3,7 +3,7 @@
 
 Random.seed!(16)
 
-n,m = 10^3, 5;
+n, m = 10^3, 5;
 features = rand(n,m);
 weights = rand(-1:1,m);
 labels = round.(Int, features * weights);
@@ -15,7 +15,19 @@ preds = apply_tree(model, round.(Int, features))
 max_depth = 3
 model = build_tree(labels, features, 0, max_depth)
 @test depth(model) == max_depth
-print_tree(model, 3)
+
+io = IOBuffer()
+print_tree(io, model, 3)
+text = String(take!(io))
+println()
+print(text)
+println()
+
+# Read the regex as: many not arrow left followed by an arrow left, a space, some numbers and
+# a dot and a space and question mark.
+rx = r"[^<]*< [0-9\.]* ?"
+matches = eachmatch(rx, text)
+@test !isempty(matches)
 
 model = build_tree(labels, features)
 preds = apply_tree(model, features)
