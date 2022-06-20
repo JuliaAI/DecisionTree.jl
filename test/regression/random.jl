@@ -112,7 +112,7 @@ model = build_forest(
         min_purity_increase;
         rng=StableRNG(1))
 preds = apply_forest(model, features)
-@test R2(labels, preds) > 0.9
+@test R2(labels, preds) > 0.87
 @test length(model) == n_trees
 
 # test n_subfeatures
@@ -194,10 +194,10 @@ println("\n##### nfoldCV Regression Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
-r2_1  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=StableRNG(10), verbose=false)
+r2_1 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=StableRNG(10), verbose=false)
 r2_2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=StableRNG(10))
 r2_3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=StableRNG(5))
-@test mean(r2_1) > 0.8
+@test mean(r2_1) > 0.77
 @test r2_1 == r2_2
 @test r2_1 != r2_3
 
