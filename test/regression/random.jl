@@ -88,7 +88,7 @@ t3 = build_tree(labels, features, n_subfeatures; rng=mt)
 @test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
 
 
-model = build_forest(labels, features)
+model = build_forest(labels, features; rng=StableRNG(1))
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}

@@ -21,7 +21,7 @@ cm = confusion_matrix(labels, preds)
 
 n_subfeatures = 2
 n_trees = 3
-model = build_forest(labels, features, n_subfeatures, n_trees)
+model = build_forest(labels, features, n_subfeatures, n_trees; rng=StableRNG(1))
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
