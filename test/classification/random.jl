@@ -153,14 +153,14 @@ nfolds          = 3
 pruning_purity  = 1.0
 max_depth       = 5
 args = [labels, features, nfolds, pruning_purity, max_depth]
-test_rng(nfoldCV_tree, args, 0.7)
+test_rng(nfoldCV_tree, args, 0.65)
 
 println("\n##### nfoldCV Classification Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
 args = [labels, features, nfolds, n_subfeatures, n_trees]
-test_rng(nfoldCV_forest, args, 0.7)
+test_rng(nfoldCV_forest, args, 0.65)
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations = 25
