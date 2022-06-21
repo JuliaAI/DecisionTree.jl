@@ -78,7 +78,7 @@ model = build_forest(
         min_purity_increase;
         rng=StableRNG(1))
 preds = apply_forest(model, X)
-@test R2(Y, preds) > 0.75
+@test R2(Y, preds) > 0.8
 
 println("\n##### 3 foldCV Regression Tree #####")
 n_folds = 5

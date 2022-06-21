@@ -46,7 +46,7 @@ model = build_forest(
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
-@test cm.accuracy > 0.87
+@test cm.accuracy > 0.9
 
 n_iterations        = Int32(25)
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));

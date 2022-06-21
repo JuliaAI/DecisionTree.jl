@@ -44,7 +44,7 @@ model = build_forest(
         min_purity_increase;
         rng=StableRNG(1))
 preds = apply_forest(model, features)
-@test R2(labels, preds) > 0.87
+@test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}
 
 println("\n##### nfoldCV Regression Tree #####")
@@ -84,7 +84,7 @@ r2 = nfoldCV_forest(
         min_samples_split,
         min_purity_increase;
         rng=StableRNG(1))
-@test mean(r2) > 0.6
+@test mean(r2) > 0.8
 
 # Test Float16 labels, and Float16 features
 features  = Float16.(features)

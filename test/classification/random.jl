@@ -52,7 +52,7 @@ t3 = build_tree(labels, features, n_subfeatures; rng=mt)
 model = build_forest(labels, features; rng=StableRNG(1))
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
-@test cm.accuracy > 0.86
+@test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
 
 n_subfeatures       = 3
@@ -155,14 +155,14 @@ nfolds          = 3
 pruning_purity  = 1.0
 max_depth       = 5
 args = [labels, features, nfolds, pruning_purity, max_depth]
-test_rng(nfoldCV_tree, args, 0.65)
+test_rng(nfoldCV_tree, args, 0.7)
 
 println("\n##### nfoldCV Classification Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
 args = [labels, features, nfolds, n_subfeatures, n_trees]
-test_rng(nfoldCV_forest, args, 0.65)
+test_rng(nfoldCV_forest, args, 0.7)
 
 # This is a smoke test to verify that the multi-threaded code doesn't crash.
 nfoldCV_forest(args...; rng=MersenneTwister(1))
