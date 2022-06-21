@@ -268,11 +268,18 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where
     end
 end
 
-function apply_forest(forest::Ensemble{S, T}, features::AbstractMatrix{S}) where {S, T}
+function apply_forest(forest::Ensemble{S, T}, features::AbstractMatrix{S}
+    ; use_multithreading = false) where {S, T}
     N = size(features,1)
     predictions = Array{T}(undef, N)
-    Threads.@threads for i in 1:N
-        predictions[i] = apply_forest(forest, features[i, :])
+    if use_multithreading
+        Threads.@threads for i in 1:N
+            predictions[i] = apply_forest(forest, features[i, :])
+        end
+    else
+        for i in 1:N
+            predictions[i] = apply_forest(forest, features[i, :])
+        end
     end
     return predictions
 end
