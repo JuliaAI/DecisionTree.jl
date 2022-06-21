@@ -4,9 +4,9 @@ Random.seed!(5)
 
 n, m = 10^3, 5 ;
 features = Array{Any}(undef, n, m);
-features[:,:] = randn(n, m);
+features[:,:] = randn(StableRNG(1), n, m);
 features[:,1] = round.(Integer, features[:,1]); # convert a column of integers
-weights = rand(-2:2,m);
+weights = rand(StableRNG(1), -2:2, m);
 labels = float.(features * weights);            # cast to Array{Float64,1}
 
 model = build_stump(labels, features)

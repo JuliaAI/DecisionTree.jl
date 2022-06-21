@@ -5,9 +5,9 @@ Random.seed!(16)
 
 n,m = 10^3, 5;
 features = Array{Any}(undef, n, m);
-features[:,:] = rand(n, m);
+features[:,:] = rand(StableRNG(1), n, m);
 features[:,1] = round.(Int32, features[:,1]); # convert a column of 32bit integers
-weights = rand(-1:1,m);
+weights = rand(StableRNG(1), -1:1, m);
 labels = round.(Int32, features * weights);
 
 model = build_stump(labels, features)

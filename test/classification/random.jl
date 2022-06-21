@@ -4,8 +4,8 @@
 Random.seed!(16)
 
 n, m = 10^3, 5;
-features = rand(n,m);
-weights = rand(-1:1,m);
+features = rand(StableRNG(1), n, m);
+weights = rand(StableRNG(1), -1:1, m);
 labels = round.(Int, features * weights);
 
 model = build_stump(labels, round.(Int, features))
