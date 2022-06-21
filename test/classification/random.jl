@@ -52,7 +52,7 @@ t3 = build_tree(labels, features, n_subfeatures; rng=mt)
 model = build_forest(labels, features; rng=StableRNG(1))
 preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
-@test cm.accuracy > 0.9
+@test cm.accuracy > 0.86
 @test typeof(preds) == Vector{Int}
 
 n_subfeatures       = 3

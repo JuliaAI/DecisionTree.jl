@@ -91,7 +91,7 @@ t3 = build_tree(labels, features, n_subfeatures; rng=mt)
 
 model = build_forest(labels, features; rng=StableRNG(1))
 preds = apply_forest(model, features)
-@test R2(labels, preds) > 0.9
+@test R2(labels, preds) > 0.88
 @test typeof(preds) <: Vector{Float64}
 
 n_subfeatures       = 3
