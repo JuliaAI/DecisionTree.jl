@@ -69,7 +69,8 @@ model = DecisionTree.build_forest(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 preds = apply_forest(model, X)
 cm = confusion_matrix(Y, preds)
 @test cm.accuracy > 0.95

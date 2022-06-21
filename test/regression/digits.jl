@@ -75,13 +75,14 @@ model = build_forest(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 preds = apply_forest(model, X)
 @test R2(Y, preds) > 0.8
 
 println("\n##### 3 foldCV Regression Tree #####")
 n_folds = 5
-r2 = nfoldCV_tree(Y, X, n_folds; verbose=false);
+r2 = nfoldCV_tree(Y, X, n_folds; rng=StableRNG(1), verbose=false);
 @test mean(r2) > 0.55
 
 println("\n##### 3 foldCV Regression Forest #####")
@@ -89,7 +90,7 @@ n_subfeatures = 2
 n_trees = 10
 n_folds = 5
 partial_sampling = 0.5
-r2 = nfoldCV_forest(Y, X, n_folds, n_subfeatures, n_trees, partial_sampling; verbose=false)
+r2 = nfoldCV_forest(Y, X, n_folds, n_subfeatures, n_trees, partial_sampling; rng=StableRNG(1), verbose=false)
 @test mean(r2) > 0.55
 
 end # @testset

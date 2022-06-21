@@ -37,7 +37,8 @@ end
 function _convert(
         node   :: treeclassifier.NodeMeta{S},
         list   :: AbstractVector{T},
-        labels :: AbstractVector{T}) where {S, T}
+        labels :: AbstractVector{T}
+    ) where {S, T}
 
     if node.is_leaf
         return Leaf{T}(list[node.label], labels[node.region])
@@ -138,7 +139,7 @@ function prune_tree(tree::LeafOrNode{S, T}, purity_thresh=1.0) where {S, T}
 end
 
 
-apply_tree(leaf::Leaf{T}, feature::AbstractVector{S}) where {S, T} = leaf.majority
+apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.majority
 
 function apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
     if tree.featid == 0
@@ -197,7 +198,7 @@ function build_forest(
         min_samples_leaf    = 1,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
-        rng                 = Random.GLOBAL_RNG) where {S, T}
+        rng::Union{Integer,AbstractRNG} = Random.GLOBAL_RNG) where {S, T}
 
     if n_trees < 1
         throw("the number of trees must be >= 1")
@@ -221,7 +222,12 @@ function build_forest(
 
     if rng isa Random.AbstractRNG
         Threads.@threads for i in 1:n_trees
-            inds = rand(rng, 1:t_samples, n_samples)
+            # The Mersenne Twister (Julia's default) is not thread-safe.
+            _rng = copy(rng)
+            # Take some elements from the ring to have different states for each tree.
+            # This is the only way given that only a `copy` can be expected to exist for RNGs.
+            rand(_rng, i)
+            inds = rand(_rng, 1:t_samples, n_samples)
             forest[i] = build_tree(
                 labels[inds],
                 features[inds,:],
@@ -231,9 +237,9 @@ function build_forest(
                 min_samples_split,
                 min_purity_increase,
                 loss = loss,
-                rng = rng)
+                rng = _rng)
         end
-    elseif rng isa Integer # each thread gets its own seeded rng
+    else # each thread gets its own seeded rng
         Threads.@threads for i in 1:n_trees
             Random.seed!(rng + i)
             inds = rand(1:t_samples, n_samples)
@@ -247,8 +253,6 @@ function build_forest(
                 min_purity_increase,
                 loss = loss)
         end
-    else
-        throw("rng must of be type Integer or Random.AbstractRNG")
     end
 
     return Ensemble{S, T}(forest)
@@ -298,7 +302,7 @@ function build_adaboost_stumps(
         labels       :: AbstractVector{T},
         features     :: AbstractMatrix{S},
         n_iterations :: Integer;
-        rng           = Random.GLOBAL_RNG) where {S, T}
+        rng = Random.GLOBAL_RNG) where {S, T}
     N = length(labels)
     weights = ones(N) / N
     stumps = Node{S, T}[]

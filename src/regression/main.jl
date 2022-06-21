@@ -56,7 +56,7 @@ function build_forest(
         min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
-        rng                 = Random.GLOBAL_RNG) where {S, T <: Float64}
+        rng::Union{Integer,AbstractRNG} = Random.GLOBAL_RNG) where {S, T <: Float64}
 
     if n_trees < 1
         throw("the number of trees must be >= 1")
@@ -77,7 +77,12 @@ function build_forest(
 
     if rng isa Random.AbstractRNG
         Threads.@threads for i in 1:n_trees
-            inds = rand(rng, 1:t_samples, n_samples)
+            # The Mersenne Twister (Julia's default) is not thread-safe.
+            _rng = copy(rng)
+            # Take some elements from the ring to have different states for each tree.
+            # This is the only way given that only a `copy` can be expected to exist for RNGs.
+            rand(_rng, i)
+            inds = rand(_rng, 1:t_samples, n_samples)
             forest[i] = build_tree(
                 labels[inds],
                 features[inds,:],
@@ -86,9 +91,9 @@ function build_forest(
                 min_samples_leaf,
                 min_samples_split,
                 min_purity_increase,
-                rng = rng)
+                rng = _rng)
         end
-    elseif rng isa Integer # each thread gets its own seeded rng
+    else # each thread gets its own seeded rng
         Threads.@threads for i in 1:n_trees
             Random.seed!(rng + i)
             inds = rand(1:t_samples, n_samples)
@@ -101,8 +106,6 @@ function build_forest(
                 min_samples_split,
                 min_purity_increase)
         end
-    else
-        throw("rng must of be type Integer or Random.AbstractRNG")
     end
 
     return Ensemble{S, T}(forest)
