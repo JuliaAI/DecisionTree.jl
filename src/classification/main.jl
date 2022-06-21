@@ -449,8 +449,11 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where
     end
 end
 
-function apply_forest(forest::Ensemble{S, T}, features::AbstractMatrix{S}
-    ; use_multithreading = false) where {S, T}
+function apply_forest(
+        forest::Ensemble{S, T},
+        features::AbstractMatrix{S};
+        use_multithreading = false
+    ) where {S, T}
     N = size(features,1)
     predictions = Array{T}(undef, N)
     if use_multithreading
