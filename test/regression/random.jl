@@ -4,9 +4,9 @@ Random.seed!(5)
 
 n, m = 10^3, 5 ;
 features = Array{Any}(undef, n, m);
-features[:,:] = randn(n, m);
+features[:,:] = randn(StableRNG(1), n, m);
 features[:,1] = round.(Integer, features[:,1]); # convert a column of integers
-weights = rand(-2:2,m);
+weights = rand(StableRNG(1), -2:2, m);
 labels = float.(features * weights);            # cast to Array{Float64,1}
 
 model = build_stump(labels, features)
@@ -20,7 +20,8 @@ model = build_tree(
         labels, features,
         n_subfeatures,
         max_depth,
-        min_samples_leaf)
+        min_samples_leaf;
+        rng=StableRNG(1))
 preds = apply_tree(model, features);
 @test R2(labels, preds) > 0.99      # R2: coeff of determination
 @test typeof(preds) <: Vector{Float64}
@@ -88,7 +89,7 @@ t3 = build_tree(labels, features, n_subfeatures; rng=mt)
 @test (length(t1) != length(t3)) || (depth(t1) != depth(t3))
 
 
-model = build_forest(labels, features)
+model = build_forest(labels, features; rng=StableRNG(1))
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}
@@ -108,7 +109,8 @@ model = build_forest(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test length(model) == n_trees
@@ -125,7 +127,8 @@ m_partial = build_forest(
         n_trees,
         partial_sampling,
         max_depth,
-        min_samples_leaf)
+        min_samples_leaf;
+        rng=10)
 n_subfeatures       = 0
 m_full = build_forest(
         labels, features,
@@ -133,7 +136,8 @@ m_full = build_forest(
         n_trees,
         partial_sampling,
         max_depth,
-        min_samples_leaf)
+        min_samples_leaf;
+        rng=10)
 @test mean(depth.(m_full.trees)) < mean(depth.(m_partial.trees))
 
 # test partial_sampling parameter, train on single sample
@@ -190,9 +194,9 @@ println("\n##### nfoldCV Regression Forest #####")
 nfolds          = 3
 n_subfeatures   = 2
 n_trees         = 10
-r2_1  = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10, verbose=false)
-r2_2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=10)
-r2_3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=5)
+r2_1 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=StableRNG(10), verbose=false)
+r2_2 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=StableRNG(10))
+r2_3 = nfoldCV_forest(labels, features, nfolds, n_subfeatures, n_trees; rng=StableRNG(5))
 @test mean(r2_1) > 0.8
 @test r2_1 == r2_2
 @test r2_1 != r2_3

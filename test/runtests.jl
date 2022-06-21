@@ -1,9 +1,11 @@
+import AbstractTrees
+
 using DecisionTree
 using DelimitedFiles
 using Random
 using ScikitLearnBase
+using StableRNGs
 using Statistics
-import AbstractTrees
 using Test
 
 println("Julia version: ", VERSION)

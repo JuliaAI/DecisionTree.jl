@@ -2,12 +2,12 @@
 
 Random.seed!(5)
 
-n, m = 10^3, 5 ;
+n, m = 10^3, 5;
 features = Array{Any}(undef, n, m);
-features[:,:] = randn(n, m);
-features[:,1] = round.(Int32, features[:,1]); # convert a column of 32bit integers
-weights = rand(-2:2,m);
-labels = float.(features * weights);            # cast to Array{Float64,1}
+features[:,:] = randn(StableRNG(1), n, m);
+features[:,1] = round.(Int32, features[:,1]);
+weights = rand(StableRNG(1), -2:2, m);
+labels = float.(features * weights);
 
 min_samples_leaf    = Int32(1)
 n_subfeatures       = Int32(0)
@@ -20,7 +20,8 @@ model = build_tree(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 preds = apply_tree(model, round.(Int32, features))
 @test R2(labels, preds) < 0.95
 @test typeof(preds) <: Vector{Float64}
@@ -40,7 +41,8 @@ model = build_forest(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}
@@ -59,7 +61,8 @@ r2 = nfoldCV_tree(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 @test mean(r2) > 0.6
 
 println("\n##### nfoldCV Regression Forest #####")
@@ -79,9 +82,9 @@ r2 = nfoldCV_forest(
         max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase;
+        rng=StableRNG(1))
 @test mean(r2) > 0.8
-
 
 # Test Float16 labels, and Float16 features
 features  = Float16.(features)
