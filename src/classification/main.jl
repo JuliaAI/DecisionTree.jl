@@ -56,7 +56,6 @@ function build_stump(
         weights      = nothing;
         rng          = Random.GLOBAL_RNG) where {S, T}
 
-    rng = mk_rng(rng)::Random.AbstractRNG
     t = treeclassifier.fit(
         X                   = features,
         Y                   = labels,
