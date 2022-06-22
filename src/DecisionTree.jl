@@ -108,6 +108,13 @@ function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
 end
 
 
+function print_tree(io::IO, tree::Root, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
+    return print_tree(io, tree.node, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
+end
+function print_tree(tree::Root, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
+    return print_tree(stdout, tree, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
+end
+
 """
     print_tree([io::IO,] tree::Node, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
 
@@ -154,8 +161,6 @@ end
 function print_tree(tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
     return print_tree(stdout, tree, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
 end
-
-print_tree(tree::Root, depth=-1, indent=0; sigdigits=2, feature_names=nothing) = print_tree(tree.node, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
 
 function show(io::IO, leaf::Leaf)
     println(io, "Decision Leaf")

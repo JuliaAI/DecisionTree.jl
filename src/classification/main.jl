@@ -232,14 +232,16 @@ function apply_tree(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}) where {
     end
 end
 
-"""    apply_tree_proba(::Root, features, col_labels::AbstractVector)
+"""    
+    apply_tree_proba(::Root, features, col_labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
 
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix. """
+of the output matrix. 
+"""
 apply_tree_proba(tree::Root{S, T}, features::AbstractVector{S}, labels) where {S, T} = 
     apply_tree_proba(tree.node, features, labels)
 apply_tree_proba(leaf::Leaf{T}, features::AbstractVector{S}, labels) where {S, T} =
@@ -381,14 +383,16 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractMatrix{S}) where
     return predictions
 end
 
-"""    apply_forest_proba(forest::Ensemble, features, col_labels::AbstractVector)
+"""    
+    apply_forest_proba(forest::Ensemble, features, col_labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
 
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix. """
+of the output matrix. 
+"""
 function apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVector{S}, labels) where {S, T}
     votes = [apply_tree(tree, features) for tree in forest.trees]
     return compute_probabilities(labels, votes)
@@ -461,14 +465,16 @@ function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Fl
     return predictions
 end
 
-"""    apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features, labels::AbstractVector)
+"""    
+    apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features, labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
 n_labels` matrix of probabilities, each row summing up to 1.
 
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix. """
+of the output matrix. 
+"""
 function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
                                      features::AbstractVector{S}, labels::AbstractVector{T}) where {S, T}
     votes = [apply_tree(stump, features) for stump in stumps.trees]

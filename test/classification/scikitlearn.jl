@@ -12,13 +12,13 @@ model = fit!(DecisionTreeClassifier(; rng=StableRNG(1), pruning_purity_threshold
 @test mean(predict(model, features) .== labels) > 0.8
 @test impurity_importance(model) == impurity_importance(model.root)
 @test split_importance(model) == split_importance(model.root)
-@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance(model.root, labels, features, (model, y, X) -> accuracy(y, apply_tree(model, X)), rng = 1).mean)
+@test isapprox(permutation_importance(model, features, labels, rng=StableRNG(1)).mean, permutation_importance(model.root, labels, features, (model, y, X) -> accuracy(y, apply_tree(model, X)), rng=StableRNG(1)).mean)
 
 model = fit!(RandomForestClassifier(; rng=StableRNG(1)), features, labels)
 @test mean(predict(model, features) .== labels) > 0.8
 @test impurity_importance(model) == impurity_importance(model.ensemble)
 @test split_importance(model) == split_importance(model.ensemble)
-@test isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance(model.ensemble, labels, features, (model, y, X) -> accuracy(y, apply_forest(model, X)), rng = 1).mean)
+@test isapprox(permutation_importance(model, features, labels, rng=StableRNG(1)).mean, permutation_importance(model.ensemble, labels, features, (model, y, X) -> accuracy(y, apply_forest(model, X)), rng=StableRNG(1)).mean)
 
 model = fit!(AdaBoostStumpClassifier(; rng=StableRNG(1)), features, labels)
 # Adaboost isn't so hot on this task, disabled for now
@@ -26,7 +26,7 @@ mean(predict(model, features) .== labels)
 # On when switching to SAMME
 impurity_importance(model) == impurity_importance(model.ensemble, model.coeffs)
 split_importance(model) == split_importance(model.ensemble, model.coeffs)
-isapprox(permutation_importance(model, features, labels, rng = 1).mean, permutation_importance((model.ensemble, model.coeffs), labels, features, (model, y, X) -> accuracy(y, apply_adaboost_stumps(model, X)), rng = 1).mean)
+isapprox(permutation_importance(model, features, labels, rng=StableRNG(1)).mean, permutation_importance((model.ensemble, model.coeffs), labels, features, (model, y, X) -> accuracy(y, apply_adaboost_stumps(model, X)), rng=StableRNG(1)).mean)
 
 
 N = 3000
