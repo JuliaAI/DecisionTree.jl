@@ -19,7 +19,7 @@ Available via:
 * pre-pruning (max depth, min leaf size)
 * post-pruning (pessimistic pruning)
 * multi-threaded bagging (random forests)
-* adaptive boosting (decision stumps), using SAMME (https://www.intlpress.com/site/pub/pages/journals/items/sii/content/vols/0002/0003/a008/)
+* adaptive boosting (decision stumps), using [SAMME](https://www.intlpress.com/site/pub/pages/journals/items/sii/content/vols/0002/0003/a008/)
 * cross validation (n-fold)
 * support for ordered features (encoded as `Real`s or `String`s)
 
