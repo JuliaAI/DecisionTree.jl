@@ -162,6 +162,8 @@ function print_tree(tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=n
     return print_tree(stdout, tree, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
 end
 
+print_tree(tree::Root, depth=-1, indent=0; feature_names=nothing) = print_tree(tree.node, depth, indent; feature_names=feature_names)
+
 function show(io::IO, leaf::Leaf)
     println(io, "Decision Leaf")
     println(io, "Majority: $(leaf.majority)")
