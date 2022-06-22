@@ -135,7 +135,7 @@ function _nfoldCV(classifier::Symbol, labels::AbstractVector{T}, features::Abstr
             predictions = apply_forest(model, test_features)
         elseif classifier == :stumps
             model, coeffs = build_adaboost_stumps(
-                train_labels, train_features, n_iterations, rng=rng)
+                train_labels, train_features, n_iterations; rng=rng)
             predictions = apply_adaboost_stumps(model, coeffs, test_features)
         end
         cm = confusion_matrix(test_labels, predictions)
@@ -186,6 +186,7 @@ function nfoldCV_stumps(
         n_iterations ::Integer = 10;
         verbose             :: Bool = true,
         rng          = Random.GLOBAL_RNG) where {S, T}
+    rng = mk_rng(rng)::Random.AbstractRNG
     _nfoldCV(:stumps, labels, features, n_folds, n_iterations; verbose=verbose, rng=rng)
 end
 
