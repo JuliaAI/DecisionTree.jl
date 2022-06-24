@@ -320,7 +320,7 @@ of the output matrix.
 apply_tree_proba(tree::Root{S, T}, features::AbstractVector{S}, labels) where {S, T} =
     apply_tree_proba(tree.node, features, labels)
 apply_tree_proba(leaf::Leaf{T}, features::AbstractVector{S}, labels) where {S, T} =
-    collect(leaf.values ./ leaf.total)
+    leaf.values ./ leaf.total
 
 function apply_tree_proba(
     tree::Node{S, T},
@@ -335,10 +335,13 @@ function apply_tree_proba(
         return apply_tree_proba(tree.right, features, labels)
     end
 end
-apply_tree_proba(tree::Root{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
-    apply_tree_proba(tree.node, features, labels)
-apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
-    stack_function_results(row->apply_tree_proba(tree, row, labels), features)
+function apply_tree_proba(tree::Root{S, T}, features::AbstractMatrix{S}, labels) where {S, T}
+    predictions = Vector{NTuple{length(labels), Float64}}(undef, size(features, 1))
+    for i in 1:size(features, 1)
+        predictions[i] = apply_tree_proba(tree, view(features, i, :), labels)
+    end
+    reinterpret(reshape, Float64, predictions) |> transpose |> Matrix
+end
 
 function build_forest(
         labels              :: AbstractVector{T},
