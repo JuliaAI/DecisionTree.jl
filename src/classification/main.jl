@@ -41,11 +41,14 @@ function _convert(
     ) where {S, T}
 
     if node.is_leaf
-        return Leaf{T}(list[node.label], labels[node.region])
+        featfreq = Tuple(sum(labels[node.region] .== l) for l in list)
+        return Leaf{T, length(list)}(
+            Tuple(list), argmax(featfreq), featfreq, length(node.region))
     else
         left = _convert(node.l, list, labels)
         right = _convert(node.r, list, labels)
-        return Node{S, T}(node.feature, node.threshold, left, right)
+        return Node{S, T, length(list)}(
+            node.feature, node.threshold, left, right)
     end
 end
 
@@ -233,7 +236,10 @@ function prune_tree(
             if !isempty(fi)
                 update_pruned_impurity!(tree, fi, ntt, loss)
             end
-            return Leaf{T}(majority, all_labels)
+            features = Tuple(unique(all_labels))
+            featfreq = Tuple(sum(all_labels .== f) for f in features)
+            return Leaf{T}(features, argmax(featfreq),
+                           featfreq, length(all_labels))
         else
             return tree
         end
@@ -268,7 +274,7 @@ function prune_tree(
 end
 
 
-apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.majority
+apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.features[leaf.majority]
 apply_tree(
     tree::Root{S, T},
     features::AbstractVector{S}
@@ -314,7 +320,7 @@ of the output matrix.
 apply_tree_proba(tree::Root{S, T}, features::AbstractVector{S}, labels) where {S, T} =
     apply_tree_proba(tree.node, features, labels)
 apply_tree_proba(leaf::Leaf{T}, features::AbstractVector{S}, labels) where {S, T} =
-    compute_probabilities(labels, leaf.values)
+    collect(leaf.values ./ leaf.total)
 
 function apply_tree_proba(
     tree::Node{S, T},

@@ -2,7 +2,10 @@ include("tree.jl")
 
 function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T <: Float64}
     if node.is_leaf
-        return Leaf{T}(node.label, labels[node.region])
+        features = Tuple(unique(labels))
+        featfreq = Tuple(sum(labels[node.region] .== f) for f in features)
+        return Leaf{T, length(features)}(
+            features, argmax(featfreq), featfreq, length(node.region))
     else
         left = _convert(node.l, labels)
         right = _convert(node.r, labels)
