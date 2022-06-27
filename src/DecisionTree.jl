@@ -40,16 +40,16 @@ struct Node{S, T, N}
     right   :: Union{Leaf{T, N}, Node{S, T, N}}
 end
 
-const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
+const LeafOrNode{S, T, N} = Union{Leaf{T, N}, Node{S, T, N}}
 
-struct Root{S, T}
-    node    :: LeafOrNode{S, T}
+struct Root{S, T, N}
+    node    :: LeafOrNode{S, T, N}
     n_feat  :: Int
     featim  :: Vector{Float64}   # impurity importance
 end
 
-struct Ensemble{S, T}
-    trees   :: Vector{LeafOrNode{S, T}}
+struct Ensemble{S, T, N}
+    trees   :: Vector{LeafOrNode{S, T, N}}
     n_feat  :: Int
     featim  :: Vector{Float64}
 end

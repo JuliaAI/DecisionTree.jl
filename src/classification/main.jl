@@ -224,22 +224,19 @@ function prune_tree(
     end
     ntt = nsample(tree)
     function _prune_run_stump(
-        tree::LeafOrNode{S, T},
+        tree::LeafOrNode{S, T, N},
         purity_thresh::Real,
         fi::Vector{Float64} = Float64[]
-    ) where {S, T}
-        all_labels = [tree.left.values; tree.right.values]
-        majority = majority_vote(all_labels)
-        matches = findall(all_labels .== majority)
-        purity = length(matches) / length(all_labels)
+    ) where {S, T, N}
+        combined = tree.left.values .+ tree.right.values
+        total = tree.left.total + tree.right.total
+        majority = argmax(combined)
+        purity = combined[majority] / total
         if purity >= purity_thresh
             if !isempty(fi)
                 update_pruned_impurity!(tree, fi, ntt, loss)
             end
-            features = Tuple(unique(all_labels))
-            featfreq = Tuple(sum(all_labels .== f) for f in features)
-            return Leaf{T}(features, argmax(featfreq),
-                           featfreq, length(all_labels))
+            return Leaf{T, N}(tree.left.features, majority, combined, total)
         else
             return tree
         end
@@ -250,19 +247,20 @@ function prune_tree(
         return Root{S, T}(node, tree.n_feat, fi)
     end
     function _prune_run(
-        tree::LeafOrNode{S, T},
+        tree::LeafOrNode{S, T, N},
         purity_thresh::Real,
         fi::Vector{Float64} = Float64[]
-    ) where {S, T}
-        N = length(tree)
-        if N == 1        ## a Leaf
+    ) where {S, T, N}
+        L = length(tree)
+        if L == 1        ## a Leaf
             return tree
-        elseif N == 2    ## a stump
+        elseif L == 2    ## a stump
             return _prune_run_stump(tree, purity_thresh, fi)
         else
-            left = _prune_run(tree.left, purity_thresh, fi)
-            right = _prune_run(tree.right, purity_thresh, fi)
-            return Node{S, T}(tree.featid, tree.featval, left, right)
+            return Node{S, T, N}(
+                tree.featid, tree.featval,
+                _prune_run(tree.left, purity_thresh),
+                _prune_run(tree.right, purity_thresh))
         end
     end
     pruned = _prune_run(tree, purity_thresh)
