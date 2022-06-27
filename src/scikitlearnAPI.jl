@@ -105,7 +105,7 @@ Decision tree regression. See [DecisionTree.jl's documentation](https://github.c
 
 Hyperparameters:
 
-- `pruning_purity_threshold`: (post-pruning) merge leaves having `>=thresh` combined purity (default: no pruning)
+- `pruning_purity_threshold`: (post-pruning) merge leaves having `>=thresh` combined purity (default: no pruning). This accuracy-based method may noy be reasonable for regression tree.
 - `max_depth`: maximum depth of the decision tree (default: no maximum)
 - `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 5)
 - `min_samples_split`: the minimum number of samples in needed for a split (default: 2)

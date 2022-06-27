@@ -72,6 +72,27 @@ function votes_distribution(labels)
     votes
 end
 
+function update_pruned_impurity!(tree::LeafOrNode{S, T}, feature_importance::Vector{Float64}, ntt::Int, loss::Function = util.entropy) where {S, T}
+    all_labels = [tree.left.values; tree.right.values]
+    nc = votes_distribution(all_labels)
+    nt = length(all_labels)
+    ncl = votes_distribution(tree.left.values)
+    nl = length(tree.left.values)
+    ncr = votes_distribution(tree.right.values)
+    nr = nt - nl
+    feature_importance[tree.featid] -= (nt * loss(nc, nt) - nl * loss(ncl, nl) - nr * loss(ncr, nr)) / ntt
+end
+
+function update_pruned_impurity!(tree::LeafOrNode{S, T}, feature_importance::Vector{Float64}, ntt::Int, loss::Function = mean_squared_error) where {S, T <: Float64}
+    μl = mean(tree.left.values)
+    nl = length(tree.left.values)
+    μr = mean(tree.right.values)
+    nr = length(tree.right.values)
+    nt = nl + nr
+    μt = (nl * μl + nr * μr) / nt 
+    feature_importance[tree.featid] -= (nt * loss([tree.left.values; tree.right.values], repeat([μt], nt)) - nl * loss(tree.left.values, repeat([μl], nl)) - nr * loss(tree.right.values, repeat([μr], nr))) / ntt
+end
+
 ################################################################################
 
 function build_stump(
@@ -144,16 +165,19 @@ function _build_tree(tree::treeclassifier.Tree{S, T}, labels::AbstractVector{T},
 end
 
 """
-    prune_tree(tree::Union{Root, LeafOrNode}, purity_thresh=1.0, loss::Function = util.entropy)
+    prune_tree(tree::Union{Root, LeafOrNode}, purity_thresh=1.0, loss::Function)
 
 Prune tree based on prediction accuracy of each nodes.
 * `purity_thresh`: If prediction accuracy of a stump is larger than this value, the node will be pruned and become a leaf.
-* `loss`: The loss function for computing node impurity. It can be either `util.entropy`, `util.gini` or other measures of impurity depending on the loss function used for building the tree. 
+* `loss`: The loss function for computing node impurity. For classification tree, default function is `util.entropy`; for regression tree, it's `mean_squared_error`. 
+
 Impurity importances will be recalculated by substracting impurity decrease of the pruned node divided by total number of training observations when the tree has `featim` property.
 The calculation of impurity decrease is as same as that described in `impurity_importance` documentation.
 This function will recurse until no stumps can be pruned.
+
+For regression tree, pruning tree based on accuracy may not be a reasonable method.
 """
-function prune_tree(tree::Union{Root{S, T}, LeafOrNode{S, T}}, purity_thresh=1.0, loss::Function = util.entropy) where {S, T}
+function prune_tree(tree::Union{Root{S, T}, LeafOrNode{S, T}}, purity_thresh=1.0, loss::Function = T <: Float64 ? mean_squared_error : util.entropy) where {S, T}
     if purity_thresh >= 1.0
         return tree
     end
@@ -165,16 +189,9 @@ function prune_tree(tree::Union{Root{S, T}, LeafOrNode{S, T}}, purity_thresh=1.0
         purity = length(matches) / length(all_labels)
         if purity >= purity_thresh
             if !isempty(fi)
-                nc = votes_distribution(all_labels)
-                nt = length(all_labels)
-                ncl = votes_distribution(tree.left.values)
-                nl = length(tree.left.values)
-                ncr = votes_distribution(tree.right.values)
-                nr = nt - nl
-                fi[tree.featid] -= (nt * loss(nc, nt) - nl * loss(ncl, nl) - nr * loss(ncr, nr)) / ntt
+                update_pruned_impurity!(tree, fi, ntt, loss)
             end
             return Leaf{T}(majority, all_labels)
-            
         else
             return tree
         end

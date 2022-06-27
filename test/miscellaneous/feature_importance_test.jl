@@ -48,6 +48,15 @@ mse3 = ((1^2 * 2 + 0^2 * 5) / 7 - ((1 * 2 + 0 * 5) / 7)^2) * 7 / 20
 @test isapprox(impurity_importance(model), [mse1 - mse2, mse2 - mse3, mse3])
 @test split_importance(model) == [1, 1, 1]
 
+# prune_tree
+pt = prune_tree(model, 0.7)
+@test isapprox(impurity_importance(pt), [mse1 - mse2, mse2 - mse3, 0])
+@test split_importance(pt) == [1, 1, 0]
+
+pt = prune_tree(model, 0.6)
+@test isapprox(impurity_importance(pt), [mse1 - mse2, 0, 0])
+@test split_importance(pt) == [1, 0, 0]
+
 # Increase samples for testing permutation_importance and ensemble models
 X2 = repeat(X, inner = (50, 1)) .+ rand(StableRNG(1), 1000, 3)
 y2 = repeat(y, inner = 50)
