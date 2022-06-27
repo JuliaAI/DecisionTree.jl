@@ -167,15 +167,16 @@ end
 """
     prune_tree(tree::Union{Root, LeafOrNode}, purity_thresh=1.0, loss::Function)
 
-Prune tree based on prediction accuracy of each nodes.
-* `purity_thresh`: If prediction accuracy of a stump is larger than this value, the node will be pruned and become a leaf.
-* `loss`: The loss function for computing node impurity. For classification tree, default function is `util.entropy`; for regression tree, it's `mean_squared_error`. 
+Prune tree based on prediction accuracy of each node.
+* `purity_thresh`: If the prediction accuracy of a stump is larger than this value, the node will be pruned and become a leaf.
+* `loss`: The loss function for computing node impurity. For classification tree, default function is `util.entropy`; for regression tree, it's `mean_squared_error`. If the tree is not a `Root`, this argument does not affect the result.
 
-Impurity importances will be recalculated by substracting impurity decrease of the pruned node divided by total number of training observations when the tree has `featim` property.
-The calculation of impurity decrease is as same as that described in `impurity_importance` documentation.
+For a tree of type `Root`, when any of its nodes is pruned, the `featim` field will be updated by recomputing the impurity decrease of that node divided by the total number of training observations and subtracting the value.
+The computation of impurity decrease is based on node impurity calculated with the loss function provided as the argument `loss`. The algorithm is as same as that described in the `impurity_importance` documentation.
 This function will recurse until no stumps can be pruned.
 
-For regression tree, pruning tree based on accuracy may not be a reasonable method.
+Warn:
+    For regression trees, pruning trees based on accuracy may not be an appropriate method.
 """
 function prune_tree(tree::Union{Root{S, T}, LeafOrNode{S, T}}, purity_thresh=1.0, loss::Function = T <: Float64 ? mean_squared_error : util.entropy) where {S, T}
     if purity_thresh >= 1.0

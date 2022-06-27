@@ -105,7 +105,7 @@ Decision tree regression. See [DecisionTree.jl's documentation](https://github.c
 
 Hyperparameters:
 
-- `pruning_purity_threshold`: (post-pruning) merge leaves having `>=thresh` combined purity (default: no pruning). This accuracy-based method may noy be reasonable for regression tree.
+- `pruning_purity_threshold`: (post-pruning) merge leaves having `>=thresh` combined purity (default: no pruning). This accuracy-based method may not be appropriate for regression tree.
 - `max_depth`: maximum depth of the decision tree (default: no maximum)
 - `min_samples_leaf`: the minimum number of samples each leaf needs to have (default: 5)
 - `min_samples_split`: the minimum number of samples in needed for a split (default: 2)
@@ -438,6 +438,21 @@ split_importance(trees::T; normalize::Bool = false) where {T <: DecisionTreeEsti
 split_importance(ada::T; normalize::Bool = false) where {T <: AdaBoostStumpClassifier} = 
     split_importance(ada.ensemble, ada.coeffs, normalize = normalize)
 
+"""
+    permutation_importance(
+        trees   :: DecisionTreeEstimator, 
+        X       :: AbstractMatrix,
+        y       :: AbstractVector; 
+        score   :: Function,
+        n_iter  :: Int = 3,
+        rng     =  Random.GLOBAL_RNG
+        )
+
+Calculate feature importance by shuffling each feature. 
+
+The arguments and outputs are similar to `permutation_importance` for generic `DecisionTree`'s object, except that `score` takes the form of `score(model, X, y)` with default function determined by function `score_fn`.
+For `DecisionTreeClassifier`, `RandomForestClassifier` and `AdaBoostStumpClassifier`, the default is `accuracy`; for `DecisionTreeRegressor` and `RandomForestRegressor`, it is `R2`.
+"""
 function permutation_importance(
                         trees   :: T, 
                         X       :: AbstractMatrix,
@@ -447,11 +462,9 @@ function permutation_importance(
                         rng     =  Random.GLOBAL_RNG
                         ) where {T <: DecisionTreeEstimator}
     base = score(trees, X, y)
-    n_feat = size(X, 2)
-    scores = Matrix{Float64}(undef, n_feat, n_iter)
+    scores = Matrix{Float64}(undef, size(X, 2), n_iter)
     rng = mk_rng(rng)::Random.AbstractRNG
-    for i in 1:n_feat
-        col = @view X[:, i]
+    for (i, col) in enumerate(eachcol(X))
         origin = copy(col)
         scores[i, :] = map(1:n_iter) do i
             shuffle!(rng, col)

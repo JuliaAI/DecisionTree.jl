@@ -325,27 +325,28 @@ end
     impurity_importance(forest)
     impurity_importance(adaboost, coeffs)
 
-Return an vector of feature importance calculated by `Mean Decrease in Impurity (MDI)`.
+Return a vector of feature importance calculated by `Mean Decrease in Impurity (MDI)`.
 
 Feature importance is computed as follows:
-* Single tree: For each feature the associated importance is the sum, over all splits based on that feature, of the impurity decreases for that split (the node impurity minus the sum of the child impurities) divided by the total number of training observations. When `normalize` was true, the feature importances were normalized by the sum of feature importances. 
+* Single tree: For each feature, the associated importance is the sum, over all splits based on that feature, of the impurity decreases for that split (the node impurity minus the sum of the child impurities) divided by the total number of training observations. When `normalize` was true, the feature importances were normalized by the sum of feature importances. 
 More explicitly, the impurity decrease for node i is:
 
     Δimpurityᵢ = nᵢ × lossᵢ - nₗ × lossₗ - nᵣ × lossᵣ
 
-where n is number of observations, loss is entropy, gini index or other measures of impurity, index i denotes quantity of node i, index l denotes quantity of left child node, index r denotes quantity of right child node.
+Where n is the number of observations, loss is entropy, gini index or other measures of impurity, index i denotes the quantity of node i, index l denotes the quantity of left child node, and index r denotes the quantity of right child node.
 * Forests: The importance for a given feature is the average over trees in the forest of the **normalized** tree importances for that feature.
-* AdaBoost models: The features importance is as same as `split_importance`.
+* AdaBoost models: The feature importance is as same as `split_importance`.
 
-For forests and adaboost models, feature imortance is normalized before avareging over trees, so keyword arguments `normalize` is useless.
-Whether to normalize or not is controversial, but current implementation is identical to `scikitlearn`'s RandomForestClassifier, RandomForestRegressor and AdaBoostClassifier which is different from feature importances described in G. Louppe, “Understanding Random Forests: From Theory to Practice”, PhD Thesis, U. of Liege, 2014. (https://arxiv.org/abs/1407.7502).
-See this [PR](https://github.com/scikit-learn/scikit-learn/issues/19972) for detailed discussion.
+For forests and adaboost models, feature importance is normalized before averaging over trees, so the keyword argument `normalize` is useless.
+Whether to normalize or not is controversial, but the current implementation is identical to `scikitlearn`'s RandomForestClassifier, RandomForestRegressor, and AdaBoostClassifier, which is different from feature importances described in G. Louppe, “Understanding Random Forests: From Theory to Practice”, PhD Thesis, U. of Liege, 2014. (https://arxiv.org/abs/1407.7502).
+See this [PR](https://github.com/scikit-learn/scikit-learn/issues/19972) for a detailed discussion.
 
 If `impurity_importance` was set false when building the tree, this function returns an empty vector.
 
 Warn:
     The importance might be misleading because MDI is a biased method.
-    See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more dicussion.
+    See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more discussion.
+
 """
 impurity_importance(tree::T; normalize::Bool = false) where {T <: DecisionTree.Root} = 
     (normalize && !isempty(tree.featim)) ? tree.featim ./ sum(tree.featim) : tree.featim
@@ -361,14 +362,14 @@ impurity_importance(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
     split_importance(forest)
     split_importance(adaboost, coeffs)
 
-Return an vector of feature importance based on number of times feature was used in a split.
+Return a vector of feature importance based on the number of times a feature was used in a split.
 
 Feature importance is computed as follows:
-* Single tree: For each feature the associated importance is the number of splits based on that feature.
+* Single tree: For each feature, the associated importance is the number of splits based on that feature.
 * Forests: The importance for a given feature is the average over trees in the forest of the **normalized** tree importances for that feature.
-* AdaBoost models: The importance of each feature is mean number of splits based on that feature across each stumps, that weighted by estimator weights (`coeffs`). 
+* AdaBoost models: The importance of each feature is the mean number of splits based on that feature across each stump, weighted by estimator weights (`coeffs`). 
 
-For forests and adaboost models, feature imortance is normalized before avareging over trees, so keyword arguments `normalize` is useless.
+For forests and adaboost models, feature importance is normalized before averaging over trees, so keyword argument `normalize` is useless.
 """
 function split_importance(tree::T; normalize::Bool = false) where {T <: DecisionTree.Root}
     feature_importance = zeros(Float64, tree.n_feat)
@@ -420,17 +421,18 @@ update_using_split!(feature_importance::Vector{Float64}, node::T) where {T <: De
                             rng     =  Random.GLOBAL_RNG
                             )
 
-Calculate feature importance by shuffling each features.
+Calculate feature importance by shuffling each feature.
 * `trees`: a `DecisionTree.Leaf` object, `DecisionTree.Node` object, `DecisionTree.Root` object, `DecisionTree.Ensemble` object or `Tuple{DecisionTree.Ensemble, AbstractVector}` object (for adaboost moddel)
-* `score`: a function to evaluating model performance with the form of `score(model, X, y)`
+* `score`: a function for evaluating model performance with the form of `score(model, y, X)`
 
 # Return a `NamedTuple`
 * Fields 
 1. `mean`: mean of feature importance of each shuffle
 2. `std`: standard deviation of feature importance of each shuffle
-3. `scores`: scores of each shuffles
+3. `scores`: scores of each shuffle
 
 For algorithm details, please see [Permutation feature importanc](https://scikit-learn.org/stable/modules/permutation_importance.html).
+
 """
 function permutation_importance(
                                 trees   :: U, 
@@ -442,11 +444,9 @@ function permutation_importance(
                                 ) where {S, T, U <: Union{<: Ensemble{S, T}, <: Root{S, T}, <: DecisionTree.LeafOrNode{S, T}, Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}}}
 
     base = score(trees, labels, features)
-    n_feat = size(features, 2)
-    scores = Matrix{Float64}(undef, n_feat, n_iter)
+    scores = Matrix{Float64}(undef, size(features, 2), n_iter)
     rng = mk_rng(rng)::Random.AbstractRNG
-    for i in 1:n_feat
-        col = @view features[:, i]
+    for (i, col) in enumerate(eachcol(features))
         origin = copy(col)
         scores[i, :] = map(1:n_iter) do i
             shuffle!(rng, col)
