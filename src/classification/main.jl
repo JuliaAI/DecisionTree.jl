@@ -281,7 +281,7 @@ function apply_forest(
         end
     else
         for i in 1:N
-            predictions[i] = apply_forest(forest, features[i, :])
+            predictions[i] = apply_forest(forest, @view(features[i, :]))
         end
     end
     return predictions
