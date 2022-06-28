@@ -277,7 +277,7 @@ function apply_forest(
     predictions = Array{T}(undef, N)
     if use_multithreading
         Threads.@threads for i in 1:N
-            predictions[i] = apply_forest(forest, features[i, :])
+            predictions[i] = apply_forest(forest, @view(features[i, :]))
         end
     else
         for i in 1:N
