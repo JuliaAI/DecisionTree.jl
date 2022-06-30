@@ -36,8 +36,12 @@ t = DecisionTree.build_tree(
         n_subfeatures, max_depth,
         min_samples_leaf,
         min_samples_split,
-        min_purity_increase)
+        min_purity_increase,
+        rng=StableRNG(1))
 @test length(t) == 54
+i1 = impurity_importance(t, normalize = true)
+s1 = split_importance(t)
+p1 = permutation_importance(t, Y, X, (model, y, X)->accuracy(y, apply_tree(model, X)), rng=StableRNG(1)).mean
 
 # test that all purity decisions are based on passed-in purity function;
 # if so, this should be same as previous test
@@ -51,8 +55,15 @@ t = DecisionTree.build_tree(
         min_samples_leaf,
         min_samples_split,
         min_purity_increase,
-        loss = entropy1000)
+        loss = entropy1000,
+        rng=StableRNG(1))
 @test length(t) == 54
+i2 = impurity_importance(t, normalize = true)
+s2 = split_importance(t)
+p2 = permutation_importance(t, Y, X, (model, y, X)->accuracy(y, apply_tree(model, X)), rng=StableRNG(1)).mean
+@test isapprox(i2, i1)
+@test s1 == s2
+@test similarity(p2, p1) > 0.9
 
 n_subfeatures       = 3
 n_trees             = 10
