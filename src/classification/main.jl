@@ -49,13 +49,17 @@ function _convert(
     end
 end
 
-function update_using_impurity!(feature_importance::Vector{Float64}, node::treeclassifier.NodeMeta{S}) where S
+function update_using_impurity!(
+    feature_importance::Vector{Float64},
+    node::treeclassifier.NodeMeta{S}
+) where S
     if !node.is_leaf
         update_using_impurity!(feature_importance, node.l)
         update_using_impurity!(feature_importance, node.r)
-        feature_importance[node.feature] += node.node_impurity - node.l.node_impurity - node.r.node_impurity
+        feature_importance[node.feature] +=
+            node.node_impurity - node.l.node_impurity - node.r.node_impurity
     end
-    return 
+    return
 end
 
 nsample(leaf::Leaf) = length(leaf.values)
@@ -72,7 +76,12 @@ function votes_distribution(labels)
     votes
 end
 
-function update_pruned_impurity!(tree::LeafOrNode{S, T}, feature_importance::Vector{Float64}, ntt::Int, loss::Function = util.entropy) where {S, T}
+function update_pruned_impurity!(
+    tree::LeafOrNode{S, T},
+    feature_importance::Vector{Float64},
+    ntt::Int,
+    loss::Function = util.entropy
+) where {S, T}
     all_labels = [tree.left.values; tree.right.values]
     nc = votes_distribution(all_labels)
     nt = length(all_labels)
@@ -80,16 +89,22 @@ function update_pruned_impurity!(tree::LeafOrNode{S, T}, feature_importance::Vec
     nl = length(tree.left.values)
     ncr = votes_distribution(tree.right.values)
     nr = nt - nl
-    feature_importance[tree.featid] -= (nt * loss(nc, nt) - nl * loss(ncl, nl) - nr * loss(ncr, nr)) / ntt
+    feature_importance[tree.featid] -=
+        (nt * loss(nc, nt) - nl * loss(ncl, nl) - nr * loss(ncr, nr)) / ntt
 end
 
-function update_pruned_impurity!(tree::LeafOrNode{S, T}, feature_importance::Vector{Float64}, ntt::Int, loss::Function = mean_squared_error) where {S, T <: Float64}
+function update_pruned_impurity!(
+    tree::LeafOrNode{S, T},
+    feature_importance::Vector{Float64},
+    ntt::Int,
+    loss::Function = mean_squared_error
+) where {S, T <: Float64}
     μl = mean(tree.left.values)
     nl = length(tree.left.values)
     μr = mean(tree.right.values)
     nr = length(tree.right.values)
     nt = nl + nr
-    μt = (nl * μl + nr * μr) / nt 
+    μt = (nl * μl + nr * μr) / nt
     feature_importance[tree.featid] -= (nt * loss([tree.left.values; tree.right.values], repeat([μt], nt)) - nl * loss(tree.left.values, repeat([μl], nl)) - nr * loss(tree.right.values, repeat([μr], nr))) / ntt
 end
 
@@ -153,7 +168,13 @@ function build_tree(
     return _build_tree(t, labels, size(features, 2), size(features, 1), impurity_importance)
 end
 
-function _build_tree(tree::treeclassifier.Tree{S, T}, labels::AbstractVector{T}, n_features, n_samples, impurity_importance::Bool) where {S, T}
+function _build_tree(
+    tree::treeclassifier.Tree{S, T},
+    labels::AbstractVector{T},
+    n_features,
+    n_samples,
+    impurity_importance::Bool
+) where {S, T}
     node = _convert(tree.root, tree.list, labels[tree.labels])
     if !impurity_importance
         return Root{S, T}(node, n_features, Float64[])
@@ -168,22 +189,42 @@ end
     prune_tree(tree::Union{Root, LeafOrNode}, purity_thresh=1.0, loss::Function)
 
 Prune tree based on prediction accuracy of each node.
-* `purity_thresh`: If the prediction accuracy of a stump is larger than this value, the node will be pruned and become a leaf.
-* `loss`: The loss function for computing node impurity. Available function include `DecisionTree.util.entropy`, `DecisionTree.util.gini` and `mean_squared_error`. Defaults are `DecisionTree.util.entropy` and `mean_squared_error` for classification tree and regression tree, respectively. If the tree is not a `Root`, this argument does not affect the result.
 
-For a tree of type `Root`, when any of its nodes is pruned, the `featim` field will be updated by recomputing the impurity decrease of that node divided by the total number of training observations and subtracting the value.
-The computation of impurity decrease is based on node impurity calculated with the loss function provided as the argument `loss`. The algorithm is as same as that described in the `impurity_importance` documentation.
+* `purity_thresh`: If the prediction accuracy of a stump is larger than this value, the node
+  will be pruned and become a leaf.
+
+* `loss`: The loss function for computing node impurity. Available function include
+  `DecisionTree.util.entropy`, `DecisionTree.util.gini` and `mean_squared_error`. Defaults
+  are `DecisionTree.util.entropy` and `mean_squared_error` for classification tree and
+  regression tree, respectively. If the tree is not a `Root`, this argument does not affect
+  the result.
+
+For a tree of type `Root`, when any of its nodes is pruned, the `featim` field will be
+updated by recomputing the impurity decrease of that node divided by the total number of
+training observations and subtracting the value.  The computation of impurity decrease is
+based on node impurity calculated with the loss function provided as the argument
+`loss`. The algorithm is as same as that described in the `impurity_importance`
+documentation.
+
 This function will recurse until no stumps can be pruned.
 
 Warn:
     For regression trees, pruning trees based on accuracy may not be an appropriate method.
 """
-function prune_tree(tree::Union{Root{S, T}, LeafOrNode{S, T}}, purity_thresh=1.0, loss::Function = T <: Float64 ? mean_squared_error : util.entropy) where {S, T}
+function prune_tree(
+    tree::Union{Root{S, T}, LeafOrNode{S, T}},
+    purity_thresh=1.0,
+    loss::Function = T <: Float64 ? mean_squared_error : util.entropy
+) where {S, T}
     if purity_thresh >= 1.0
         return tree
     end
     ntt = nsample(tree)
-    function _prune_run_stump(tree::LeafOrNode{S, T}, purity_thresh::Real, fi::Vector{Float64} = Float64[]) where {S, T}
+    function _prune_run_stump(
+        tree::LeafOrNode{S, T},
+        purity_thresh::Real,
+        fi::Vector{Float64} = Float64[]
+    ) where {S, T}
         all_labels = [tree.left.values; tree.right.values]
         majority = majority_vote(all_labels)
         matches = findall(all_labels .== majority)
@@ -202,7 +243,11 @@ function prune_tree(tree::Union{Root{S, T}, LeafOrNode{S, T}}, purity_thresh=1.0
         node = _prune_run(tree.node, purity_thresh, fi)
         return Root{S, T}(node, tree.n_feat, fi)
     end
-    function _prune_run(tree::LeafOrNode{S, T}, purity_thresh::Real, fi::Vector{Float64} = Float64[]) where {S, T}
+    function _prune_run(
+        tree::LeafOrNode{S, T},
+        purity_thresh::Real,
+        fi::Vector{Float64} = Float64[]
+    ) where {S, T}
         N = length(tree)
         if N == 1        ## a Leaf
             return tree
@@ -224,7 +269,10 @@ end
 
 
 apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.majority
-apply_tree(tree::Root{S, T}, features::AbstractVector{S}) where {S, T} = apply_tree(tree.node, features)
+apply_tree(
+    tree::Root{S, T},
+    features::AbstractVector{S}
+) where {S, T} = apply_tree(tree.node, features)
 
 function apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
     if tree.featid == 0
@@ -236,7 +284,10 @@ function apply_tree(tree::Node{S, T}, features::AbstractVector{S}) where {S, T}
     end
 end
 
-apply_tree(tree::Root{S, T}, features::AbstractMatrix{S}) where {S, T} = apply_tree(tree.node, features)
+apply_tree(
+    tree::Root{S, T},
+    features::AbstractMatrix{S}
+) where {S, T} = apply_tree(tree.node, features)
 function apply_tree(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}) where {S, T}
     N = size(features,1)
     predictions = Array{T}(undef, N)
@@ -250,7 +301,7 @@ function apply_tree(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}) where {
     end
 end
 
-"""    
+"""
     apply_tree_proba(::Root, features, col_labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
@@ -258,14 +309,18 @@ n_labels` matrix of probabilities, each row summing up to 1.
 
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix. 
+of the output matrix.
 """
-apply_tree_proba(tree::Root{S, T}, features::AbstractVector{S}, labels) where {S, T} = 
+apply_tree_proba(tree::Root{S, T}, features::AbstractVector{S}, labels) where {S, T} =
     apply_tree_proba(tree.node, features, labels)
 apply_tree_proba(leaf::Leaf{T}, features::AbstractVector{S}, labels) where {S, T} =
     compute_probabilities(labels, leaf.values)
 
-function apply_tree_proba(tree::Node{S, T}, features::AbstractVector{S}, labels) where {S, T}
+function apply_tree_proba(
+    tree::Node{S, T},
+    features::AbstractVector{S},
+    labels
+) where {S, T}
     if tree.featval === nothing
         return apply_tree_proba(tree.left, features, labels)
     elseif features[tree.featid] < tree.featval
@@ -274,7 +329,7 @@ function apply_tree_proba(tree::Node{S, T}, features::AbstractVector{S}, labels)
         return apply_tree_proba(tree.right, features, labels)
     end
 end
-apply_tree_proba(tree::Root{S, T}, features::AbstractMatrix{S}, labels) where {S, T} = 
+apply_tree_proba(tree::Root{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
     apply_tree_proba(tree.node, features, labels)
 apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
@@ -307,7 +362,9 @@ function build_forest(
     t_samples = length(labels)
     n_samples = floor(Int, partial_sampling * t_samples)
 
-    forest = impurity_importance ? Vector{Root{S, T}}(undef, n_trees) : Vector{LeafOrNode{S, T}}(undef, n_trees)
+    forest = impurity_importance ?
+        Vector{Root{S, T}}(undef, n_trees) :
+        Vector{LeafOrNode{S, T}}(undef, n_trees)
 
     entropy_terms = util.compute_entropy_terms(n_samples)
     loss = (ns, n) -> util.entropy(ns, n, entropy_terms)
@@ -316,8 +373,8 @@ function build_forest(
         Threads.@threads for i in 1:n_trees
             # The Mersenne Twister (Julia's default) is not thread-safe.
             _rng = copy(rng)
-            # Take some elements from the ring to have different states for each tree.
-            # This is the only way given that only a `copy` can be expected to exist for RNGs.
+            # Take some elements from the ring to have different states for each tree.  This
+            # is the only way given that only a `copy` can be expected to exist for RNGs.
             rand(_rng, i)
             inds = rand(_rng, 1:t_samples, n_samples)
             forest[i] = build_tree(
@@ -353,7 +410,7 @@ function build_forest(
 end
 
 function _build_forest(
-        forest              :: Vector{<: Union{Root{S, T}, LeafOrNode{S, T}}}, 
+        forest              :: Vector{<: Union{Root{S, T}, LeafOrNode{S, T}}},
         n_features          ,
         n_trees             ,
         impurity_importance :: Bool) where {S, T}
@@ -401,7 +458,7 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractMatrix{S}) where
     return predictions
 end
 
-"""    
+"""
     apply_forest_proba(forest::Ensemble, features, col_labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
@@ -409,14 +466,22 @@ n_labels` matrix of probabilities, each row summing up to 1.
 
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix. 
+of the output matrix.
 """
-function apply_forest_proba(forest::Ensemble{S, T}, features::AbstractVector{S}, labels) where {S, T}
+function apply_forest_proba(
+    forest::Ensemble{S, T},
+    features::AbstractVector{S},
+    labels
+) where {S, T}
     votes = [apply_tree(tree, features) for tree in forest.trees]
     return compute_probabilities(labels, votes)
 end
 
-apply_forest_proba(forest::Ensemble{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
+apply_forest_proba(
+    forest::Ensemble{S, T},
+    features::AbstractMatrix{S},
+    labels
+) where {S, T} =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
                            features)
 
@@ -434,7 +499,13 @@ function build_adaboost_stumps(
     coeffs = Float64[]
     n_features = size(features, 2)
     for i in 1:n_iterations
-        new_stump = build_stump(labels, features, weights; rng=mk_rng(rng), impurity_importance=false)
+        new_stump = build_stump(
+            labels,
+            features,
+            weights;
+            rng=mk_rng(rng),
+            impurity_importance=false
+        )
         predictions = apply_tree(new_stump, features)
         err = _weighted_error(labels, predictions, weights)
         if err >= thresh # should be better than random guess
@@ -454,9 +525,16 @@ function build_adaboost_stumps(
     return (Ensemble{S, T}(stumps, n_features, Float64[]), coeffs)
 end
 
-apply_adaboost_stumps(trees::Tuple{<: Ensemble{S, T}, AbstractVector{Float64}}, features::AbstractVecOrMat{S}) where {S, T} = apply_adaboost_stumps(trees..., features)
+apply_adaboost_stumps(
+    trees::Tuple{<: Ensemble{S, T}, AbstractVector{Float64}},
+    features::AbstractVecOrMat{S}
+) where {S, T} = apply_adaboost_stumps(trees..., features)
 
-function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64}, features::AbstractVector{S}) where {S, T}
+function apply_adaboost_stumps(
+    stumps::Ensemble{S, T},
+    coeffs::AbstractVector{Float64},
+    features::AbstractVector{S}
+) where {S, T}
     n_stumps = length(stumps)
     counts = Dict()
     for i in 1:n_stumps
@@ -474,7 +552,11 @@ function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Fl
     return top_prediction
 end
 
-function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64}, features::AbstractMatrix{S}) where {S, T}
+function apply_adaboost_stumps(
+    stumps::Ensemble{S, T},
+    coeffs::AbstractVector{Float64},
+    features::AbstractMatrix{S}
+) where {S, T}
     n_samples = size(features, 1)
     predictions = Array{T}(undef, n_samples)
     for i in 1:n_samples
@@ -483,7 +565,7 @@ function apply_adaboost_stumps(stumps::Ensemble{S, T}, coeffs::AbstractVector{Fl
     return predictions
 end
 
-"""    
+"""
     apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features, labels::AbstractVector)
 
 computes P(L=label|X) for each row in `features`. It returns a `N_row x
@@ -491,15 +573,26 @@ n_labels` matrix of probabilities, each row summing up to 1.
 
 `col_labels` is a vector containing the distinct labels
 (eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix. 
+of the output matrix.
 """
-function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
-                                     features::AbstractVector{S}, labels::AbstractVector{T}) where {S, T}
+function apply_adaboost_stumps_proba(
+    stumps::Ensemble{S, T},
+    coeffs::AbstractVector{Float64},
+    features::AbstractVector{S},
+    labels::AbstractVector{T}
+) where {S, T}
     votes = [apply_tree(stump, features) for stump in stumps.trees]
     compute_probabilities(labels, votes, coeffs)
 end
 
-function apply_adaboost_stumps_proba(stumps::Ensemble{S, T}, coeffs::AbstractVector{Float64},
-                                    features::AbstractMatrix{S}, labels::AbstractVector{T}) where {S, T}
-    stack_function_results(row->apply_adaboost_stumps_proba(stumps, coeffs, row, labels), features)
+function apply_adaboost_stumps_proba(
+    stumps::Ensemble{S, T},
+    coeffs::AbstractVector{Float64},
+    features::AbstractMatrix{S},
+    labels::AbstractVector{T}
+) where {S, T}
+    stack_function_results(
+        row->apply_adaboost_stumps_proba(stumps, coeffs, row, labels),
+        features
+    )
 end

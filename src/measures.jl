@@ -328,7 +328,7 @@ end
 Return a vector of feature importance calculated by `Mean Decrease in Impurity (MDI)`.
 
 Feature importance is computed as follows:
-* Single tree: For each feature, the associated importance is the sum, over all splits based on that feature, of the impurity decreases for that split (the node impurity minus the sum of the child impurities) divided by the total number of training observations. When `normalize` was true, the feature importances were normalized by the sum of feature importances. 
+* Single tree: For each feature, the associated importance is the sum, over all splits based on that feature, of the impurity decreases for that split (the node impurity minus the sum of the child impurities) divided by the total number of training observations. When `normalize` was true, the feature importances were normalized by the sum of feature importances.
 More explicitly, the impurity decrease for node i is:
 
     Δimpurityᵢ = nᵢ × lossᵢ - nₗ × lossₗ - nᵣ × lossᵣ
@@ -348,11 +348,11 @@ Warn:
     See [Beware Default Random Forest Importances](https://explained.ai/rf-importance/index.html) for more discussion.
 
 """
-impurity_importance(tree::T; normalize::Bool = false) where {T <: DecisionTree.Root} = 
+impurity_importance(tree::T; normalize::Bool = false) where {T <: DecisionTree.Root} =
     (normalize && !isempty(tree.featim)) ? tree.featim ./ sum(tree.featim) : tree.featim
 
 impurity_importance(forest::T; kwargs...) where {T <: DecisionTree.Ensemble} = forest.featim
-impurity_importance(stumps::T, coeffs::Vector{Float64}; kwargs...) where {T <: DecisionTree.Ensemble} = 
+impurity_importance(stumps::T, coeffs::Vector{Float64}; kwargs...) where {T <: DecisionTree.Ensemble} =
     split_importance(stumps, coeffs)
 impurity_importance(node::T; kwargs...) where {T <: DecisionTree.Node} = Float64[]
 impurity_importance(lf::T; kwargs...) where {T <: DecisionTree.Leaf} = Float64[]
@@ -367,7 +367,7 @@ Return a vector of feature importance based on the number of times a feature was
 Feature importance is computed as follows:
 * Single tree: For each feature, the associated importance is the number of splits based on that feature.
 * Forests: The importance for a given feature is the average over trees in the forest of the **normalized** tree importances for that feature.
-* AdaBoost models: The importance of each feature is the mean number of splits based on that feature across each stump, weighted by estimator weights (`coeffs`). 
+* AdaBoost models: The importance of each feature is the mean number of splits based on that feature across each stump, weighted by estimator weights (`coeffs`).
 
 For forests and adaboost models, feature importance is normalized before averaging over trees, so keyword argument `normalize` is useless.
 """
@@ -413,8 +413,8 @@ update_using_split!(feature_importance::Vector{Float64}, node::T) where {T <: De
 
 """
     permutation_importances(
-                            trees   :: U, 
-                            labels  :: AbstractVector{T}, 
+                            trees   :: U,
+                            labels  :: AbstractVector{T},
                             features:: AbstractVecOrMat{S},
                             score   :: Function,
                             n_iter  :: Int = 3;
@@ -422,11 +422,15 @@ update_using_split!(feature_importance::Vector{Float64}, node::T) where {T <: De
                             )
 
 Calculate feature importance by shuffling each feature.
-* `trees`: a `DecisionTree.Leaf` object, `DecisionTree.Node` object, `DecisionTree.Root` object, `DecisionTree.Ensemble` object or `Tuple{DecisionTree.Ensemble, AbstractVector}` object (for adaboost moddel)
+
+* `trees`: a `DecisionTree.Leaf` object, `DecisionTree.Node` object, `DecisionTree.Root`
+  object, `DecisionTree.Ensemble` object or `Tuple{DecisionTree.Ensemble, AbstractVector}`
+  object (for adaboost model)
 * `score`: a function for evaluating model performance with the form of `score(model, y, X)`
 
 # Return a `NamedTuple`
-* Fields 
+
+* Fields
 1. `mean`: mean of feature importance of each shuffle
 2. `std`: standard deviation of feature importance of each shuffle
 3. `scores`: scores of each shuffle
@@ -435,8 +439,8 @@ For algorithm details, please see [Permutation feature importanc](https://scikit
 
 """
 function permutation_importance(
-                                trees   :: U, 
-                                labels  :: AbstractVector{T}, 
+                                trees   :: U,
+                                labels  :: AbstractVector{T},
                                 features:: AbstractVecOrMat{S},
                                 score   :: Function,
                                 n_iter  :: Int = 3;
@@ -457,9 +461,9 @@ function permutation_importance(
 
     (mean = reshape(mapslices(scores, dims = 2) do im
         mean(im)
-    end, :), 
+    end, :),
     std = reshape(mapslices(scores, dims = 2) do im
         std(im)
-    end, :), 
+    end, :),
     scores = scores)
 end

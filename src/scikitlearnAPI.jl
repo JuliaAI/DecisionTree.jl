@@ -26,7 +26,7 @@ Hyperparameters:
 - `n_subfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
-- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See [`DecisionTree.impurity_importance`](@ref)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -113,7 +113,7 @@ Hyperparameters:
 - `n_subfeatures`: number of features to select at random (default: keep all)
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator.
-- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See [`DecisionTree.impurity_importance`](@ref)
 
 Implements `fit!`, `predict`, `get_classes`
 """
@@ -196,7 +196,7 @@ Hyperparameters:
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
-- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See [`DecisionTree.impurity_importance`](@ref)
 
 Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 """
@@ -284,7 +284,7 @@ Hyperparameters:
 - `min_purity_increase`: minimum purity needed for a split
 - `rng`: the random number generator to use. Can be an `Int`, which will be used
   to seed and create a new random number generator. Multi-threaded forests must be seeded with an `Int`
-- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See `DecisionTree.impurity_importance`
+- `impurity_importance`: whether to calculate feature importances using `Mean Decrease in Impurity (MDI)`. See [`DecisionTree.impurity_importance`](@ref).
 
 Implements `fit!`, `predict`, `get_classes`
 """
