@@ -66,6 +66,7 @@ In the first case `dc` gets just wrapped, no information is added. No. 2 adds fe
 as well as class labels. In the last two cases either of this information is added (Note the 
 trailing comma; it's needed to make it a tuple).
 """
+wrap(tree::DecisionTree.Root, info::NamedTuple = NamedTuple()) = wrap(tree.node, info)
 wrap(node::DecisionTree.Node, info::NamedTuple = NamedTuple()) = InfoNode(node, info)
 wrap(leaf::DecisionTree.Leaf, info::NamedTuple = NamedTuple()) = InfoLeaf(leaf, info)
 

@@ -59,7 +59,6 @@ t = DecisionTree.build_tree(
         min_purity_increase)
 @test length(t) == 103
 
-
 n_subfeatures       = 3
 n_trees             = 10
 partial_sampling    = 0.7

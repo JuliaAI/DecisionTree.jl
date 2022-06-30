@@ -7,8 +7,11 @@ using ScikitLearnBase
 using StableRNGs
 using Statistics
 using Test
+using LinearAlgebra
 
 println("Julia version: ", VERSION)
+
+similarity(a, b) = first(reshape(a, 1, :) * b / norm(a) / norm(b))
 
 function run_tests(list)
     for test in list
@@ -37,7 +40,8 @@ regression =     [
 
 miscellaneous =  [
     "miscellaneous/convert.jl",
-    "miscellaneous/abstract_trees_test.jl"
+    "miscellaneous/abstract_trees_test.jl",
+    "miscellaneous/feature_importance_test.jl",
 #    "miscellaneous/parallel.jl"
 
 ]

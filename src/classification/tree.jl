@@ -11,25 +11,28 @@ module treeclassifier
     export fit
 
     mutable struct NodeMeta{S}
-        l           :: NodeMeta{S}      # right child
-        r           :: NodeMeta{S}      # left child
-        label       :: Int              # most likely label
-        feature     :: Int              # feature used for splitting
-        threshold   :: S                # threshold value
-        is_leaf     :: Bool
-        depth       :: Int
-        region      :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
-        features    :: Vector{Int}      # a list of features not known to be constant
-        split_at    :: Int              # index of samples
+        l               :: NodeMeta{S}      # right child
+        r               :: NodeMeta{S}      # left child
+        label           :: Int              # most likely label
+        feature         :: Int              # feature used for splitting
+        threshold       :: S                # threshold value
+        is_leaf         :: Bool
+        depth           :: Int
+        region          :: UnitRange{Int}   # a slice of the samples used to decide the split of the node
+        features        :: Vector{Int}      # a list of features not known to be constant
+        split_at        :: Int              # index of samples
+        node_impurity   :: Float64
         function NodeMeta{S}(
-                features :: Vector{Int},
-                region   :: UnitRange{Int},
-                depth    :: Int) where S
+                features        :: Vector{Int},
+                region          :: UnitRange{Int},
+                depth           :: Int,
+                node_impurity   :: Float64 = 0.0) where S
             node = new{S}()
             node.depth = depth
             node.region = region
             node.features = features
             node.is_leaf = false
+            node.node_impurity = node_impurity
             node
         end
     end
@@ -74,6 +77,7 @@ module treeclassifier
         end
         nt = sum(nc)
         node.label = argmax(nc)
+        node.node_impurity = nt * purity_function(nc, nt)
         if (min_samples_leaf * 2 >  n_samples
          || min_samples_split    >  n_samples
          || max_depth            <= node.depth
@@ -191,7 +195,7 @@ module treeclassifier
 
         # no splits honor min_samples_leaf
         @inbounds if (unsplittable
-            || (best_purity / nt + purity_function(nc, nt) < min_purity_increase))
+            || (best_purity + node.node_impurity < min_purity_increase * nt))
             node.is_leaf = true
             return
         else
