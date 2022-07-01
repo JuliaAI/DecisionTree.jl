@@ -28,6 +28,8 @@ cm = confusion_matrix(labels, preds)
 print_tree(model)
 probs = apply_tree_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+i1 = impurity_importance(model)
+s1 = split_importance(model)
 
 # prune tree to 8 leaves
 pruning_purity = 0.9
@@ -36,6 +38,10 @@ pt = prune_tree(model, pruning_purity)
 preds = apply_tree(pt, features)
 cm = confusion_matrix(labels, preds)
 @test 0.99 < cm.accuracy < 1.0
+i2 = impurity_importance(pt)
+s2 = split_importance(pt)
+@test isapprox(i2, i1.+ [0, 0, 0, (47*log(47/48) + log(1/48))/150])
+@test s1 == s2 .+ [0, 0, 0, 1]
 
 # prune tree to 3 leaves
 pruning_purity = 0.6
@@ -54,7 +60,6 @@ pt = prune_tree(model, pruning_purity)
 preds = apply_tree(pt, features)
 cm = confusion_matrix(labels, preds)
 @test 0.66 < cm.accuracy < 1.0
-
 
 # run n-fold cross validation for pruned tree
 println("\n##### nfoldCV Classification Tree #####")

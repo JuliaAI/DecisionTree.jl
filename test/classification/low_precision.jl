@@ -62,7 +62,7 @@ max_depth           = Int32(-1)
 min_samples_leaf    = Int32(1)
 min_samples_split   = Int32(2)
 min_purity_increase = 0.0
-accuracy = nfoldCV_tree(
+accuracy1 = nfoldCV_tree(
                 labels, features,
                 n_folds,
                 pruning_purity,
@@ -71,7 +71,7 @@ accuracy = nfoldCV_tree(
                 min_samples_split,
                 min_purity_increase;
                 rng=StableRNG(1))
-@test mean(accuracy) > 0.7
+@test mean(accuracy1) > 0.7
 
 println("\n##### nfoldCV Classification Forest #####")
 n_trees             = Int32(10)
@@ -81,7 +81,7 @@ max_depth           = Int32(-1)
 min_samples_leaf    = Int32(5)
 min_samples_split   = Int32(2)
 min_purity_increase = 0.0
-accuracy = nfoldCV_forest(
+accuracy1 = nfoldCV_forest(
         labels, features,
         n_folds,
         n_subfeatures,
@@ -92,12 +92,12 @@ accuracy = nfoldCV_forest(
         min_samples_split,
         min_purity_increase;
         rng=StableRNG(1))
-@test mean(accuracy) > 0.7
+@test mean(accuracy1) > 0.7
 
 println("\n##### nfoldCV Adaboosted Stumps #####")
 n_iterations        = Int32(25)
-accuracy = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=StableRNG(1))
-@test mean(accuracy) > 0.6
+accuracy1 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=StableRNG(1))
+@test mean(accuracy1) > 0.6
 
 
 # Test Int8 labels, and Float16 features

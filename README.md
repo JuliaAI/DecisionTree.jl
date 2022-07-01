@@ -19,7 +19,7 @@ Available via:
 * pre-pruning (max depth, min leaf size)
 * post-pruning (pessimistic pruning)
 * multi-threaded bagging (random forests)
-* adaptive boosting (decision stumps)
+* adaptive boosting (decision stumps), using [SAMME](https://www.intlpress.com/site/pub/pages/journals/items/sii/content/vols/0002/0003/a008/)
 * cross validation (n-fold)
 * support for ordered features (encoded as `Real`s or `String`s)
 
@@ -92,7 +92,7 @@ apply_tree(model, [5.9,3.0,5.1,1.9])
 # apply model to all the sames
 preds = apply_tree(model, features)
 # generate confusion matrix, along with accuracy and kappa scores
-confusion_matrix(labels, preds)
+DecisionTree.confusion_matrix(labels, preds)
 # get the probability of each label
 apply_tree_proba(model, [5.9,3.0,5.1,1.9], ["Iris-setosa", "Iris-versicolor", "Iris-virginica"])
 # run 3-fold cross validation of pruned tree,
@@ -310,6 +310,13 @@ doc("DecisionTreeClassifier", pkg="DecisionTree")
 Available models are: `AdaBoostStumpClassifier`,
 `DecisionTreeClassifier`, `DecisionTreeRegressor`,
 `RandomForestClassifier`, `RandomForestRegressor`.
+
+
+## Feature Importances
+
+The following methods provide measures of feature importance for all models:
+`impurity_importance`, `split_importance`, `permutation_importance`. Query the document
+strings for details.
 
 
 ## Saving Models

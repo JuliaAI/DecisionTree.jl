@@ -1,5 +1,3 @@
-__precompile__()
-
 module DecisionTree
 
 import Base: length, show, convert, promote_rule, zero
@@ -9,11 +7,11 @@ using Random
 using Statistics
 import AbstractTrees
 
-export Leaf, Node, Ensemble, print_tree, depth, build_stump, build_tree,
+export Leaf, Node, Root, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data
+       load_data, impurity_importance, split_importance, permutation_importance
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
@@ -42,17 +40,32 @@ end
 
 const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
 
-struct Ensemble{S, T}
-    trees :: Vector{LeafOrNode{S, T}}
+struct Root{S, T}
+    node    :: LeafOrNode{S, T}
+    n_feat  :: Int
+    featim  :: Vector{Float64}   # impurity importance
 end
+
+struct Ensemble{S, T}
+    trees   :: Vector{LeafOrNode{S, T}}
+    n_feat  :: Int
+    featim  :: Vector{Float64}
+end
+
 
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
 
-zero(String) = ""
+zero(::Type{String}) = ""
 convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, zero(S), lf, Leaf(zero(T), [zero(T)]))
+convert(::Type{Root{S, T}}, node::LeafOrNode{S, T}) where {S, T} = Root{S, T}(node, 0, Float64[])
+convert(::Type{LeafOrNode{S, T}}, tree::Root{S, T}) where {S, T} = tree.node
 promote_rule(::Type{Node{S, T}}, ::Type{Leaf{T}}) where {S, T} = Node{S, T}
 promote_rule(::Type{Leaf{T}}, ::Type{Node{S, T}}) where {S, T} = Node{S, T}
+promote_rule(::Type{Root{S, T}}, ::Type{Leaf{T}}) where {S, T} = Root{S, T}
+promote_rule(::Type{Leaf{T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
+promote_rule(::Type{Root{S, T}}, ::Type{Node{S, T}}) where {S, T} = Root{S, T}
+promote_rule(::Type{Node{S, T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
@@ -75,10 +88,12 @@ include("abstract_trees.jl")
 
 length(leaf::Leaf) = 1
 length(tree::Node) = length(tree.left) + length(tree.right)
+length(tree::Root) = length(tree.node)
 length(ensemble::Ensemble) = length(ensemble.trees)
 
 depth(leaf::Leaf) = 0
 depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
+depth(tree::Root) = depth(tree.node)
 
 function print_tree(io::IO, leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
     n_matches = count(leaf.values .== leaf.majority)
@@ -89,6 +104,13 @@ function print_tree(leaf::Leaf, depth=-1, indent=0; feature_names=nothing)
     return print_tree(stdout, leaf, depth, indent; feature_names=feature_names)
 end
 
+
+function print_tree(io::IO, tree::Root, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
+    return print_tree(io, tree.node, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
+end
+function print_tree(tree::Root, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
+    return print_tree(stdout, tree, depth, indent; sigdigits=sigdigits, feature_names=feature_names)
+end
 
 """
     print_tree([io::IO,] tree::Node, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
@@ -113,9 +135,9 @@ Feature 3 < -28.15 ?
    └─ 8 : 1227/3508
 ```
 
-To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object or
-`DecisionTree.Node` object can be wrapped to obtain a tree structure implementing the
-AbstractTrees.jl interface. See  [`wrap`](@ref)` for details.
+To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object,
+`DecisionTree.Node` object or  `DecisionTree.Root` object can be wrapped to obtain a tree structure implementing the 
+AbstractTrees.jl interface. See  [`wrap`](@ref)` for details. 
 """
 function print_tree(io::IO, tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
     if depth == indent
@@ -144,6 +166,12 @@ function show(io::IO, leaf::Leaf)
 end
 
 function show(io::IO, tree::Node)
+    println(io, "Decision Tree")
+    println(io, "Leaves: $(length(tree))")
+    print(io,   "Depth:  $(depth(tree))")
+end
+
+function show(io::IO, tree::Root)
     println(io, "Decision Tree")
     println(io, "Leaves: $(length(tree))")
     print(io,   "Depth:  $(depth(tree))")
