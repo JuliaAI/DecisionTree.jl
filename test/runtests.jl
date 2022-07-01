@@ -9,6 +9,9 @@ using Statistics
 using Test
 using LinearAlgebra
 
+import DecisionTree: accuracy, R2, majority_vote, mean_squared_error
+import DecisionTree: confusion_matrix, ConfusionMatrix
+
 println("Julia version: ", VERSION)
 
 similarity(a, b) = first(reshape(a, 1, :) * b / norm(a) / norm(b))

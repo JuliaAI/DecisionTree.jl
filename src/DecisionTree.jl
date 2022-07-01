@@ -1,5 +1,3 @@
-__precompile__()
-
 module DecisionTree
 
 import Base: length, show, convert, promote_rule, zero
@@ -13,8 +11,7 @@ export Leaf, Node, Root, Ensemble, print_tree, depth, build_stump, build_tree,
        prune_tree, apply_tree, apply_tree_proba, nfoldCV_tree, build_forest,
        apply_forest, apply_forest_proba, nfoldCV_forest, build_adaboost_stumps,
        apply_adaboost_stumps, apply_adaboost_stumps_proba, nfoldCV_stumps,
-       majority_vote, ConfusionMatrix, confusion_matrix, mean_squared_error, R2, load_data,
-       impurity_importance, split_importance, permutation_importance, accuracy
+       load_data, impurity_importance, split_importance, permutation_importance
 
 # ScikitLearn API
 export DecisionTreeClassifier, DecisionTreeRegressor, RandomForestClassifier,
