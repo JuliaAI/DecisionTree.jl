@@ -194,10 +194,10 @@ Prune tree based on prediction accuracy of each node.
   will be pruned and become a leaf.
 
 * `loss`: The loss function for computing node impurity. Available function include
-  `DecisionTree.util.entropy`, `DecisionTree.util.gini` and `mean_squared_error`. Defaults
-  are `DecisionTree.util.entropy` and `mean_squared_error` for classification tree and
-  regression tree, respectively. If the tree is not a `Root`, this argument does not affect
-  the result.
+  `DecisionTree.util.entropy`, `DecisionTree.util.gini` and
+  `DecisionTree.mean_squared_error`. Defaults are `entropy` and `mean_squared_error` for
+  classification tree and regression tree, respectively. If the tree is not a `Root`, this
+  argument does not affect the result.
 
 For a tree of type `Root`, when any of its nodes is pruned, the `featim` field will be
 updated by recomputing the impurity decrease of that node divided by the total number of
