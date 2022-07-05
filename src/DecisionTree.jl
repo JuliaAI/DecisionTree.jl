@@ -56,8 +56,9 @@ end
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
 
-zero(::Type{String}) = ""
-convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, zero(S), lf, Leaf(zero(T), [zero(T)]))
+_zero(::Type{String}) = ""
+_zero(x::Any) = zero(x)
+convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, _zero(S), lf, Leaf(_zero(T), [_zero(T)]))
 convert(::Type{Root{S, T}}, node::LeafOrNode{S, T}) where {S, T} = Root{S, T}(node, 0, Float64[])
 convert(::Type{LeafOrNode{S, T}}, tree::Root{S, T}) where {S, T} = tree.node
 promote_rule(::Type{Node{S, T}}, ::Type{Leaf{T}}) where {S, T} = Node{S, T}
