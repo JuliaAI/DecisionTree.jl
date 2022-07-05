@@ -32,4 +32,14 @@ push!(rv, nv[1])
 @test apply_tree(rv[1], [0]) == "A"
 @test apply_tree(rv[2], [0]) == "A"
 
-end # @testset
+end
+
+@testset "convert to text" begin
+    n, m = 10^3, 5;
+    features = rand(StableRNG(1), n, m);
+    weights = rand(StableRNG(1), -1:1, m);
+    labels = features * weights;
+    model = fit!(DecisionTreeRegressor(; rng=StableRNG(1)), features, labels)
+    # Smoke test.
+    print_tree(devnull, model)
+end
