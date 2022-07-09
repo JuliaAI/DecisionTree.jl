@@ -22,6 +22,10 @@ cm = confusion_matrix(labels, preds)
 f1 = impurity_importance(model)
 p1 = permutation_importance(model, labels, features, (model, y, X)->accuracy(y, apply_forest(model, X)), rng=StableRNG(1)).mean
 
+preds_MT = apply_forest(model, features, use_multithreading = true)
+cm_MT = confusion_matrix(labels, preds_MT)
+@test cm_MT.accuracy > 0.9
+
 n_iterations = 15
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));
 preds = apply_adaboost_stumps(model, coeffs, features);
