@@ -45,6 +45,11 @@ preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}
 
+preds_MT = apply_forest(model, features, use_multithreading=true)
+@test R2(labels, preds_MT) > 0.9
+@test typeof(preds_MT) <: Vector{Float64}
+@test sum(abs.(preds .- preds_MT)) < 1.0e-8
+
 println("\n##### nfoldCV Regression Tree #####")
 n_folds             = Int32(3)
 pruning_purity      = 1.0
@@ -98,6 +103,10 @@ preds = apply_tree(model, features)
 model = build_forest(labels, features)
 preds = apply_forest(model, features)
 @test typeof(preds) == Vector{Float16}
+
+preds_MT = apply_forest(model, features, use_multithreading = true)
+@test typeof(preds_MT) == Vector{Float16}
+@test sum(abs.(preds .- preds_MT)) < 1.0e-8
 
 model = build_tree(labels, features)
 preds = apply_tree(model, features)

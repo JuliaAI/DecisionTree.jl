@@ -79,6 +79,10 @@ model = build_forest(
 preds = apply_forest(model, X)
 @test R2(Y, preds) > 0.8
 
+preds_MT = apply_forest(model, X, use_multithreading = true)
+@test R2(Y, preds_MT) > 0.8
+@test sum(abs.(preds .- preds_MT)) < 1e-8
+
 println("\n##### 3 foldCV Regression Tree #####")
 n_folds = 5
 r2 = nfoldCV_tree(Y, X, n_folds; verbose=false);

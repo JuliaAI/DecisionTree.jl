@@ -93,6 +93,11 @@ preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test typeof(preds) <: Vector{Float64}
 
+preds_MT = apply_forest(model, features, use_multithreading = true)
+@test R2(labels, preds_MT) > 0.9
+@test typeof(preds_MT) <: Vector{Float64}
+@test sum(abs.(preds .- preds_MT)) < 1.0e-8
+
 n_subfeatures       = 3
 n_trees             = 9
 partial_sampling    = 0.7
@@ -112,6 +117,10 @@ model = build_forest(
 preds = apply_forest(model, features)
 @test R2(labels, preds) > 0.9
 @test length(model) == n_trees
+
+preds_MT = apply_forest(model, features, use_multithreading = true)
+@test R2(labels, preds_MT) > 0.9
+@test sum(abs.(preds .- preds_MT)) < 1.0e-8
 
 # test n_subfeatures
 n_trees             = 10
