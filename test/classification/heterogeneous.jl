@@ -26,6 +26,10 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 
+preds_MT = apply_forest(model, features, use_multithreading = true)
+cm_MT = confusion_matrix(labels, preds_MT)
+@test cm_MT.accuracy > 0.9
+
 n_subfeatures = 7
 model, coeffs = build_adaboost_stumps(labels, features, n_subfeatures)
 preds = apply_adaboost_stumps(model, coeffs, features)

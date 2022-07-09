@@ -74,6 +74,12 @@ cm = confusion_matrix(labels, preds)
 probs = apply_forest_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
 
+preds_MT = apply_forest(model, features, use_multithreading = true)
+cm_MT = confusion_matrix(labels, preds_MT)
+@test cm_MT.accuracy > 0.95
+@test typeof(preds_MT) == Vector{String}
+@test sum(preds .!= preds_MT) == 0
+
 # run n-fold cross validation for forests
 println("\n##### nfoldCV Classification Forest #####")
 n_subfeatures = 2
