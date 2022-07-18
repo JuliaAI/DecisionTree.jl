@@ -86,6 +86,10 @@ preds = apply_forest(model, X)
 cm = confusion_matrix(Y, preds)
 @test cm.accuracy > 0.95
 
+preds_MT = apply_forest(model, X, use_multithreading = true)
+cm_MT = confusion_matrix(Y, preds_MT)
+@test cm_MT.accuracy > 0.95
+
 n_iterations        = 100
 model, coeffs = DecisionTree.build_adaboost_stumps(
         Y, X,

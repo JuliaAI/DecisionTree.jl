@@ -48,6 +48,11 @@ cm = confusion_matrix(labels, preds)
 @test typeof(preds) == Vector{Int32}
 @test cm.accuracy > 0.9
 
+preds_MT = apply_forest(model, features, use_multithreading = true)
+cm_MT = confusion_matrix(labels, preds_MT)
+@test typeof(preds_MT) == Vector{Int32}
+@test cm_MT.accuracy > 0.9
+
 n_iterations        = Int32(25)
 model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));
 preds = apply_adaboost_stumps(model, coeffs, features);
@@ -115,6 +120,10 @@ preds = apply_tree(model, features)
 model = build_forest(labels, features)
 preds = apply_forest(model, features)
 @test typeof(preds) == Vector{Int8}
+
+preds_MT = apply_forest(model, features, use_multithreading = true)
+@test typeof(preds_MT) == Vector{Int8}
+@test sum(abs.(preds .- preds_MT)) == zero(Int8)
 
 model = build_tree(labels, features)
 preds = apply_tree(model, features)
