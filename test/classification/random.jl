@@ -55,6 +55,12 @@ cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.9
 @test typeof(preds) == Vector{Int}
 
+preds_MT = apply_forest(model, features, use_multithreading = true)
+cm_MT = confusion_matrix(labels, preds_MT)
+@test cm_MT.accuracy > 0.9
+@test typeof(preds_MT) == Vector{Int}
+@test sum(abs.(preds .- preds_MT)) == zero(Int)
+
 n_subfeatures       = 3
 n_trees             = 9
 partial_sampling    = 0.7
@@ -76,6 +82,10 @@ preds = apply_forest(model, features)
 cm = confusion_matrix(labels, preds)
 @test cm.accuracy > 0.6
 @test length(model) == n_trees
+
+preds_MT = apply_forest(model, features, use_multithreading = true)
+cm_MT = confusion_matrix(labels, preds_MT)
+@test cm_MT.accuracy > 0.9
 
 # test n_subfeatures
 n_subfeatures       = 0
