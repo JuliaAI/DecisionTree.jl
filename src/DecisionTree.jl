@@ -62,15 +62,15 @@ is_leaf(n::Node) = false
 
 _zero(::Type{String}) = ""
 _zero(x::Any) = zero(x)
-convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, _zero(S), lf, Leaf(lf.features))
-convert(::Type{Root{S, T}}, node::LeafOrNode{S, T}) where {S, T} = Root{S, T}(node, 0, Float64[])
-convert(::Type{LeafOrNode{S, T}}, tree::Root{S, T}) where {S, T} = tree.node
-promote_rule(::Type{Node{S, T}}, ::Type{Leaf{T}}) where {S, T} = Node{S, T}
-promote_rule(::Type{Leaf{T}}, ::Type{Node{S, T}}) where {S, T} = Node{S, T}
-promote_rule(::Type{Root{S, T}}, ::Type{Leaf{T}}) where {S, T} = Root{S, T}
-promote_rule(::Type{Leaf{T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
-promote_rule(::Type{Root{S, T}}, ::Type{Node{S, T}}) where {S, T} = Root{S, T}
-promote_rule(::Type{Node{S, T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
+convert(::Type{Node{S, T, N}}, lf::Leaf{T, N}) where {S, T, N} = Node(0, _zero(S), lf, Leaf(lf.features))
+convert(::Type{Root{S, T, N}}, node::LeafOrNode{S, T, N}) where {S, T, N} = Root{S, T, N}(node, 0, Float64[])
+convert(::Type{LeafOrNode{S, T, N}}, tree::Root{S, T, N}) where {S, T, N} = tree.node
+promote_rule(::Type{Node{S, T, N}}, ::Type{Leaf{T, N}}) where {S, T, N} = Node{S, T, N}
+promote_rule(::Type{Leaf{T, N}}, ::Type{Node{S, T, N}}) where {S, T, N} = Node{S, T, N}
+promote_rule(::Type{Root{S, T, N}}, ::Type{Leaf{T}}) where {S, T, N} = Root{S, T, N}
+promote_rule(::Type{Leaf{T, N}}, ::Type{Root{S, T, N}}) where {S, T, N} = Root{S, T, N}
+promote_rule(::Type{Root{S, T, N}}, ::Type{Node{S, T, N}}) where {S, T, N} = Root{S, T, N}
+promote_rule(::Type{Node{S, T, N}}, ::Type{Root{S, T, N}}) where {S, T, N} = Root{S, T}
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
