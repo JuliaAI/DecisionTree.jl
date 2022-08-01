@@ -179,12 +179,13 @@ function _build_tree(
     impurity_importance::Bool
 ) where {S, T}
     node = _convert(tree.root, tree.list, labels[tree.labels])
+    n_classes = unique(labels) |> length
     if !impurity_importance
-        return Root{S, T}(node, n_features, Float64[])
+        return Root{S, T, n_classes}(node, n_features, Float64[])
     else
         fi = zeros(Float64, n_features)
         update_using_impurity!(fi, tree.root)
-        return Root{S, T}(node, n_features, fi ./ n_samples)
+        return Root{S, T, n_classes}(node, n_features, fi ./ n_samples)
     end
 end
 
@@ -241,10 +242,10 @@ function prune_tree(
             return tree
         end
     end
-    function _prune_run(tree::Root{S, T}, purity_thresh::Real) where {S, T}
+    function _prune_run(tree::Root{S, T, N}, purity_thresh::Real) where {S, T, N}
         fi = deepcopy(tree.featim) ## recalculate feature importances
         node = _prune_run(tree.node, purity_thresh, fi)
-        return Root{S, T}(node, tree.n_feat, fi)
+        return Root{S, T, N}(node, fi)
     end
     function _prune_run(
         tree::LeafOrNode{S, T, N},
