@@ -27,7 +27,7 @@ export InfoNode, InfoLeaf, wrap
 ########## Types ##########
 
 struct Leaf{T, N}
-    features :: NTuple{N, T}
+    classes :: NTuple{N, T}
     majority :: Int
     values   :: NTuple{N, Int}
     total    :: Int
@@ -54,15 +54,20 @@ struct Ensemble{S, T, N}
     featim  :: Vector{Float64}
 end
 
-Leaf(features::NTuple{T, N}) where {T, N} =
+Leaf(features::NTuple{N, T}) where {T, N} =
     Leaf(features, 0, Tuple(zeros(T, N)), 0)
+Leaf(features::NTuple{N, T}, frequencies::NTuple{N, Int}) where {T, N} =
+    Leaf(features, argmax(frequencies), frequencies, sum(frequencies))
+Leaf(features::Union{<:AbstractVector, <:Tuple},
+     frequencies::Union{<:AbstractVector{Int}, <:Tuple}) =
+    Leaf(Tuple(features), Tuple(frequencies))
 
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
 
 _zero(::Type{String}) = ""
 _zero(x::Any) = zero(x)
-convert(::Type{Node{S, T, N}}, lf::Leaf{T, N}) where {S, T, N} = Node(0, _zero(S), lf, Leaf(lf.features))
+convert(::Type{Node{S, T, N}}, lf::Leaf{T, N}) where {S, T, N} = Node(0, _zero(S), lf, Leaf(lf.classes))
 convert(::Type{Root{S, T, N}}, node::LeafOrNode{S, T, N}) where {S, T, N} = Root{S, T, N}(node, 0, Float64[])
 convert(::Type{LeafOrNode{S, T, N}}, tree::Root{S, T, N}) where {S, T, N} = tree.node
 promote_rule(::Type{Node{S, T, N}}, ::Type{Leaf{T, N}}) where {S, T, N} = Node{S, T, N}
@@ -101,7 +106,7 @@ depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 depth(tree::Root) = depth(tree.node)
 
 function print_tree(io::IO, leaf::Leaf, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
-    println(io, leaf.features[leaf.majority], " : ",
+    println(io, leaf.classes[leaf.majority], " : ",
             leaf.values[leaf.majority], '/', leaf.total)
 end
 function print_tree(leaf::Leaf, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
@@ -165,7 +170,7 @@ end
 
 function show(io::IO, leaf::Leaf)
     println(io, "Decision Leaf")
-    println(io, "Majority: ", leaf.features[leaf.majority])
+    println(io, "Majority: ", leaf.classes[leaf.majority])
     print(io,   "Samples:  ", leaf.total)
 end
 

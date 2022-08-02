@@ -17,9 +17,9 @@ clabel_pattern(clabel)  = "─ " * clabel * " ("      # class labels are embedde
 check_occurence(str_tree, pool, pattern) = count(map(elem -> occursin(pattern(elem), str_tree), pool)) == length(pool)
 
 @info("Test base functionality")    
-l1 = Leaf(1, [1,1,2])
-l2 = Leaf(2, [1,2,2])
-l3 = Leaf(3, [3,3,1])
+l1 = Leaf((1,2,3), 1, (2, 1, 0), 3)
+l2 = Leaf((1,2,3), 2, (1, 2, 0), 3)
+l3 = Leaf((1,2,3), 3, (1, 0, 2), 3)
 n2 = Node(2, 0.5, l2, l3)
 n1 = Node(1, 0.7, l1, n2)
 feature_names = ["firstFt", "secondFt"]

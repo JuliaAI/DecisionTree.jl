@@ -41,9 +41,9 @@ function _convert(
     ) where {S, T}
 
     if node.is_leaf
-        featfreq = Tuple(sum(labels[node.region] .== l) for l in list)
+        classfreq = Tuple(sum(labels[node.region] .== l) for l in list)
         return Leaf{T, length(list)}(
-            Tuple(list), argmax(featfreq), featfreq, length(node.region))
+            Tuple(list), argmax(classfreq), classfreq, length(node.region))
     else
         left = _convert(node.l, list, labels)
         right = _convert(node.r, list, labels)
@@ -117,6 +117,7 @@ function build_stump(
         labels              :: AbstractVector{T},
         features            :: AbstractMatrix{S},
         weights              = nothing;
+        n_classes           :: Int = length(unique(labels)),
         rng                  = Random.GLOBAL_RNG,
         impurity_importance :: Bool = true) where {S, T}
 
@@ -133,7 +134,7 @@ function build_stump(
         min_purity_increase = 0.0;
         rng                 = rng)
 
-    return _build_tree(t, labels, size(features, 2), size(features, 1), impurity_importance)
+    return _build_tree(t, labels, n_classes, size(features, 2), size(features, 1), impurity_importance)
 end
 
 function build_tree(
@@ -144,6 +145,7 @@ function build_tree(
         min_samples_leaf     = 1,
         min_samples_split    = 2,
         min_purity_increase  = 0.0;
+        n_classes           :: Int = length(unique(labels)),
         loss                 = util.entropy :: Function,
         rng                  = Random.GLOBAL_RNG,
         impurity_importance :: Bool = true) where {S, T}
@@ -168,18 +170,18 @@ function build_tree(
         min_purity_increase = Float64(min_purity_increase),
         rng                 = rng)
 
-    return _build_tree(t, labels, size(features, 2), size(features, 1), impurity_importance)
+    return _build_tree(t, labels, n_classes, size(features, 2), size(features, 1), impurity_importance)
 end
 
 function _build_tree(
     tree::treeclassifier.Tree{S, T},
     labels::AbstractVector{T},
+    n_classes::Int,
     n_features,
     n_samples,
     impurity_importance::Bool
 ) where {S, T}
     node = _convert(tree.root, tree.list, labels[tree.labels])
-    n_classes = unique(labels) |> length
     if !impurity_importance
         return Root{S, T, n_classes}(node, n_features, Float64[])
     else
@@ -237,7 +239,7 @@ function prune_tree(
             if !isempty(fi)
                 update_pruned_impurity!(tree, fi, ntt, loss)
             end
-            return Leaf{T, N}(tree.left.features, majority, combined, total)
+            return Leaf{T, N}(tree.left.classes, majority, combined, total)
         else
             return tree
         end
@@ -245,7 +247,7 @@ function prune_tree(
     function _prune_run(tree::Root{S, T, N}, purity_thresh::Real) where {S, T, N}
         fi = deepcopy(tree.featim) ## recalculate feature importances
         node = _prune_run(tree.node, purity_thresh, fi)
-        return Root{S, T, N}(node, fi)
+        return Root{S, T, N}(node, tree.n_feat, fi)
     end
     function _prune_run(
         tree::LeafOrNode{S, T, N},
@@ -273,7 +275,7 @@ function prune_tree(
 end
 
 
-apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.features[leaf.majority]
+apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.classes[leaf.majority]
 apply_tree(
     tree::Root{S, T},
     features::AbstractVector{S}
@@ -369,10 +371,11 @@ function build_forest(
 
     t_samples = length(labels)
     n_samples = floor(Int, partial_sampling * t_samples)
+    n_classes = length(unique(labels))
 
     forest = impurity_importance ?
-        Vector{Root{S, T}}(undef, n_trees) :
-        Vector{LeafOrNode{S, T}}(undef, n_trees)
+        Vector{Root{S, T, n_classes}}(undef, n_trees) :
+        Vector{LeafOrNode{S, T, n_classes}}(undef, n_trees)
 
     entropy_terms = util.compute_entropy_terms(n_samples)
     loss = (ns, n) -> util.entropy(ns, n, entropy_terms)
@@ -390,7 +393,8 @@ function build_forest(
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
-                min_purity_increase,
+                min_purity_increase;
+                n_classes,
                 loss = loss,
                 rng = _rng,
                 impurity_importance = impurity_importance)
@@ -406,7 +410,8 @@ function build_forest(
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
-                min_purity_increase,
+                min_purity_increase;
+                n_classes,
                 loss = loss,
                 impurity_importance = impurity_importance)
         end
@@ -416,13 +421,13 @@ function build_forest(
 end
 
 function _build_forest(
-        forest              :: Vector{<: Union{Root{S, T}, LeafOrNode{S, T}}},
+        forest              :: Vector{<: Union{Root{S, T, N}, LeafOrNode{S, T, N}}},
         n_features          ,
         n_trees             ,
-        impurity_importance :: Bool) where {S, T}
+        impurity_importance :: Bool) where {S, T, N}
 
     if !impurity_importance
-        return Ensemble{S, T}(forest, n_features, Float64[])
+        return Ensemble{S, T, N}(forest, n_features, Float64[])
     else
         fi = zeros(Float64, n_features)
         for tree in forest
@@ -432,12 +437,12 @@ function _build_forest(
             end
         end
 
-        forest_new = Vector{LeafOrNode{S, T}}(undef, n_trees)
+        forest_new = Vector{LeafOrNode{S, T, N}}(undef, n_trees)
         Threads.@threads for i in 1:n_trees
             forest_new[i] = forest[i].node
         end
 
-        return Ensemble{S, T}(forest_new, n_features, fi ./ n_trees)
+        return Ensemble{S, T, N}(forest_new, n_features, fi ./ n_trees)
     end
 end
 
@@ -514,11 +519,13 @@ function build_adaboost_stumps(
     stumps = Node{S, T}[]
     coeffs = Float64[]
     n_features = size(features, 2)
+    n_classes = length(unique(labels))
     for i in 1:n_iterations
         new_stump = build_stump(
             labels,
             features,
             weights;
+            n_classes,
             rng=mk_rng(rng),
             impurity_importance=false
         )
@@ -538,7 +545,7 @@ function build_adaboost_stumps(
             break
         end
     end
-    return (Ensemble{S, T}(stumps, n_features, Float64[]), coeffs)
+    return (Ensemble{S, T, n_classes}(stumps, n_features, Float64[]), coeffs)
 end
 
 apply_adaboost_stumps(
