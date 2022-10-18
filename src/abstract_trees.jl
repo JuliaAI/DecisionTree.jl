@@ -15,6 +15,8 @@ in "Towards Data Science":
 ["If things are not ready to use"](https://towardsdatascience.com/part-iii-if-things-are-not-ready-to-use-59d2db378bec)
 """
 
+using AbstractNode      # temporary workaround until this type is available via `AbstractTrees.jl`
+
 
 """
     InfoNode{S, T}
@@ -30,12 +32,12 @@ In analogy to the type definitions of `DecisionTree`, the generic type `S` is
 the type of the feature values used within a node as a threshold for the splits
 between its children and `T` is the type of the classes given (these might be ids or labels).
 """
-struct InfoNode{S, T}
+struct InfoNode{S, T} <: AbstractNode
     node    :: DecisionTree.Node{S, T}
     info    :: NamedTuple
 end
 
-struct InfoLeaf{T}
+struct InfoLeaf{T} <: AbstractNode
     leaf    :: DecisionTree.Leaf{T}
     info    :: NamedTuple
 end
