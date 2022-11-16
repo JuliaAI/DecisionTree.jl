@@ -3,3 +3,4 @@ styleguide.txt
 makefile
 .DS_Store
 Manifest.toml
+.vscode
