@@ -364,9 +364,12 @@ BibTeX entry:
                   Poom Chiarawongse and
                   Kevin Squire and
                   Daniel C. Jones and
+                  Andreas Noack and
                   Cédric St-Jean and
                   Rik Huijzer and
+                  Roland Schätzle and
                   Ian Butterworth and
+                  Yu-Fong Peng and
                   Anthony Blaom},
   title        = {{DecisionTree.jl - A Julia implementation of the 
                    CART Decision Tree and Random Forest algorithms}},
