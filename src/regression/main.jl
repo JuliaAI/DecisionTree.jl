@@ -95,12 +95,10 @@ function build_forest(
     forest = impurity_importance ? Vector{Root{S, T}}(undef, n_trees) : Vector{LeafOrNode{S, T}}(undef, n_trees)
 
     if rng isa Random.AbstractRNG
+        shared_seed = rand(rng, UInt)
         Threads.@threads for i in 1:n_trees
             # The Mersenne Twister (Julia's default) is not thread-safe.
-            _rng = copy(rng)
-            # Take some elements from the ring to have different states for each tree.
-            # This is the only way given that only a `copy` can be expected to exist for RNGs.
-            rand(_rng, i)
+            _rng = Random.seed!(copy(rng), shared_seed + i)
             inds = rand(_rng, 1:t_samples, n_samples)
             forest[i] = build_tree(
                 labels[inds],
