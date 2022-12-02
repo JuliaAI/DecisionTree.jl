@@ -1,12 +1,15 @@
 include("tree.jl")
 
 function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S, T <: Float64}
+    classes = Tuple(unique(labels))
     if node.is_leaf
-        return Leaf{T}(node.label, labels[node.region])
+        classfreq = Tuple(sum(labels[node.region] .== f) for f in classes)
+        return Leaf{T, length(classes)}(
+            classes, argmax(classfreq), classfreq, length(node.region))
     else
         left = _convert(node.l, labels)
         right = _convert(node.r, labels)
-        return Node{S, T}(node.feature, node.threshold, left, right)
+        return Node{S, T, length(classes)}(node.feature, node.threshold, left, right)
     end
 end
 
@@ -31,6 +34,7 @@ function build_tree(
         min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
+        n_classes           :: Int = length(unique(labels)),
         rng                 = Random.GLOBAL_RNG,
         impurity_importance:: Bool = true) where {S, T <: Float64}
 
@@ -56,11 +60,11 @@ function build_tree(
     node = _convert(t.root, labels[t.labels])
     n_features = size(features, 2)
     if !impurity_importance
-        return Root{S, T}(node, n_features, Float64[])
+        return Root{S, T, n_classes}(node, n_features, Float64[])
     else
         fi = zeros(Float64, n_features)
         update_using_impurity!(fi, t.root)
-        return Root{S, T}(node, n_features, fi ./ size(features, 1))
+        return Root{S, T, n_classes}(node, n_features, fi ./ size(features, 1))
     end
 end
 
@@ -74,6 +78,7 @@ function build_forest(
         min_samples_leaf    = 5,
         min_samples_split   = 2,
         min_purity_increase = 0.0;
+        n_classes           :: Int = length(unique(labels)),
         rng::Union{Integer,AbstractRNG} = Random.GLOBAL_RNG,
         impurity_importance :: Bool = true) where {S, T <: Float64}
 
@@ -107,7 +112,8 @@ function build_forest(
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
-                min_purity_increase,
+                min_purity_increase;
+                n_classes,
                 rng = _rng,
                 impurity_importance = impurity_importance)
         end
@@ -122,7 +128,8 @@ function build_forest(
                 max_depth,
                 min_samples_leaf,
                 min_samples_split,
-                min_purity_increase,
+                min_purity_increase;
+                n_classes,
                 impurity_importance = impurity_importance)
         end
     end

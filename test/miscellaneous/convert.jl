@@ -2,7 +2,7 @@
 
 @testset "convert.jl" begin
 
-lf = Leaf(1, [1])
+lf = Leaf([1], [1])
 nv = Node{Int, Int}[]
 rv = Root{Int, Int}[]
 push!(nv, lf)
@@ -22,7 +22,7 @@ push!(rv, nv[1])
 @test apply_tree(rv[1], [0]) == 1.0
 @test apply_tree(rv[2], [0]) == 1.0
 
-lf = Leaf("A", ["B", "A"])
+lf = Leaf(["A", "B"], [2, 1])
 nv = Node{Int, String}[]
 rv = Root{Int, String}[]
 push!(nv, lf)

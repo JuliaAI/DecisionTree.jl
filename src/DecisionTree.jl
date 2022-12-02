@@ -26,47 +26,56 @@ export InfoNode, InfoLeaf, wrap
 ###########################
 ########## Types ##########
 
-struct Leaf{T}
-    majority :: T
-    values   :: Vector{T}
+struct Leaf{T, N}
+    classes :: NTuple{N, T}
+    majority :: Int
+    values   :: NTuple{N, Int}
+    total    :: Int
 end
 
-struct Node{S, T}
+struct Node{S, T, N}
     featid  :: Int
     featval :: S
-    left    :: Union{Leaf{T}, Node{S, T}}
-    right   :: Union{Leaf{T}, Node{S, T}}
+    left    :: Union{Leaf{T, N}, Node{S, T, N}}
+    right   :: Union{Leaf{T, N}, Node{S, T, N}}
 end
 
-const LeafOrNode{S, T} = Union{Leaf{T}, Node{S, T}}
+const LeafOrNode{S, T, N} = Union{Leaf{T, N}, Node{S, T, N}}
 
-struct Root{S, T}
-    node    :: LeafOrNode{S, T}
+struct Root{S, T, N}
+    node    :: LeafOrNode{S, T, N}
     n_feat  :: Int
     featim  :: Vector{Float64}   # impurity importance
 end
 
-struct Ensemble{S, T}
-    trees   :: Vector{LeafOrNode{S, T}}
+struct Ensemble{S, T, N}
+    trees   :: Vector{LeafOrNode{S, T, N}}
     n_feat  :: Int
     featim  :: Vector{Float64}
 end
 
+Leaf(features::NTuple{N, T}) where {T, N} =
+    Leaf(features, 0, Tuple(zeros(T, N)), 0)
+Leaf(features::NTuple{N, T}, frequencies::NTuple{N, Int}) where {T, N} =
+    Leaf(features, argmax(frequencies), frequencies, sum(frequencies))
+Leaf(features::Union{<:AbstractVector, <:Tuple},
+     frequencies::Union{<:AbstractVector{Int}, <:Tuple}) =
+    Leaf(Tuple(features), Tuple(frequencies))
 
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
 
 _zero(::Type{String}) = ""
 _zero(x::Any) = zero(x)
-convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, _zero(S), lf, Leaf(_zero(T), [_zero(T)]))
-convert(::Type{Root{S, T}}, node::LeafOrNode{S, T}) where {S, T} = Root{S, T}(node, 0, Float64[])
-convert(::Type{LeafOrNode{S, T}}, tree::Root{S, T}) where {S, T} = tree.node
-promote_rule(::Type{Node{S, T}}, ::Type{Leaf{T}}) where {S, T} = Node{S, T}
-promote_rule(::Type{Leaf{T}}, ::Type{Node{S, T}}) where {S, T} = Node{S, T}
-promote_rule(::Type{Root{S, T}}, ::Type{Leaf{T}}) where {S, T} = Root{S, T}
-promote_rule(::Type{Leaf{T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
-promote_rule(::Type{Root{S, T}}, ::Type{Node{S, T}}) where {S, T} = Root{S, T}
-promote_rule(::Type{Node{S, T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
+convert(::Type{Node{S, T, N}}, lf::Leaf{T, N}) where {S, T, N} = Node(0, _zero(S), lf, Leaf(lf.classes))
+convert(::Type{Root{S, T, N}}, node::LeafOrNode{S, T, N}) where {S, T, N} = Root{S, T, N}(node, 0, Float64[])
+convert(::Type{LeafOrNode{S, T, N}}, tree::Root{S, T, N}) where {S, T, N} = tree.node
+promote_rule(::Type{Node{S, T, N}}, ::Type{Leaf{T, N}}) where {S, T, N} = Node{S, T, N}
+promote_rule(::Type{Leaf{T, N}}, ::Type{Node{S, T, N}}) where {S, T, N} = Node{S, T, N}
+promote_rule(::Type{Root{S, T, N}}, ::Type{Leaf{T}}) where {S, T, N} = Root{S, T, N}
+promote_rule(::Type{Leaf{T, N}}, ::Type{Root{S, T, N}}) where {S, T, N} = Root{S, T, N}
+promote_rule(::Type{Root{S, T, N}}, ::Type{Node{S, T, N}}) where {S, T, N} = Root{S, T, N}
+promote_rule(::Type{Node{S, T, N}}, ::Type{Root{S, T, N}}) where {S, T, N} = Root{S, T}
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
@@ -97,9 +106,8 @@ depth(tree::Node) = 1 + max(depth(tree.left), depth(tree.right))
 depth(tree::Root) = depth(tree.node)
 
 function print_tree(io::IO, leaf::Leaf, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
-    n_matches = count(leaf.values .== leaf.majority)
-    ratio = string(n_matches, "/", length(leaf.values))
-    println(io, "$(leaf.majority) : $(ratio)")
+    println(io, leaf.classes[leaf.majority], " : ",
+            leaf.values[leaf.majority], '/', leaf.total)
 end
 function print_tree(leaf::Leaf, depth=-1, indent=0; sigdigits=4, feature_names=nothing)
     return print_tree(stdout, leaf, depth, indent; sigdigits, feature_names)
@@ -162,8 +170,8 @@ end
 
 function show(io::IO, leaf::Leaf)
     println(io, "Decision Leaf")
-    println(io, "Majority: $(leaf.majority)")
-    print(io,   "Samples:  $(length(leaf.values))")
+    println(io, "Majority: ", leaf.classes[leaf.majority])
+    print(io,   "Samples:  ", leaf.total)
 end
 
 function show(io::IO, tree::Node)
