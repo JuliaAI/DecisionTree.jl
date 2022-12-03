@@ -108,16 +108,19 @@ For the condition of the form `feature < value` which gets printed in the `print
 variant for `InfoNode`, the left subtree is the 'yes-branch' and the right subtree
 accordingly the 'no-branch'. `AbstractTrees.print_tree` outputs the left subtree first
 and then below the right subtree.
+
+`value` gets rounded to `sigdigits` significant digits.
 """
-function AbstractTrees.printnode(io::IO, node::InfoNode)
+function AbstractTrees.printnode(io::IO, node::InfoNode; sigdigits=4)
+    featval = round(node.node.featval; sigdigits)
     if :featurenames ∈ keys(node.info) 
-        print(io, node.info.featurenames[node.node.featid], " < ", node.node.featval)
+        print(io, node.info.featurenames[node.node.featid], " < ", featval)
     else
-	    print(io, "Feature: ", node.node.featid, " < ", node.node.featval)
+	    print(io, "Feature: ", node.node.featid, " < ", featval)
     end
 end
 
-function AbstractTrees.printnode(io::IO, leaf::InfoLeaf)
+function AbstractTrees.printnode(io::IO, leaf::InfoLeaf; sigdigits=4)
     dt_leaf = leaf.leaf
     matches     = findall(dt_leaf.values .== dt_leaf.majority)
 	match_count = length(matches)
