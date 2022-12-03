@@ -133,6 +133,7 @@ function AbstractTrees.printnode(io::IO, leaf::InfoLeaf; sigdigits=4)
         @assert typeof(dt_leaf.majority) <: Integer "classes must be represented as Integers"
         print(io, leaf.info.classlabels[dt_leaf.majority], " ($match_count/$val_count)")
     else
-	    print(io, "Class: ", dt_leaf.majority, " ($match_count/$val_count)")
+	    print(io, typeof(dt_leaf.majority) <: Integer ? "Class: " : "", 
+            dt_leaf.majority, " ($match_count/$val_count)")
     end
 end
