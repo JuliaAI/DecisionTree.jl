@@ -28,6 +28,10 @@ apart from the two points mentioned.
 In analogy to the type definitions of `DecisionTree`, the generic type `S` is 
 the type of the feature values used within a node as a threshold for the splits
 between its children and `T` is the type of the classes given (these might be ids or labels).
+
+Please note: You may only add lacking class labels. It's not possible to overwrite  
+existing labels with this mechanism. In case you want add class labels, 
+the generic type `T` must be a subtype of `Integer`.
 """
 struct InfoNode{S, T} <: AbstractTrees.AbstractNode{DecisionTree.Node{S,T}}
     node    :: DecisionTree.Node{S, T}
@@ -126,6 +130,7 @@ function AbstractTrees.printnode(io::IO, leaf::InfoLeaf; sigdigits=4)
 	match_count = length(matches)
 	val_count   = length(dt_leaf.values)
     if :classlabels ∈ keys(leaf.info)
+        @assert typeof(dt_leaf.majority) <: Integer "classes must be represented as Integers"
         print(io, leaf.info.classlabels[dt_leaf.majority], " ($match_count/$val_count)")
     else
 	    print(io, "Class: ", dt_leaf.majority, " ($match_count/$val_count)")
