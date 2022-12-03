@@ -29,9 +29,10 @@ In analogy to the type definitions of `DecisionTree`, the generic type `S` is
 the type of the feature values used within a node as a threshold for the splits
 between its children and `T` is the type of the classes given (these might be ids or labels).
 
-Please note: You may only add lacking class labels. It's not possible to overwrite  
-existing labels with this mechanism. In case you want add class labels, 
-the generic type `T` must be a subtype of `Integer`.
+    !!! note
+    You may only add lacking class labels. It's not possible to overwrite existing labels
+    with this mechanism. In case you want add class labels, the generic type `T` must 
+    be a subtype of `Integer`.
 """
 struct InfoNode{S, T} <: AbstractTrees.AbstractNode{DecisionTree.Node{S,T}}
     node    :: DecisionTree.Node{S, T}
