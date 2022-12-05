@@ -94,8 +94,8 @@ AbstractTrees.children(node::InfoNode) = (
 AbstractTrees.children(node::InfoLeaf) = ()
 
 """
-    printnode(io::IO, node::InfoNode)
-    printnode(io::IO, leaf::InfoLeaf)
+    printnode(io::IO, node::InfoNode; sigdigits=4)
+    printnode(io::IO, leaf::InfoLeaf; sigdigits=4)
 
 Write a printable representation of `node` or `leaf` to output-stream `io`.
 
