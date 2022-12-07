@@ -82,3 +82,22 @@ traverse_tree(leaf::InfoLeaf) = nothing
 
 traverse_tree(wrapped_tree)
 end
+
+@testset "abstract_trees - test misuse" begin
+
+    @info("Test misuse of `classlabel` information") 
+
+    @info("Create test data - a decision tree based on the iris data set") 
+    features, labels = load_data("iris") 
+    features = float.(features)
+    labels   = string.(labels)
+    model = DecisionTreeClassifier()
+    fit!(model, features, labels)    
+
+    @info("Try to replace the exisitng class labels")
+    class_labels = unique(labels)
+    dtree = model.root.node
+    wt = DecisionTree.wrap(dtree, (classlabels = class_labels,))
+    @test_throws AssertionError AbstractTrees.print_tree(wt)
+
+end
