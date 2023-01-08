@@ -3,10 +3,12 @@ on:
   pull_request:
     branches:
       - master
+      - master-0.11.3
       - dev
   push:
     branches:
       - master
+      - master-0.11.3
       - dev
     tags: '*'
 jobs:
