@@ -268,6 +268,7 @@ function prune_tree(
 end
 
 
+
 apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.majority
 apply_tree(
     tree::Root{S, T},
@@ -447,6 +448,15 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where
     end
 end
 
+"""
+    apply_forest(forest::Ensemble, features::AbstractMatrix; use_multithreading=false)
+
+Apply learned model `forest` to `features`.
+
+# Keywords 
+
+- `use_multithreading::Bool`: `true` to use multiple cores, if available. `false` by default.
+"""
 function apply_forest(
         forest::Ensemble{S, T},
         features::AbstractMatrix{S};
