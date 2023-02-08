@@ -436,7 +436,7 @@ n_subfeatures=2
 accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
 ```
 
-See also [`build_tree`](@ref), [`apply_forest`](@ref), [`apply_forest_proba`],
+See also [`build_tree`](@ref), [`apply_forest`](@ref), [`apply_forest_proba`](@ref),
 [`impurity_importance`](@ref), [`split_importance`](@ref),
 [`permutation_importance`](@ref), [`nfoldCV_forest`](@ref).
 
