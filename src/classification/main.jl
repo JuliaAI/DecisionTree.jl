@@ -409,13 +409,13 @@ function build_forest(
 end
 
 function _build_forest(
-        forest              :: Vector{<: Union{Root{S, T}, LeafOrNode{S, T}}},
+        forest              :: Vector{<:Union{Root{S,T},LeafOrNode{S,T}}},
         n_features          ,
         n_trees             ,
-        impurity_importance :: Bool) where {S, T}
+        impurity_importance :: Bool) where {S,T}
 
-    if !impurity_importance
-        return Ensemble{S, T}(forest, n_features, Float64[])
+    normalized_importance = if !impurity_importance
+        Float64[]
     else
         fi = zeros(Float64, n_features)
         for tree in forest
@@ -424,14 +424,13 @@ function _build_forest(
                 fi .+= ti
             end
         end
-
-        forest_new = Vector{LeafOrNode{S, T}}(undef, n_trees)
-        Threads.@threads for i in 1:n_trees
-            forest_new[i] = forest[i].node
-        end
-
-        return Ensemble{S, T}(forest_new, n_features, fi ./ n_trees)
+        fi ./ n_trees
     end
+
+    # The `convert` method in src/DecisionTrees.jl for `LeafOrNode` <- `Root` ensures the
+    # following constructor works when `forest` has `Root` element type, instead of
+    # required `LeafOrNode` element type. It won't work if we drop `{S,T}`.
+    return Ensemble{S,T}(forest, n_features, normalized_importance)
 end
 
 function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where {S, T}
@@ -453,7 +452,7 @@ end
 
 Apply learned model `forest` to `features`.
 
-# Keywords 
+# Keywords
 
 - `use_multithreading::Bool`: `true` to use multiple cores, if available. `false` by default.
 """
