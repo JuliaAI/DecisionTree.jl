@@ -116,7 +116,6 @@ end
 
 Base.getindex(ensemble::DecisionTree.Ensemble, I) =
     DecisionTree.Ensemble(ensemble.trees[I], ensemble.n_feat, ensemble.featim)
-Base.length(ensemble::Ensemble) = length(ensemble.trees)
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
