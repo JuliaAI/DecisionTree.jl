@@ -52,7 +52,6 @@ struct Ensemble{S, T}
     featim  :: Vector{Float64}
 end
 
-
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
 
@@ -70,6 +69,8 @@ promote_rule(::Type{Leaf{T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Root{S, T}}, ::Type{Node{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Node{S, T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 
+const DOC_ENSEMBLE =
+    "`DecisionTree.Ensemble` objects are returned by, for example, `build_forest`."
 const ERR_ENSEMBLE_VCAT = DimensionMismatch(
     "Ensembles that record feature impurity importances cannot be combined when "*
         "they were generated using differing numbers of features. "
@@ -78,11 +79,18 @@ const ERR_ENSEMBLE_VCAT = DimensionMismatch(
 """
     DecisionTree.has_impurity_importance(ensemble::Ensemble)
 
-Returns `true` if `ensemble` stores impurity importances. `DecisionTree.Ensemble` objects
-are returned by, for example, `build_forest`.
+Returns `true` if `ensemble` stores impurity importances. $DOC_ENSEMBLE
 
 """
 has_impurity_importance(e::Ensemble) = !isempty(e.featim)
+
+"""
+    DecisionTree.n_features(ensemble::Ensemble)
+
+Return the number of features on which `ensemble` was trained. $DOC_ENSEMBLE
+
+"""
+n_features(ensemble::Ensemble) = ensemble.n_feat
 
 """
     vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T})
@@ -105,6 +113,10 @@ function Base.vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T}) where {S,T}
     end
     Ensemble{S,T}(trees, e2.n_feat, featim)
 end
+
+Base.getindex(ensemble::DecisionTree.Ensemble, I) =
+    DecisionTree.Ensemble(ensemble.trees[I], ensemble.n_feat, ensemble.featim)
+Base.length(ensemble::Ensemble) = length(ensemble.trees)
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng

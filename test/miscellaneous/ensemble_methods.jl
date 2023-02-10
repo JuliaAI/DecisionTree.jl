@@ -2,9 +2,12 @@
     features, labels = load_data("iris")
 
     # combining identical ensembles:
-    ensemble1 = build_forest(labels, features, 2, 4)
-    ensemble = vcat(ensemble1, ensemble1)
+    ensemble1 = build_forest(labels, features, 2, 7)
     @test DecisionTree.has_impurity_importance(ensemble1)
+    @test ensemble1[1:2].trees == ensemble1.trees[1:2]
+    @test length(ensemble1) == 7
+    @test DecisionTree.n_features(ensemble1) == 4
+    ensemble = vcat(ensemble1, ensemble1)
     @test ensemble.featim ≈ ensemble1.featim
 
     # combining heterogeneous ensembles:
@@ -28,3 +31,4 @@
     @test_logs vcat(ensemble3, ensemble4) # ensemble 3 doesn't support importances
     @test_throws DecisionTree.ERR_ENSEMBLE_VCAT vcat(ensemble1, ensemble4)
 end
+
