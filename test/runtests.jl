@@ -45,6 +45,7 @@ miscellaneous =  [
     "miscellaneous/convert.jl",
     "miscellaneous/abstract_trees_test.jl",
     "miscellaneous/feature_importance_test.jl",
+    "miscellaneous/ensemble_methods.jl",
 #    "miscellaneous/parallel.jl"
 
 ]

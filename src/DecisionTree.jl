@@ -70,6 +70,42 @@ promote_rule(::Type{Leaf{T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Root{S, T}}, ::Type{Node{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Node{S, T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 
+const ERR_ENSEMBLE_VCAT = DimensionMismatch(
+    "Ensembles that record feature impurity importances cannot be combined when "*
+        "they were generated using differing numbers of features. "
+)
+
+"""
+    DecisionTree.has_impurity_importance(ensemble::Ensemble)
+
+Returns `true` if `ensemble` stores impurity importances. `DecisionTree.Ensemble` objects
+are returned by, for example, `build_forest`.
+
+"""
+has_impurity_importance(e::Ensemble) = !isempty(e.featim)
+
+"""
+    vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T})
+
+Combine `DecisionTree.Ensemble` objects, such as random forests returned by
+`build_forest`. If `e1` or `e2` does not store feature importances, then neither will the
+returned ensemble.
+
+"""
+function Base.vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T}) where {S,T}
+    n1 = length(e1.trees)
+    n2 = length(e2.trees)
+    n = n1 + n2
+    trees = vcat(e1.trees, e2.trees)
+    featim = if isempty(e1.featim) || isempty(e2.featim)
+        Float64[]
+    else
+        e1.n_feat == e2.n_feat || throw(ERR_ENSEMBLE_VCAT)
+        (n1 .* e1.featim + n2 .* e2.featim) ./ n
+    end
+    Ensemble{S,T}(trees, e2.n_feat, featim)
+end
+
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
 mk_rng(seed::T) where T <: Integer = Random.MersenneTwister(seed)
@@ -139,7 +175,7 @@ Feature 3 < -28.15 ?
 ```
 
 To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object,
-`DecisionTree.Node` object or  `DecisionTree.Root` object can be wrapped to obtain a tree structure implementing the 
+`DecisionTree.Node` object or  `DecisionTree.Root` object can be wrapped to obtain a tree structure implementing the
 AbstractTrees.jl interface. See  [`wrap`](@ref)` for details.
 """
 function print_tree(io::IO, tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
