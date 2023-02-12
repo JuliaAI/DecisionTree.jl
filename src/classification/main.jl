@@ -199,11 +199,11 @@ Prune tree based on prediction accuracy of each node.
   classification tree and regression tree, respectively. If the tree is not a `Root`, this
   argument does not affect the result.
 
-For a tree of type `Root`, when any of its nodes is pruned, the `featim` field will be
+For a tree of type `Root`, when any of its nodes are pruned, the `featim` field will be
 updated by recomputing the impurity decrease of that node divided by the total number of
 training observations and subtracting the value.  The computation of impurity decrease is
 based on node impurity calculated with the loss function provided as the argument
-`loss`. The algorithm is as same as that described in the `impurity_importance`
+`loss`. The algorithm is as same as that described in the [`impurity_importance`](@ref)
 documentation.
 
 This function will recurse until no stumps can be pruned.
@@ -570,10 +570,9 @@ function build_forest(
     # were stored previously) and if the number of features has also changed. So we catch
     # that before training new ensemble:
     n_features = size(features, 2)
-    !impurity_importance ||
-        n_features == DecisionTree.n_features(model) ||
-            throw(ERR_CANT_UPDATE_IMPURITY_IMPORTANCE)
-
+    if impurity_importance && n_features != DecisionTree.n_features(model)
+        throw(ERR_CANT_UPDATE_IMPURITY_IMPORTANCE)
+    end 
     new_forest = build_forest(
         labels,
         features,

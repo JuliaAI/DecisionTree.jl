@@ -96,7 +96,7 @@ n_features(ensemble::Ensemble) = ensemble.n_feat
     vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T})
 
 Combine `DecisionTree.Ensemble` objects, such as random forests returned by
-`build_forest`. If `e1` or `e2` does not store feature importances, then neither will the
+`build_forest`. If `e1` or `e2` does not store impurity importances, then neither will the
 returned ensemble.
 
 """
@@ -111,6 +111,10 @@ function Base.vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T}) where {S,T}
         e1.n_feat == e2.n_feat || throw(ERR_ENSEMBLE_VCAT)
         (n1 .* e1.featim + n2 .* e2.featim) ./ n
     end
+    # In the case where impurity importances are being dumped, we continue to propogate
+    # the feature count `n_feat` as seen in the second ensemble `e2`, although we are not
+    # checking this matches the count for `e1`. At time of writing, `n_feat` is only used
+    # in conjunction with impurity importance reporting, so this should be okay.
     Ensemble{S,T}(trees, e2.n_feat, featim)
 end
 
