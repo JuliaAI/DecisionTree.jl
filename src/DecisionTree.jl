@@ -69,6 +69,12 @@ promote_rule(::Type{Leaf{T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Root{S, T}}, ::Type{Node{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Node{S, T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 
+const DOC_WHATS_A_TREE =
+    "Here `tree` is any `DecisionTree.Root`, `DecisionTree.Node` or "*
+    "`DecisionTree.Leaf` instance, as returned, for example, by [`build_tree`](@ref)."
+const DOC_WHATS_A_FOREST =
+    "Here `forest` is any `DecisionTree.Ensemble` instance, as returned, for "*
+    "example, by [`build_forest`](@ref)."
 const DOC_ENSEMBLE =
     "`DecisionTree.Ensemble` objects are returned by, for example, `build_forest`."
 const ERR_ENSEMBLE_VCAT = DimensionMismatch(

@@ -188,7 +188,7 @@ end
 """
     prune_tree(tree::Union{Root, LeafOrNode}, purity_thresh=1.0, loss::Function)
 
-Prune tree based on prediction accuracy of each node.
+Prune `tree` based on prediction accuracy of each node. $DOC_WHATS_A_TREE
 
 * `purity_thresh`: If the prediction accuracy of a stump is larger than this value, the node
   will be pruned and become a leaf.
@@ -208,8 +208,12 @@ documentation.
 
 This function will recurse until no stumps can be pruned.
 
-Warn:
+!!! warning
+
     For regression trees, pruning trees based on accuracy may not be an appropriate method.
+
+See also [`build_tree`](@ref).
+
 """
 function prune_tree(
     tree::Union{Root{S, T}, LeafOrNode{S, T}},
@@ -303,14 +307,16 @@ function apply_tree(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}) where {
 end
 
 """
-    apply_tree_proba(::Root, features, col_labels::AbstractVector)
+    apply_tree_proba(tree, features, col_labels::AbstractVector)
 
-computes P(L=label|X) for each row in `features`. It returns a `N_row x
-n_labels` matrix of probabilities, each row summing up to 1.
+For the specified `tree`, compute ``P(L=label|X)`` for each row in `features`, returning
+an `N_row` x `n_labels` matrix of probabilities, each row summing to one. $DOC_WHATS_A_TREE
 
-`col_labels` is a vector containing the distinct labels
-(eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix.
+`col_labels` is a vector containing the distinct labels, eg. `["versicolor", "virginica",
+"setosa"]`. It's order determines the column ordering of the output matrix.
+
+See also [`build_tree`](@ref).
+
 """
 apply_tree_proba(tree::Root{S, T}, features::AbstractVector{S}, labels) where {S, T} =
     apply_tree_proba(tree.node, features, labels)
@@ -572,7 +578,7 @@ function build_forest(
     n_features = size(features, 2)
     if impurity_importance && n_features != DecisionTree.n_features(model)
         throw(ERR_CANT_UPDATE_IMPURITY_IMPORTANCE)
-    end 
+    end
     new_forest = build_forest(
         labels,
         features,
@@ -626,7 +632,7 @@ end
 """
     apply_forest(forest::Ensemble, features::AbstractMatrix; use_multithreading=false)
 
-Apply learned model `forest` to `features`.
+Apply learned model `forest` to `features`. $DOC_WHATS_A_FOREST
 
 # Keywords
 
@@ -654,12 +660,15 @@ end
 """
     apply_forest_proba(forest::Ensemble, features, col_labels::AbstractVector)
 
-computes P(L=label|X) for each row in `features`. It returns a `N_row x
-n_labels` matrix of probabilities, each row summing up to 1.
+For the specified `forest`, compute ``P(L=label|X)`` for each row in `features`, returning
+a `N_row` x `n_labels` matrix of probabilities, each row summing to
+one. $DOC_WHATS_A_FOREST
 
-`col_labels` is a vector containing the distinct labels
-(eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix.
+`col_labels` is a vector containing the distinct labels, eg. `["versicolor", "virginica",
+"setosa"]`. It's order determines the column ordering of the output matrix.
+
+See also [`build_forest`](@ref).
+
 """
 function apply_forest_proba(
     forest::Ensemble{S, T},
@@ -761,12 +770,14 @@ end
 """
     apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features, labels::AbstractVector)
 
-computes P(L=label|X) for each row in `features`. It returns a `N_row x
-n_labels` matrix of probabilities, each row summing up to 1.
+Compute ``P(L=label|X)`` for each row in `features`, returning a `N_row` x
+`n_labels` matrix of probabilities, each row summing to one.
 
-`col_labels` is a vector containing the distinct labels
-(eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix.
+`col_labels` is a vector containing the distinct labels, eg. `["versicolor", "virginica",
+"setosa"]`. Its ordering determines the column ordering of the output matrix.
+
+See also [`build_adaboost_stumps`](@ref). 
+
 """
 function apply_adaboost_stumps_proba(
     stumps::Ensemble{S, T},
