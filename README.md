@@ -148,6 +148,8 @@ model = build_forest(labels, features, 2, 10, 0.5, 6)
 apply_forest(model, [5.9,3.0,5.1,1.9])
 # get the probability of each label
 apply_forest_proba(model, [5.9,3.0,5.1,1.9], ["Iris-setosa", "Iris-versicolor", "Iris-virginica"])
+# add 7 more trees
+model = build_forest(model, labels, features, 2, 7, 0.5, 6)
 # run 3-fold cross validation for forests, using 2 random features per split
 n_folds=3; n_subfeatures=2
 accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
