@@ -15,6 +15,7 @@ using DecisionTree: confusion_matrix, ConfusionMatrix
 println("Julia version: ", VERSION)
 
 similarity(a, b) = first(reshape(a, 1, :) * b / norm(a) / norm(b))
+srng() = StableRNGs.StableRNG(123)
 
 function run_tests(list)
     for test in list
@@ -31,7 +32,8 @@ classification = [
     "classification/digits.jl",
     "classification/iris.jl",
     "classification/adult.jl",
-    "classification/scikitlearn.jl"
+    "classification/scikitlearn.jl",
+    "classification/adding_trees.jl",
 ]
 
 regression =     [
@@ -45,6 +47,7 @@ miscellaneous =  [
     "miscellaneous/convert.jl",
     "miscellaneous/abstract_trees_test.jl",
     "miscellaneous/feature_importance_test.jl",
+    "miscellaneous/ensemble_methods.jl",
 #    "miscellaneous/parallel.jl"
 
 ]

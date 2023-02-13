@@ -188,7 +188,7 @@ end
 """
     prune_tree(tree::Union{Root, LeafOrNode}, purity_thresh=1.0, loss::Function)
 
-Prune tree based on prediction accuracy of each node.
+Prune `tree` based on prediction accuracy of each node. $DOC_WHATS_A_TREE
 
 * `purity_thresh`: If the prediction accuracy of a stump is larger than this value, the node
   will be pruned and become a leaf.
@@ -199,17 +199,21 @@ Prune tree based on prediction accuracy of each node.
   classification tree and regression tree, respectively. If the tree is not a `Root`, this
   argument does not affect the result.
 
-For a tree of type `Root`, when any of its nodes is pruned, the `featim` field will be
+For a tree of type `Root`, when any of its nodes are pruned, the `featim` field will be
 updated by recomputing the impurity decrease of that node divided by the total number of
 training observations and subtracting the value.  The computation of impurity decrease is
 based on node impurity calculated with the loss function provided as the argument
-`loss`. The algorithm is as same as that described in the `impurity_importance`
+`loss`. The algorithm is as same as that described in the [`impurity_importance`](@ref)
 documentation.
 
 This function will recurse until no stumps can be pruned.
 
-Warn:
+!!! warning
+
     For regression trees, pruning trees based on accuracy may not be an appropriate method.
+
+See also [`build_tree`](@ref).
+
 """
 function prune_tree(
     tree::Union{Root{S, T}, LeafOrNode{S, T}},
@@ -268,6 +272,7 @@ function prune_tree(
 end
 
 
+
 apply_tree(leaf::Leaf, feature::AbstractVector) = leaf.majority
 apply_tree(
     tree::Root{S, T},
@@ -302,14 +307,16 @@ function apply_tree(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}) where {
 end
 
 """
-    apply_tree_proba(::Root, features, col_labels::AbstractVector)
+    apply_tree_proba(tree, features, col_labels::AbstractVector)
 
-computes P(L=label|X) for each row in `features`. It returns a `N_row x
-n_labels` matrix of probabilities, each row summing up to 1.
+For the specified `tree`, compute ``P(L=label|X)`` for each row in `features`, returning
+an `N_row` x `n_labels` matrix of probabilities, each row summing to one. $DOC_WHATS_A_TREE
 
-`col_labels` is a vector containing the distinct labels
-(eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix.
+`col_labels` is a vector containing the distinct labels, eg. `["versicolor", "virginica",
+"setosa"]`. It's order determines the column ordering of the output matrix.
+
+See also [`build_tree`](@ref).
+
 """
 apply_tree_proba(tree::Root{S, T}, features::AbstractVector{S}, labels) where {S, T} =
     apply_tree_proba(tree.node, features, labels)
@@ -334,6 +341,112 @@ apply_tree_proba(tree::Root{S, T}, features::AbstractMatrix{S}, labels) where {S
 apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
     stack_function_results(row->apply_tree_proba(tree, row, labels), features)
 
+"""
+    build_forest(labels, features, options...; keyword_options...)
+
+Train a random forest model, built on standard CART decision trees, using the specified
+`labels` (target) and `features` (patterns). Here:
+
+- `labels` is any `AbstractVector`. If the element type is `Float64`, regression is
+  applied, and otherwise classification is applied.
+
+- `features` is any `AbstractMatrix{T}` where `T` supports ordering with `<` (unordered
+  categorical features are not supported). The matrix must have size `(n, p)` where `n =
+  length(labels)` (observations as rows).
+
+Entropy loss is used for determining node splits, i.e., individual trees are trained by
+calling `build_tree` with the `loss=DecisionTree.util.entropy` option.
+
+Use [`apply_forest`](@ref) and [`apply_forest_proba`](@ref) to make predictions on new
+features. See the example below.
+
+# Hyperparameters
+
+These are specified as  `options` and `keyword_options`:
+
+## Options
+
+- `n_subfeatures=-1`: number of features to consider at random per split. If equal to
+  `-1`, then the square root of the number of features `p` is used
+
+- `n_trees=10`: number of trees to train
+
+- `partial_sampling=0.7`: fraction of samples on which to train each tree
+
+- `max_depth=-1`: maximum depth of the decision trees; no limit if equal to `-1`
+
+- `min_samples_leaf`: the minimum number of samples each leaf needs to have; default is
+  `5` for regression and `1` for classification
+
+- `min_samples_split=2`: the minimum number of samples needed for a split
+
+- `min_purity_increase=0`: minimum purity needed to trigger a split
+
+## Keyword options
+
+- `rng=Random.GLOBAL_RNG`: the random number generator or seed (integer) to use. Any
+  `AbstractRNG` object supporting `Random.seed!` can be used; each tree gets it's own
+  generator.
+
+- `impurity_importance=true`: whether to compute impurity feature importances
+
+# Example
+
+```
+features, labels = load_data("iris")    # also see "adult" and "digits" datasets
+```
+
+The data loaded are of type `Array{Any}`, so we cast them to concrete types for better
+performance:
+
+```
+features = float.(features)
+labels = string.(labels)
+```
+
+Training a random forest classifier using 2 random features, 10 trees, 0.5 portion of
+samples per tree, and a maximum tree depth of 6:
+
+```
+model = build_forest(labels, features, 2, 10, 0.5, 6)
+```
+
+Get predictions on new data:
+
+```
+new_features = [5.9 3.0 5.1 1.9
+                1.0 2.0 3.9 2.0]
+apply_forest(model, new_features)
+```
+
+Get probabilistic predictions:
+```
+apply_forest_proba(
+    model,
+    new_features,
+    ["Iris-setosa", "Iris-versicolor", "Iris-virginica"],
+)
+```
+
+Get impurity feature importances:
+
+```
+impurity_importance(model)
+```
+
+Run 3-fold cross validation for forests, using 2 random features per split:
+
+```
+n_folds=3
+n_subfeatures=2
+accuracy = nfoldCV_forest(labels, features, n_folds, n_subfeatures)
+```
+
+See also [`build_tree`](@ref), [`apply_forest`](@ref), [`apply_forest_proba`](@ref),
+[`impurity_importance`](@ref), [`split_importance`](@ref),
+[`permutation_importance`](@ref), [`nfoldCV_forest`](@ref).
+
+"""
 function build_forest(
         labels              :: AbstractVector{T},
         features            :: AbstractMatrix{S},
@@ -407,14 +520,84 @@ function build_forest(
     return _build_forest(forest, size(features, 2), n_trees, impurity_importance)
 end
 
+const ERR_CANT_UPDATE_IMPURITY_IMPORTANCE = DimensionMismatch(
+    "Looks like you want to add trees to a model previously trained using a "*
+        "different number of features, which means impurity importances "*
+        "cannot be updated. Fix by setting `impurity_importance=false`. "
+)
+
+"""
+    build_forest(model, labels, features, options...; keyword_options...)
+
+Return an updated version of `model` with additional `n_trees=options[2]` added to the
+forest. Here `options` and `keyword_options` are as for the regular `build_forest` method,
+which excludes the `model` argument.
+
+Even if training data is the same in all `build_forest` calls, it is not practically
+possible to guarantee adding trees in steps is identical to adding them all at once,
+because of the way random number generators are generated and used. But in all other
+respects these approaches are equivalent.
+
+# Example
+
+```
+features, labels = load_data("iris")
+features = float.(features)
+labels = string.(labels)
+```
+
+The call
+
+```
+model = build_forest(labels, features, 2, 200) # n_trees = 200
+```
+
+is approximately equivalent to
+
+```
+model1 = build_forest(labels, features, 2, 150) # n_trees = 150
+model = build_forest(model1, labels, features, 2, 50) # n_trees = 50
+```
+
+"""
+function build_forest(
+    model               :: Ensemble{S,T},
+    labels              :: AbstractVector{T},
+    features            :: AbstractMatrix{S},
+    options...;
+    impurity_importance=true,
+    kwoptions...,
+    ) where {S, T}
+
+    # Only compute impurity importances if requested and present in the existing ensemble:
+    impurity_importance = impurity_importance && has_impurity_importance(model)
+
+    # Combining forests will throw an error if feature importances are reqested now (and
+    # were stored previously) and if the number of features has also changed. So we catch
+    # that before training new ensemble:
+    n_features = size(features, 2)
+    if impurity_importance && n_features != DecisionTree.n_features(model)
+        throw(ERR_CANT_UPDATE_IMPURITY_IMPORTANCE)
+    end
+    new_forest = build_forest(
+        labels,
+        features,
+        options...;
+        impurity_importance,
+        kwoptions...)
+
+    # `model` and `new_forest` are both `Ensemble` objects:
+    return vcat(model, new_forest)
+end
+
 function _build_forest(
-        forest              :: Vector{<: Union{Root{S, T}, LeafOrNode{S, T}}},
+        forest              :: Vector{<:Union{Root{S,T},LeafOrNode{S,T}}},
         n_features          ,
         n_trees             ,
-        impurity_importance :: Bool) where {S, T}
+        impurity_importance :: Bool) where {S,T}
 
-    if !impurity_importance
-        return Ensemble{S, T}(forest, n_features, Float64[])
+    normalized_importance = if !impurity_importance
+        Float64[]
     else
         fi = zeros(Float64, n_features)
         for tree in forest
@@ -423,14 +606,13 @@ function _build_forest(
                 fi .+= ti
             end
         end
-
-        forest_new = Vector{LeafOrNode{S, T}}(undef, n_trees)
-        Threads.@threads for i in 1:n_trees
-            forest_new[i] = forest[i].node
-        end
-
-        return Ensemble{S, T}(forest_new, n_features, fi ./ n_trees)
+        fi ./ n_trees
     end
+
+    # The `convert` method in src/DecisionTrees.jl for `LeafOrNode` <- `Root` ensures the
+    # following constructor works when `forest` has `Root` element type, instead of
+    # required `LeafOrNode` element type. It won't work if we drop `{S,T}`.
+    return Ensemble{S,T}(forest, n_features, normalized_importance)
 end
 
 function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where {S, T}
@@ -447,6 +629,15 @@ function apply_forest(forest::Ensemble{S, T}, features::AbstractVector{S}) where
     end
 end
 
+"""
+    apply_forest(forest::Ensemble, features::AbstractMatrix; use_multithreading=false)
+
+Apply learned model `forest` to `features`. $DOC_WHATS_A_FOREST
+
+# Keywords
+
+- `use_multithreading::Bool`: `true` to use multiple cores, if available. `false` by default.
+"""
 function apply_forest(
         forest::Ensemble{S, T},
         features::AbstractMatrix{S};
@@ -469,12 +660,15 @@ end
 """
     apply_forest_proba(forest::Ensemble, features, col_labels::AbstractVector)
 
-computes P(L=label|X) for each row in `features`. It returns a `N_row x
-n_labels` matrix of probabilities, each row summing up to 1.
+For the specified `forest`, compute ``P(L=label|X)`` for each row in `features`, returning
+a `N_row` x `n_labels` matrix of probabilities, each row summing to
+one. $DOC_WHATS_A_FOREST
 
-`col_labels` is a vector containing the distinct labels
-(eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix.
+`col_labels` is a vector containing the distinct labels, eg. `["versicolor", "virginica",
+"setosa"]`. It's order determines the column ordering of the output matrix.
+
+See also [`build_forest`](@ref).
+
 """
 function apply_forest_proba(
     forest::Ensemble{S, T},
@@ -576,12 +770,14 @@ end
 """
     apply_adaboost_stumps_proba(stumps::Ensemble, coeffs, features, labels::AbstractVector)
 
-computes P(L=label|X) for each row in `features`. It returns a `N_row x
-n_labels` matrix of probabilities, each row summing up to 1.
+Compute ``P(L=label|X)`` for each row in `features`, returning a `N_row` x
+`n_labels` matrix of probabilities, each row summing to one.
 
-`col_labels` is a vector containing the distinct labels
-(eg. ["versicolor", "virginica", "setosa"]). It specifies the column ordering
-of the output matrix.
+`col_labels` is a vector containing the distinct labels, eg. `["versicolor", "virginica",
+"setosa"]`. Its ordering determines the column ordering of the output matrix.
+
+See also [`build_adaboost_stumps`](@ref). 
+
 """
 function apply_adaboost_stumps_proba(
     stumps::Ensemble{S, T},
