@@ -52,14 +52,15 @@ struct Ensemble{S, T}
     featim  :: Vector{Float64}
 end
 
-
 is_leaf(l::Leaf) = true
 is_leaf(n::Node) = false
 
 _zero(::Type{String}) = ""
 _zero(x::Any) = zero(x)
-convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} = Node(0, _zero(S), lf, Leaf(_zero(T), [_zero(T)]))
-convert(::Type{Root{S, T}}, node::LeafOrNode{S, T}) where {S, T} = Root{S, T}(node, 0, Float64[])
+convert(::Type{Node{S, T}}, lf::Leaf{T}) where {S, T} =
+    Node(0, _zero(S), lf, Leaf(_zero(T), [_zero(T)]))
+convert(::Type{Root{S, T}}, node::LeafOrNode{S, T}) where {S, T} =
+    Root{S, T}(node, 0, Float64[])
 convert(::Type{LeafOrNode{S, T}}, tree::Root{S, T}) where {S, T} = tree.node
 promote_rule(::Type{Node{S, T}}, ::Type{Leaf{T}}) where {S, T} = Node{S, T}
 promote_rule(::Type{Leaf{T}}, ::Type{Node{S, T}}) where {S, T} = Node{S, T}
@@ -67,6 +68,64 @@ promote_rule(::Type{Root{S, T}}, ::Type{Leaf{T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Leaf{T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Root{S, T}}, ::Type{Node{S, T}}) where {S, T} = Root{S, T}
 promote_rule(::Type{Node{S, T}}, ::Type{Root{S, T}}) where {S, T} = Root{S, T}
+
+const DOC_WHATS_A_TREE =
+    "Here `tree` is any `DecisionTree.Root`, `DecisionTree.Node` or "*
+    "`DecisionTree.Leaf` instance, as returned, for example, by [`build_tree`](@ref)."
+const DOC_WHATS_A_FOREST =
+    "Here `forest` is any `DecisionTree.Ensemble` instance, as returned, for "*
+    "example, by [`build_forest`](@ref)."
+const DOC_ENSEMBLE =
+    "`DecisionTree.Ensemble` objects are returned by, for example, `build_forest`."
+const ERR_ENSEMBLE_VCAT = DimensionMismatch(
+    "Ensembles that record feature impurity importances cannot be combined when "*
+        "they were generated using differing numbers of features. "
+)
+
+"""
+    DecisionTree.has_impurity_importance(ensemble::Ensemble)
+
+Returns `true` if `ensemble` stores impurity importances. $DOC_ENSEMBLE
+
+"""
+has_impurity_importance(e::Ensemble) = !isempty(e.featim)
+
+"""
+    DecisionTree.n_features(ensemble::Ensemble)
+
+Return the number of features on which `ensemble` was trained. $DOC_ENSEMBLE
+
+"""
+n_features(ensemble::Ensemble) = ensemble.n_feat
+
+"""
+    vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T})
+
+Combine `DecisionTree.Ensemble` objects, such as random forests returned by
+`build_forest`. If `e1` or `e2` does not store impurity importances, then neither will the
+returned ensemble.
+
+"""
+function Base.vcat(e1::Ensemble{S,T}, e2::Ensemble{S,T}) where {S,T}
+    n1 = length(e1.trees)
+    n2 = length(e2.trees)
+    n = n1 + n2
+    trees = vcat(e1.trees, e2.trees)
+    featim = if isempty(e1.featim) || isempty(e2.featim)
+        Float64[]
+    else
+        e1.n_feat == e2.n_feat || throw(ERR_ENSEMBLE_VCAT)
+        (n1 .* e1.featim + n2 .* e2.featim) ./ n
+    end
+    # In the case where impurity importances are being dumped, we continue to propogate
+    # the feature count `n_feat` as seen in the second ensemble `e2`, although we are not
+    # checking this matches the count for `e1`. At time of writing, `n_feat` is only used
+    # in conjunction with impurity importance reporting, so this should be okay.
+    Ensemble{S,T}(trees, e2.n_feat, featim)
+end
+
+Base.getindex(ensemble::DecisionTree.Ensemble, I) =
+    DecisionTree.Ensemble(ensemble.trees[I], ensemble.n_feat, ensemble.featim)
 
 # make a Random Number Generator object
 mk_rng(rng::Random.AbstractRNG) = rng
@@ -137,7 +196,7 @@ Feature 3 < -28.15 ?
 ```
 
 To facilitate visualisation of trees using third party packages, a `DecisionTree.Leaf` object,
-`DecisionTree.Node` object or  `DecisionTree.Root` object can be wrapped to obtain a tree structure implementing the 
+`DecisionTree.Node` object or  `DecisionTree.Root` object can be wrapped to obtain a tree structure implementing the
 AbstractTrees.jl interface. See  [`wrap`](@ref)` for details.
 """
 function print_tree(io::IO, tree::Node, depth=-1, indent=0; sigdigits=2, feature_names=nothing)
