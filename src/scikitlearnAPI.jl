@@ -1,5 +1,11 @@
-import ScikitLearnBase: BaseClassifier, BaseRegressor, predict, predict_proba,
-                        fit!, get_classes, @declare_hyperparameters
+import ScikitLearnBase:
+    BaseClassifier,
+    BaseRegressor,
+    predict,
+    predict_proba,
+    fit!,
+    get_classes,
+    @declare_hyperparameters
 
 ################################################################################
 # Classifier
@@ -39,30 +45,62 @@ mutable struct DecisionTreeClassifier <: BaseClassifier
     n_subfeatures::Int
     rng::Random.Random.AbstractRNG
     impurity_importance::Bool
-    root::Union{Root, Nothing}
-    classes::Union{Vector, Nothing}
-    DecisionTreeClassifier(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=1, min_samples_split=2,
-                           min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, impurity_importance=true, root=nothing, classes=nothing) =
-        new(pruning_purity_threshold, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, n_subfeatures, mk_rng(rng), impurity_importance, root, classes)
+    root::Union{Root,Nothing}
+    classes::Union{Vector,Nothing}
+    function DecisionTreeClassifier(;
+        pruning_purity_threshold=1.0,
+        max_depth=-1,
+        min_samples_leaf=1,
+        min_samples_split=2,
+        min_purity_increase=0.0,
+        n_subfeatures=0,
+        rng=Random.GLOBAL_RNG,
+        impurity_importance=true,
+        root=nothing,
+        classes=nothing,
+    )
+        new(
+            pruning_purity_threshold,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            n_subfeatures,
+            mk_rng(rng),
+            impurity_importance,
+            root,
+            classes,
+        )
+    end
 end
 
 get_classes(dt::DecisionTreeClassifier) = dt.classes
-@declare_hyperparameters(DecisionTreeClassifier,
-                         [:pruning_purity_threshold, :max_depth, :min_samples_leaf,
-                          :min_samples_split, :min_purity_increase, :rng, :impurity_importance])
+@declare_hyperparameters(
+    DecisionTreeClassifier,
+    [
+        :pruning_purity_threshold,
+        :max_depth,
+        :min_samples_leaf,
+        :min_samples_split,
+        :min_purity_increase,
+        :rng,
+        :impurity_importance,
+    ]
+)
 
 function fit!(dt::DecisionTreeClassifier, X, y)
     n_samples, n_features = size(X)
     dt.root = build_tree(
-        y, X,
+        y,
+        X,
         dt.n_subfeatures,
         dt.max_depth,
         dt.min_samples_leaf,
         dt.min_samples_split,
         dt.min_purity_increase;
-        rng = dt.rng,
-        impurity_importance = dt.impurity_importance)
+        rng=dt.rng,
+        impurity_importance=dt.impurity_importance,
+    )
 
     dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt.classes = sort(unique(y))
@@ -71,11 +109,9 @@ end
 
 predict(dt::DecisionTreeClassifier, X) = apply_tree(dt.root, X)
 
-predict_proba(dt::DecisionTreeClassifier, X) =
-    apply_tree_proba(dt.root, X, dt.classes)
+predict_proba(dt::DecisionTreeClassifier, X) = apply_tree_proba(dt.root, X, dt.classes)
 
-predict_log_proba(dt::DecisionTreeClassifier, X) =
-    log(predict_proba(dt, X)) # this will yield -Inf when p=0. Hmmm...
+predict_log_proba(dt::DecisionTreeClassifier, X) = log(predict_proba(dt, X)) # this will yield -Inf when p=0. Hmmm...
 
 function show(io::IO, dt::DecisionTreeClassifier)
     println(io, "DecisionTreeClassifier")
@@ -85,8 +121,11 @@ function show(io::IO, dt::DecisionTreeClassifier)
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
-    print(io,   "classes:                  ") ; show(io, dt.classes) ; println(io, "")
-    print(io,   "root:                     ") ; show(io, dt.root)
+    print(io, "classes:                  ")
+    show(io, dt.classes)
+    println(io, "")
+    print(io, "root:                     ")
+    show(io, dt.root)
 end
 
 ################################################################################
@@ -126,10 +165,20 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
     n_subfeatures::Int
     rng::Random.AbstractRNG
     impurity_importance::Bool
-    root::Union{Root, Nothing}
-    DecisionTreeRegressor(;pruning_purity_threshold=1.0, max_depth=-1, min_samples_leaf=5,
-                          min_samples_split=2, min_purity_increase=0.0, n_subfeatures=0, rng=Random.GLOBAL_RNG, impurity_importance=true, root=nothing) =
-        new(pruning_purity_threshold,
+    root::Union{Root,Nothing}
+    function DecisionTreeRegressor(;
+        pruning_purity_threshold=1.0,
+        max_depth=-1,
+        min_samples_leaf=5,
+        min_samples_split=2,
+        min_purity_increase=0.0,
+        n_subfeatures=0,
+        rng=Random.GLOBAL_RNG,
+        impurity_importance=true,
+        root=nothing,
+    )
+        new(
+            pruning_purity_threshold,
             max_depth,
             min_samples_leaf,
             min_samples_split,
@@ -137,25 +186,39 @@ mutable struct DecisionTreeRegressor <: BaseRegressor
             n_subfeatures,
             mk_rng(rng),
             impurity_importance,
-            root)
+            root,
+        )
+    end
 end
 
-@declare_hyperparameters(DecisionTreeRegressor,
-                         [:pruning_purity_threshold, :min_samples_leaf, :n_subfeatures,
-                          :max_depth, :min_samples_split, :min_purity_increase, :rng, :impurity_importance])
+@declare_hyperparameters(
+    DecisionTreeRegressor,
+    [
+        :pruning_purity_threshold,
+        :min_samples_leaf,
+        :n_subfeatures,
+        :max_depth,
+        :min_samples_split,
+        :min_purity_increase,
+        :rng,
+        :impurity_importance,
+    ]
+)
 
 function fit!(dt::DecisionTreeRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
     dt.root = build_tree(
-        float.(y), X,
+        float.(y),
+        X,
         dt.n_subfeatures,
         dt.max_depth,
         dt.min_samples_leaf,
         dt.min_samples_split,
         dt.min_purity_increase;
-        rng = dt.rng,
-        impurity_importance = dt.impurity_importance)
-    
+        rng=dt.rng,
+        impurity_importance=dt.impurity_importance,
+    )
+
     dt.root = prune_tree(dt.root, dt.pruning_purity_threshold)
     dt
 end
@@ -170,7 +233,8 @@ function show(io::IO, dt::DecisionTreeRegressor)
     println(io, "min_purity_increase:      $(dt.min_purity_increase)")
     println(io, "pruning_purity_threshold: $(dt.pruning_purity_threshold)")
     println(io, "n_subfeatures:            $(dt.n_subfeatures)")
-    print(io,   "root:                     ") ; show(io, dt.root)
+    print(io, "root:                     ")
+    show(io, dt.root)
 end
 
 ################################################################################
@@ -208,27 +272,60 @@ mutable struct RandomForestClassifier <: BaseClassifier
     min_samples_leaf::Int
     min_samples_split::Int
     min_purity_increase::Float64
-    rng::Union{Random.AbstractRNG, Int}
-    impurity_importance:: Bool
-    ensemble::Union{Ensemble, Nothing}
-    classes::Union{Vector, Nothing}
-    RandomForestClassifier(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
-                           max_depth=-1, min_samples_leaf=1, min_samples_split=2, min_purity_increase=0.0,
-                           rng=Random.GLOBAL_RNG, impurity_importance=true,ensemble=nothing, classes=nothing) =
-        new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, rng, impurity_importance, ensemble, classes)
+    rng::Union{Random.AbstractRNG,Int}
+    impurity_importance::Bool
+    ensemble::Union{Ensemble,Nothing}
+    classes::Union{Vector,Nothing}
+    function RandomForestClassifier(;
+        n_subfeatures=-1,
+        n_trees=10,
+        partial_sampling=0.7,
+        max_depth=-1,
+        min_samples_leaf=1,
+        min_samples_split=2,
+        min_purity_increase=0.0,
+        rng=Random.GLOBAL_RNG,
+        impurity_importance=true,
+        ensemble=nothing,
+        classes=nothing,
+    )
+        new(
+            n_subfeatures,
+            n_trees,
+            partial_sampling,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            rng,
+            impurity_importance,
+            ensemble,
+            classes,
+        )
+    end
 end
 
 get_classes(rf::RandomForestClassifier) = rf.classes
-@declare_hyperparameters(RandomForestClassifier,
-                         [:n_subfeatures, :n_trees, :partial_sampling, :max_depth,
-                          :min_samples_leaf, :min_samples_split, :min_purity_increase,
-                          :rng, :impurity_importance])
+@declare_hyperparameters(
+    RandomForestClassifier,
+    [
+        :n_subfeatures,
+        :n_trees,
+        :partial_sampling,
+        :max_depth,
+        :min_samples_leaf,
+        :min_samples_split,
+        :min_purity_increase,
+        :rng,
+        :impurity_importance,
+    ]
+)
 
 function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
-        y, X,
+        y,
+        X,
         rf.n_subfeatures,
         rf.n_trees,
         rf.partial_sampling,
@@ -236,14 +333,16 @@ function fit!(rf::RandomForestClassifier, X::AbstractMatrix, y::AbstractVector)
         rf.min_samples_leaf,
         rf.min_samples_split,
         rf.min_purity_increase;
-        rng = rf.rng,
-        impurity_importance = rf.impurity_importance)
+        rng=rf.rng,
+        impurity_importance=rf.impurity_importance,
+    )
     rf.classes = sort(unique(y))
     rf
 end
 
-predict_proba(rf::RandomForestClassifier, X) =
+function predict_proba(rf::RandomForestClassifier, X)
     apply_forest_proba(rf.ensemble, X, rf.classes)
+end
 
 predict(rf::RandomForestClassifier, X) = apply_forest(rf.ensemble, X)
 
@@ -256,8 +355,11 @@ function show(io::IO, rf::RandomForestClassifier)
     println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
     println(io, "min_samples_split:   $(rf.min_samples_split)")
     println(io, "min_purity_increase: $(rf.min_purity_increase)")
-    print(io,   "classes:             ") ; show(io, rf.classes)  ; println(io, "")
-    print(io,   "ensemble:            ") ; show(io, rf.ensemble)
+    print(io, "classes:             ")
+    show(io, rf.classes)
+    println(io, "")
+    print(io, "ensemble:            ")
+    show(io, rf.ensemble)
 end
 
 ################################################################################
@@ -296,27 +398,58 @@ mutable struct RandomForestRegressor <: BaseRegressor
     min_samples_leaf::Int
     min_samples_split::Int
     min_purity_increase::Float64
-    rng::Union{Random.AbstractRNG, Int}
+    rng::Union{Random.AbstractRNG,Int}
     impurity_importance::Bool
-    ensemble::Union{Ensemble, Nothing}
-    RandomForestRegressor(; n_subfeatures=-1, n_trees=10, partial_sampling=0.7,
-                            max_depth=-1, min_samples_leaf=5, min_samples_split=2, min_purity_increase=0.0,
-                            rng=Random.GLOBAL_RNG, impurity_importance=true, ensemble=nothing) =
-        new(n_subfeatures, n_trees, partial_sampling, max_depth, min_samples_leaf, min_samples_split,
-            min_purity_increase, rng, impurity_importance, ensemble)
+    ensemble::Union{Ensemble,Nothing}
+    function RandomForestRegressor(;
+        n_subfeatures=-1,
+        n_trees=10,
+        partial_sampling=0.7,
+        max_depth=-1,
+        min_samples_leaf=5,
+        min_samples_split=2,
+        min_purity_increase=0.0,
+        rng=Random.GLOBAL_RNG,
+        impurity_importance=true,
+        ensemble=nothing,
+    )
+        new(
+            n_subfeatures,
+            n_trees,
+            partial_sampling,
+            max_depth,
+            min_samples_leaf,
+            min_samples_split,
+            min_purity_increase,
+            rng,
+            impurity_importance,
+            ensemble,
+        )
+    end
 end
 
-@declare_hyperparameters(RandomForestRegressor,
-                         [:n_subfeatures, :n_trees, :partial_sampling,
-                          :min_samples_leaf, :min_samples_split, :min_purity_increase,
-                          # I'm not crazy about :rng being a hyperparameter,
-                          # since it'll change throughout fitting, but it works
-                          :max_depth, :rng, :impurity_importance])
+@declare_hyperparameters(
+    RandomForestRegressor,
+    [
+        :n_subfeatures,
+        :n_trees,
+        :partial_sampling,
+        :min_samples_leaf,
+        :min_samples_split,
+        :min_purity_increase,
+        # I'm not crazy about :rng being a hyperparameter,
+        # since it'll change throughout fitting, but it works
+        :max_depth,
+        :rng,
+        :impurity_importance,
+    ]
+)
 
 function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
     n_samples, n_features = size(X)
     rf.ensemble = build_forest(
-        float.(y), X,
+        float.(y),
+        X,
         rf.n_subfeatures,
         rf.n_trees,
         rf.partial_sampling,
@@ -324,8 +457,9 @@ function fit!(rf::RandomForestRegressor, X::AbstractMatrix, y::AbstractVector)
         rf.min_samples_leaf,
         rf.min_samples_split,
         rf.min_purity_increase;
-        rng = rf.rng,
-        impurity_importance = rf.impurity_importance)
+        rng=rf.rng,
+        impurity_importance=rf.impurity_importance,
+    )
     rf
 end
 
@@ -340,7 +474,8 @@ function show(io::IO, rf::RandomForestRegressor)
     println(io, "min_samples_leaf:    $(rf.min_samples_leaf)")
     println(io, "min_samples_split:   $(rf.min_samples_split)")
     println(io, "min_purity_increase: $(rf.min_purity_increase)")
-    print(io,   "ensemble:            ") ; show(io, rf.ensemble)
+    print(io, "ensemble:            ")
+    show(io, rf.ensemble)
 end
 
 ################################################################################
@@ -363,80 +498,139 @@ Implements `fit!`, `predict`, `predict_proba`, `get_classes`
 mutable struct AdaBoostStumpClassifier <: BaseClassifier
     n_iterations::Int
     rng::Random.AbstractRNG
-    ensemble::Union{Ensemble, Nothing}
-    coeffs::Union{Vector{Float64}, Nothing}
-    classes::Union{Vector, Nothing}
-    AdaBoostStumpClassifier(; n_iterations=10, rng=Random.GLOBAL_RNG, ensemble=nothing, coeffs=nothing, classes=nothing) =
+    ensemble::Union{Ensemble,Nothing}
+    coeffs::Union{Vector{Float64},Nothing}
+    classes::Union{Vector,Nothing}
+    function AdaBoostStumpClassifier(;
+        n_iterations=10,
+        rng=Random.GLOBAL_RNG,
+        ensemble=nothing,
+        coeffs=nothing,
+        classes=nothing,
+    )
         new(n_iterations, mk_rng(rng), ensemble, coeffs, classes)
+    end
 end
 
 @declare_hyperparameters(AdaBoostStumpClassifier, [:n_iterations, :rng])
 get_classes(ada::AdaBoostStumpClassifier) = ada.classes
 
 function fit!(ada::AdaBoostStumpClassifier, X, y)
-    ada.ensemble, ada.coeffs =
-        build_adaboost_stumps(y, X, ada.n_iterations; rng=ada.rng)
+    ada.ensemble, ada.coeffs = build_adaboost_stumps(y, X, ada.n_iterations; rng=ada.rng)
     ada.classes = sort(unique(y))
     ada
 end
 
-predict(ada::AdaBoostStumpClassifier, X) =
+function predict(ada::AdaBoostStumpClassifier, X)
     apply_adaboost_stumps(ada.ensemble, ada.coeffs, X)
+end
 
-predict_proba(ada::AdaBoostStumpClassifier, X) =
+function predict_proba(ada::AdaBoostStumpClassifier, X)
     apply_adaboost_stumps_proba(ada.ensemble, ada.coeffs, X, ada.classes)
+end
 
 function show(io::IO, ada::AdaBoostStumpClassifier)
     println(io, "AdaBoostStumpClassifier")
     println(io, "n_iterations: $(ada.n_iterations)")
-    print(io,   "classes:      ") ; show(io, ada.classes)  ; println(io, "")
-    print(io,   "ensemble:     ") ; show(io, ada.ensemble)
+    print(io, "classes:      ")
+    show(io, ada.classes)
+    println(io, "")
+    print(io, "ensemble:     ")
+    show(io, ada.ensemble)
 end
 
 ################################################################################
 # Common functions
 
-depth(dt::DecisionTreeClassifier)   = depth(dt.root)
-depth(dt::DecisionTreeRegressor)    = depth(dt.root)
+depth(dt::DecisionTreeClassifier) = depth(dt.root)
+depth(dt::DecisionTreeRegressor) = depth(dt.root)
 
-length(dt::DecisionTreeClassifier)  = length(dt.root)
-length(dt::DecisionTreeRegressor)   = length(dt.root)
+length(dt::DecisionTreeClassifier) = length(dt.root)
+length(dt::DecisionTreeRegressor) = length(dt.root)
 
-print_tree(dt::DecisionTreeClassifier, depth=-1; kwargs...) = print_tree(dt.root, depth; kwargs...)
-print_tree(io::IO, dt::DecisionTreeClassifier, depth=-1; kwargs...) = print_tree(io, dt.root, depth; kwargs...)
-print_tree(dt::DecisionTreeRegressor, depth=-1; kwargs...) = print_tree(dt.root, depth; kwargs...)
-print_tree(io::IO, dt::DecisionTreeRegressor,  depth=-1; kwargs...) = print_tree(io, dt.root, depth; kwargs...)
+function print_tree(dt::DecisionTreeClassifier, depth=-1; kwargs...)
+    print_tree(dt.root, depth; kwargs...)
+end
+function print_tree(io::IO, dt::DecisionTreeClassifier, depth=-1; kwargs...)
+    print_tree(io, dt.root, depth; kwargs...)
+end
+function print_tree(dt::DecisionTreeRegressor, depth=-1; kwargs...)
+    print_tree(dt.root, depth; kwargs...)
+end
+function print_tree(io::IO, dt::DecisionTreeRegressor, depth=-1; kwargs...)
+    print_tree(io, dt.root, depth; kwargs...)
+end
 print_tree(n::Nothing, depth=-1; kwargs...) = show(n)
 
 #################################################################################
 # Trait functions
-model(dt::Union{DecisionTreeClassifier, DecisionTreeRegressor}) = dt.root
-model(rf::Union{RandomForestClassifier, RandomForestRegressor}) = rf.ensemble
+model(dt::Union{DecisionTreeClassifier,DecisionTreeRegressor}) = dt.root
+model(rf::Union{RandomForestClassifier,RandomForestRegressor}) = rf.ensemble
 model(ada::AdaBoostStumpClassifier) = ada.ensemble
 
-score_fn(::Type{<: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier}}) = accuracy
-score_fn(::Type{<: Union{DecisionTreeRegressor, RandomForestRegressor}}) = R2
+function score_fn(
+    ::Type{<:Union{DecisionTreeClassifier,RandomForestClassifier,AdaBoostStumpClassifier}}
+)
+    accuracy
+end
+score_fn(::Type{<:Union{DecisionTreeRegressor,RandomForestRegressor}}) = R2
 
 # score function
-R2(model::T, X::AbstractMatrix, y::AbstractVector) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}= 
+function R2(
+    model::T, X::AbstractMatrix, y::AbstractVector
+) where {
+    T<:Union{
+        DecisionTreeClassifier,
+        RandomForestClassifier,
+        AdaBoostStumpClassifier,
+        DecisionTreeRegressor,
+        RandomForestRegressor,
+    },
+}
     R2(y, predict(model, X))
-accuracy(model::T, X::AbstractMatrix, y::AbstractVector) where {T <: Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}}= 
+end
+function accuracy(
+    model::T, X::AbstractMatrix, y::AbstractVector
+) where {
+    T<:Union{
+        DecisionTreeClassifier,
+        RandomForestClassifier,
+        AdaBoostStumpClassifier,
+        DecisionTreeRegressor,
+        RandomForestRegressor,
+    },
+}
     accuracy(y, predict(model, X))
+end
 
-const DecisionTreeEstimator = Union{DecisionTreeClassifier, RandomForestClassifier, AdaBoostStumpClassifier, DecisionTreeRegressor, RandomForestRegressor}
+const DecisionTreeEstimator = Union{
+    DecisionTreeClassifier,
+    RandomForestClassifier,
+    AdaBoostStumpClassifier,
+    DecisionTreeRegressor,
+    RandomForestRegressor,
+}
 
 # feature importances
-impurity_importance(trees::T; normalize::Bool = false) where {T <: DecisionTreeEstimator} = 
-    impurity_importance(model(trees), normalize = normalize)
+function impurity_importance(
+    trees::T; normalize::Bool=false
+) where {T<:DecisionTreeEstimator}
+    impurity_importance(model(trees); normalize)
+end
 
-impurity_importance(ada::T; normalize::Bool = false) where {T <: AdaBoostStumpClassifier} = 
-    impurity_importance(ada.ensemble, ada.coeffs, normalize = normalize)
+function impurity_importance(
+    ada::T; normalize::Bool=false
+) where {T<:AdaBoostStumpClassifier}
+    impurity_importance(ada.ensemble, ada.coeffs; normalize)
+end
 
-split_importance(trees::T; normalize::Bool = false) where {T <: DecisionTreeEstimator} = 
-    split_importance(model(trees), normalize = normalize)
+function split_importance(trees::T; normalize::Bool=false) where {T<:DecisionTreeEstimator}
+    split_importance(model(trees); normalize)
+end
 
-split_importance(ada::T; normalize::Bool = false) where {T <: AdaBoostStumpClassifier} = 
-    split_importance(ada.ensemble, ada.coeffs, normalize = normalize)
+function split_importance(ada::T; normalize::Bool=false) where {T<:AdaBoostStumpClassifier}
+    split_importance(ada.ensemble, ada.coeffs; normalize)
+end
 
 """
     permutation_importance(
@@ -454,13 +648,13 @@ The arguments and outputs are similar to `permutation_importance` for generic `D
 For `DecisionTreeClassifier`, `RandomForestClassifier` and `AdaBoostStumpClassifier`, the default is `accuracy`; for `DecisionTreeRegressor` and `RandomForestRegressor`, it is `R2`.
 """
 function permutation_importance(
-                        trees   :: T, 
-                        X       :: AbstractMatrix,
-                        y       :: AbstractVector; 
-                        score   :: Function = score_fn(T),
-                        n_iter  :: Int = 3,
-                        rng     =  Random.GLOBAL_RNG
-                        ) where {T <: DecisionTreeEstimator}
+    trees::T,
+    X::AbstractMatrix,
+    y::AbstractVector;
+    score::Function=score_fn(T),
+    n_iter::Int=3,
+    rng=Random.GLOBAL_RNG,
+) where {T<:DecisionTreeEstimator}
     base = score(trees, X, y)
     scores = Matrix{Float64}(undef, size(X, 2), n_iter)
     rng = mk_rng(rng)::Random.AbstractRNG
@@ -473,11 +667,19 @@ function permutation_importance(
         X[:, i] = origin
     end
 
-    (mean = reshape(mapslices(scores, dims = 2) do im
-        mean(im)
-    end, :), 
-    std = reshape(mapslices(scores, dims = 2) do im
-        std(im)
-    end, :), 
-    scores = scores)
+    (
+        mean=reshape(
+            mapslices(scores; dims=2) do im
+                mean(im)
+            end,
+            :,
+        ),
+        std=reshape(
+            mapslices(scores; dims=2) do im
+                std(im)
+            end,
+            :,
+        ),
+        scores=scores,
+    )
 end

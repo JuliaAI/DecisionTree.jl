@@ -1,93 +1,100 @@
 
 @testset "low_precision.jl" begin
+    Random.seed!(16)
 
-Random.seed!(16)
+    n, m = 10^3, 5
+    features = Array{Any}(undef, n, m)
+    features[:, :] = rand(StableRNG(1), n, m)
+    features[:, 1] = round.(Int32, features[:, 1]) # convert a column of 32bit integers
+    weights = rand(StableRNG(1), -1:1, m)
+    labels = round.(Int32, features * weights)
 
-n,m = 10^3, 5;
-features = Array{Any}(undef, n, m);
-features[:,:] = rand(StableRNG(1), n, m);
-features[:,1] = round.(Int32, features[:,1]); # convert a column of 32bit integers
-weights = rand(StableRNG(1), -1:1, m);
-labels = round.(Int32, features * weights);
+    model = build_stump(labels, features)
+    preds = apply_tree(model, features)
+    @test typeof(preds) == Vector{Int32}
+    @test depth(model) == 1
 
-model = build_stump(labels, features)
-preds = apply_tree(model, features)
-@test typeof(preds) == Vector{Int32}
-@test depth(model) == 1
-
-n_subfeatures       = Int32(0)
-max_depth           = Int32(-1)
-min_samples_leaf    = Int32(1)
-min_samples_split   = Int32(2)
-min_purity_increase = 0.0
-model = build_tree(
-        labels, features,
-        n_subfeatures, max_depth,
+    n_subfeatures = Int32(0)
+    max_depth = Int32(-1)
+    min_samples_leaf = Int32(1)
+    min_samples_split = Int32(2)
+    min_purity_increase = 0.0
+    model = build_tree(
+        labels,
+        features,
+        n_subfeatures,
+        max_depth,
         min_samples_leaf,
         min_samples_split,
         min_purity_increase;
-        rng=StableRNG(1))
-preds = apply_tree(model, features)
-cm = confusion_matrix(labels, preds)
-@test typeof(preds) == Vector{Int32}
-@test cm.accuracy > 0.9
+        rng=StableRNG(1),
+    )
+    preds = apply_tree(model, features)
+    cm = confusion_matrix(labels, preds)
+    @test typeof(preds) == Vector{Int32}
+    @test cm.accuracy > 0.9
 
-n_subfeatures       = Int32(0)
-n_trees             = Int32(10)
-partial_sampling    = 0.7
-max_depth           = Int32(-1)
-model = build_forest(
-        labels, features,
+    n_subfeatures = Int32(0)
+    n_trees = Int32(10)
+    partial_sampling = 0.7
+    max_depth = Int32(-1)
+    model = build_forest(
+        labels,
+        features,
         n_subfeatures,
         n_trees,
         partial_sampling,
         max_depth;
-        rng=StableRNG(1))
-preds = apply_forest(model, features)
-cm = confusion_matrix(labels, preds)
-@test typeof(preds) == Vector{Int32}
-@test cm.accuracy > 0.9
+        rng=StableRNG(1),
+    )
+    preds = apply_forest(model, features)
+    cm = confusion_matrix(labels, preds)
+    @test typeof(preds) == Vector{Int32}
+    @test cm.accuracy > 0.9
 
-preds_MT = apply_forest(model, features, use_multithreading = true)
-cm_MT = confusion_matrix(labels, preds_MT)
-@test typeof(preds_MT) == Vector{Int32}
-@test cm_MT.accuracy > 0.9
+    preds_MT = apply_forest(model, features; use_multithreading=true)
+    cm_MT = confusion_matrix(labels, preds_MT)
+    @test typeof(preds_MT) == Vector{Int32}
+    @test cm_MT.accuracy > 0.9
 
-n_iterations        = Int32(25)
-model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1));
-preds = apply_adaboost_stumps(model, coeffs, features);
-cm = confusion_matrix(labels, preds)
-@test typeof(preds) == Vector{Int32}
-@test cm.accuracy > 0.6
+    n_iterations = Int32(25)
+    model, coeffs = build_adaboost_stumps(labels, features, n_iterations; rng=StableRNG(1))
+    preds = apply_adaboost_stumps(model, coeffs, features)
+    cm = confusion_matrix(labels, preds)
+    @test typeof(preds) == Vector{Int32}
+    @test cm.accuracy > 0.6
 
-println("\n##### nfoldCV Classification Tree #####")
-n_folds             = Int32(3)
-pruning_purity      = 1.0
-max_depth           = Int32(-1)
-min_samples_leaf    = Int32(1)
-min_samples_split   = Int32(2)
-min_purity_increase = 0.0
-accuracy1 = nfoldCV_tree(
-                labels, features,
-                n_folds,
-                pruning_purity,
-                max_depth,
-                min_samples_leaf,
-                min_samples_split,
-                min_purity_increase;
-                rng=StableRNG(1))
-@test mean(accuracy1) > 0.7
+    println("\n##### nfoldCV Classification Tree #####")
+    n_folds = Int32(3)
+    pruning_purity = 1.0
+    max_depth = Int32(-1)
+    min_samples_leaf = Int32(1)
+    min_samples_split = Int32(2)
+    min_purity_increase = 0.0
+    accuracy1 = nfoldCV_tree(
+        labels,
+        features,
+        n_folds,
+        pruning_purity,
+        max_depth,
+        min_samples_leaf,
+        min_samples_split,
+        min_purity_increase;
+        rng=StableRNG(1),
+    )
+    @test mean(accuracy1) > 0.7
 
-println("\n##### nfoldCV Classification Forest #####")
-n_trees             = Int32(10)
-n_subfeatures       = Int32(2)
-n_folds             = Int32(3)
-max_depth           = Int32(-1)
-min_samples_leaf    = Int32(5)
-min_samples_split   = Int32(2)
-min_purity_increase = 0.0
-accuracy1 = nfoldCV_forest(
-        labels, features,
+    println("\n##### nfoldCV Classification Forest #####")
+    n_trees = Int32(10)
+    n_subfeatures = Int32(2)
+    n_folds = Int32(3)
+    max_depth = Int32(-1)
+    min_samples_leaf = Int32(5)
+    min_samples_split = Int32(2)
+    min_purity_increase = 0.0
+    accuracy1 = nfoldCV_forest(
+        labels,
+        features,
         n_folds,
         n_subfeatures,
         n_trees,
@@ -96,41 +103,40 @@ accuracy1 = nfoldCV_forest(
         min_samples_leaf,
         min_samples_split,
         min_purity_increase;
-        rng=StableRNG(1))
-@test mean(accuracy1) > 0.7
+        rng=StableRNG(1),
+    )
+    @test mean(accuracy1) > 0.7
 
-println("\n##### nfoldCV Adaboosted Stumps #####")
-n_iterations        = Int32(25)
-accuracy1 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=StableRNG(1))
-@test mean(accuracy1) > 0.6
+    println("\n##### nfoldCV Adaboosted Stumps #####")
+    n_iterations = Int32(25)
+    accuracy1 = nfoldCV_stumps(labels, features, n_folds, n_iterations; rng=StableRNG(1))
+    @test mean(accuracy1) > 0.6
 
+    # Test Int8 labels, and Float16 features
+    features = Float16.(features)
+    labels = Int8.(labels)
 
-# Test Int8 labels, and Float16 features
-features  = Float16.(features)
-labels = Int8.(labels)
+    model = build_stump(labels, features)
+    preds = apply_tree(model, features)
+    @test typeof(preds) == Vector{Int8}
 
-model = build_stump(labels, features)
-preds = apply_tree(model, features)
-@test typeof(preds) == Vector{Int8}
+    model = build_tree(labels, features)
+    preds = apply_tree(model, features)
+    @test typeof(preds) == Vector{Int8}
 
-model = build_tree(labels, features)
-preds = apply_tree(model, features)
-@test typeof(preds) == Vector{Int8}
+    model = build_forest(labels, features)
+    preds = apply_forest(model, features)
+    @test typeof(preds) == Vector{Int8}
 
-model = build_forest(labels, features)
-preds = apply_forest(model, features)
-@test typeof(preds) == Vector{Int8}
+    preds_MT = apply_forest(model, features; use_multithreading=true)
+    @test typeof(preds_MT) == Vector{Int8}
+    @test sum(abs.(preds .- preds_MT)) == zero(Int8)
 
-preds_MT = apply_forest(model, features, use_multithreading = true)
-@test typeof(preds_MT) == Vector{Int8}
-@test sum(abs.(preds .- preds_MT)) == zero(Int8)
+    model = build_tree(labels, features)
+    preds = apply_tree(model, features)
+    @test typeof(preds) == Vector{Int8}
 
-model = build_tree(labels, features)
-preds = apply_tree(model, features)
-@test typeof(preds) == Vector{Int8}
-
-model, coeffs = build_adaboost_stumps(labels, features, n_iterations);
-preds = apply_adaboost_stumps(model, coeffs, features);
-@test typeof(preds) == Vector{Int8}
-
+    model, coeffs = build_adaboost_stumps(labels, features, n_iterations)
+    preds = apply_adaboost_stumps(model, coeffs, features)
+    @test typeof(preds) == Vector{Int8}
 end # @testset

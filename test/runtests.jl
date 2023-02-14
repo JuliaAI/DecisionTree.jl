@@ -1,4 +1,4 @@
-import AbstractTrees
+using AbstractTrees: AbstractTrees
 
 using DecisionTree
 using DelimitedFiles
@@ -21,7 +21,7 @@ function run_tests(list)
     for test in list
         println("TEST: $test \n")
         include(test)
-        println("=" ^ 50)
+        println("="^50)
     end
 end
 
@@ -36,19 +36,19 @@ classification = [
     "classification/adding_trees.jl",
 ]
 
-regression =     [
+regression = [
     "regression/random.jl",
     "regression/low_precision.jl",
     "regression/digits.jl",
-    "regression/scikitlearn.jl"
+    "regression/scikitlearn.jl",
 ]
 
-miscellaneous =  [
+miscellaneous = [
     "miscellaneous/convert.jl",
     "miscellaneous/abstract_trees_test.jl",
     "miscellaneous/feature_importance_test.jl",
     "miscellaneous/ensemble_methods.jl",
-#    "miscellaneous/parallel.jl"
+    #    "miscellaneous/parallel.jl"
 
 ]
 
