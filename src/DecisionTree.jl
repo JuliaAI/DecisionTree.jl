@@ -5,7 +5,7 @@ using DelimitedFiles
 using LinearAlgebra
 using Random
 using Statistics
-using AbstractTrees: AbstractTrees
+import AbstractTrees
 
 export Leaf,
     Node,

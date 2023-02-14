@@ -2,11 +2,11 @@
 # https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
 @testset "energy.jl" begin
-    download(
-        "https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv",
-        "energy.csv",
-    )
-    energy = readcsv("energy.csv")
+    energy = let
+        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv"
+        tmp_path = download(url)
+        readcsv(tmp_path)
+    end
 
     features = energy[2:end, 3:end]
     labels = float.(energy[2:end, 2])

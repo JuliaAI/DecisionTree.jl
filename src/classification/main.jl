@@ -512,7 +512,7 @@ function build_forest(
                 min_samples_split,
                 min_purity_increase;
                 loss,
-                impurity_importance=impurity_importance,
+                impurity_importance,
             )
         end
     end

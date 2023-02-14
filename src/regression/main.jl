@@ -122,7 +122,7 @@ function build_forest(
                 min_samples_split,
                 min_purity_increase;
                 rng=_rng,
-                impurity_importance=impurity_importance,
+                impurity_importance,
             )
         end
     else # each thread gets its own seeded rng
