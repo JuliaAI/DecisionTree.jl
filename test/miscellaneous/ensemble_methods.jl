@@ -16,7 +16,7 @@
     n1 = length(ensemble1.trees)
     n2 = length(ensemble2.trees)
     n = n1 + n2
-    @test n*ensemble.featim ≈ n1*ensemble1.featim + n2*ensemble2.featim
+    @test n * ensemble.featim ≈ n1 * ensemble1.featim + n2 * ensemble2.featim
 
     # including an ensemble without impurity importance should drop impurity importance from
     # the combination:
@@ -31,4 +31,3 @@
     @test_logs vcat(ensemble3, ensemble4) # ensemble 3 doesn't support importances
     @test_throws DecisionTree.ERR_ENSEMBLE_VCAT vcat(ensemble1, ensemble4)
 end
-
