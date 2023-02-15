@@ -16,6 +16,8 @@ cm = confusion_matrix(labels, preds)
 @test depth(model) == 1
 probs = apply_tree_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+probs_m = apply_tree_proba(model, features, classes, use_multithreading=true)
+@test reshape(sum(probs_m, dims=2), n) ≈ ones(n)
 
 # train full-tree classifier (over-fit)
 model = build_tree(labels, features)
@@ -28,6 +30,8 @@ cm = confusion_matrix(labels, preds)
 print_tree(model)
 probs = apply_tree_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+probs_m = apply_tree_proba(model, features, classes, use_multithreading = true)
+@test reshape(sum(probs_m, dims=2), n) ≈ ones(n)
 i1 = impurity_importance(model)
 s1 = split_importance(model)
 
@@ -52,6 +56,8 @@ cm = confusion_matrix(labels, preds)
 @test 0.95 < cm.accuracy < 1.0
 probs = apply_tree_proba(model, features, classes)
 @test reshape(sum(probs, dims=2), n) ≈ ones(n)
+probs_m = apply_tree_proba(model, features, classes, use_multithreading = true)
+@test reshape(sum(probs_m, dims=2), n) ≈ ones(n)
 
 # prune tree to a stump, 2 leaves
 pruning_purity = 0.5

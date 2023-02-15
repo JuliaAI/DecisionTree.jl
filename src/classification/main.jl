@@ -23,12 +23,19 @@ end
 
 # Applies `row_fun(X_row)::AbstractVector` to each row in X
 # and returns a matrix containing the resulting vectors, stacked vertically
-function stack_function_results(row_fun::Function, X::AbstractMatrix)
+function stack_function_results(row_fun::Function, X::AbstractMatrix;
+    use_multithreading = false)
     N = size(X, 1)
     N_cols = length(row_fun(X[1, :])) # gets the number of columns
     out = Array{Float64}(undef, N, N_cols)
-    for i in 1:N
-        out[i, :] = row_fun(X[i, :])
+    if use_multithreading
+        for i in 1:N
+            out[i, :] = row_fun(X[i, :])
+        end
+    else
+        for i in 1:N
+            out[i, :] = row_fun(X[i, :])
+        end
     end
     return out
 end
@@ -336,10 +343,10 @@ function apply_tree_proba(
         return apply_tree_proba(tree.right, features, labels)
     end
 end
-apply_tree_proba(tree::Root{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
-    apply_tree_proba(tree.node, features, labels)
-apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}, labels) where {S, T} =
-    stack_function_results(row->apply_tree_proba(tree, row, labels), features)
+apply_tree_proba(tree::Root{S, T}, features::AbstractMatrix{S}, labels; use_multithreading = false) where {S, T} =
+    apply_tree_proba(tree.node, features, labels, use_multithreading = use_multithreading)
+apply_tree_proba(tree::LeafOrNode{S, T}, features::AbstractMatrix{S}, labels; use_multithreading = false) where {S, T} =
+    stack_function_results(row->apply_tree_proba(tree, row, labels), features, use_multithreading = use_multithreading)
 
 """
     build_forest(labels, features, options...; keyword_options...)
@@ -682,10 +689,12 @@ end
 apply_forest_proba(
     forest::Ensemble{S, T},
     features::AbstractMatrix{S},
-    labels
+    labels;
+    use_multithreading = false
 ) where {S, T} =
     stack_function_results(row->apply_forest_proba(forest, row, labels),
-                           features)
+                           features,
+                           use_multithreading = use_multithreading)
 
 function build_adaboost_stumps(
         labels              :: AbstractVector{T},
@@ -793,10 +802,12 @@ function apply_adaboost_stumps_proba(
     stumps::Ensemble{S, T},
     coeffs::AbstractVector{Float64},
     features::AbstractMatrix{S},
-    labels::AbstractVector{T}
+    labels::AbstractVector{T};
+    use_multithreading = false
 ) where {S, T}
     stack_function_results(
         row->apply_adaboost_stumps_proba(stumps, coeffs, row, labels),
-        features
+        features,
+        use_multithreading = use_multithreading
     )
 end
