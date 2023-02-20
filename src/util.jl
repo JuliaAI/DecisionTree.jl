@@ -24,7 +24,7 @@ module util
         for y in Y
             push!(set, y)
         end
-        list = collect(set)
+        list = sort(collect(set))
         return assign(Y, list)
     end
 
