@@ -269,7 +269,7 @@ function _nfoldCV(
     args...;
     verbose,
     rng,
-) where {T<:Float64}
+) where {T<:AbstractFloat}
     _rng = mk_rng(rng)::Random.AbstractRNG
     nfolds = args[1]
     if nfolds < 2
@@ -361,7 +361,7 @@ function nfoldCV_tree(
     min_purity_increase::Float64=0.0;
     verbose::Bool=true,
     rng=Random.GLOBAL_RNG,
-) where {S,T<:Float64}
+) where {S,T<:AbstractFloat}
     _nfoldCV(
         :tree,
         labels,
@@ -389,7 +389,7 @@ function nfoldCV_forest(
     min_purity_increase::Float64=0.0;
     verbose::Bool=true,
     rng=Random.GLOBAL_RNG,
-) where {S,T<:Float64}
+) where {S,T<:AbstractFloat}
     _nfoldCV(
         :forest,
         labels,

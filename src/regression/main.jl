@@ -1,6 +1,6 @@
 include("tree.jl")
 
-function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S,T<:Float64}
+function _convert(node::treeregressor.NodeMeta{S}, labels::Array{T}) where {S,T<:AbstractFloat}
     if node.is_leaf
         return Leaf{T}(node.label, labels[node.region])
     else
@@ -27,7 +27,7 @@ function build_stump(
     features::AbstractMatrix{S};
     rng=Random.GLOBAL_RNG,
     impurity_importance::Bool=true,
-) where {S,T<:Float64}
+) where {S,T<:AbstractFloat}
     return build_tree(labels, features, 0, 1; rng, impurity_importance)
 end
 
@@ -41,7 +41,7 @@ function build_tree(
     min_purity_increase=0.0;
     rng=Random.GLOBAL_RNG,
     impurity_importance::Bool=true,
-) where {S,T<:Float64}
+) where {S,T<:AbstractFloat}
     if max_depth == -1
         max_depth = typemax(Int)
     end
@@ -85,7 +85,7 @@ function build_forest(
     min_purity_increase=0.0;
     rng::Union{Integer,AbstractRNG}=Random.GLOBAL_RNG,
     impurity_importance::Bool=true,
-) where {S,T<:Float64}
+) where {S,T<:AbstractFloat}
     if n_trees < 1
         throw("the number of trees must be >= 1")
     end

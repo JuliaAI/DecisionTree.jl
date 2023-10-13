@@ -93,7 +93,7 @@ function update_pruned_impurity!(
     feature_importance::Vector{Float64},
     ntt::Int,
     loss::Function=mean_squared_error,
-) where {S,T<:Float64}
+) where {S,T<:AbstractFloat}
     μl = mean(tree.left.values)
     nl = length(tree.left.values)
     μr = mean(tree.right.values)
@@ -220,7 +220,7 @@ See also [`build_tree`](@ref).
 function prune_tree(
     tree::Union{Root{S,T},LeafOrNode{S,T}},
     purity_thresh=1.0,
-    loss::Function=T <: Float64 ? mean_squared_error : util.entropy,
+    loss::Function=T <: AbstractFloat ? mean_squared_error : util.entropy,
 ) where {S,T}
     if purity_thresh >= 1.0
         return tree
@@ -293,11 +293,7 @@ function apply_tree(tree::LeafOrNode{S,T}, features::AbstractMatrix{S}) where {S
     for i in 1:N
         predictions[i] = apply_tree(tree, features[i, :])
     end
-    if T <: Float64
-        return Float64.(predictions)
-    else
-        return predictions
-    end
+    return predictions
 end
 
 """
@@ -343,7 +339,7 @@ end
 Train a random forest model, built on standard CART decision trees, using the specified
 `labels` (target) and `features` (patterns). Here:
 
-- `labels` is any `AbstractVector`. If the element type is `Float64`, regression is
+- `labels` is any `AbstractVector`. If the element type is `AbstractFloat`, regression is
   applied, and otherwise classification is applied.
 
 - `features` is any `AbstractMatrix{T}` where `T` supports ordering with `<` (unordered
@@ -619,7 +615,7 @@ function apply_forest(forest::Ensemble{S,T}, features::AbstractVector{S}) where 
         votes[i] = apply_tree(forest.trees[i], features)
     end
 
-    if T <: Float64
+    if T <: AbstractFloat
         return mean(votes)
     else
         return majority_vote(votes)

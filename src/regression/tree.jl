@@ -47,7 +47,7 @@ end
 # (max_depth, min_samples_split, min_purity_increase)
 function _split!(
     X::AbstractMatrix{S}, # the feature array
-    Y::AbstractVector{Float64}, # the label array
+    Y::AbstractVector{T}, # the label array
     W::AbstractVector{U},
     node::NodeMeta{S}, # the node to split
     max_features::Int, # number of features to consider
@@ -59,10 +59,10 @@ function _split!(
     # we split using samples in indX[node.region]
     # the two arrays below are given for optimization purposes
     Xf::AbstractVector{S},
-    Yf::AbstractVector{Float64},
+    Yf::AbstractVector{T},
     Wf::AbstractVector{U},
     rng::Random.AbstractRNG,
-) where {S,U}
+) where {S,T<:AbstractFloat,U}
     region = node.region
     n_samples = length(region)
     r_start = region.start - 1
@@ -245,7 +245,7 @@ end
 
 function _fit(
     X::AbstractMatrix{S},
-    Y::AbstractVector{Float64},
+    Y::AbstractVector{T},
     W::AbstractVector{U},
     max_features::Int,
     max_depth::Int,
@@ -253,10 +253,10 @@ function _fit(
     min_samples_split::Int,
     min_purity_increase::Float64,
     rng=Random.GLOBAL_RNG::Random.AbstractRNG,
-) where {S,U}
+) where {S,T<:AbstractFloat,U}
     n_samples, n_features = size(X)
 
-    Yf = Array{Float64}(undef, n_samples)
+    Yf = Array{T}(undef, n_samples)
     Xf = Array{S}(undef, n_samples)
     Wf = Array{U}(undef, n_samples)
 
@@ -293,7 +293,7 @@ end
 
 function fit(;
     X::AbstractMatrix{S},
-    Y::AbstractVector{Float64},
+    Y::AbstractVector{<:AbstractFloat},
     W::Union{Nothing,AbstractVector{U}},
     max_features::Int,
     max_depth::Int,
