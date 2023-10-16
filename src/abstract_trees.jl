@@ -34,15 +34,15 @@ between its children and `T` is the type of the classes given (these might be id
     with this mechanism. In case you want add class labels, the generic type `T` must 
     be a subtype of `Integer`.
 """
-struct InfoNode{S, T} <: AbstractTrees.AbstractNode{DecisionTree.Node{S,T}}
-    node    :: DecisionTree.Node{S, T}
-    info    :: NamedTuple
+struct InfoNode{S,T} <: AbstractTrees.AbstractNode{DecisionTree.Node{S,T}}
+    node::DecisionTree.Node{S,T}
+    info::NamedTuple
 end
 AbstractTrees.nodevalue(n::InfoNode) = n.node
 
 struct InfoLeaf{T} <: AbstractTrees.AbstractNode{DecisionTree.Leaf{T}}
-    leaf    :: DecisionTree.Leaf{T}
-    info    :: NamedTuple
+    leaf::DecisionTree.Leaf{T}
+    info::NamedTuple
 end
 AbstractTrees.nodevalue(l::InfoLeaf) = l.leaf
 
@@ -72,9 +72,9 @@ In the first case `dc` gets just wrapped, no information is added. No. 2 adds fe
 as well as class labels. In the last two cases either of this information is added (Note the 
 trailing comma; it's needed to make it a tuple).
 """
-wrap(tree::DecisionTree.Root, info::NamedTuple = NamedTuple()) = wrap(tree.node, info)
-wrap(node::DecisionTree.Node, info::NamedTuple = NamedTuple()) = InfoNode(node, info)
-wrap(leaf::DecisionTree.Leaf, info::NamedTuple = NamedTuple()) = InfoLeaf(leaf, info)
+wrap(tree::DecisionTree.Root, info::NamedTuple=NamedTuple()) = wrap(tree.node, info)
+wrap(node::DecisionTree.Node, info::NamedTuple=NamedTuple()) = InfoNode(node, info)
+wrap(leaf::DecisionTree.Leaf, info::NamedTuple=NamedTuple()) = InfoLeaf(leaf, info)
 
 """
     children(node::InfoNode)
@@ -87,10 +87,9 @@ one right child. `children` is used for tree traversal.
 
 The additional information `info` is carried over from `node` to its children.
 """
-AbstractTrees.children(node::InfoNode) = (
-    wrap(node.node.left, node.info),
-    wrap(node.node.right, node.info)
-)
+function AbstractTrees.children(node::InfoNode)
+    (wrap(node.node.left, node.info), wrap(node.node.right, node.info))
+end
 AbstractTrees.children(node::InfoLeaf) = ()
 
 """
@@ -118,23 +117,27 @@ and then below the right subtree.
 """
 function AbstractTrees.printnode(io::IO, node::InfoNode; sigdigits=4)
     featval = round(node.node.featval; sigdigits)
-    if :featurenames ∈ keys(node.info) 
+    if :featurenames ∈ keys(node.info)
         print(io, node.info.featurenames[node.node.featid], " < ", featval)
     else
-	    print(io, "Feature: ", node.node.featid, " < ", featval)
+        print(io, "Feature: ", node.node.featid, " < ", featval)
     end
 end
 
 function AbstractTrees.printnode(io::IO, leaf::InfoLeaf; sigdigits=4)
     dt_leaf = leaf.leaf
-    matches     = findall(dt_leaf.values .== dt_leaf.majority)
-	match_count = length(matches)
-	val_count   = length(dt_leaf.values)
+    matches = findall(dt_leaf.values .== dt_leaf.majority)
+    match_count = length(matches)
+    val_count = length(dt_leaf.values)
     if :classlabels ∈ keys(leaf.info)
         @assert dt_leaf.majority isa Integer "classes must be represented as Integers"
         print(io, leaf.info.classlabels[dt_leaf.majority], " ($match_count/$val_count)")
     else
-	    print(io, dt_leaf.majority isa Integer ? "Class: " : "", 
-            dt_leaf.majority, " ($match_count/$val_count)")
+        print(
+            io,
+            dt_leaf.majority isa Integer ? "Class: " : "",
+            dt_leaf.majority,
+            " ($match_count/$val_count)",
+        )
     end
 end

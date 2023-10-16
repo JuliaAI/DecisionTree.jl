@@ -8,7 +8,6 @@ include("benchmark/utils.jl")
 
 Random.seed!(1)
 
-
 # Classification Benchmarks
 classification_tree = benchmark_classification(build_tree, apply_tree)
 println("\n\n############### CLASSIFICATION: BUILD TREE ###############")
@@ -27,8 +26,6 @@ println("\n\n############### CLASSIFICATION: BUILD ADABOOST ###############")
 print_details(classification_adaboost["BUILD"])
 println("\n\n############### CLASSIFICATION: APPLY ADABOOST ###############")
 print_details(classification_adaboost["APPLY"])
-
-
 
 # Regression Benchmarks
 regression_tree = benchmark_regression(build_tree, apply_tree)
