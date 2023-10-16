@@ -2,7 +2,7 @@ name = "DecisionTree"
 uuid = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
 license = "MIT"
 desc = "Julia implementation of Decision Tree (CART) and Random Forest algorithms"
-version = "0.12.3"
+version = "0.12.4"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
