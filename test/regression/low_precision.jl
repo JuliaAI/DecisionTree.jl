@@ -113,6 +113,7 @@
     model = build_forest(labels, features)
     preds = apply_forest(model, features)
     @test typeof(preds) == Vector{Float16}
+    @test !all(x->(x in labels), preds)
 
     preds_MT = apply_forest(model, features; use_multithreading=true)
     @test typeof(preds_MT) == Vector{Float16}
