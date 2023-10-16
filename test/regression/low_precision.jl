@@ -113,6 +113,8 @@
     model = build_forest(labels, features)
     preds = apply_forest(model, features)
     @test typeof(preds) == Vector{Float16}
+    # Verify that the `preds` were calculated based on `labels` of the same type.
+    # If the code at some point converts the numbers to, say, `Float64`, then this test will fail.
     @test !all(x->(x in labels), preds)
 
     preds_MT = apply_forest(model, features; use_multithreading=true)
