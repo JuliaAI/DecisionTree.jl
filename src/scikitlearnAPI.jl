@@ -11,7 +11,7 @@ import ScikitLearnBase:
 # Classifier
 
 """
-    DecisionTreeClassifier(; pruning_purity_threshold=0.0,
+    DecisionTreeClassifier(; pruning_purity_threshold=1.0,
                            max_depth::Int=-1,
                            min_samples_leaf::Int=1,
                            min_samples_split::Int=2,
@@ -132,7 +132,7 @@ end
 # Regression
 
 """
-    DecisionTreeRegressor(; pruning_purity_threshold=0.0,
+    DecisionTreeRegressor(; pruning_purity_threshold=1.0,
                           max_depth::Int-1,
                           min_samples_leaf::Int=5,
                           min_samples_split::Int=2,
