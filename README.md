@@ -13,7 +13,7 @@ the [JuliaAI](https://github.com/JuliaAI) organization.
 Available via:
 * [AutoMLPipeline.jl](https://github.com/IBM/AutoMLPipeline.jl) - create complex ML pipeline structures using simple expressions
 * [CombineML.jl](https://github.com/ppalmes/CombineML.jl) - a heterogeneous ensemble learning package
-* [MLJ.jl](https://alan-turing-institute.github.io/MLJ.jl/dev/) - a machine learning framework for Julia
+* [MLJ.jl](https://juliaai.github.io/MLJ.jl/dev/) - a machine learning framework for Julia
 * [ScikitLearn.jl](https://github.com/cstjean/ScikitLearn.jl) - Julia implementation of the scikit-learn API
 
 ## Classification
